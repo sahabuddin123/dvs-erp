@@ -1187,7 +1187,9 @@
                     <?php if (moduleIsEnabled('biometric_attendance')) {
                         include "biometric_menu.php";
                     } ?>
-                    <?php include "lesson_plan_menu.php"; ?>
+                    <?php if (moduleIsEnabled('lesson_plan')) {
+                        include "lesson_plan_menu.php";
+                    } ?>
                     <?php
                     if (moduleIsEnabled('library')) {
                         if(get_permission('book', 'is_view') ||

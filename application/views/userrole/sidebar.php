@@ -59,7 +59,7 @@ if ((is_parent_loggedin() && !empty(get_activeChildren_id())) || is_student_logg
                     <?php } ?>
 
                     <!-- academic -->
-                    <?php if (get_permission('subject', 'is_view') || get_permission('class_timetable', 'is_view') || get_permission('lesson_syllabus', 'is_view') || get_permission('lesson_overview', 'is_view')) { ?>
+                    <?php if (get_permission('subject', 'is_view') || get_permission('class_timetable', 'is_view') || (moduleIsEnabled('lesson_plan') && (get_permission('lesson_syllabus', 'is_view') || get_permission('lesson_overview', 'is_view')))) { ?>
                     <li class="nav-parent <?php if ($main_menu == 'academic') echo 'nav-expanded nav-active'; ?>">
                         <a>
                             <i class="icons icon-home" aria-hidden="true"></i><span><?=translate('academic')?></span>
@@ -83,7 +83,7 @@ if ((is_parent_loggedin() && !empty(get_activeChildren_id())) || is_student_logg
 							</li>
                             <?php } ?>
 
-                            <?php if (get_permission('lesson_syllabus', 'is_view') || get_permission('lesson_overview', 'is_view')) { ?>
+                            <?php if (moduleIsEnabled('lesson_plan') && (get_permission('lesson_syllabus', 'is_view') || get_permission('lesson_overview', 'is_view'))) { ?>
 							<!-- lesson plan -->
 							<li class="<?php if ($sub_page == 'userrole/lesson_plan') echo 'nav-active'; ?> ">
 								<a href="<?=base_url('userrole/lesson_plan')?>">
