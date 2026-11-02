@@ -75,7 +75,8 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
+	'hostname' => '127.0.0.1',
+	'port'     => 3306,
 	'username' => 'root',
 	'password' => '',
 	'database' => 'erp_dvs',
