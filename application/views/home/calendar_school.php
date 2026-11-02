@@ -1,9 +1,9 @@
 <?php 
 defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
-$page_title = ($current_lang == 'en') ? 'Academic Calendar (School)' : 'একাডেমিক ক্যালেন্ডার (স্কুল)';
-$page_subtitle = ($current_lang == 'en') ? 'Academic Calendar of the subscribed academic year' : 'সাবস্ক্রাইব করা শিক্ষাবর্ষের অ্যাকাডেমিক ক্যালেন্ডার';
-$content_text = ($current_lang == 'en') ? 'View the academic calendar for our school session.' : 'এখানে আমাদের স্কুল সেশনের একাডেমিক ক্যালেন্ডার দেখুন।';
+$page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title', ($current_lang == 'en' ? 'Academic Calendar (School)' : 'একাডেমিক ক্যালেন্ডার (স্কুল)')) : ($current_lang == 'en' ? 'Academic Calendar (School)' : 'একাডেমিক ক্যালেন্ডার (স্কুল)');
+$page_subtitle = function_exists('get_lang_field') ? get_lang_field($page_data, 'title', ($current_lang == 'en' ? 'Academic Calendar of the subscribed academic year' : 'সাবস্ক্রাইব করা শিক্ষাবর্ষের একাডেমিক ক্যালেন্ডার')) : ($current_lang == 'en' ? 'Academic Calendar of the subscribed academic year' : 'সাবস্ক্রাইব করা শিক্ষাবর্ষের একাডেমিক ক্যালেন্ডার');
+$content_text = function_exists('get_lang_field') ? get_lang_field($page_data, 'content', ($current_lang == 'en' ? 'View the academic calendar for our school session.' : 'এখানে আমাদের স্কুল সেশনের একাডেমিক ক্যালেন্ডার দেখুন।')) : ($current_lang == 'en' ? 'View the academic calendar for our school session.' : 'এখানে আমাদের স্কুল সেশনের একাডেমিক ক্যালেন্ডার দেখুন।');
 ?>
 
 <!-- Page Header (DVS Match) -->
@@ -40,7 +40,7 @@ $content_text = ($current_lang == 'en') ? 'View the academic calendar for our sc
                         <div class="row mt-4">
                             <div class="col-md-6 d-flex align-items-center">
                                 <button onclick="history.go(-1)" class="btn text-white" style="background-color: var(--dark-color); border-radius: 6px; font-weight: 500; padding: 7px 20px;">
-                                    <i class="fas fa-arrow-left me-2"></i> <?php echo ($current_lang == 'en') ? 'Back' : 'ফিরে যান'; ?>
+                                    <i class="fas fa-arrow-left me-2"></i> <?php echo ($current_lang == 'en') ? 'Back' : 'পেছনে যান'; ?>
                                 </button>
                             </div>
                         </div>
@@ -50,4 +50,3 @@ $content_text = ($current_lang == 'en') ? 'View the academic calendar for our sc
         </div>
     </div>
 </section>
-

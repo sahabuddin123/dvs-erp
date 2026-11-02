@@ -1,5 +1,12 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
+$app_title = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'application_title', 'ড্রিম ভ্যালী স্কুল') : 'ড্রিম ভ্যালী স্কুল';
+$app_address = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'address', 'চরবাটা, সুবর্ণচর, নোয়াখালী') : 'চরবাটা, সুবর্ণচর, নোয়াখালী';
+$app_tagline = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'site_tagline') : '';
+if (empty($app_tagline)) {
+    $app_tagline = ($current_lang == 'en') ? 'Where dreams take wing in knowledge,<br>hearts blossom in the light of Quran' : 'স্বপ্ন ডানা মেলুক জ্ঞানের আলোয়,<br>হৃদয় বিকশিত হোক কুরআনের আলোয়';
+}
+$v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_frontend_visitor_stats') ? get_frontend_visitor_stats() : ['total' => 672, 'month' => 54, 'today' => 13]);
 ?>
 
 <!-- Hero Section -->
@@ -9,19 +16,13 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
     </video>
     <div class="hero-overlay">
         <h1>
-            <?php echo html_escape(get_lang_field($cms_setting, 'application_title', 'ড্রিম ভ্যালী স্কুল')); ?>
+            <?php echo html_escape($app_title); ?>
         </h1>
         <p class="subtitle" style="font-size: 1.25rem; font-weight: 500; margin-bottom: 12px;">
-            <?php echo html_escape(get_lang_field($cms_setting, 'address', 'চরবাটা, সুবর্ণচর, নোয়াখালী')); ?>
+            <?php echo html_escape($app_address); ?>
         </p>
         <p class="subtitle" style="font-size: 1.15rem; font-style: italic; line-height: 1.6; margin-bottom: 25px;">
-            <?php 
-            if (get_current_lang() == 'en') {
-                echo 'Where dreams take wing in knowledge,<br>hearts blossom in the light of Quran';
-            } else {
-                echo 'স্বপ্ন ডানা মেলুক জ্ঞানের আলোয়,<br>হৃদয় বিকশিত হোক কুরআনের আলোয়';
-            }
-            ?>
+            <?php echo $app_tagline; ?>
         </p>
         <div class="btn-group">
             <a href="<?php echo base_url('admission'); ?>" class="btn btn-primary-hero">
@@ -66,28 +67,42 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
 <section class="slider-notice-section py-4">
     <div class="container">
         <div class="row g-4 align-items-stretch">
-            <!-- Left: Reception / Campus Slider -->
+            <!-- Left: Dynamic Admin Sliders -->
             <div class="col-lg-8">
                 <div class="slider-container rounded overflow-hidden shadow-sm h-100" style="border: 1px solid #e2e8f0; height: 460px;">
                     <div class="owl-carousel owl-theme h-100" id="homeSlider">
-                        <div class="item position-relative">
-                            <img src="<?php echo base_url('assets/frontend/dvs/storage/sliders/nVHaqYexQf7HCFWv7BFZfn2Xx5yW9Xf6tqvnqHhg.jpg'); ?>" alt="DVS Reception" style="width: 100%; height: 460px; object-fit: cover;">
-                            <div class="slider-caption" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 10px 15px 28px 15px; text-align: center; font-weight: 600; font-size: 1.05rem;">
-                                Reception
+                        <?php 
+                        if (!empty($sliders)) {
+                            foreach ($sliders as $slide) {
+                                $elements = !empty($slide['elements']) ? json_decode($slide['elements'], true) : [];
+                                $slide_img = !empty($elements['image']) ? $elements['image'] : '';
+                                if (!empty($slide_img) && file_exists(FCPATH . 'assets/frontend/dvs/storage/sliders/' . $slide_img)) {
+                                    $img_url = base_url('assets/frontend/dvs/storage/sliders/' . $slide_img);
+                                } elseif (!empty($slide_img) && file_exists(FCPATH . 'uploads/frontend/slider/' . $slide_img)) {
+                                    $img_url = base_url('uploads/frontend/slider/' . $slide_img);
+                                } else {
+                                    $img_url = base_url('assets/frontend/dvs/storage/sliders/nVHaqYexQf7HCFWv7BFZfn2Xx5yW9Xf6tqvnqHhg.jpg');
+                                }
+                                $slide_title = get_lang_field($slide, 'title');
+                        ?>
+                            <div class="item position-relative">
+                                <img src="<?php echo $img_url; ?>" alt="<?php echo html_escape($slide_title); ?>" style="width: 100%; height: 460px; object-fit: cover;">
+                                <?php if (!empty($slide_title)) { ?>
+                                <div class="slider-caption" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 10px 15px 28px 15px; text-align: center; font-weight: 600; font-size: 1.05rem;">
+                                    <?php echo html_escape($slide_title); ?>
+                                </div>
+                                <?php } ?>
                             </div>
-                        </div>
-                        <div class="item position-relative">
-                            <img src="<?php echo base_url('assets/frontend/dvs/storage/sliders/6kbKQrv3ICnSDqnVIzLvDnmYp5PPGRSawBkN7Oym.jpg'); ?>" alt="DVS Campus" style="width: 100%; height: 460px; object-fit: cover;">
-                            <div class="slider-caption" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 10px 15px 28px 15px; text-align: center; font-weight: 600; font-size: 1.05rem;">
-                                Campus
+                        <?php 
+                            }
+                        } else { ?>
+                            <div class="item position-relative">
+                                <img src="<?php echo base_url('assets/frontend/dvs/storage/sliders/nVHaqYexQf7HCFWv7BFZfn2Xx5yW9Xf6tqvnqHhg.jpg'); ?>" alt="DVS Reception" style="width: 100%; height: 460px; object-fit: cover;">
+                                <div class="slider-caption" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 10px 15px 28px 15px; text-align: center; font-weight: 600; font-size: 1.05rem;">
+                                    <?php echo ($current_lang == 'en') ? 'Reception' : 'রিসিপশন'; ?>
+                                </div>
                             </div>
-                        </div>
-                        <div class="item position-relative">
-                            <img src="<?php echo base_url('assets/frontend/dvs/storage/sliders/42eh59Wg2yP9XdRl11ObJxPbJiuVXC6qFew2xcKI.jpg'); ?>" alt="DVS Building" style="width: 100%; height: 460px; object-fit: cover;">
-                            <div class="slider-caption" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 10px 15px 28px 15px; text-align: center; font-weight: 600; font-size: 1.05rem;">
-                                Campus Building
-                            </div>
-                        </div>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
@@ -103,7 +118,7 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
                         </div>
                         <div class="notice-list">
                             <?php 
-                            $board_notices = $this->db->order_by('id', 'desc')->limit(5)->get('front_cms_news_list')->result_array();
+                            $board_notices = $this->db->where('show_web', 1)->order_by('id', 'desc')->limit(5)->get('front_cms_news_list')->result_array();
                             if (!empty($board_notices)) {
                                 foreach ($board_notices as $bn) { 
                                     $notice_date = !empty($bn['date']) ? $bn['date'] : $bn['created_at'];
@@ -130,49 +145,50 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
                 </div>
             </div>
         </div>
+    </div>
 </section>
 
 <!-- Leadership Messages (নেতৃত্বের বার্তা) -->
 <section class="leadership-section py-5" style="background-color: #f8fafc;">
     <div class="container">
         <div class="section-title mb-4">
-            <h2><i class="fas fa-comments"></i> <?php echo (get_current_lang() == 'en') ? 'Messages from Leadership' : 'নেতৃত্বের বার্তা'; ?></h2>
+            <h2><i class="fas fa-comments"></i> <?php echo translate('messages_from_leadership'); ?></h2>
         </div>
 
         <?php
         // Fetch leaders dynamically from front_cms_testimonial
-        $db_leaders = $this->db->order_by('rank', 'asc')->get_where('front_cms_testimonial', array('branch_id' => 1))->result_array();
+        $branchID_active = !empty($branchID) ? $branchID : 1;
+        $db_leaders = $this->db->where('branch_id', $branchID_active)->order_by('rank', 'asc')->get('front_cms_testimonial')->result_array();
         
-        // Authentic 7 founders matching dreamvalleyschool.com
-        $default_leaders = [
-            ['name' => 'আরিফ বিল্লাহ', 'name_en' => 'Arif Billah', 'surname' => 'পরিচালক', 'surname_en' => 'Director', 'image' => 'aPTqVQNfK3dn20yKcX7UGP0MtZ25KVHJIccRMLyH.jpg', 'rank' => 1],
-            ['name' => 'নোমান সিদ্দিকী', 'name_en' => 'Noman Siddiqui', 'surname' => 'ডিরেক্টর (কারিকুলাম অ্যান্ড একাডেমিক)', 'surname_en' => 'Director (Curriculum & Academic)', 'image' => 'yPgOckzU4JGSDMKFvho1hGvXGL3gTlz6Zi9IqrXT.jpg', 'rank' => 2],
-            ['name' => 'সাইফুর রাসুল', 'name_en' => 'Saifur Rasul', 'surname' => 'কো-অর্ডিনেটর', 'surname_en' => 'Coordinator', 'image' => 'cKnOAg3AGny28G9DRD1pf2AdVa3hRpRBsvgPYcX7.jpg', 'rank' => 3],
-            ['name' => 'মোবারক হোসেন', 'name_en' => 'Mobarak Hossain', 'surname' => 'ডিরেক্টর (ডেভেলপমেন্ট)', 'surname_en' => 'Director (Development)', 'image' => 'oUeADvQttECpHpYn1WCeWgTan7MnSUjgP7cm2Mqm.png', 'rank' => 4],
-            ['name' => 'এ এইচ রাজু', 'name_en' => 'A H Raju', 'surname' => 'ডিরেক্টর (মিডিয়া)', 'surname_en' => 'Director (Media)', 'image' => '9nc23Jjq4C6KkQKdvphVh2aOpGtfIjOMSniESWap.png', 'rank' => 5],
-            ['name' => 'আনছার উল্লাহ আল মাসুম', 'name_en' => 'Ansar Ullah Al Masum', 'surname' => 'ডিরেক্টর (মার্কেটিং)', 'surname_en' => 'Director (Marketing)', 'image' => 'RfiEb7Ph0cL1PKIZuwDCoIpiTnw6OQLidZxrhNiJ.jpg', 'rank' => 6],
-            ['name' => 'আবুল হাসেম', 'name_en' => 'Abul Hashem', 'surname' => 'ডিরেক্টর', 'surname_en' => 'Director', 'image' => '4AsJWZzPctGqP8vDTvzbXDSJc7i15wPQNsPGGf6E.jpg', 'rank' => 7]
+        $url_map = [
+            15 => 1,
+            18 => 2,
+            17 => 3,
+            20 => 4,
+            19 => 5,
+            16 => 6,
+            21 => 7,
         ];
-
-        $leaders_to_show = !empty($db_leaders) ? $db_leaders : $default_leaders;
         ?>
 
         <div class="row g-4 justify-content-center">
             <?php 
-            $count = count($leaders_to_show);
-            foreach ($leaders_to_show as $index => $leader) { 
-                // Determine image path
-                $img_file = $leader['image'];
-                if (file_exists(FCPATH . 'assets/frontend/dvs/storage/founders/' . $img_file)) {
-                    $img_src = base_url('assets/frontend/dvs/storage/founders/' . $img_file);
-                } elseif (file_exists(FCPATH . 'uploads/frontend/testimonial/' . $img_file)) {
-                    $img_src = base_url('uploads/frontend/testimonial/' . $img_file);
-                } else {
-                    $img_src = base_url('assets/frontend/dvs/storage/founders/4AsJWZzPctGqP8vDTvzbXDSJc7i15wPQNsPGGf6E.jpg');
-                }
+            if (!empty($db_leaders)) {
+                $count = count($db_leaders);
+                foreach ($db_leaders as $index => $leader) { 
+                    // Determine image path
+                    $img_file = $leader['image'];
+                    if (!empty($img_file) && file_exists(FCPATH . 'assets/frontend/dvs/storage/founders/' . $img_file)) {
+                        $img_src = base_url('assets/frontend/dvs/storage/founders/' . $img_file);
+                    } elseif (!empty($img_file) && file_exists(FCPATH . 'uploads/frontend/testimonial/' . $img_file)) {
+                        $img_src = base_url('uploads/frontend/testimonial/' . $img_file);
+                    } else {
+                        $img_src = base_url('assets/frontend/dvs/storage/founders/4AsJWZzPctGqP8vDTvzbXDSJc7i15wPQNsPGGf6E.jpg');
+                    }
 
-                // If last odd card, center it in row
-                $col_class = ($index == 6 && $count == 7) ? "col-lg-6 col-md-8 mx-auto" : "col-lg-6 col-md-6";
+                    // If last odd card, center it in row
+                    $col_class = ($index == 6 && $count == 7) ? "col-lg-6 col-md-8 mx-auto" : "col-lg-6 col-md-6";
+                    $leader_url_id = isset($leader['id']) && isset($url_map[$leader['id']]) ? $url_map[$leader['id']] : (!empty($leader['rank']) ? $leader['rank'] : ($index + 1));
             ?>
                 <div class="<?php echo $col_class; ?>">
                     <div class="card border-0 shadow-sm h-100 bg-white" style="border-radius: 8px; border-left: 4px solid var(--primary-color) !important;">
@@ -189,18 +205,6 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
                                         <?php echo html_escape(get_lang_field($leader, 'surname')); ?>
                                     </span>
                                 </div>
-                                <?php 
-                                $url_map = [
-                                    15 => 1,
-                                    18 => 2,
-                                    17 => 3,
-                                    20 => 4,
-                                    19 => 5,
-                                    16 => 6,
-                                    21 => 7,
-                                ];
-                                $leader_url_id = isset($leader['id']) && isset($url_map[$leader['id']]) ? $url_map[$leader['id']] : (!empty($leader['rank']) ? $leader['rank'] : ($index + 1));
-                                ?>
                                 <div>
                                     <a href="<?php echo base_url('message-founder/' . $leader_url_id); ?>" class="btn btn-sm text-white" style="background-color: #d97706; font-weight: 600; padding: 5px 16px; border-radius: 4px; font-size: 13px; text-decoration: none;">
                                         <?php echo translate('read_full_message'); ?>
@@ -210,7 +214,10 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
                         </div>
                     </div>
                 </div>
-            <?php } ?>
+            <?php 
+                } 
+            } 
+            ?>
         </div>
     </div>
 </section>
@@ -221,23 +228,34 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
         <div class="row align-items-center">
             <div class="col-lg-6 mb-4">
                 <div class="section-title">
-                    <h2><i class="fas fa-hands-praying"></i> <?php echo html_escape(get_lang_field($wellcome, 'title', 'Welcome to Dream Valley')); ?></h2>
+                    <h2><i class="fas fa-hands-praying"></i> <?php echo html_escape(get_lang_field($wellcome, 'title', ($current_lang == 'en' ? 'Welcome to Dream Valley' : 'ড্রিম ভ্যালিতে স্বাগতম'))); ?></h2>
                 </div>
-                <p class="text-justify pr-4">
+                <div class="text-justify pr-4 lh-lg text-muted" style="font-size: 1.02rem;">
                     <?php 
-                    $default_welcome_bn = "ড্রিম ভ্যালি স্কুল ২০২৫ সালে নোয়াখালীর সুবর্ণচরের চরবাটায় প্রতিষ্ঠিত হয় একটি মহৎ স্বপ্ন ও সুদূরপ্রসারী লক্ষ্যকে সামনে রেখে। আমাদের উদ্দেশ্য হলো এমন একটি প্রজন্ম গড়ে তোলা, যারা হবে পরিবেশ সচেতন, নৈতিক মূল্যবোধে সমৃদ্ধ এবং ভবিষ্যতের চ্যালেঞ্জ মোকাবিলায় দক্ষ। আধুনিক প্রযুক্তিনির্ভর শিক্ষা, নৈতিকতা এবং পরিবেশ সচেতনতার সমন্বয়ে মানসম্মত শিক্ষা প্রদানই আমাদের অঙ্গীকার। আমরা সৃজনশীলতা, উদ্ভাবনী চিন্তাধারা এবং নেতৃত্বগুণ বিকাশে গুরুত্ব দিয়ে শিক্ষার্থীদের জন্য একটি প্রাণবন্ত ও অনুপ্রেরণামূলক শিক্ষার পরিবেশ নিশ্চিত করি। ইন্টারেক্টিভ লার্নিং, ব্যবহারিক শিক্ষা এবং সামাজিক সম্পৃক্ততার মাধ্যমে শিক্ষার্থীদের বাস্তব জীবনের জন্য প্রস্তুত করে তোলা আমাদের অন্যতম লক্ষ্য।\n\nড্রিম ভ্যালি স্কুলে আমরা বিশ্বাস করি, প্রতিটি শিশুর মধ্যে অসীম সম্ভাবনা নিহিত রয়েছে। সেই সম্ভাবনাকে বিকশিত করার লক্ষ্যে আমরা একটি বিশেষায়িত ইসলামিক কারিকুলাম অনুসরণ করি, যার অন্যতম গুরুত্বপূর্ণ অংশ হলো আমাদের স্বতন্ত্র হিফজুল কুরআন বিভাগ। আমরা এমন একটি ভারসাম্যপূর্ণ শিক্ষাব্যবস্থা গড়ে তুলতে বদ্ধপরিকর, যেখানে শিক্ষার্থীরা একদিকে আধুনিক শিক্ষায় দক্ষতা অর্জন করবে, অন্যদিকে পবিত্র কুরআনের আলোয় নিজেদের আধ্যাত্মিক ও নৈতিক ভিত্তিকে সুদৃঢ় করবে। আধুনিক জ্ঞান, প্রযুক্তিগত দক্ষতা এবং ইসলামিক মূল্যবোধের সমন্বয়ের মাধ্যমে আমরা এমন শিক্ষার্থী গড়ে তুলতে চাই, যারা নিজেদের, সমাজ এবং দেশের উন্নয়নে ইতিবাচক ভূমিকা রাখবে এবং একটি সুন্দর, টেকসই ও সমৃদ্ধ ভবিষ্যৎ নির্মাণে নেতৃত্ব দেবে। 🌿📚🌙";
-                    $default_welcome_en = "Dream Valley School was established in 2025 at Charbata, Subarnachar, Noakhali, with a vision to create a new generation of environmentally conscious and future-ready learners. Our institution is dedicated to providing quality education that blends modern technology with moral and environmental awareness. We focus on nurturing creativity, innovation, and leadership among students through interactive learning, practical experience, and community engagement. At Dream Valley School, we believe in empowering young minds through a specialized Islamic curriculum that includes a dedicated Hifz-ul-Quran section. Our goal is to provide a balanced education where students can achieve academic excellence while building a strong spiritual foundation with the light of the Quran. By fostering both modern skills and Islamic values, we prepare our students to build a sustainable and prosperous tomorrow for themselves, their community, and the planet. 🌿 📖";
-                    $default_welcome = (get_current_lang() == 'en') ? $default_welcome_en : $default_welcome_bn;
-                    echo nl2br(html_escape(get_lang_field($wellcome, 'description', $default_welcome)));
+                    $welcome_text = get_lang_field($wellcome, 'description');
+                    echo nl2br(strip_tags($welcome_text));
                     ?>
-                </p>
-                <a href="<?php echo base_url('about'); ?>" class="btn"
-                    style="background-color: var(--primary-color); color: white; border: none;">
-                    <i class="fas fa-arrow-right"></i> <?php echo (get_current_lang() == 'en') ? 'Learn about more' : 'আমাদের সম্পর্কে আরও জানুন'; ?>
-                </a>
+                </div>
+                <div class="mt-4">
+                    <a href="<?php echo base_url('about'); ?>" class="btn"
+                        style="background-color: var(--primary-color); color: white; border: none; padding: 10px 24px; font-weight: 600; border-radius: 6px;">
+                        <i class="fas fa-arrow-right me-1"></i> <?php echo translate('learn_more'); ?>
+                    </a>
+                </div>
             </div>
-            <div class="col-lg-6 mb-4">
-                <img src="<?php echo base_url('assets/frontend/dvs/storage/uploads/settings/welcome_image_1781274557.jpg'); ?>" alt="Welcome" class="img-fluid" style="border-radius: 8px;">
+            <div class="col-lg-6 mb-4 text-center">
+                <?php 
+                $wellcome_elements = !empty($wellcome['elements']) ? json_decode($wellcome['elements'], true) : [];
+                $wellcome_img = !empty($wellcome_elements['image']) ? $wellcome_elements['image'] : 'welcome_image_1781274557.jpg';
+                if (!empty($wellcome_img) && file_exists(FCPATH . 'uploads/frontend/home_page/' . $wellcome_img)) {
+                    $wellcome_img_url = base_url('uploads/frontend/home_page/' . $wellcome_img);
+                } elseif (!empty($wellcome_img) && file_exists(FCPATH . 'assets/frontend/dvs/storage/uploads/settings/' . $wellcome_img)) {
+                    $wellcome_img_url = base_url('assets/frontend/dvs/storage/uploads/settings/' . $wellcome_img);
+                } else {
+                    $wellcome_img_url = base_url('assets/frontend/dvs/storage/uploads/settings/welcome_image_1781274557.jpg');
+                }
+                ?>
+                <img src="<?php echo $wellcome_img_url; ?>" alt="Welcome" class="img-fluid shadow-sm" style="border-radius: 8px; max-height: 480px; width: 100%; object-fit: cover;">
             </div>
         </div>
     </div>
@@ -248,85 +266,51 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
     <div class="container">
         <div class="section-title">
             <h2><i class="fas fa-newspaper"></i> <?php echo ($current_lang == 'en') ? 'Latest Events' : 'সর্বশেষ ইভেন্ট'; ?></h2>
-            <p><?php echo ($current_lang == 'en') ? 'Stay informed about the latest events at our school.' : 'আমাদের স্কুলের সর্বশেষ ইভেন্ট সম্পর্কে অবহিত থাকুন।'; ?></p>
-        </div>
-        <div class="category-filter">
-            <button class="btn btn-primary filter-btn" data-category="all"
-                style="background-color: var(--primary-color); border: none;"><?php echo ($current_lang == 'en') ? 'All' : 'সব'; ?></button>
-            <button class="btn btn-outline-secondary filter-btn"
-                data-category="eventdata4"><?php echo ($current_lang == 'en') ? 'Competition' : 'প্রতিযোগিতা'; ?></button>
-            <button class="btn btn-outline-secondary filter-btn"
-                data-category="eventdata2">Quran Recitation Competition</button>
-            <button class="btn btn-outline-secondary filter-btn"
-                data-category="eventdata3">Arabic language</button>
-            <button class="btn btn-outline-secondary filter-btn"
-                data-category="eventdata1">Science Fair</button>
+            <p><?php echo translate('stay_informed_events'); ?></p>
         </div>
 
         <div class="news-slider row" id="newsCardsContainer">
-            <div class="col-md-6 col-lg-4 mb-4 news-item" data-category="eventdata4">
-                <div class="news-card">
-                    <img src="<?php echo base_url('assets/frontend/dvs/storage/events/Mno2PfUN00OsT7ROoqUxOimoQHqqNetXAgIDM87W.jpg'); ?>" alt="Talent Hunt 2026">
-                    <div class="news-card-body">
-                        <span class="news-category"><i class="fas fa-trophy"></i>
-                            <?php echo ($current_lang == 'en') ? 'Competition' : 'প্রতিযোগিতা'; ?></span>
-                        <h4><i class="fas fa-award"></i> Talent Hunt 2026</h4>
-                        <small class="text-muted"><i class="fas fa-calendar"></i>
-                            July 31, 2026 11:47 PM</small>
-                        <br><br>
-                        <a href="<?php echo base_url('events'); ?>" class="read-more"><i
-                                class="fas fa-arrow-right"></i> <?php echo ($current_lang == 'en') ? 'Event Details' : 'ইভেন্ট বিস্তারিত'; ?></a>
+            <?php 
+            if (!empty($events)) {
+                foreach ($events as $event) {
+                    $ev_title = get_lang_field($event, 'title');
+                    $ev_type = get_lang_field($event, 'type', ($current_lang == 'en' ? 'Event' : 'ইভেন্ট'));
+                    $ev_date = !empty($event['start_date']) ? date('F d, Y', strtotime($event['start_date'])) : '';
+                    $ev_img = !empty($event['image']) ? $event['image'] : '';
+                    if (!empty($ev_img) && file_exists(FCPATH . 'uploads/frontend/events/' . $ev_img)) {
+                        $ev_img_url = base_url('uploads/frontend/events/' . $ev_img);
+                    } elseif (!empty($ev_img) && file_exists(FCPATH . 'assets/frontend/dvs/storage/events/' . $ev_img)) {
+                        $ev_img_url = base_url('assets/frontend/dvs/storage/events/' . $ev_img);
+                    } else {
+                        $ev_img_url = base_url('assets/frontend/dvs/storage/events/5hMJasdzo9ywqzCMgWDKotpc00a7l8RsTtCWNRFY.jpg');
+                    }
+            ?>
+                <div class="col-md-6 col-lg-4 mb-4 news-item">
+                    <div class="news-card h-100 shadow-sm border-0" style="border-radius: 8px; overflow: hidden; background: #fff;">
+                        <img src="<?php echo $ev_img_url; ?>" alt="<?php echo html_escape($ev_title); ?>" style="height: 200px; width: 100%; object-fit: cover;">
+                        <div class="news-card-body p-3">
+                            <span class="news-category badge text-white mb-2" style="background-color: var(--primary-color);">
+                                <i class="fas fa-calendar-check me-1"></i> <?php echo html_escape($ev_type); ?>
+                            </span>
+                            <h4 class="fw-bold mb-2 fs-5" style="color: #1e293b;"><?php echo html_escape($ev_title); ?></h4>
+                            <small class="text-muted"><i class="fas fa-calendar me-1"></i> <?php echo $ev_date; ?></small>
+                            <br><br>
+                            <a href="<?php echo base_url('events'); ?>" class="read-more text-decoration-none fw-semibold" style="color: var(--primary-color);">
+                                <i class="fas fa-arrow-right"></i> <?php echo translate('event_details'); ?>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-6 col-lg-4 mb-4 news-item" data-category="eventdata2">
-                <div class="news-card">
-                    <img src="<?php echo base_url('assets/frontend/dvs/storage/events/Zs1DH0nIMTS5cKWUMeYbzvCkqMspid1FPVgLkP82.png'); ?>" alt="Quran Recitation Competition">
-                    <div class="news-card-body">
-                        <span class="news-category">Quran Recitation Competition</span>
-                        <h4>Quran Recitation Competition</h4>
-                        <small class="text-muted"><i class="fas fa-calendar"></i>
-                            December 31, 2025 10:00 AM</small>
-                        <br><br>
-                        <a href="<?php echo base_url('events'); ?>" class="read-more"><i
-                                class="fas fa-arrow-right"></i> <?php echo ($current_lang == 'en') ? 'Event Details' : 'ইভেন্ট বিস্তারিত'; ?></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4 mb-4 news-item" data-category="eventdata3">
-                <div class="news-card">
-                    <img src="<?php echo base_url('assets/frontend/dvs/storage/events/ZqtpDeyl4ymG9bnI4LYThUsmn3C5wz5szxHhHkZF.jpg'); ?>" alt="Arabic Fair">
-                    <div class="news-card-body">
-                        <span class="news-category">Arabic language</span>
-                        <h4>Arabic Fair</h4>
-                        <small class="text-muted"><i class="fas fa-calendar"></i>
-                            December 31, 2025 10:00 AM</small>
-                        <br><br>
-                        <a href="<?php echo base_url('events'); ?>" class="read-more"><i
-                                class="fas fa-arrow-right"></i> <?php echo ($current_lang == 'en') ? 'Event Details' : 'ইভেন্ট বিস্তারিত'; ?></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4 mb-4 news-item" data-category="eventdata1">
-                <div class="news-card">
-                    <img src="<?php echo base_url('assets/frontend/dvs/storage/events/5hMJasdzo9ywqzCMgWDKotpc00a7l8RsTtCWNRFY.jpg'); ?>" alt="Science Fair">
-                    <div class="news-card-body">
-                        <span class="news-category">Science Fair</span>
-                        <h4>Science Fair</h4>
-                        <small class="text-muted"><i class="fas fa-calendar"></i>
-                            December 30, 2025 10:00 AM</small>
-                        <br><br>
-                        <a href="<?php echo base_url('events'); ?>" class="read-more"><i
-                                class="fas fa-arrow-right"></i> <?php echo ($current_lang == 'en') ? 'Event Details' : 'ইভেন্ট বিস্তারিত'; ?></a>
-                    </div>
-                </div>
-            </div>
+            <?php 
+                }
+            } 
+            ?>
         </div>
 
-        <div class="text-center mt-5">
+        <div class="text-center mt-4">
             <a href="<?php echo base_url('events'); ?>" class="btn"
                 style="background-color: var(--primary-color); color: white; border: none; padding: 12px 40px; font-weight: 600; border-radius: 6px;">
-                <i class="fas fa-arrow-right"></i> <?php echo ($current_lang == 'en') ? 'View More Events' : 'আরো ইভেন্ট দেখুন'; ?>
+                <i class="fas fa-arrow-right"></i> <?php echo translate('view_more_events'); ?>
             </a>
         </div>
     </div>
@@ -336,49 +320,43 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
 <section class="video-gallery-section py-5 bg-white" id="video-gallery-section">
     <div class="container">
         <div class="section-title">
-            <h2><i class="fas fa-video"></i> <?php echo ($current_lang == 'en') ? 'Video Gallery' : 'ভিডিও গ্যালারী'; ?></h2>
-            <p><?php echo ($current_lang == 'en') ? 'Browse our video gallery for recent videos.' : 'আমাদের ভিডিও গ্যালারি থেকে সাম্প্রতিক ভিডিওগুলো দেখুন।'; ?></p>
+            <h2><i class="fas fa-video"></i> <?php echo translate('video_gallery'); ?></h2>
+            <p><?php echo translate('browse_video_gallery'); ?></p>
         </div>
 
         <div class="row g-4">
-            <!-- Video 1 -->
-            <div class="col-sm-6 col-md-4 col-lg-4">
-                <div class="card video-card shadow-sm">
-                    <div class="position-relative">
-                        <img src="<?php echo base_url('assets/frontend/dvs/storage/uploads/videos/hMqdHC9RqSxAAyUNDCBTQRSuRVKaMTRkADVlbUgo.png'); ?>" class="card-img-top" alt="National Anthem">
-                        <button class="btn btn-play" data-youtube-url="https://www.youtube.com/watch?v=xy2kRkcn-rc&amp;list=RDxy2kRkcn-rc&amp;start_radio=1"><i class="fas fa-play"></i></button>
-                    </div>
-                    <div class="card-body p-3">
-                        <h6 class="mb-0 fw-semibold" style="font-size: 0.95rem; color: #1e293b;">National Anthem</h6>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Video 2 -->
-            <div class="col-sm-6 col-md-4 col-lg-4">
-                <div class="card video-card shadow-sm">
-                    <div class="position-relative">
-                        <img src="<?php echo base_url('assets/frontend/dvs/storage/uploads/videos/BbDGm6s6Mbe6QfX3Ns6QlxTKY4FZYKOtskADGO7c.png'); ?>" class="card-img-top" alt="Campus Video">
-                        <button class="btn btn-play" data-youtube-url="https://www.youtube.com/watch?v=8BI8S-hDJG0"><i class="fas fa-play"></i></button>
-                    </div>
-                    <div class="card-body p-3">
-                        <h6 class="mb-0 fw-semibold" style="font-size: 0.95rem; color: #1e293b;">Campus Video</h6>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Video 3 -->
-            <div class="col-sm-6 col-md-4 col-lg-4">
-                <div class="card video-card shadow-sm">
-                    <div class="position-relative">
-                        <img src="<?php echo base_url('assets/frontend/dvs/storage/uploads/videos/XNtHfQ5xOPAUrEJcWn9fZ5brl1WbSmlneInkYaSG.jpg'); ?>" class="card-img-top" alt="Our Services">
-                        <button class="btn btn-play" data-youtube-url="https://www.youtube.com/watch?v=v-Yi2RRNS3A"><i class="fas fa-play"></i></button>
-                    </div>
-                    <div class="card-body p-3">
-                        <h6 class="mb-0 fw-semibold" style="font-size: 0.95rem; color: #1e293b;">Our Services</h6>
+            <?php 
+            if (!empty($video_list)) {
+                foreach ($video_list as $vid) {
+                    $vid_title = get_lang_field($vid, 'title');
+                    $vid_elem = !empty($vid['elements']) ? json_decode($vid['elements'], true) : [];
+                    $vid_url = !empty($vid_elem['video_url']) ? $vid_elem['video_url'] : '';
+                    $vid_thumb = !empty($vid['thumb_image']) ? $vid['thumb_image'] : '';
+                    if (!empty($vid_thumb) && file_exists(FCPATH . 'assets/frontend/dvs/storage/uploads/videos/' . $vid_thumb)) {
+                        $thumb_url = base_url('assets/frontend/dvs/storage/uploads/videos/' . $vid_thumb);
+                    } elseif (!empty($vid_thumb) && file_exists(FCPATH . 'uploads/frontend/gallery/' . $vid_thumb)) {
+                        $thumb_url = base_url('uploads/frontend/gallery/' . $vid_thumb);
+                    } else {
+                        $thumb_url = base_url('assets/frontend/dvs/storage/uploads/videos/hMqdHC9RqSxAAyUNDCBTQRSuRVKaMTRkADVlbUgo.png');
+                    }
+            ?>
+                <div class="col-sm-6 col-md-4 col-lg-4">
+                    <div class="card video-card shadow-sm h-100 border-0" style="border-radius: 8px; overflow: hidden;">
+                        <div class="position-relative">
+                            <img src="<?php echo $thumb_url; ?>" class="card-img-top" alt="<?php echo html_escape($vid_title); ?>" style="height: 220px; object-fit: cover;">
+                            <?php if (!empty($vid_url)) { ?>
+                                <button class="btn btn-play" data-youtube-url="<?php echo html_escape($vid_url); ?>"><i class="fas fa-play"></i></button>
+                            <?php } ?>
+                        </div>
+                        <div class="card-body p-3">
+                            <h6 class="mb-0 fw-semibold" style="font-size: 0.95rem; color: #1e293b;"><?php echo html_escape($vid_title); ?></h6>
+                        </div>
                     </div>
                 </div>
-            </div>
+            <?php 
+                }
+            } 
+            ?>
         </div>
     </div>
 </section>
@@ -459,51 +437,50 @@ document.addEventListener('DOMContentLoaded', function(){
 <section class="gallery-section py-5" style="background-color: #f8fafc;">
     <div class="container">
         <div class="section-title">
-            <h2><i class="fas fa-image"></i> <?php echo ($current_lang == 'en') ? 'Photo Gallery' : 'ফটো গ্যালারী'; ?></h2>
-            <p><?php echo ($current_lang == 'en') ? 'See the moments captured at our school.' : 'আমাদের স্কুলে ধারণ করা মুহূর্তগুলো দেখুন।'; ?></p>
+            <h2><i class="fas fa-image"></i> <?php echo translate('photo_gallery'); ?></h2>
+            <p><?php echo translate('see_moments_captured'); ?></p>
         </div>
 
-        <?php
-        $albums_photos = [
-            ['title' => 'School-playground', 'title_en' => 'School Playground', 'subtitle' => 'Science Fair', 'img' => 'VVrjVFgyFGcDDTDTo242IIgyxYaL1LAhoQDsPcAH.png'],
-            ['title' => 'Science Fair', 'title_en' => 'Science Fair', 'subtitle' => 'Science Fair', 'img' => 'y9fB1H8Lj62dgVoBqU1nQCsqPXA4fMtZwZjsQL6P.jpg'],
-            ['title' => 'Reception Desk', 'title_en' => 'Reception Desk', 'subtitle' => 'Campus', 'img' => 'ewmBM075sXOywbDltHPoJQsgq5FzX9NOMixGnU4g.png'],
-            ['title' => 'Campus Building', 'title_en' => 'Campus Building', 'subtitle' => 'Campus', 'img' => '7AvZ2ZDpLYtuGCk3kSrGYQM4iFHU9FyPsKAeLKK1.jpg'],
-            ['title' => 'Science Project', 'title_en' => 'Science Project', 'subtitle' => 'Science Fair', 'img' => 'zWwvxvyjrDcqS5zZTTrsP9IPM10l4OsXSpsyKkCl.png'],
-            ['title' => 'Lab Equipment', 'title_en' => 'Lab Equipment', 'subtitle' => 'Science Fair', 'img' => 'O6AEkanFBx4vifuJBgKSNPf7XmIWfZP6A9Ejhbrl.jpg'],
-            ['title' => 'Science Model', 'title_en' => 'Science Model', 'subtitle' => 'Science Fair', 'img' => 'kggkHIcaSjICaP4QM6Yv0XStGhGbVRWjuhWqgjUw.jpg'],
-            ['title' => 'Exhibition', 'title_en' => 'Exhibition', 'subtitle' => 'Science Fair', 'img' => '8mk42qS6mVHLZ49biHQlrwJgfkYkFOyKDXrvkzlE.jpg']
-        ];
-        ?>
-
         <div class="row g-4 gallery-container">
-            <?php foreach ($albums_photos as $ap) { 
-                $img_url = base_url('assets/frontend/dvs/storage/albums/' . $ap['img']);
-                $photo_title = get_lang_field($ap, 'title');
-                $photo_sub = isset($ap['subtitle']) ? $ap['subtitle'] : '';
+            <?php 
+            if (!empty($gallery_list)) {
+                foreach ($gallery_list as $photo) {
+                    $photo_title = get_lang_field($photo, 'title');
+                    $photo_desc = get_lang_field($photo, 'description');
+                    $img_name = !empty($photo['thumb_image']) ? $photo['thumb_image'] : '';
+                    if (!empty($img_name) && file_exists(FCPATH . 'assets/frontend/dvs/storage/albums/' . $img_name)) {
+                        $img_url = base_url('assets/frontend/dvs/storage/albums/' . $img_name);
+                    } elseif (!empty($img_name) && file_exists(FCPATH . 'uploads/frontend/gallery/' . $img_name)) {
+                        $img_url = base_url('uploads/frontend/gallery/' . $img_name);
+                    } else {
+                        $img_url = base_url('assets/frontend/dvs/storage/albums/VVrjVFgyFGcDDTDTo242IIgyxYaL1LAhoQDsPcAH.png');
+                    }
             ?>
-                <div class="col-sm-6 col-md-4 col-lg-3 gallery-item campus">
-                    <a href="<?php echo $img_url; ?>" class="gallery-popup" title="<?php echo html_escape($photo_title); ?>">
-                        <div class="gallery-card">
-                            <img src="<?php echo $img_url; ?>" alt="<?php echo html_escape($photo_title); ?>" class="img-fluid">
+                <div class="col-sm-6 col-md-4 col-lg-3 gallery-item">
+                    <a href="<?php echo $img_url; ?>" class="gallery-popup d-block text-decoration-none" title="<?php echo html_escape($photo_title); ?>">
+                        <div class="gallery-card shadow-sm border-0 position-relative overflow-hidden" style="border-radius: 8px; background: #fff; height: 220px;">
+                            <img src="<?php echo $img_url; ?>" alt="<?php echo html_escape($photo_title); ?>" class="img-fluid w-100 h-100" style="object-fit: cover;">
                             <div class="gallery-overlay">
                                 <div class="gallery-info">
-                                    <h5><?php echo html_escape($photo_title); ?></h5>
-                                    <?php if (!empty($photo_sub)) { ?>
-                                        <p><?php echo html_escape($photo_sub); ?></p>
+                                    <h5 class="mb-1 fw-bold fs-6"><?php echo html_escape($photo_title); ?></h5>
+                                    <?php if (!empty($photo_desc)) { ?>
+                                        <p class="mb-0 small text-white-50"><?php echo html_escape($photo_desc); ?></p>
                                     <?php } ?>
                                 </div>
                             </div>
                         </div>
                     </a>
                 </div>
-            <?php } ?>
+            <?php 
+                }
+            } 
+            ?>
         </div>
 
         <div class="text-center mt-5">
             <a href="<?php echo base_url('gallery'); ?>" class="btn"
                 style="background-color: var(--primary-color); color: white; border: none; padding: 12px 40px; font-weight: 600; border-radius: 6px;">
-                <i class="fas fa-images"></i> <?php echo ($current_lang == 'en') ? 'View More Gallery' : 'আরো ফটো দেখুন'; ?>
+                <i class="fas fa-images"></i> <?php echo translate('view_more_gallery'); ?>
             </a>
         </div>
     </div>
@@ -513,35 +490,43 @@ document.addEventListener('DOMContentLoaded', function(){
 <section class="achievements-section py-5 bg-white">
     <div class="container">
         <div class="section-title">
-            <h2><i class="fas fa-star"></i> <?php echo ($current_lang == 'en') ? 'Our Achievements and Statistics' : 'আমাদের অর্জন ও পরিসংখ্যান'; ?></h2>
+            <h2><i class="fas fa-star"></i> <?php echo translate('our_achievements_statistics'); ?></h2>
         </div>
+        
+        <?php 
+        // Dynamic counter stats from home_model
+        $stat_students = $this->home_model->getStatisticsCounter('student', $branchID_active);
+        $stat_teachers = $this->home_model->getStatisticsCounter('teacher', $branchID_active);
+        $stat_classes  = $this->home_model->getStatisticsCounter('class', $branchID_active);
+        $stat_sections = $this->home_model->getStatisticsCounter('section', $branchID_active);
+        ?>
         <div class="row mb-5">
             <div class="col-md-6 col-lg-3 mb-4">
                 <div class="stat-card">
                     <i class="fas fa-users"></i>
-                    <div class="stat-number">0</div>
-                    <div class="stat-label"><?php echo ($current_lang == 'en') ? 'Total Students' : 'মোট শিক্ষার্থী'; ?></div>
+                    <div class="stat-number"><?php echo $stat_students; ?></div>
+                    <div class="stat-label"><?php echo translate('total_students'); ?></div>
                 </div>
             </div>
             <div class="col-md-6 col-lg-3 mb-4">
                 <div class="stat-card green">
                     <i class="fas fa-medal"></i>
-                    <div class="stat-number">0</div>
-                    <div class="stat-label"><?php echo ($current_lang == 'en') ? 'Graduates' : 'স্নাতক হয়েছেন'; ?></div>
+                    <div class="stat-number"><?php echo $stat_classes; ?></div>
+                    <div class="stat-label"><?php echo ($current_lang == 'en') ? 'Classes' : 'শ্রেণীকক্ষ'; ?></div>
                 </div>
             </div>
             <div class="col-md-6 col-lg-3 mb-4">
                 <div class="stat-card purple">
                     <i class="fas fa-trophy"></i>
-                    <div class="stat-number">0</div>
-                    <div class="stat-label"><?php echo ($current_lang == 'en') ? 'Awards' : 'পুরস্কারসমূহ'; ?></div>
+                    <div class="stat-number"><?php echo $stat_sections; ?></div>
+                    <div class="stat-label"><?php echo ($current_lang == 'en') ? 'Sections' : 'শাখা / সেকশন'; ?></div>
                 </div>
             </div>
             <div class="col-md-6 col-lg-3 mb-4">
                 <div class="stat-card orange">
                     <i class="fas fa-book"></i>
-                    <div class="stat-number">0</div>
-                    <div class="stat-label"><?php echo ($current_lang == 'en') ? 'Teaching Staff' : 'শিক্ষকমণ্ডলী'; ?></div>
+                    <div class="stat-number"><?php echo $stat_teachers; ?></div>
+                    <div class="stat-label"><?php echo translate('teaching_staff'); ?></div>
                 </div>
             </div>
         </div>
@@ -549,32 +534,32 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="visitor-stats">
             <div class="row align-items-center">
                 <div class="col-md-4 text-center mb-4 mb-md-0">
-                    <h5 class="fw-bold"><i class="fas fa-eye"></i> <?php echo ($current_lang == 'en') ? 'Visitor Statistics' : 'পরিদর্শনকারীদের পরিসংখ্যান'; ?></h5>
+                    <h5 class="fw-bold"><i class="fas fa-eye"></i> <?php echo translate('visitor_statistics'); ?></h5>
                     <div class="mt-3">
-                        <p class="text-muted mb-1" style="font-size: 0.9rem;"><?php echo ($current_lang == 'en') ? 'Total Visitors' : 'মোট পরিদর্শনকারী'; ?></p>
-                        <h3 style="color: var(--primary-color); font-weight: 700;">672</h3>
+                        <p class="text-muted mb-1" style="font-size: 0.9rem;"><?php echo translate('total_visitors'); ?></p>
+                        <h3 style="color: var(--primary-color); font-weight: 700;"><?php echo $v_stats['total']; ?></h3>
                     </div>
                     <div class="mt-3">
-                        <p class="text-muted mb-1" style="font-size: 0.9rem;"><?php echo ($current_lang == 'en') ? 'This Month' : 'এই মাসে'; ?></p>
-                        <h4 style="color: #10b981; font-weight: 700;">54</h4>
+                        <p class="text-muted mb-1" style="font-size: 0.9rem;"><?php echo translate('this_month'); ?></p>
+                        <h4 style="color: #10b981; font-weight: 700;"><?php echo $v_stats['month']; ?></h4>
                     </div>
                     <div class="mt-3">
-                        <p class="text-muted mb-1" style="font-size: 0.9rem;"><?php echo ($current_lang == 'en') ? 'Today' : 'আজ'; ?></p>
-                        <h4 style="color: #f59e0b; font-weight: 700;">13</h4>
+                        <p class="text-muted mb-1" style="font-size: 0.9rem;"><?php echo translate('today'); ?></p>
+                        <h4 style="color: #f59e0b; font-weight: 700;"><?php echo $v_stats['today']; ?></h4>
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <h5 class="fw-bold"><i class="fas fa-chart-bar"></i> <?php echo ($current_lang == 'en') ? 'Academic Performance 2025' : 'একাডেমিক পারফরম্যান্স 2025'; ?></h5>
+                    <h5 class="fw-bold"><i class="fas fa-chart-bar"></i> <?php echo translate('academic_performance'); ?></h5>
                     <div class="row mt-4">
                         <div class="col-md-4 text-center mb-3 mb-md-0">
                             <div style="background-color: #dbeafe; border-radius: 8px; padding: 20px;">
-                                <small class="text-muted d-block mb-1" style="font-size: 0.85rem; font-weight: 500;"><?php echo ($current_lang == 'en') ? 'Total Students' : 'মোট শিক্ষার্থী'; ?></small>
-                                <h4 style="color: var(--primary-color); font-weight: 700; margin-bottom: 0;">0</h4>
+                                <small class="text-muted d-block mb-1" style="font-size: 0.85rem; font-weight: 500;"><?php echo translate('total_students'); ?></small>
+                                <h4 style="color: var(--primary-color); font-weight: 700; margin-bottom: 0;"><?php echo $stat_students; ?></h4>
                             </div>
                         </div>
                         <div class="col-md-4 text-center mb-3 mb-md-0">
                             <div style="background-color: #dcfce7; border-radius: 8px; padding: 20px;">
-                                <small class="text-muted d-block mb-1" style="font-size: 0.85rem; font-weight: 500;"><?php echo ($current_lang == 'en') ? 'Passed' : 'পাস করেছেন'; ?></small>
+                                <small class="text-muted d-block mb-1" style="font-size: 0.85rem; font-weight: 500;"><?php echo translate('passed'); ?></small>
                                 <h4 style="color: #10b981; font-weight: 700; margin-bottom: 0;">0</h4>
                             </div>
                         </div>
@@ -589,4 +574,4 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
         </div>
     </div>
-</section>
+</section>

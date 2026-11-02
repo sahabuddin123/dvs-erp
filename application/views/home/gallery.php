@@ -29,43 +29,47 @@ $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'pa
 <section class="section bg-light my-5 py-5" style="min-height: 500px;">
     <div class="container">
         <div class="row g-4">
-            <!-- Science Fair Album Card (Matching Live Site) -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card gallery-category-card h-100 shadow-sm border-0" style="border-radius: 8px; overflow: hidden; background: #fff;">
-                    <img src="<?php echo base_url('assets/frontend/dvs/storage/galleries/dOE0oYuYQRh3bDbaMw6J9JQyEMO884GAv5lQ5YGq.jpg'); ?>" class="card-img-top" alt="Science Fair" style="height: 220px; object-fit: cover;">
-                    <div class="card-body p-4">
-                        <h4 class="card-title fw-bold text-dark mb-2">Science Fair</h4>
-                        <p class="card-text text-muted mb-3">
-                            <i class="fas fa-images me-2 text-success"></i> <?php echo !empty($galleryList) ? count($galleryList) : '8'; ?> <?php echo ($current_lang == 'en') ? 'Photos' : 'টি ছবি'; ?>
-                        </p>
-                        <a href="<?php echo base_url('gallery-details/1'); ?>" class="btn btn-outline-primary" style="border-radius: 6px; font-weight: 500;">
-                            <?php echo ($current_lang == 'en') ? 'View Album' : 'View Album'; ?>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
             <?php 
-            // If there are other albums/categories in the database with multiple elements, render them as well
-            if (!empty($category) && count($category) > 1) {
+            if (!empty($category)) {
                 foreach ($category as $cat) {
-                    if ($cat['category_id'] == 1) continue; // already shown above
+                    $cat_name = function_exists('get_lang_field') ? get_lang_field($cat, 'category_name') : $cat['category_name'];
+                    if (empty($cat_name)) {
+                        $cat_name = $cat['category_name'];
+                    }
+                    $photo_cnt = !empty($cat['photo_count']) ? $cat['photo_count'] : (!empty($galleryList) ? count($galleryList) : 8);
+                    
+                    // Cover image
+                    $cover_img = base_url('assets/frontend/dvs/storage/galleries/dOE0oYuYQRh3bDbaMw6J9JQyEMO884GAv5lQ5YGq.jpg');
+                    if (!empty($cat['cover_image']) && file_exists(FCPATH . 'uploads/frontend/gallery/' . $cat['cover_image'])) {
+                        $cover_img = base_url('uploads/frontend/gallery/' . $cat['cover_image']);
+                    } elseif (!empty($cat['cover_image']) && file_exists(FCPATH . 'assets/frontend/dvs/storage/galleries/' . $cat['cover_image'])) {
+                        $cover_img = base_url('assets/frontend/dvs/storage/galleries/' . $cat['cover_image']);
+                    }
             ?>
             <div class="col-md-6 col-lg-4">
                 <div class="card gallery-category-card h-100 shadow-sm border-0" style="border-radius: 8px; overflow: hidden; background: #fff;">
-                    <div class="d-flex align-items-center justify-content-center bg-secondary text-white" style="height: 220px;">
-                        <i class="fas fa-images fa-3x opacity-50"></i>
-                    </div>
+                    <img src="<?php echo $cover_img; ?>" class="card-img-top" alt="<?php echo html_escape($cat_name); ?>" style="height: 220px; object-fit: cover;">
                     <div class="card-body p-4">
-                        <h4 class="card-title fw-bold text-dark mb-2"><?php echo html_escape($cat['category_name']); ?></h4>
-                        <p class="card-text text-muted mb-3"><i class="fas fa-images me-2 text-success"></i> <?php echo ($current_lang == 'en') ? 'Album' : 'অ্যালবাম'; ?></p>
+                        <h4 class="card-title fw-bold text-dark mb-2"><?php echo html_escape($cat_name); ?></h4>
+                        <p class="card-text text-muted mb-3">
+                            <i class="fas fa-images me-2 text-success"></i> <?php echo $photo_cnt; ?> <?php echo ($current_lang == 'en') ? 'Photos' : 'টি ছবি'; ?>
+                        </p>
                         <a href="<?php echo base_url('gallery-details/' . $cat['category_id']); ?>" class="btn btn-outline-primary" style="border-radius: 6px; font-weight: 500;">
                             <?php echo ($current_lang == 'en') ? 'View Album' : 'View Album'; ?>
                         </a>
                     </div>
                 </div>
             </div>
-            <?php } } ?>
+            <?php 
+                }
+            } else { ?>
+            <div class="col-12 text-center py-5">
+                <div class="alert alert-info d-inline-block px-5 py-3 shadow-sm" style="background-color: #e0f2fe; border-color: #bae6fd; color: #0369a1; border-radius: 8px;">
+                    <i class="fas fa-images fa-2x mb-2 d-block"></i>
+                    <h5 class="mb-1 fw-bold"><?php echo ($current_lang == 'en') ? 'No Albums Found' : 'কোনো অ্যালবাম পাওয়া যায়নি'; ?></h5>
+                </div>
+            </div>
+            <?php } ?>
         </div>
     </div>
 </section>
