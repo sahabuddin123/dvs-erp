@@ -27,7 +27,7 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
                     <li class="mb-2"><a href="<?php echo base_url('about'); ?>"><i class="fas fa-arrow-right"></i> <?php echo ($current_lang == 'en') ? 'About Us' : 'আমাদের সম্পর্কে'; ?></a></li>
                     <li class="mb-2"><a href="<?php echo base_url('contact'); ?>"><i class="fas fa-arrow-right"></i> <?php echo ($current_lang == 'en') ? 'Contact Us' : 'যোগাযোগ'; ?></a></li>
                     <li class="mb-2"><a href="<?php echo base_url('admission'); ?>"><i class="fas fa-arrow-right"></i> <?php echo ($current_lang == 'en') ? 'Admission' : 'ভর্তি'; ?></a></li>
-                    <li class="mb-2"><a href="<?php echo base_url('events'); ?>"><i class="fas fa-arrow-right"></i> <?php echo ($current_lang == 'en') ? 'Notices' : 'নোটিশ'; ?></a></li>
+                    <li class="mb-2"><a href="<?php echo base_url('notice'); ?>"><i class="fas fa-arrow-right"></i> <?php echo ($current_lang == 'en') ? 'Notices' : 'নোটিশ'; ?></a></li>
                 </ul>
             </div>
 

@@ -39,7 +39,7 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
     <div class="container">
         <div class="row g-3">
             <div class="col-6 col-md-3">
-                <a href="<?php echo base_url('events'); ?>" class="btn-highlight btn-blue">
+                <a href="<?php echo base_url('notice'); ?>" class="btn-highlight btn-blue">
                     <i class="fas fa-bullhorn me-1"></i> <span><?php echo translate('latest_notice'); ?></span>
                 </a>
             </div>
@@ -108,12 +108,13 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
                                 foreach ($board_notices as $bn) { 
                                     $notice_date = !empty($bn['date']) ? $bn['date'] : $bn['created_at'];
                                     $date_str = date('M, d', strtotime($notice_date));
+                                    $notice_item_url = !empty($bn['alias']) ? base_url('notice-details/' . $bn['alias']) : base_url('notice-details/' . $bn['id']);
                             ?>
                                 <div class="notice-item d-flex align-items-center gap-3 py-2 border-bottom" style="border-bottom: 1px solid #e5e7eb;">
                                     <div class="notice-date" style="background-color: var(--primary-color); color: white; padding: 8px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; min-width: 65px; text-align: center;">
                                         <?php echo $date_str; ?>
                                     </div>
-                                    <a href="<?php echo base_url('events'); ?>" class="notice-title" style="color: #374151; font-weight: 600; font-size: 0.92rem; text-decoration: none; flex: 1; line-height: 1.4;">
+                                    <a href="<?php echo $notice_item_url; ?>" class="notice-title" style="color: #374151; font-weight: 600; font-size: 0.92rem; text-decoration: none; flex: 1; line-height: 1.4;">
                                         <?php echo html_escape(get_lang_field($bn, 'title')); ?>
                                     </a>
                                 </div>
@@ -122,7 +123,7 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
                         </div>
                     </div>
                     <div class="mt-3">
-                        <a href="<?php echo base_url('events'); ?>" class="btn w-100 text-white" style="background-color: var(--primary-color); font-weight: 600; border-radius: 4px; padding: 10px; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
+                        <a href="<?php echo base_url('notice'); ?>" class="btn w-100 text-white" style="background-color: var(--primary-color); font-weight: 600; border-radius: 4px; padding: 10px; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
                             ➔ <?php echo translate('view_all_notices'); ?>
                         </a>
                     </div>
@@ -188,8 +189,20 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
                                         <?php echo html_escape(get_lang_field($leader, 'surname')); ?>
                                     </span>
                                 </div>
+                                <?php 
+                                $url_map = [
+                                    15 => 1,
+                                    18 => 2,
+                                    17 => 3,
+                                    20 => 4,
+                                    19 => 5,
+                                    16 => 6,
+                                    21 => 7,
+                                ];
+                                $leader_url_id = isset($leader['id']) && isset($url_map[$leader['id']]) ? $url_map[$leader['id']] : (!empty($leader['rank']) ? $leader['rank'] : ($index + 1));
+                                ?>
                                 <div>
-                                    <a href="<?php echo base_url('about'); ?>" class="btn btn-sm text-white" style="background-color: #d97706; font-weight: 600; padding: 5px 16px; border-radius: 4px; font-size: 13px; text-decoration: none;">
+                                    <a href="<?php echo base_url('message-founder/' . $leader_url_id); ?>" class="btn btn-sm text-white" style="background-color: #d97706; font-weight: 600; padding: 5px 16px; border-radius: 4px; font-size: 13px; text-decoration: none;">
                                         <?php echo translate('read_full_message'); ?>
                                     </a>
                                 </div>

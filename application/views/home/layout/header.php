@@ -103,8 +103,9 @@ $app_address = get_lang_field($cms_setting, 'address', 'চরবাটা, স�
                     if (!empty($ticker_notices)) {
                         foreach ($ticker_notices as $t_notice) { 
                             $notice_title = get_lang_field($t_notice, 'title');
+                            $notice_ticker_url = !empty($t_notice['alias']) ? base_url('notice-details/' . $t_notice['alias']) : base_url('notice-details/' . $t_notice['id']);
                     ?>
-                        <span class="marquee-item"><a href="<?php echo base_url('events'); ?>" class="text-light" style="text-decoration: none;"><?php echo html_escape($notice_title); ?></a></span>
+                        <span class="marquee-item"><a href="<?php echo $notice_ticker_url; ?>" class="text-light" style="text-decoration: none;"><?php echo html_escape($notice_title); ?></a></span>
                     <?php }
                     } else { ?>
                         <span class="marquee-item text-light"><?php echo ($current_lang == 'en') ? 'Welcome to Dream Valley School' : 'ড্রিম ভ্যালী স্কুলে আপনাকে স্বাগতম'; ?></span>
@@ -147,11 +148,11 @@ $app_address = get_lang_field($cms_setting, 'address', 'চরবাটা, স�
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?php echo (strpos(uri_string(), 'exam_results') !== false || strpos(uri_string(), 'routine') !== false) ? 'active' : ''; ?>" href="#" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle <?php echo (strpos(uri_string(), 'exam_results') !== false || strpos(uri_string(), 'routine') !== false || strpos(uri_string(), 'calendar') !== false) ? 'active' : ''; ?>" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-graduation-cap me-1"></i> <?php echo translate('academic'); ?>
                     </a>
                     <ul class="dropdown-menu shadow border-0">
-                        <li><a class="dropdown-item" href="<?php echo base_url('events'); ?>"><i class="fas fa-calendar-alt me-2 text-success"></i> <?php echo translate('academic_calendar'); ?></a></li>
+                        <li><a class="dropdown-item" href="<?php echo base_url('calendar-school'); ?>"><i class="fas fa-calendar-alt me-2 text-success"></i> <?php echo translate('academic_calendar'); ?></a></li>
                         <li><a class="dropdown-item" href="<?php echo base_url('exam_results'); ?>"><i class="fas fa-award me-2 text-success"></i> <?php echo translate('exam_results'); ?></a></li>
                         <li><a class="dropdown-item" href="<?php echo base_url('about'); ?>"><i class="fas fa-clock me-2 text-success"></i> <?php echo translate('class_routine'); ?></a></li>
                     </ul>
@@ -171,14 +172,10 @@ $app_address = get_lang_field($cms_setting, 'address', 'চরবাটা, স�
                         <i class="fas fa-file-signature me-1"></i> <?php echo translate('online_admission'); ?>
                     </a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?php echo (strpos(uri_string(), 'gallery') !== false) ? 'active' : ''; ?>" href="#" role="button" data-bs-toggle="dropdown">
+                <li class="nav-item">
+                    <a class="nav-link <?php echo (strpos(uri_string(), 'gallery') !== false) ? 'active' : ''; ?>" href="<?php echo base_url('gallery'); ?>">
                         <i class="fas fa-images me-1"></i> <?php echo translate('gallery'); ?>
                     </a>
-                    <ul class="dropdown-menu shadow border-0">
-                        <li><a class="dropdown-item" href="<?php echo base_url('gallery'); ?>"><i class="fas fa-image me-2 text-success"></i> <?php echo translate('photo_gallery'); ?></a></li>
-                        <li><a class="dropdown-item" href="#video-gallery-section"><i class="fas fa-video me-2 text-success"></i> <?php echo translate('video_gallery'); ?></a></li>
-                    </ul>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo (strpos(uri_string(), 'contact') !== false) ? 'active' : ''; ?>" href="<?php echo base_url('contact'); ?>">
@@ -221,7 +218,7 @@ $app_address = get_lang_field($cms_setting, 'address', 'চরবাটা, স�
                     </a>
                     <div class="collapse" id="mobileAcademic">
                         <ul class="nav flex-column ms-3">
-                            <li class="nav-item"><a class="nav-link py-1" href="<?php echo base_url('events'); ?>"><i class="fas fa-calendar-alt me-2"></i> <?php echo translate('academic_calendar'); ?></a></li>
+                            <li class="nav-item"><a class="nav-link py-1" href="<?php echo base_url('calendar-school'); ?>"><i class="fas fa-calendar-alt me-2"></i> <?php echo translate('academic_calendar'); ?></a></li>
                             <li class="nav-item"><a class="nav-link py-1" href="<?php echo base_url('exam_results'); ?>"><i class="fas fa-award me-2"></i> <?php echo translate('exam_results'); ?></a></li>
                             <li class="nav-item"><a class="nav-link py-1" href="<?php echo base_url('about'); ?>"><i class="fas fa-clock me-2"></i> <?php echo translate('class_routine'); ?></a></li>
                         </ul>
