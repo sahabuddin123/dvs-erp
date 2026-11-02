@@ -483,23 +483,33 @@ function ajax_access_denied()
 
 function slugify($text)
 {
-    // replace non letter or digits by -
+    // replace non letter or digits by _
     $text = preg_replace('~[^\pL\d]+~u', '_', $text);
 
-    // transliterate
-    $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+    // transliterate if possible to ASCII
+    if (function_exists('iconv')) {
+        $trans = @iconv('utf-8', 'us-ascii//TRANSLIT//IGNORE', $text);
+        if ($trans !== false && trim(preg_replace('~[^-\w]+~', '', $trans), '_') !== '') {
+            $text = preg_replace('~[^-\w]+~', '', $trans);
+        }
+    }
 
-    // remove unwanted characters
-    $text = preg_replace('~[^-\w]+~', '', $text);
+    // lowercase
+    if (function_exists('mb_strtolower')) {
+        $text = mb_strtolower($text, 'UTF-8');
+    } else {
+        $text = strtolower($text);
+    }
+
+    // remove unwanted characters (allow unicode letters, numbers, _, -)
+    $text = preg_replace('~[^\pL\d_-]+~u', '', $text);
 
     // trim
     $text = trim($text, '_');
 
     // remove duplicated - symbols
-    $text = preg_replace('~-+~', '_', $text);
+    $text = preg_replace('~[_-]+~', '_', $text);
 
-    // lowercase
-    $text = strtolower($text);
     return $text;
 }
 
