@@ -184,6 +184,32 @@ class Home extends Frontend_Controller
         $this->load->view('home/layout/index', $this->data);
     }
 
+    public function student_department($slug = '')
+    {
+        $branchID = $this->home_model->getDefaultBranch();
+        $this->data['branchID'] = $branchID;
+        
+        $departments = array(
+            'sokal-bangla' => array('bn' => 'সকাল বাংলা', 'en' => 'Morning Bangla'),
+            'din-bangla' => array('bn' => 'দিন বাংলা', 'en' => 'Day Bangla'),
+            'sokal-english' => array('bn' => 'সকাল ইংরেজি', 'en' => 'Morning English'),
+            'din-english' => array('bn' => 'দিন ইংরেজি', 'en' => 'Day English')
+        );
+
+        $current_lang = !empty($this->data['current_lang']) ? $this->data['current_lang'] : 'bn';
+        $dept_name = isset($departments[$slug]) ? ($current_lang == 'en' ? $departments[$slug]['en'] : $departments[$slug]['bn']) : ucwords(str_replace('-', ' ', $slug));
+
+        $this->data['dept_name'] = $dept_name;
+        $this->data['page_data'] = array(
+            'page_title' => $dept_name,
+            'title' => ($current_lang == 'en') ? 'Student List' : 'শিক্ষার্থীদের তালিকা'
+        );
+        $this->data['student_list'] = array();
+        $this->data['active_menu'] = 'students';
+        $this->data['main_contents'] = $this->load->view('home/student_department', $this->data, true);
+        $this->load->view('home/layout/index', $this->data);
+    }
+
     public function admission()
     {
         if (!$this->data['cms_setting']['online_admission']) {
