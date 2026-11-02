@@ -1,7 +1,8 @@
 <?php 
 defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
-$page_title = !empty($gallery['title']) ? $gallery['title'] : (($current_lang == 'en') ? 'Gallery Album' : 'গ্যালারি অ্যালবাম');
+$page_title = ($current_lang == 'en') ? 'Gallery Details' : 'গ্যালারি বিস্তারিত';
+$page_subtitle = 'Explore our memorable moments through photos.';
 ?>
 
 <!-- Page Header (DVS Match) -->
@@ -10,11 +11,7 @@ $page_title = !empty($gallery['title']) ? $gallery['title'] : (($current_lang ==
         <div class="row align-items-center">
             <div class="col-lg-7">
                 <h1 class="page-header-title"><?php echo html_escape($page_title); ?></h1>
-                <p class="text-white-50 mb-0 mt-2">
-                    <a href="<?php echo base_url('gallery'); ?>" class="text-white text-decoration-none">
-                        <i class="fas fa-arrow-left me-1"></i> <?php echo ($current_lang == 'en') ? 'Back to Gallery' : 'গ্যালারিতে ফিরে যান'; ?>
-                    </a>
-                </p>
+                <p class="page-header-subtitle text-muted mb-0 mt-2"><?php echo html_escape($page_subtitle); ?></p>
             </div>
             <div class="col-lg-5 d-none d-lg-block text-end">
                 <div class="display-1 opacity-80 page-header-icon">

@@ -1,9 +1,10 @@
+<?php $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn'; ?>
 <!-- Page Header (DVS Match) -->
 <div class="page-header">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-7">
-                <h1 class="page-header-title"><?php echo html_escape($page_data['page_title']); ?></h1>
+                <h1 class="page-header-title"><?php echo html_escape(!empty($page_data['page_title']) ? $page_data['page_title'] : (($current_lang == 'en') ? 'Frequently Asked Questions' : 'সাধারণ জিজ্ঞাসা (FAQ)')); ?></h1>
                 <?php if (!empty($page_data['title'])) { ?><p class="text-white-50 mb-0 mt-2"><?php echo html_escape($page_data['title']); ?></p><?php } ?>
             </div>
             <div class="col-lg-5 d-none d-lg-block text-end">

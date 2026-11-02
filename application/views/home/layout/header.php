@@ -157,12 +157,12 @@ $app_address = get_lang_field($cms_setting, 'address', 'চরবাটা, স�
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo (strpos(uri_string(), 'events') !== false) ? 'active' : ''; ?>" href="<?php echo base_url('events'); ?>">
+                    <a class="nav-link <?php echo (strpos(uri_string(), 'notice') !== false || strpos(uri_string(), 'news') !== false) ? 'active' : ''; ?>" href="<?php echo base_url('notice'); ?>">
                         <i class="fas fa-bell me-1"></i> <?php echo translate('notice_board'); ?>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?php echo base_url('admission'); ?>">
+                    <a class="nav-link <?php echo (strpos(uri_string(), 'student') !== false) ? 'active' : ''; ?>" href="<?php echo base_url('students'); ?>">
                         <i class="fas fa-graduation-cap me-1"></i> <?php echo translate('student_information'); ?>
                     </a>
                 </li>
@@ -228,10 +228,10 @@ $app_address = get_lang_field($cms_setting, 'address', 'চরবাটা, স�
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?php echo base_url('events'); ?>"><i class="fas fa-bell me-2"></i> <?php echo translate('notice_board'); ?></a>
+                    <a class="nav-link" href="<?php echo base_url('notice'); ?>"><i class="fas fa-bell me-2"></i> <?php echo translate('notice_board'); ?></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?php echo base_url('admission'); ?>"><i class="fas fa-graduation-cap me-2"></i> <?php echo translate('student_information'); ?></a>
+                    <a class="nav-link" href="<?php echo base_url('students'); ?>"><i class="fas fa-graduation-cap me-2"></i> <?php echo translate('student_information'); ?></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="<?php echo base_url('admission'); ?>"><i class="fas fa-file-signature me-2"></i> <?php echo translate('online_admission'); ?></a>

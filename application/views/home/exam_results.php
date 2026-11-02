@@ -1,3 +1,4 @@
+<?php $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn'; ?>
 <script type="text/javascript" src="<?php echo base_url('assets/js/certificate.js?v=' . version_combine()) ?>"></script>
 <style type="text/css">
     #print {
@@ -13,7 +14,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-7">
-                <h1 class="page-header-title"><?php echo html_escape($page_data['page_title']); ?></h1>
+                <h1 class="page-header-title"><?php echo html_escape(!empty($page_data['page_title']) ? $page_data['page_title'] : (($current_lang == 'en') ? 'Exam Results' : 'পরীক্ষার ফলাফল')); ?></h1>
                 
             </div>
             <div class="col-lg-5 d-none d-lg-block text-end">

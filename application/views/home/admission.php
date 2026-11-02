@@ -1,7 +1,8 @@
 <?php 
 defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
-$page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title', ($current_lang == 'en' ? 'Online Admission' : 'অনলাইন ভর্তি আবেদন')) : (!empty($page_data['page_title']) ? $page_data['page_title'] : 'অনলাইন ভর্তি আবেদন');
+$page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title', ($current_lang == 'en' ? 'Online Admission (School)' : 'অনলাইন ভর্তি (স্কুল)')) : (!empty($page_data['page_title']) ? $page_data['page_title'] : ($current_lang == 'en' ? 'Online Admission (School)' : 'অনলাইন ভর্তি (স্কুল)'));
+$page_subtitle = "To apply online for admission, you need to fill up the form";
 ?>
 
 <!-- Page Header (DVS Match) -->
@@ -10,13 +11,11 @@ $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'pa
         <div class="row align-items-center">
             <div class="col-lg-7">
                 <h1 class="page-header-title"><?php echo html_escape($page_title); ?></h1>
-                <?php if (!empty($page_data['title'])) { ?>
-                    <p class="text-white-50 mb-0 mt-2"><?php echo html_escape($page_data['title']); ?></p>
-                <?php } ?>
+                <p class="page-header-subtitle text-muted mb-0 mt-2"><?php echo html_escape($page_subtitle); ?></p>
             </div>
             <div class="col-lg-5 d-none d-lg-block text-end">
                 <div class="display-1 opacity-80 page-header-icon">
-                    <i class="fas fa-user-graduate"></i>
+                    <i class="fas fa-file-alt"></i>
                 </div>
             </div>
         </div>
@@ -109,7 +108,7 @@ $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'pa
                             <?php } ?>
                         </div>
 
-                        <div class="headers-line mt-3"><i class="fas fa-user-graduate"></i> Student Details</div>
+                        <div class="headers-line mt-3"><i class="fas fa-file-alt"></i> Student Details</div>
                         <div class="row">
                             <?php 
                             $last_name = $this->student_fields_model->getOnlineStatus('last_name', $branchID);

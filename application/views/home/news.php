@@ -1,22 +1,22 @@
 <?php 
 defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
-$page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title', ($current_lang == 'en' ? 'News & Updates' : 'সংবাদ ও আপডেট')) : (!empty($page_data['page_title']) ? $page_data['page_title'] : 'সংবাদ ও আপডেট');
+$page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title', ($current_lang == 'en' ? 'Notice Board' : 'নোটিশ')) : (!empty($page_data['page_title']) ? $page_data['page_title'] : ($current_lang == 'en' ? 'Notice Board' : 'নোটিশ'));
 ?>
 
 <!-- Page Header (DVS Match) -->
-<div class="page-header">
+<div class="page-header" style="background: var(--header-bg);">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-7">
                 <h1 class="page-header-title"><?php echo html_escape($page_title); ?></h1>
                 <?php if (!empty($page_data['title'])) { ?>
-                    <p class="text-white-50 mb-0 mt-2"><?php echo html_escape($page_data['title']); ?></p>
+                    <p class="page-header-subtitle text-muted mb-0 mt-2"><?php echo html_escape($page_data['title']); ?></p>
                 <?php } ?>
             </div>
             <div class="col-lg-5 d-none d-lg-block text-end">
                 <div class="display-1 opacity-80 page-header-icon">
-                    <i class="fas fa-newspaper"></i>
+                    <i class="fas fa-bullhorn"></i>
                 </div>
             </div>
         </div>
@@ -28,70 +28,91 @@ $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'pa
     </svg>
 </div>
 
-<!-- Main News Container -->
-<section class="section py-5" style="background-color: #f8fafc; min-height: 500px;">
+<!-- Main Notice Container -->
+<section class="section py-5 bg-light" style="min-height: 550px;">
     <div class="container">
-        <?php if (!empty($page_data['description'])) { ?>
-            <div class="mb-4 text-muted">
-                <?php echo $page_data['description']; ?>
-            </div>
-        <?php } ?>
-
-        <div class="row g-4">
-            <?php
-            $url_alias = !empty($cms_setting['url_alias']) ? $cms_setting['url_alias'] : 'home';
-            if (!empty($results)) {
-                foreach ($results as $key => $value) {
-                    $news_img = !empty($value['image']) ? base_url('uploads/frontend/news/' . $value['image']) : base_url('uploads/frontend/news/defualt.png');
-            ?>
-            <div class="col-sm-12 col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm border-0" style="border-radius: 10px; overflow: hidden; transition: all 0.3s ease;">
-                    <div class="position-relative" style="height: 200px; overflow: hidden; background: #e2e8f0;">
-                        <img src="<?php echo $news_img; ?>" alt="<?php echo html_escape($value['title']); ?>" class="w-100 h-100" style="object-fit: cover;">
-                        <span class="badge position-absolute top-0 end-0 m-3 shadow-sm" style="background-color: var(--primary-color) !important;">
-                            <i class="far fa-calendar-alt me-1"></i> <?php echo _d($value['date']); ?>
-                        </span>
-                    </div>
-                    <div class="card-body p-4 d-flex flex-column justify-content-between">
-                        <div>
-                            <h5 class="card-title fw-bold mb-2">
-                                <a href="<?php echo base_url("home/news_view/" . $value['alias']); ?>" class="text-decoration-none" style="color: #1e293b;">
-                                    <?php echo html_escape($value['title']); ?>
-                                </a>
-                            </h5>
-                            <div class="small text-muted mb-3">
-                                <span><i class="fas fa-clock me-1"></i> <?php echo _d($value['created_at']); ?></span>
+        <!-- Search and Filter -->
+        <div class="card shadow-sm mb-5 border-0" style="border-radius: 12px; background: #fff;">
+            <div class="card-body p-4">
+                <h4 class="mb-4 fw-bold" style="color: #1e293b;">
+                    <?php echo ($current_lang == 'en') ? 'Search & Filter Notices' : 'নোটিশ খুঁজুন'; ?>
+                </h4>
+                <form action="<?php echo base_url('notice'); ?>" method="get">
+                    <div class="row g-3">
+                        <div class="col-md-10">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0" id="notice-search" name="search"
+                                    placeholder="<?php echo ($current_lang == 'en') ? 'Search notices...' : 'নোটিশের বিষয় দিয়ে খুঁজুন...'; ?>" 
+                                    value="<?php echo html_escape($this->input->get('search') ?? ''); ?>">
                             </div>
-                            <p class="card-text text-muted" style="font-size: 0.95rem;">
-                                <?php echo mb_strimwidth(strip_tags($value['description']), 0, 100, "..."); ?>
-                            </p>
                         </div>
-                        <div class="mt-3 pt-3 border-top">
-                            <a href="<?php echo base_url("home/news_view/" . $value['alias']); ?>" class="btn btn-sm text-white" style="background-color: var(--primary-color); border-radius: 6px;">
+                        <div class="col-md-2">
+                            <button type="submit" class="btn w-100 text-white"
+                                style="background-color: var(--dark-color); font-weight: 600;">
+                                <?php echo ($current_lang == 'en') ? 'Search' : 'অনুসন্ধান'; ?>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Notices List -->
+        <div class="notice-boards">
+            <?php 
+            $search_kw = $this->input->get('search');
+            $filtered_results = $results;
+            if (!empty($search_kw) && !empty($results)) {
+                $filtered_results = array_filter($results, function($item) use ($search_kw) {
+                    return (stripos($item['title'], $search_kw) !== false || stripos($item['description'], $search_kw) !== false);
+                });
+            }
+            ?>
+            <?php if (!empty($filtered_results)) { ?>
+                <ul class="notice-list list-unstyled">
+                    <?php foreach ($filtered_results as $row) { 
+                        $notice_url = !empty($row['alias']) ? base_url('notice-details/' . $row['alias']) : base_url('notice-details/' . $row['id']);
+                    ?>
+                    <li class="notice-items mb-4">
+                        <div class="d-md-flex justify-content-between align-items-center mb-2">
+                            <h4 class="notice-title mb-1 fw-bold">
+                                <a href="<?php echo $notice_url; ?>" class="text-decoration-none">
+                                    <?php echo html_escape($row['title']); ?>
+                                </a>
+                            </h4>
+                            <span class="notice-dates text-muted">
+                                <i class="far fa-calendar-alt me-1"></i> <?php echo _d($row['date']); ?>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="notice-category">
+                                <i class="fas fa-info-circle me-1"></i> <?php echo ($current_lang == 'en') ? 'Noticeboard' : 'নোটিশ বোর্ড'; ?>
+                            </span>
+                            <a href="<?php echo $notice_url; ?>" class="btn btn-sm btn-outline-primary" style="border-radius: 6px;">
                                 <?php echo ($current_lang == 'en') ? 'Read More' : 'বিস্তারিত পড়ুন'; ?> <i class="fas fa-arrow-right ms-1"></i>
                             </a>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <?php } ?>
+                    </li>
+                    <?php } ?>
+                </ul>
 
-            <?php if (isset($links) && !empty($links)) { ?>
-                <div class="col-12 mt-4 text-center">
-                    <div class="pagination-bx">
-                        <?php echo $links; ?>
+                <?php if (isset($links) && !empty($links)) { ?>
+                    <div class="pagination-wrapper mt-4 text-center">
+                        <div class="pagination-bx">
+                            <?php echo $links; ?>
+                        </div>
                     </div>
-                </div>
-            <?php } ?>
+                <?php } ?>
 
             <?php } else { ?>
-            <div class="col-12 text-center py-5">
-                <div class="alert alert-info d-inline-block px-5 py-4 shadow-sm" style="background-color: #e0f2fe; border-color: #bae6fd; color: #0369a1; border-radius: 10px;">
-                    <i class="fas fa-newspaper fa-2x mb-2 d-block"></i>
-                    <h5 class="mb-1 fw-bold"><?php echo ($current_lang == 'en') ? 'No News Found' : 'কোনো সংবাদ পাওয়া যায়নি'; ?></h5>
-                    <p class="mb-0 small"><?php echo ($current_lang == 'en') ? 'Currently there are no news or announcements published.' : 'বর্তমানে কোনো সংবাদ বা বিজ্ঞপ্তি নেই।'; ?></p>
+                <div class="text-center py-5">
+                    <div class="alert alert-info d-inline-block px-5 py-4 shadow-sm" style="background-color: #e0f2fe; border-color: #bae6fd; color: #0369a1; border-radius: 10px;">
+                        <i class="fas fa-bullhorn fa-2x mb-2 d-block"></i>
+                        <h5 class="mb-1 fw-bold"><?php echo ($current_lang == 'en') ? 'No Notices Found' : 'কোনো নোটিশ পাওয়া যায়নি'; ?></h5>
+                        <p class="mb-0 small"><?php echo ($current_lang == 'en') ? 'Currently there are no notices published.' : 'বর্তমানে কোনো নোটিশ বা বিজ্ঞপ্তি প্রকাশিত হয়নি।'; ?></p>
+                    </div>
                 </div>
-            </div>
             <?php } ?>
         </div>
     </div>

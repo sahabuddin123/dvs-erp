@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
 /**
@@ -168,6 +168,19 @@ class Home extends Frontend_Controller
         $this->data['doctor_list'] = $this->home_model->get_teacher_list("", $branchID);
         $this->data['active_menu'] = 'teachers';
         $this->data['main_contents'] = $this->load->view('home/teachers', $this->data, true);
+        $this->load->view('home/layout/index', $this->data);
+    }
+
+    public function students()
+    {
+        $branchID = $this->home_model->getDefaultBranch();
+        $this->data['branchID'] = $branchID;
+        $this->data['page_data'] = array(
+            'page_title' => 'শিক্ষার্থী',
+            'title' => 'শিক্ষার্থীর তথ্য'
+        );
+        $this->data['active_menu'] = 'students';
+        $this->data['main_contents'] = $this->load->view('home/students', $this->data, true);
         $this->load->view('home/layout/index', $this->data);
     }
 

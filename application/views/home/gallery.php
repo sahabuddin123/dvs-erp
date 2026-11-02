@@ -1,7 +1,7 @@
 <?php 
 defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
-$page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title', ($current_lang == 'en' ? 'Photo Gallery' : 'ফটো গ্যালারি')) : (!empty($page_data['page_title']) ? $page_data['page_title'] : 'ফটো গ্যালারি');
+$page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title', ($current_lang == 'en' ? 'Gallery' : 'গ্যালারি')) : (!empty($page_data['page_title']) ? $page_data['page_title'] : ($current_lang == 'en' ? 'Gallery' : 'গ্যালারি'));
 $date_display = date('M d, Y');
 ?>
 
@@ -11,9 +11,7 @@ $date_display = date('M d, Y');
         <div class="row align-items-center">
             <div class="col-lg-7">
                 <h1 class="page-header-title"><?php echo html_escape($page_title); ?></h1>
-                <p class="text-white-50 mb-0 mt-2">
-                    <?php echo ($current_lang == 'en') ? 'Explore moments, events, and campus life at Dream Valley School.' : 'ড্রিম ভ্যালী স্কুলের বিভিন্ন ইভেন্ট, ক্যাম্পাস ও শিক্ষা কার্যক্রমের স্থিরচিত্র।'; ?>
-                </p>
+                
             </div>
             <div class="col-lg-5 d-none d-lg-block text-end">
                 <div class="display-1 opacity-80 page-header-icon">
