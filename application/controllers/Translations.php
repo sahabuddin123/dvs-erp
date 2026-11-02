@@ -43,17 +43,24 @@ class Translations extends Admin_Controller
 
     public function set_language($action = '')
     {
-        if (is_loggedin()) {
+        if (!empty($action)) {
+            if ($action == 'bn') {
+                $action = 'bengali';
+            } elseif ($action == 'en') {
+                $action = 'english';
+            }
             $this->session->set_userdata('set_lang', $action);
             $isRTL = $this->app_lib->getRTLStatus($action);
             $this->session->set_userdata('is_rtl', $isRTL);
-            if (!empty($_SERVER['HTTP_REFERER'])) {
-                redirect($_SERVER['HTTP_REFERER']);
-            } else {
-                redirect(base_url('dashboard'), 'refresh');
-            }
+        }
+        if (!empty($_SERVER['HTTP_REFERER'])) {
+            redirect($_SERVER['HTTP_REFERER']);
         } else {
-            redirect(base_url(), 'refresh');
+            if (is_loggedin()) {
+                redirect(base_url('dashboard'), 'refresh');
+            } else {
+                redirect(base_url(), 'refresh');
+            }
         }
     }
 

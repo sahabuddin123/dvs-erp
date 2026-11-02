@@ -61,24 +61,42 @@ if (empty($elements)) {
 					<div class="tab-pane active" id="welcome">
 						<?php echo form_open_multipart('frontend/section/home_wellcome' . get_request_url(), array('class' => 'form-horizontal frm-submit-data')); ?>
 							<div class="form-group">
-								<label class="col-md-3 control-label"><?php echo translate('title'); ?> <span class="required">*</span></label>
+								<label class="col-md-3 control-label"><?php echo translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 								<div class="col-md-7">
 									<input type="text" class="form-control" name="wel_title" value="<?php echo set_value('wel_title', $wellcome['title']); ?>" />
 									<span class="error"></span>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-md-3 control-label"><?php echo translate('subtitle'); ?> <span class="required">*</span></label>
+								<label class="col-md-3 control-label"><?php echo translate('title'); ?> (English)</label>
+								<div class="col-md-7">
+									<input type="text" class="form-control" name="wel_title_en" value="<?php echo set_value('wel_title_en', isset($wellcome['title_en']) ? $wellcome['title_en'] : ''); ?>" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-md-3 control-label"><?php echo translate('subtitle'); ?> (বাংলা) <span class="required">*</span></label>
 								<div class="col-md-7">
 									<input type="text" class="form-control" name="subtitle" value="<?php echo set_value('subtitle', $wellcome['subtitle']); ?>" />
 									<span class="error"></span>
 								</div>
 							</div>
 							<div class="form-group">
-								<label  class="col-md-3 control-label"><?php echo translate('description'); ?> <span class="required">*</span></label>
+								<label class="col-md-3 control-label"><?php echo translate('subtitle'); ?> (English)</label>
+								<div class="col-md-7">
+									<input type="text" class="form-control" name="subtitle_en" value="<?php echo set_value('subtitle_en', isset($wellcome['subtitle_en']) ? $wellcome['subtitle_en'] : ''); ?>" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label  class="col-md-3 control-label"><?php echo translate('description'); ?> (বাংলা) <span class="required">*</span></label>
 								<div class="col-md-7">
 									<textarea class="form-control" name="description" rows="5"><?php echo set_value('description', $wellcome['description']); ?></textarea>
 									<span class="error"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label  class="col-md-3 control-label"><?php echo translate('description'); ?> (English)</label>
+								<div class="col-md-7">
+									<textarea class="form-control" name="description_en" rows="5"><?php echo set_value('description_en', isset($wellcome['description_en']) ? $wellcome['description_en'] : ''); ?></textarea>
 								</div>
 							</div>
 							<div class="form-group">

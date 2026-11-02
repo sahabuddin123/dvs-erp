@@ -1,0 +1,128 @@
+# --------------------------------------------------
+# Antigravity & Scratch / Temporary Workspaces
+# --------------------------------------------------
+/scratch/
+scratch/
+cookies_live.txt
+*cookie*.txt
+cookies/
+
+# --------------------------------------------------
+# Environment & Sensitive Credentials
+# --------------------------------------------------
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.id_rsa
+*.id_rsa.pub
+
+# --------------------------------------------------
+# CodeIgniter Logs, Cache & Sessions
+# --------------------------------------------------
+/application/logs/*
+!/application/logs/index.html
+/application/cache/*
+!/application/cache/index.html
+!/application/cache/.htaccess
+/application/sessions/*
+!/application/sessions/index.html
+*.log
+
+# --------------------------------------------------
+# Sensitive User Uploads, Documents & Private Data
+# --------------------------------------------------
+# Student and applicant personal documents
+assets/frontend/dvs/img/*.pdf
+*.pdf.bak
+
+# Student, Parent, and Staff personal uploads
+/uploads/attachments/*
+!/uploads/attachments/index.html
+!/uploads/attachments/**/index.html
+
+/uploads/documents/*
+!/uploads/documents/index.html
+
+/uploads/online_ad_documents/*
+!/uploads/online_ad_documents/index.html
+
+/uploads/certificate/*
+!/uploads/certificate/index.html
+
+/uploads/marksheet/*
+!/uploads/marksheet/index.html
+
+/uploads/reception/*
+!/uploads/reception/index.html
+!/uploads/reception/**/index.html
+
+/uploads/images/student/*
+!/uploads/images/student/index.html
+
+/uploads/images/parent/*
+!/uploads/images/parent/index.html
+
+/uploads/images/staff/*
+!/uploads/images/staff/index.html
+
+/uploads/images/whatsapp_agent/*
+!/uploads/images/whatsapp_agent/index.html
+
+/uploads/images/alumni/*
+!/uploads/images/alumni/index.html
+
+/uploads/images/alumni_events/*
+!/uploads/images/alumni_events/index.html
+
+/uploads/csv/*
+!/uploads/csv/index.html
+
+# Database Backups & Temp Dumps
+/uploads/db_backup/*
+!/uploads/db_backup/index.html
+/uploads/db_temp/*
+!/uploads/db_temp/index.html
+*.sql.gz
+*.sql.zip
+*.sql.tar
+*.dump
+
+# DVS frontend storage (dynamic uploads)
+/assets/frontend/dvs/storage/*
+!/assets/frontend/dvs/storage/.gitignore
+
+# --------------------------------------------------
+# Archives & Compressed Files
+# --------------------------------------------------
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# --------------------------------------------------
+# Temporary & Backup Files
+# --------------------------------------------------
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# --------------------------------------------------
+# OS & Editor / IDE Artifacts
+# --------------------------------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+nbproject/
+

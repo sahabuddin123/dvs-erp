@@ -74,17 +74,29 @@
 					</div>
 					<?php endif; ?>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('name'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('name'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-6">
 							<input type="text" class="form-control" name="name" value="<?php echo set_value('name'); ?>" />
 							<span class="error"><?php echo form_error('name'); ?></span>
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('surname'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('name'); ?> (English)</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="name_en" value="<?php echo set_value('name_en'); ?>" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('surname'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-6">
 							<input type="text" class="form-control" name="surname" value="<?php echo set_value('surname'); ?>" />
 							<span class="error"><?php echo form_error('surname'); ?></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('surname'); ?> (English)</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="surname_en" value="<?php echo set_value('surname_en'); ?>" />
 						</div>
 					</div>
 					<div class="form-group">
@@ -97,6 +109,11 @@
 									'3' => '3',
 									'4' => '4',
 									'5' => '5',
+									'6' => '6',
+									'7' => '7',
+									'8' => '8',
+									'9' => '9',
+									'10' => '10'
 								);
 								echo form_dropdown("rank", $arrayRank, set_value('rank'), "class='form-control' data-minimum-results-for-search='Infinity'
 								data-plugin-selectTwo data-width='100%'");
@@ -105,10 +122,16 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('description'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('description'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-6">
 							<textarea class="form-control" id="description" name="description" placeholder="" rows="3" ><?php echo set_value('description'); ?></textarea>
 							<span class="error"><?php echo form_error('description'); ?></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('description'); ?> (English)</label>
+						<div class="col-md-6">
+							<textarea class="form-control" id="description_en" name="description_en" placeholder="" rows="3" ><?php echo set_value('description_en'); ?></textarea>
 						</div>
 					</div>
 					<div class="form-group">

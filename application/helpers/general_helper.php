@@ -647,3 +647,44 @@ function img_reload()
 {
     return "?src=" . time();
 }
+
+function get_current_lang()
+{
+    $CI = &get_instance();
+    if ($CI->session->has_userdata('set_lang')) {
+        $set_lang = $CI->session->userdata('set_lang');
+    } else {
+        $set_lang = get_global_setting('translation');
+    }
+    if (empty($set_lang)) {
+        $set_lang = 'bengali';
+    }
+    return ($set_lang == 'english' || $set_lang == 'en') ? 'en' : 'bn';
+}
+
+function get_lang_field($row, $field, $default = '')
+{
+    $lang = get_current_lang();
+    if (is_object($row)) {
+        $row = (array) $row;
+    }
+    if (!is_array($row)) {
+        return $default;
+    }
+    if ($lang == 'en') {
+        if (!empty($row[$field . '_en'])) {
+            return $row[$field . '_en'];
+        }
+        if (!empty($row[$field])) {
+            return $row[$field];
+        }
+    } else {
+        if (!empty($row[$field])) {
+            return $row[$field];
+        }
+        if (!empty($row[$field . '_en'])) {
+            return $row[$field . '_en'];
+        }
+    }
+    return $default;
+}

@@ -14,7 +14,9 @@ class News_model extends MY_Model
         $insertGallery = array(
             'branch_id'     => $this->application_model->get_branch_id(),
             'title'         => $data['news_title'],
+            'title_en'      => isset($data['news_title_en']) ? $data['news_title_en'] : '',
             'description'   => htmlspecialchars_decode($data['description']),
+            'description_en'=> isset($data['description_en']) ? htmlspecialchars_decode($data['description_en']) : '',
             'date'          => date("Y-m-d", strtotime($data['date'])),
             'show_web'      => (isset($_POST['show_website']) ? 1 : 0),
             'image'         => $this->fileupload('image', './uploads/frontend/news/', $this->input->post('old_photo')),

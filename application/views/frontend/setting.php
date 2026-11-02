@@ -37,10 +37,28 @@
             <?php echo form_open_multipart('frontend/setting/save' . get_request_url(), array('class' => 'form-horizontal form-bordered frm-submit-data')); ?>
 				<div class="panel-body">
 					<div class="form-group mt-md">
-						<label class="col-md-3 control-label"><?php echo translate('cms') . " " . translate('title'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('cms') . " " . translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-6">
 							<input type="text" class="form-control" name="application_title" value="<?php echo set_value('application_title', $setting['application_title']); ?>" />
 							<span class="error"><?php echo form_error('application_title'); ?></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('cms') . " " . translate('title'); ?> (English)</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="application_title_en" value="<?php echo set_value('application_title_en', isset($setting['application_title_en']) ? $setting['application_title_en'] : ''); ?>" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label">Tagline (বাংলা)</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="site_tagline" value="<?php echo set_value('site_tagline', isset($setting['site_tagline']) ? $setting['site_tagline'] : ''); ?>" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label">Tagline (English)</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="site_tagline_en" value="<?php echo set_value('site_tagline_en', isset($setting['site_tagline_en']) ? $setting['site_tagline_en'] : ''); ?>" />
 						</div>
 					</div>
 					<div class="form-group">
@@ -137,10 +155,16 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('address'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('address'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-6">
 							<textarea class="form-control" id="address" name="address" placeholder="" rows="3" ><?php echo set_value('address', $setting['address']); ?></textarea>
 							<span class="error"><?php echo form_error('address'); ?></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('address'); ?> (English)</label>
+						<div class="col-md-6">
+							<textarea class="form-control" id="address_en" name="address_en" placeholder="" rows="3" ><?php echo set_value('address_en', isset($setting['address_en']) ? $setting['address_en'] : ''); ?></textarea>
 						</div>
 					</div>
 					<div class="form-group">
@@ -257,17 +281,29 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('footer_about_text'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('footer_about_text'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-6">
 							<textarea class="form-control" id="footer_about_text" name="footer_about_text" placeholder="" rows="3" ><?php echo set_value('footer_about_text', $setting['footer_about_text']); ?></textarea>
 							<span class="error"><?php echo form_error('footer_about_text'); ?></span>
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('copyright_text'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('footer_about_text'); ?> (English)</label>
+						<div class="col-md-6">
+							<textarea class="form-control" id="footer_about_text_en" name="footer_about_text_en" placeholder="" rows="3" ><?php echo set_value('footer_about_text_en', isset($setting['footer_about_text_en']) ? $setting['footer_about_text_en'] : ''); ?></textarea>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('copyright_text'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-6">
 							<textarea class="form-control" id="copyright_text" name="copyright_text" placeholder="" rows="3" ><?php echo set_value('copyright_text', $setting['copyright_text']); ?></textarea>
 							<span class="error"><?php echo form_error('copyright_text'); ?></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('copyright_text'); ?> (English)</label>
+						<div class="col-md-6">
+							<textarea class="form-control" id="copyright_text_en" name="copyright_text_en" placeholder="" rows="3" ><?php echo set_value('copyright_text_en', isset($setting['copyright_text_en']) ? $setting['copyright_text_en'] : ''); ?></textarea>
 						</div>
 					</div>
 					<div class="form-group">

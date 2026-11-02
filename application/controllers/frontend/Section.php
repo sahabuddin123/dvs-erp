@@ -80,9 +80,12 @@ class Section extends Admin_Controller
                 $arrayWellcome = array(
                     'branch_id' => $branchID,
                     'title' => $this->input->post('wel_title'),
+                    'title_en' => $this->input->post('wel_title_en'),
                     'subtitle' => $this->input->post('subtitle'),
+                    'subtitle_en' => $this->input->post('subtitle_en'),
                     'active' => (isset($_POST['isvisible']) ? 1 : 0),
                     'description' => $this->input->post('description'),
+                    'description_en' => $this->input->post('description_en'),
                     'color1' => $this->input->post('title_text_color'),
                     'elements' => json_encode(array('image' => $this->uploadImage('wellcome' . $branchID, 'home_page'))),
                 );

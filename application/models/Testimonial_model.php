@@ -14,8 +14,11 @@ class Testimonial_model extends MY_Model
         $insert_testimonial = array(
             'branch_id' => $this->application_model->get_branch_id(),
             'name' => $data['name'],
+            'name_en' => isset($data['name_en']) ? $data['name_en'] : '',
             'surname' => $data['surname'],
+            'surname_en' => isset($data['surname_en']) ? $data['surname_en'] : '',
             'description' => $data['description'],
+            'description_en' => isset($data['description_en']) ? $data['description_en'] : '',
             'rank' => $data['rank'],
             'created_by' =>  get_loggedin_user_id(),
             'image' => $this->upload_image(),

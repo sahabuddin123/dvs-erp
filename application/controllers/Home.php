@@ -29,6 +29,20 @@ class Home extends Frontend_Controller
         $this->home();
     }
 
+    public function lang($action = 'bn')
+    {
+        if ($action == 'en' || $action == 'english') {
+            $this->session->set_userdata('set_lang', 'english');
+        } else {
+            $this->session->set_userdata('set_lang', 'bengali');
+        }
+        if (!empty($_SERVER['HTTP_REFERER'])) {
+            redirect($_SERVER['HTTP_REFERER']);
+        } else {
+            redirect(base_url(), 'refresh');
+        }
+    }
+
     public function home()
     {
         $branchID = $this->home_model->getDefaultBranch();
@@ -38,9 +52,13 @@ class Home extends Frontend_Controller
         $this->data['wellcome'] = $this->home_model->getCmsHome('wellcome', $branchID);
         $this->data['teachers'] = $this->home_model->getCmsHome('teachers', $branchID);
         $this->data['testimonial'] = $this->home_model->getCmsHome('testimonial', $branchID);
+        $this->data['testimonials'] = $this->db->where('branch_id', $branchID)->order_by('rank', 'asc')->get('front_cms_testimonial')->result_array();
         $this->data['services'] = $this->home_model->getCmsHome('services', $branchID);
         $this->data['cta_box'] = $this->home_model->getCmsHome('cta', $branchID);
         $this->data['statistics'] = $this->home_model->getCmsHome('statistics', $branchID);
+        $this->data['notices'] = $this->home_model->getLatestNewsList($branchID, array('limit' => 10));
+        $this->data['events'] = $this->home_model->getLatestEventList($branchID, array('limit' => 6));
+        $this->data['gallery_list'] = $this->db->where('branch_id', $branchID)->where('show_web', 1)->limit(8)->get('front_cms_gallery_content')->result_array();
         $this->data['page_data'] = $this->home_model->get('front_cms_home_seo', array('branch_id' => $branchID), true);
         $this->data['main_contents'] = $this->load->view('home/index', $this->data, true);
         $this->load->view('home/layout/index', $this->data);
@@ -148,6 +166,7 @@ class Home extends Frontend_Controller
         $this->data['page_data'] = $this->home_model->get('front_cms_teachers', array('branch_id' => $branchID), true);
         $this->data['departments'] = $this->home_model->get_teacher_departments($branchID);
         $this->data['doctor_list'] = $this->home_model->get_teacher_list("", $branchID);
+        $this->data['active_menu'] = 'teachers';
         $this->data['main_contents'] = $this->load->view('home/teachers', $this->data, true);
         $this->load->view('home/layout/index', $this->data);
     }
@@ -658,8 +677,110 @@ class Home extends Frontend_Controller
         $this->load->view('home/layout/index', $this->data);
     }
 
+    public function history()
+    {
+        $branchID = $this->home_model->getDefaultBranch();
+        $this->db->select('front_cms_menu.title as menu_title,front_cms_menu.alias,front_cms_pages.*');
+        $this->db->from('front_cms_menu');
+        $this->db->join('front_cms_pages', 'front_cms_pages.menu_id = front_cms_menu.id', 'inner');
+        $this->db->where('front_cms_menu.alias', 'history');
+        $this->db->where('front_cms_menu.publish', 1);
+        $getData = $this->db->get()->row_array();
+
+        if (empty($getData)) {
+            $getData = $this->db->get_where('front_cms_pages', array('menu_id' => 18))->row_array();
+            if (empty($getData)) {
+                $getData = $this->db->get_where('front_cms_pages', array('id' => 3))->row_array();
+            }
+        }
+
+        $this->data['branchID'] = !empty($getData['branch_id']) ? $getData['branch_id'] : $branchID;
+        $this->data['page_data'] = $getData;
+        $this->data['active_menu'] = 'history';
+        $this->data['main_contents'] = $this->load->view('home/history', $this->data, true);
+        $this->load->view('home/layout/index', $this->data);
+    }
+
+    public function governing_body()
+    {
+        $branchID = $this->home_model->getDefaultBranch();
+        $this->db->select('front_cms_menu.title as menu_title,front_cms_menu.alias,front_cms_pages.*');
+        $this->db->from('front_cms_menu');
+        $this->db->join('front_cms_pages', 'front_cms_pages.menu_id = front_cms_menu.id', 'left');
+        $this->db->where('front_cms_menu.alias', 'governing-body');
+        $this->db->where('front_cms_menu.publish', 1);
+        $getData = $this->db->get()->row_array();
+
+        if (empty($getData)) {
+            $getData = $this->db->get_where('front_cms_pages', array('menu_id' => 15))->row_array();
+            if (empty($getData)) {
+                $getData = $this->db->get_where('front_cms_pages', array('id' => 1))->row_array();
+            }
+        }
+
+        // Fetch governing body members dynamically from front_cms_testimonial
+        $this->db->order_by('rank', 'asc');
+        $members = $this->db->get_where('front_cms_testimonial', array('branch_id' => $branchID))->result_array();
+
+        $this->data['branchID'] = !empty($getData['branch_id']) ? $getData['branch_id'] : $branchID;
+        $this->data['page_data'] = $getData;
+        $this->data['members'] = $members;
+        $this->data['active_menu'] = 'governing-body';
+        $this->data['main_contents'] = $this->load->view('home/governing_body', $this->data, true);
+        $this->load->view('home/layout/index', $this->data);
+    }
+
+    public function staff()
+    {
+        $branchID = $this->home_model->getDefaultBranch();
+        $this->db->select('front_cms_menu.title as menu_title,front_cms_menu.alias,front_cms_pages.*');
+        $this->db->from('front_cms_menu');
+        $this->db->join('front_cms_pages', 'front_cms_pages.menu_id = front_cms_menu.id', 'left');
+        $this->db->where('front_cms_menu.alias', 'staff');
+        $this->db->where('front_cms_menu.publish', 1);
+        $getData = $this->db->get()->row_array();
+
+        if (empty($getData)) {
+            $getData = $this->db->get_where('front_cms_pages', array('menu_id' => 26))->row_array();
+        }
+
+        // Fetch non-teacher staff members dynamically
+        $this->db->select('staff.*, staff_designation.name as designation_name, staff_department.name as department_name, roles.name as role_name');
+        $this->db->from('staff');
+        $this->db->join('login_credential', 'login_credential.user_id = staff.id and login_credential.role != 7', 'inner');
+        $this->db->join('roles', 'roles.id = login_credential.role', 'left');
+        $this->db->join('staff_designation', 'staff_designation.id = staff.designation', 'left');
+        $this->db->join('staff_department', 'staff_department.id = staff.department', 'left');
+        $this->db->where('login_credential.role !=', 3);
+        $this->db->where('login_credential.active', 1);
+        $this->db->where('staff.branch_id', $branchID);
+        $this->db->order_by('staff.id', 'asc');
+        $staff_list = $this->db->get()->result_array();
+
+        $this->data['branchID'] = !empty($getData['branch_id']) ? $getData['branch_id'] : $branchID;
+        $this->data['page_data'] = $getData;
+        $this->data['staff_list'] = $staff_list;
+        $this->data['active_menu'] = 'staff';
+        $this->data['main_contents'] = $this->load->view('home/staff', $this->data, true);
+        $this->load->view('home/layout/index', $this->data);
+    }
+
     public function page($url = '')
     {
+        $alias = urldecode($url);
+        if ($alias == 'history') {
+            $this->history();
+            return;
+        }
+        if ($alias == 'governing-body' || $alias == 'governing_body' || $alias == 'committee') {
+            $this->governing_body();
+            return;
+        }
+        if ($alias == 'staff') {
+            $this->staff();
+            return;
+        }
+
         $this->db->select('front_cms_menu.title as menu_title,front_cms_menu.alias,front_cms_pages.*');
         $this->db->from('front_cms_menu');
         $this->db->join('front_cms_pages', 'front_cms_pages.menu_id = front_cms_menu.id', 'inner');

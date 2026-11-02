@@ -76,9 +76,20 @@ if (is_dir($routes_path)) {
 
 $route['(:any)/authentication'] = 'authentication/index/$1';
 $route['(:any)/forgot'] = 'authentication/forgot/$1';
+$route['teachers'] = 'home/teachers';
 $route['(:any)/teachers'] = 'home/teachers';
 $route['(:any)/events'] = 'home/events';
 $route['(:any)/news'] = 'home/news/';
+$route['lang/(:any)'] = 'home/lang/$1';
+$route['locale/(:any)'] = 'home/lang/$1';
+$route['history'] = 'home/history';
+$route['(:any)/history'] = 'home/history';
+$route['governing-body'] = 'home/governing_body';
+$route['governing_body'] = 'home/governing_body';
+$route['(:any)/governing-body'] = 'home/governing_body';
+$route['(:any)/governing_body'] = 'home/governing_body';
+$route['staff'] = 'home/staff';
+$route['(:any)/staff'] = 'home/staff';
 $route['(:any)/about'] = 'home/about';
 $route['(:any)/faq'] = 'home/faq';
 $route['(:any)/admission'] = 'home/admission';

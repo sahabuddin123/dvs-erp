@@ -78,10 +78,16 @@
 					</div>
 					<?php endif; ?>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('title'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-7">
 							<input type="text" class="form-control" name="news_title" value="<?php echo set_value('news_title'); ?>" />
 							<span class="error"><?php echo form_error('news_title'); ?></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('title'); ?> (English)</label>
+						<div class="col-md-7">
+							<input type="text" class="form-control" name="news_title_en" value="<?php echo set_value('news_title_en'); ?>" />
 						</div>
 					</div>
 					<div class="form-group">
@@ -93,10 +99,16 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('description'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('description'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-7">
 							<textarea name="description" class="summernote"><?php echo set_value('description'); ?></textarea>
 							<span class="error"><?php echo form_error('description'); ?></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('description'); ?> (English)</label>
+						<div class="col-md-7">
+							<textarea name="description_en" class="summernote"><?php echo set_value('description_en'); ?></textarea>
 						</div>
 					</div>
 					<div class="form-group">
