@@ -63,15 +63,15 @@ if (!empty($messages_data[$current_lang][$num_key]['message'])) {
                     <div class="row">
                         <!-- Left Profile Column -->
                         <div class="col-md-4 mb-4 mb-md-0 text-center">
-                            <div class="p-3 shadow-sm rounded" style="background-color: #ffffff; border: 1px solid #f1f5f9;">
+                            <div class="text-center shadow p-4 rounded bg-white">
                                 <img src="<?php echo $img_src; ?>" alt="<?php echo html_escape($founder_name); ?>" 
-                                    class="img-fluid rounded mb-3 shadow-sm" 
+                                    class="img-fluid rounded profile-image mb-3" 
                                     style="max-width: 200px; width: 100%; height: auto; object-fit: cover;">
                                 <h4 class="fw-bold mb-1" style="color: #1e293b;"><?php echo html_escape($founder_name); ?></h4>
-                                <p class="text-muted mt-1 mb-0" style="padding-bottom: 1.5rem; line-height: 1.6;">
+                                <p class="text-muted mt-1" style="padding-bottom: 2rem; line-height: 1.6;">
                                     <?php echo html_escape($founder_designation); ?><br>
                                     <?php echo ($current_lang == 'en') ? 'Dream Valley School' : 'ড্রিম ভ্যালী স্কুল'; ?><br>
-                                    <?php echo ($current_lang == 'en') ? 'Charbata, Subarnachar, Noakhali.' : 'চরবাটা, সুবর্ণচর, নোয়াখালী'; ?>
+                                    <?php echo ($current_lang == 'en') ? 'Charbata, Subarnachar, Noakhali.' : 'চরবাটা, সুবর্ণচর, নোয়াখালী।'; ?>
                                 </p>
                             </div>
                         </div>
@@ -86,8 +86,8 @@ if (!empty($messages_data[$current_lang][$num_key]['message'])) {
                                     <?php echo $full_message; ?>
                                 </div>
                                 <div class="mt-4 pt-3 border-top">
-                                    <a href="<?php echo base_url('governing-body'); ?>" class="btn btn-outline-success">
-                                        <i class="fas fa-arrow-left me-2"></i> <?php echo ($current_lang == 'en') ? 'Back to Governing Body' : 'পরিচালক মণ্ডলীতে ফিরে যান'; ?>
+                                    <a href="<?php echo base_url('governing-body'); ?>" class="btn text-light" style="background-color: var(--dark-color); border-radius: 6px; font-weight: 500; padding: 7px 22px;">
+                                        <i class="fas fa-arrow-left me-2"></i> <?php echo ($current_lang == 'en') ? 'Back' : 'ফিরে যান'; ?>
                                     </a>
                                 </div>
                             </div>
