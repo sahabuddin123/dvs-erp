@@ -38,7 +38,7 @@ $date_display = !empty($page_data['created_at']) ? date('M d, Y', strtotime($pag
                         <div class="d-md-flex justify-content-between align-items-center">
                             <h3 class="mb-md-0 mb-2 fw-bold" style="color: #1e293b; font-size: 1.5rem;"><?php echo html_escape($page_title); ?></h3>
                             <div>
-                                <span class="badge text-white p-2 me-2" style="background-color: var(--primary-color) !important; font-size: 0.85rem;">
+                                <span class="badge bg-primary p-2 me-2" style="font-size: 0.85rem;">
                                     <i class="fas fa-newspaper me-1"></i>
                                 </span>
                                 <span class="text-muted small">
@@ -56,7 +56,7 @@ $date_display = !empty($page_data['created_at']) ? date('M d, Y', strtotime($pag
                         </div>
 
                         <!-- 3-Column Members Grid -->
-                        <div class="row g-4 mt-2">
+                        <div class="row g-4 mt-4">
                             <?php 
                             if (!empty($members)) {
                                 $url_map = [
@@ -83,20 +83,17 @@ $date_display = !empty($page_data['created_at']) ? date('M d, Y', strtotime($pag
                                     }
                             ?>
                                 <div class="col-md-6 col-lg-4">
-                                    <div class="card h-100 shadow-sm border-0 member-card" style="border-radius: 8px; transition: transform 0.3s ease, box-shadow 0.3s ease;">
-                                        <div class="card-body text-center p-4 d-flex flex-column">
-                                            <div class="mb-3 mx-auto" style="width: 100%; height: 200px; overflow: hidden; border-radius: 6px; background-color: #f8fafc;">
-                                                <img src="<?php echo $img_src; ?>" alt="<?php echo html_escape($m_name); ?>" class="img-fluid" style="height: 200px; width: 100%; object-fit: cover;">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body text-center p-4">
+                                            <div class="mb-3">
+                                                <img src="<?php echo $img_src; ?>" alt="<?php echo html_escape($m_name); ?>" class="img-fluid" style="height: 200px;">
                                             </div>
-                                            <h5 class="mb-1 fw-bold" style="color: #1e293b; font-size: 1.15rem;"><?php echo html_escape($m_name); ?></h5>
+                                            <h5 class="mb-1 fw-bold"><?php echo html_escape($m_name); ?></h5>
                                             <p class="text-muted small mb-1"><?php echo html_escape($m_surname); ?></p>
                                             <p class="small mb-3" style="color: var(--primary-color) !important; font-weight: 500;"><?php echo html_escape($m_surname); ?></p>
-                                            
-                                            <div class="mt-auto">
-                                                <a href="<?php echo base_url('message-founder/' . $founder_url_id); ?>" class="btn btn-sm btn-outline-primary w-100 mt-2" style="border-color: var(--primary-color); color: var(--primary-color);">
-                                                    <i class="fas fa-envelope-open-text me-1"></i> Message
-                                                </a>
-                                            </div>
+                                            <a href="<?php echo base_url('message-founder/' . $founder_url_id); ?>" class="btn btn-sm btn-outline-primary mt-3">
+                                                <i class="fas fa-envelope-open-text me-1"></i> Message
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
