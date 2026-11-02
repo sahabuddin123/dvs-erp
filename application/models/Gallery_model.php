@@ -64,12 +64,17 @@ class Gallery_model extends MY_Model
 
     public function get_image_url($file_path = '')
     {
-        $path = 'uploads/frontend/gallery/' . $file_path;
-        if (empty($file_path) || !file_exists($path)) {
-            $image_url = base_url('uploads/frontend/gallery/defualt.png');
-        } else {
-            $image_url = base_url($path);
+        if (!empty($file_path)) {
+            if (file_exists('assets/frontend/dvs/storage/albums/' . $file_path)) {
+                return base_url('assets/frontend/dvs/storage/albums/' . $file_path);
+            }
+            if (file_exists('assets/frontend/dvs/storage/galleries/' . $file_path)) {
+                return base_url('assets/frontend/dvs/storage/galleries/' . $file_path);
+            }
+            if (file_exists('uploads/frontend/gallery/' . $file_path)) {
+                return base_url('uploads/frontend/gallery/' . $file_path);
+            }
         }
-        return $image_url;
+        return base_url('uploads/frontend/gallery/defualt.png');
     }
 }

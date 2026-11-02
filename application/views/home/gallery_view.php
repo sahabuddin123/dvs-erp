@@ -27,70 +27,70 @@ $page_subtitle = 'Explore our memorable moments through photos.';
     </svg>
 </div>
 
-<!-- Main Gallery View Content -->
-<section class="gallery-section py-5" style="background-color: #f8fafc; min-height: 500px;">
+<!-- Main Gallery View Section -->
+<section class="gallery-section py-5 bg-light" style="min-height: 500px;">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-            <h4 class="fw-bold mb-0" style="color: #1e293b;"><?php echo html_escape($gallery['title'] ?? ''); ?></h4>
-            <a href="<?php echo base_url('gallery'); ?>" class="btn btn-outline-success btn-sm">
-                <i class="fas fa-arrow-left me-1"></i> <?php echo ($current_lang == 'en') ? 'All Albums' : 'সব অ্যালবাম'; ?>
+        <div class="section-title">
+            <h2><i class="fas fa-images me-2"></i> <?php echo html_escape($page_title); ?></h2>
+            <p><?php echo ($current_lang == 'en') ? 'Explore moments captured at our school' : 'আমাদের স্কুলে ধারণ করা বিশেষ মুহূর্তগুলো দেখুন'; ?></p>
+        </div>
+
+        <div class="mb-4">
+            <a href="<?php echo base_url('gallery'); ?>" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> <?php echo ($current_lang == 'en') ? 'Go Back' : 'ফিরে যান'; ?>
             </a>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-4 gallery-container">
             <?php 
-            $elem = !empty($gallery['elements']) ? json_decode($gallery['elements'], TRUE) : [];
-            if (!empty($elem)) {
-                foreach ($elem as $key => $row) {
-                    $url = "";
-                    $is_video = false;
-                    if ($row['type'] == 2) {
-                        $is_video = true;
-                        $url = $row['video_url'];
-                    } else {
-                        $url = $this->gallery_model->get_image_url($row['image']);
-                    }
+            if (!empty($galleryList)) {
+                foreach ($galleryList as $row) { 
+                    $img_url = $this->gallery_model->get_image_url($row['thumb_image']);
+                    $album_title = !empty($row['title']) ? $row['title'] : 'Science Fair';
             ?>
-                <div class="col-sm-6 col-md-4 col-lg-3">
-                    <div class="gallery-card shadow-sm">
-                        <img src="<?php echo $this->gallery_model->get_image_url($row['image']); ?>" alt="Gallery Image" class="img-fluid">
-                        <div class="gallery-overlay">
-                            <div class="gallery-info p-3">
-                                <a href="<?php echo $url; ?>" class="<?php echo $is_video ? 'popup-video' : 'gallery-popup'; ?> btn btn-light btn-sm text-dark shadow-sm">
-                                    <i class="<?php echo $is_video ? 'fab fa-youtube text-danger' : 'fas fa-search-plus text-success'; ?> me-1"></i>
-                                    <?php echo $is_video ? 'Play Video' : 'বড় করে দেখুন'; ?>
-                                </a>
+            <div class="col-sm-6 col-md-4 col-lg-3 gallery-item">
+                <a href="<?php echo $img_url; ?>" class="gallery-popup d-block text-decoration-none" title="<?php echo html_escape($album_title); ?>">
+                    <div class="gallery-card shadow-sm border-0 position-relative overflow-hidden" style="border-radius: 8px; background: #fff; height: 260px;">
+                        <img src="<?php echo $img_url; ?>" alt="<?php echo html_escape($album_title); ?>" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                        <div class="gallery-overlay d-flex align-items-end p-3 position-absolute w-100 h-100 top-0 start-0" style="background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); transition: all 0.3s ease;">
+                            <div class="gallery-info text-white">
+                                <h5 class="mb-1 fw-bold fs-6"><?php echo html_escape($album_title); ?></h5>
+                                <p class="mb-0 text-white-50 small">Science Fair</p>
                             </div>
                         </div>
                     </div>
+                </a>
+            </div>
+            <?php } 
+            } else { ?>
+            <div class="col-12 text-center py-5">
+                <div class="alert alert-info d-inline-block px-5 py-3 shadow-sm" style="background-color: #e0f2fe; border-color: #bae6fd; color: #0369a1; border-radius: 8px;">
+                    <i class="fas fa-images fa-2x mb-2 d-block"></i>
+                    <h5 class="mb-1 fw-bold"><?php echo ($current_lang == 'en') ? 'No Photos Found' : 'কোনো ছবি পাওয়া যায়নি'; ?></h5>
                 </div>
-            <?php 
-                } 
-            } else if (!empty($gallery['thumb_image'])) { 
-                $img_url = $this->gallery_model->get_image_url($gallery['thumb_image']);
-            ?>
-                <div class="col-sm-6 col-md-4 col-lg-4">
-                    <a href="<?php echo $img_url; ?>" class="gallery-popup d-block" title="<?php echo html_escape($gallery['title']); ?>">
-                        <div class="gallery-card shadow-sm">
-                            <img src="<?php echo $img_url; ?>" alt="<?php echo html_escape($gallery['title']); ?>" class="img-fluid">
-                            <div class="gallery-overlay">
-                                <div class="gallery-info p-3">
-                                    <h5><?php echo html_escape($gallery['title']); ?></h5>
-                                    <span class="badge bg-light text-dark mt-2 shadow-sm">
-                                        <i class="fas fa-search-plus me-1"></i> বড় করে দেখুন
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            <?php } else { ?>
-                <div class="col-12 text-center py-5">
-                    <div class="alert alert-info d-inline-block px-4 py-3" style="background-color: #e0f2fe; border-color: #bae6fd; color: #0369a1; border-radius: 8px;">
-                        <i class="fas fa-info-circle me-2"></i> <?php echo ($current_lang == 'en') ? 'No items in this album.' : 'এই অ্যালবামে কোনো ছবি পাওয়া যায়নি।'; ?>
-                    </div>
-                </div>
+            </div>
             <?php } ?>
         </div>
     </div>
 </section>
+
+<!-- Magnific Popup Lightbox Initialization -->
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function() {
+    if (typeof jQuery !== 'undefined' && typeof jQuery.fn.magnificPopup !== 'undefined') {
+        jQuery('.gallery-popup').magnificPopup({
+            type: 'image',
+            gallery: {
+                enabled: true,
+                navigateByImgClick: true,
+                preload: [0, 1]
+            },
+            zoom: {
+                enabled: true,
+                duration: 300,
+                easing: 'ease-in-out'
+            }
+        });
+    }
+});
+</script>
