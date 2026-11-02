@@ -55,3 +55,4 @@ $page_title = !empty($dept_name) ? $dept_name : (($current_lang == 'en') ? 'Stud
         <?php } ?>
     </div>
 </section>
+

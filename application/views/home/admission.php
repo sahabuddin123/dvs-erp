@@ -27,27 +27,29 @@ $page_subtitle = "To apply online for admission, you need to fill up the form";
     </svg>
 </div>
 <!-- Main Container Starts -->
-<div class="container px-md-0 main-container">
-    <h3 class="main-heading2 mt-0"><?php echo $page_data['title']; ?></h3>
-    <?php echo $page_data['description'];?>
-
-    <div class="box2 form-box position-relative">
-        <div class="admission-status-frm">
-            <button type="button" class="btn btn-1 admission-status-btn" data-bs-toggle="modal" data-bs-target="#admissionModal"><i class="fa-solid fa-file-lines"></i> Check Addmision Status</button>
-<?php if (!empty($page_data['application_form_file'])) { ?>
-            <a class="btn btn-1 admission-status-btn" href="<?php echo base_url('home/download_application_form/' . rtrim(strtr(base64_encode($branchID), '+/', '-_'), '=')); ?>"><i class="fas fa-download"></i> Download Application Form</a> 
-<?php } ?>
+<div class="container my-5 main-container">
+    <div class="row mb-4">
+        <div class="col text-end">
+            <button type="button" class="btn text-white px-4 py-2" style="background: var(--primary-color); border-radius: 6px; font-weight: 500;" data-bs-toggle="modal" data-bs-target="#admissionModal">
+                <i class="fas fa-clipboard-check me-2"></i> Check Admission Status
+            </button>
+            <?php if (!empty($page_data['application_form_file'])) { ?>
+                <a class="btn btn-outline-success ms-2 px-3 py-2" style="border-radius: 6px;" href="<?php echo base_url('home/download_application_form/' . rtrim(strtr(base64_encode($branchID), '+/', '-_'), '=')); ?>">
+                    <i class="fas fa-download me-1"></i> Download Application Form
+                </a> 
+            <?php } ?>
         </div>
+    </div>
 
-        <div class="tabs-panel tabs-product mt-4">
-            <div class="nav nav-tabs">
-                <a class="nav-item nav-link active" data-toggle="tab" href="#new-admission" role="tab" aria-controls="tab-details" aria-selected="true">New Admission</a>
-            </div>
-            <div class="tab-content clearfix">
-                <div class="tab-pane fade show active" id="new-admission" role="tabpanel" aria-labelledby="tab-new-admission">
-                    <?php echo form_open_multipart($this->uri->uri_string(), array('class' => 'form-horizontal frm-submit-data')); ?>
+    <?php echo form_open_multipart($this->uri->uri_string(), array('class' => 'frm-submit-data')); ?>
                         <?php $section = $this->student_fields_model->getOnlineStatus('section', $branchID); ?>
-                        <div class="headers-line mt-3"><i class="fas fa-school"></i> Academic Details</div>
+                        <div class="card mb-4 shadow-sm border-0" style="border-radius: 8px;">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="mb-0 fw-bold" style="color: #1e293b;">
+                <i class="fas fa-school text-success me-2"></i> Academic Details
+            </h5>
+        </div>
+        <div class="card-body p-4">
                         <div class="row">
                             <div class="col-md-<?php echo $section['status'] == 1 ? '4' : '6' ?>">
                                 <div class="form-group">
@@ -108,7 +110,16 @@ $page_subtitle = "To apply online for admission, you need to fill up the form";
                             <?php } ?>
                         </div>
 
-                        <div class="headers-line mt-3"><i class="fas fa-file-alt"></i> Student Details</div>
+                                </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm border-0" style="border-radius: 8px;">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="mb-0 fw-bold" style="color: #1e293b;">
+                <i class="fas fa-user-graduate text-success me-2"></i> Student Details
+            </h5>
+        </div>
+        <div class="card-body p-4">
                         <div class="row">
                             <?php 
                             $last_name = $this->student_fields_model->getOnlineStatus('last_name', $branchID);
@@ -321,9 +332,13 @@ $page_subtitle = "To apply online for admission, you need to fill up the form";
                         ?>
 
                         <!-- previous school details -->
-                        <div class="headers-line">
-                            <i class="fas fa-bezier-curve"></i> <?=translate('previous_school_details')?>
-                        </div>
+                        <div class="card mb-4 shadow-sm border-0" style="border-radius: 8px;">
+                            <div class="card-header bg-white py-3 border-bottom">
+                                <h5 class="mb-0 fw-bold" style="color: #1e293b;">
+                                    <i class="fas fa-history text-success me-2"></i> <?=translate('previous_school_details')?>
+                                </h5>
+                            </div>
+                            <div class="card-body p-4">
                         <div class="row">
                             <div class="col-md-6 mb-sm">
                                 <div class="form-group">
@@ -349,6 +364,8 @@ $page_subtitle = "To apply online for admission, you need to fill up the form";
                                 </div>
                             </div>
                         </div>
+                            </div>
+                        </div>
                         <?php } ?>
 
                         <?php 
@@ -366,7 +383,13 @@ $page_subtitle = "To apply online for admission, you need to fill up the form";
                         
                         if ($guardian_name['status'] || $guardian_relation['status'] || $father_name['status'] || $mother_name['status'] || $guardian_occupation['status'] || $guardian_income['status'] || $guardian_education['status'] || $guardian_email['status'] || $guardian_mobile_no['status'] || $guardian_address['status'] || $guardian_photo['status']) {
                         ?>
-                        <div class="headers-line mt-3"><i class="fas fa-user-tie"></i> Guardian Details</div>
+                        <div class="card mb-4 shadow-sm border-0" style="border-radius: 8px;">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h5 class="mb-0 fw-bold" style="color: #1e293b;">
+            <i class="fas fa-user-tie text-success me-2"></i> Guardian Details
+        </h5>
+    </div>
+    <div class="card-body p-4">
                         <?php 
                         $div = 6;
                         if ($guardian_name['status'] == 0 || $guardian_relation['status'] == 0) {
@@ -486,6 +509,8 @@ $page_subtitle = "To apply online for admission, you need to fill up the form";
                                 </div>
                             </div>
                         </div>
+                            </div>
+                        </div>
                         <?php } ?>
 
                         <?php
@@ -536,7 +561,16 @@ $page_subtitle = "To apply online for admission, you need to fill up the form";
                         <?php $upload_documents = $this->student_fields_model->getOnlineStatus('upload_documents', $branchID); 
                         if ($upload_documents['status']) { 
                         ?>
-                        <div class="headers-line mt-3"><i class="far fa-file-archive"></i> Upload Documents</div>
+                            </div>
+</div>
+
+<div class="card mb-4 shadow-sm border-0" style="border-radius: 8px;">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h5 class="mb-0 fw-bold" style="color: #1e293b;">
+            <i class="far fa-file-archive text-success me-2"></i> Upload Documents
+        </h5>
+    </div>
+    <div class="card-body p-4">
                         <div class="form-group">
                             <label for="message">Upload Documents<?php echo $upload_documents['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
                             <div class="custom-file">
@@ -545,6 +579,8 @@ $page_subtitle = "To apply online for admission, you need to fill up the form";
                             </div>
                             <span class="error"></span>
                         </div>
+    </div>
+</div>
                         <?php } ?>
 
 
@@ -570,12 +606,12 @@ $page_subtitle = "To apply online for admission, you need to fill up the form";
                             </div>
                         </div>
                     <?php } ?>
-                        <button type="submit" class="btn btn-1" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-plus-circle"></i> <?=translate('submit')?></button>
-                    <?php echo form_close(); ?>
-                </div>
-            </div>
-        </div>
+    <div class="text-center my-4">
+        <button type="submit" class="btn btn-lg text-white px-5 py-2 shadow-sm" style="background-color: var(--primary-color); border-radius: 8px; font-weight: 600;" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing">
+            <i class="fas fa-paper-plane me-2"></i> <?=translate('submit')?>
+        </button>
     </div>
+    <?php echo form_close(); ?>
 </div>
 
 <!-- Modal -->
