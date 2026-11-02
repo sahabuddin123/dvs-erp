@@ -8,23 +8,26 @@
         font-weight: 500;
     }
 </style>
-<!-- Main Banner Starts -->
-<div class="main-banner" style="background: url(<?php echo base_url('uploads/frontend/banners/' . $page_data['banner_image']); ?>) center top;">
-    <div class="container px-md-0">
-        <h2><span><?php echo $page_data['page_title']; ?></span></h2>
+<!-- Page Header (DVS Match) -->
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="page-header-title"><?php echo html_escape($page_data['page_title']); ?></h1>
+                
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-end">
+                <div class="display-1 opacity-80 page-header-icon">
+                    <i class="fas fa-award"></i>
+                </div>
+            </div>
+        </div>
     </div>
+    <!-- Wave Shape -->
+    <svg class="page-header-wave" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 70" preserveAspectRatio="none">
+        <path fill="#007F3D" fill-opacity="1" d="M0,32L60,42.7C120,53,240,75,360,69.3C480,64,600,32,720,21.3C840,11,960,21,1080,26.7C1200,32,1320,32,1380,32L1440,32L1440,70L1380,70C1320,70,1200,70,1080,70C960,70,840,70,720,70C600,70,480,70,360,70C240,70,120,70,60,70L0,70Z"></path>
+    </svg>
 </div>
-<!-- Main Banner Ends -->
-<!-- Breadcrumb Starts -->
-<div class="breadcrumb">
-    <div class="container px-md-0">
-        <ul class="list-unstyled list-inline">
-            <li class="list-inline-item"><a href="<?php echo base_url('home'); ?>">Home</a></li>
-            <li class="list-inline-item active"><?php echo $page_data['page_title']; ?></li>
-        </ul>
-    </div>
-</div>
-<!-- Breadcrumb Ends -->
 <!-- Main Container Starts -->
 <div class="container px-md-0 main-container">
     <p><?php echo $page_data['description']; ?></p>
