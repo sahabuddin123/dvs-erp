@@ -32,13 +32,7 @@ $page_subtitle = 'Explore our memorable moments through photos.';
     <div class="container">
         <div class="section-title">
             <h2><i class="fas fa-images me-2"></i> <?php echo html_escape($page_title); ?></h2>
-            <p><?php echo ($current_lang == 'en') ? 'Explore moments captured at our school' : 'আমাদের স্কুলে ধারণ করা বিশেষ মুহূর্তগুলো দেখুন'; ?></p>
-        </div>
-
-        <div class="mb-4">
-            <a href="<?php echo base_url('gallery'); ?>" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i> <?php echo ($current_lang == 'en') ? 'Go Back' : 'ফিরে যান'; ?>
-            </a>
+            <p>Explore moments captured at our school</p>
         </div>
 
         <div class="row g-4 gallery-container">

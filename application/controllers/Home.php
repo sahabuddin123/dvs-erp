@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
 /**
@@ -150,10 +150,17 @@ class Home extends Frontend_Controller
     {
         $branchID = $this->home_model->getDefaultBranch();
         $this->data['branchID'] = $branchID;
-        $this->data['event'] = $this->home_model->get('front_cms_news_list', array('alias' => urldecode($alias), 'branch_id' => $branchID, 'show_web' => 1), true);
-        if (empty($this->data['event']['id'])) {
-            redirect($_SERVER['HTTP_REFERER']);
+        $event = $this->home_model->get('front_cms_news_list', array('alias' => urldecode($alias), 'branch_id' => $branchID, 'show_web' => 1), true);
+        if (empty($event['id']) && is_numeric($alias)) {
+            $event = $this->home_model->get('front_cms_news_list', array('id' => (int)$alias, 'branch_id' => $branchID, 'show_web' => 1), true);
         }
+        if (empty($event['id']) && is_numeric($alias)) {
+            $event = $this->home_model->get('front_cms_news_list', array('id' => (int)$alias), true);
+        }
+        if (empty($event['id'])) {
+            $event = $this->db->order_by('id', 'desc')->get_where('front_cms_news_list', array('branch_id' => $branchID, 'show_web' => 1))->row_array();
+        }
+        $this->data['event'] = $event;
         $this->data['page_data'] = $this->home_model->get('front_cms_news', array('branch_id' => $branchID), true);
         $this->data['main_contents'] = $this->load->view('home/news_view', $this->data, true);
         $this->load->view('home/layout/index', $this->data);
@@ -766,6 +773,53 @@ class Home extends Frontend_Controller
         $this->data['members'] = $members;
         $this->data['active_menu'] = 'governing-body';
         $this->data['main_contents'] = $this->load->view('home/governing_body', $this->data, true);
+        $this->load->view('home/layout/index', $this->data);
+    }
+
+    public function message_founder($id = '1')
+    {
+        $branchID = $this->home_model->getDefaultBranch();
+
+        // Mapping from URL ID to database testimonial ID
+        $founder_id_map = [
+            '1' => 15,
+            '2' => 18,
+            '3' => 17,
+            '4' => 20,
+            '5' => 19,
+            '6' => 16,
+            '7' => 21,
+        ];
+        $reverse_map = array_flip($founder_id_map);
+        $db_id = isset($founder_id_map[$id]) ? $founder_id_map[$id] : $id;
+
+        $founder = $this->db->get_where('front_cms_testimonial', array('id' => $db_id))->row_array();
+        if (empty($founder)) {
+            $founder = $this->db->get_where('front_cms_testimonial', array('rank' => $id))->row_array();
+        }
+        if (empty($founder)) {
+            $founder = $this->db->get_where('front_cms_testimonial', array('rank' => 1))->row_array();
+        }
+
+        // Load custom messages if available
+        $json_file = FCPATH . 'assets/frontend/dvs/data/founders_messages.json';
+        $messages_data = [];
+        if (file_exists($json_file)) {
+            $messages_data = json_decode(file_get_contents($json_file), true);
+        }
+
+        $founder_num = isset($reverse_map[$founder['id']]) ? $reverse_map[$founder['id']] : $id;
+
+        $this->data['branchID'] = $branchID;
+        $this->data['founder'] = $founder;
+        $this->data['founder_num_id'] = $founder_num;
+        $this->data['messages_data'] = $messages_data;
+        $this->data['active_menu'] = 'governing-body';
+        $this->data['page_data'] = [
+            'page_title' => !empty($founder['name']) ? $founder['name'] : 'Message',
+            'title' => !empty($founder['surname']) ? $founder['surname'] : 'Founder Message',
+        ];
+        $this->data['main_contents'] = $this->load->view('home/message_founder', $this->data, true);
         $this->load->view('home/layout/index', $this->data);
     }
 

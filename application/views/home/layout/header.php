@@ -77,7 +77,7 @@ $app_address = get_lang_field($cms_setting, 'address', 'চরবাটা, স�
             </div>
             <div class="col-lg-4 text-end">
                 <div class="quick-buttons">
-                    <button class="btn-quick" onclick="location.href = '<?php echo base_url('about'); ?>'">
+                    <button class="btn-quick" onclick="location.href = '<?php echo base_url('message-founder/1'); ?>'">
                         <i class="fas fa-user-tie me-1"></i> <?php echo translate('directors_message'); ?>
                     </button>
                     <button class="btn-quick ms-2" onclick="location.href = '<?php echo base_url('career'); ?>'">

@@ -59,10 +59,20 @@ $date_display = !empty($page_data['created_at']) ? date('M d, Y', strtotime($pag
                         <div class="row g-4 mt-2">
                             <?php 
                             if (!empty($members)) {
+                                $url_map = [
+                                    15 => 1,
+                                    18 => 2,
+                                    17 => 3,
+                                    20 => 4,
+                                    19 => 5,
+                                    16 => 6,
+                                    21 => 7,
+                                ];
                                 foreach ($members as $m) {
                                     $m_name = function_exists('get_lang_field') ? get_lang_field($m, 'name') : $m['name'];
                                     $m_surname = function_exists('get_lang_field') ? get_lang_field($m, 'surname') : $m['surname'];
                                     $m_desc = function_exists('get_lang_field') ? get_lang_field($m, 'description') : $m['description'];
+                                    $founder_url_id = isset($url_map[$m['id']]) ? $url_map[$m['id']] : $m['id'];
 
                                     // Image path resolution
                                     $img_src = base_url('assets/frontend/dvs/storage/founders/' . $m['image']);
@@ -83,9 +93,9 @@ $date_display = !empty($page_data['created_at']) ? date('M d, Y', strtotime($pag
                                             <p class="small mb-3" style="color: var(--primary-color) !important; font-weight: 500;"><?php echo html_escape($m_surname); ?></p>
                                             
                                             <div class="mt-auto">
-                                                <button type="button" class="btn btn-sm btn-outline-primary w-100 mt-2" data-bs-toggle="modal" data-bs-target="#founderModal<?php echo $m['id']; ?>" style="border-color: var(--primary-color); color: var(--primary-color);">
+                                                <a href="<?php echo base_url('message-founder/' . $founder_url_id); ?>" class="btn btn-sm btn-outline-primary w-100 mt-2" style="border-color: var(--primary-color); color: var(--primary-color);">
                                                     <i class="fas fa-envelope-open-text me-1"></i> Message
-                                                </button>
+                                                </a>
                                             </div>
                                         </div>
                                     </div>

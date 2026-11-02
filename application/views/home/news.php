@@ -34,23 +34,23 @@ $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'pa
         <!-- Search and Filter -->
         <div class="card shadow-sm mb-5 border-0" style="border-radius: 12px; background: #fff;">
             <div class="card-body p-4">
-                <h4 class="mb-4 fw-bold" style="color: #1e293b;">
-                    <?php echo ($current_lang == 'en') ? 'Search & Filter Notices' : 'নোটিশ খুঁজুন'; ?>
-                </h4>
+                <h5 class="mb-3 fw-bold" style="color: #1e293b; font-size: 1.15rem;">
+                    Search & Filter Notices
+                </h5>
                 <form action="<?php echo base_url('notice'); ?>" method="get">
                     <div class="row g-3">
                         <div class="col-md-10">
                             <div class="input-group">
                                 <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
                                 <input type="text" class="form-control border-start-0" id="notice-search" name="search"
-                                    placeholder="<?php echo ($current_lang == 'en') ? 'Search notices...' : 'নোটিশের বিষয় দিয়ে খুঁজুন...'; ?>" 
+                                    placeholder="Search notices.." 
                                     value="<?php echo html_escape($this->input->get('search') ?? ''); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn w-100 text-white"
                                 style="background-color: var(--dark-color); font-weight: 600;">
-                                <?php echo ($current_lang == 'en') ? 'Search' : 'অনুসন্ধান'; ?>
+                                Search
                             </button>
                         </div>
                     </div>
@@ -81,16 +81,16 @@ $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'pa
                                     <?php echo html_escape($row['title']); ?>
                                 </a>
                             </h4>
-                            <span class="notice-dates text-muted">
-                                <i class="far fa-calendar-alt me-1"></i> <?php echo _d($row['date']); ?>
+                            <span class="notice-dates text-muted" style="font-size: 0.9rem;">
+                                <i class="far fa-calendar-alt me-1 text-warning"></i> <?php echo date('M d, Y', strtotime($row['date'])); ?>
                             </span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mt-3">
-                            <span class="notice-category">
-                                <i class="fas fa-info-circle me-1"></i> <?php echo ($current_lang == 'en') ? 'Noticeboard' : 'নোটিশ বোর্ড'; ?>
+                            <span class="badge py-2 px-3 text-dark" style="background-color: #fef08a; border-radius: 6px; font-weight: 500; font-size: 0.85rem;">
+                                <i class="fas fa-info-circle me-1 text-muted"></i> <?php echo ($current_lang == 'en') ? 'Noticeboard' : 'নোটিসবার্ড'; ?>
                             </span>
-                            <a href="<?php echo $notice_url; ?>" class="btn btn-sm btn-outline-primary" style="border-radius: 6px;">
-                                <?php echo ($current_lang == 'en') ? 'Read More' : 'বিস্তারিত পড়ুন'; ?> <i class="fas fa-arrow-right ms-1"></i>
+                            <a href="<?php echo $notice_url; ?>" class="btn btn-sm btn-outline-success" style="border-radius: 6px; color: #007F3D; border-color: #007F3D; font-weight: 500; padding: 5px 16px;">
+                                <?php echo ($current_lang == 'en') ? 'Read More' : 'বিস্তারিত পড়ুন'; ?>
                             </a>
                         </div>
                     </li>

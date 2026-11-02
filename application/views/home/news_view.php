@@ -2,7 +2,8 @@
 defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
 $page_title = ($current_lang == 'en') ? 'Notice' : 'নোটিশ';
-$published_date = !empty($event['date']) ? _d($event['date']) : '';
+$date_timestamp = !empty($event['date']) ? strtotime($event['date']) : time();
+$published_date_formatted = date('F j, Y', $date_timestamp);
 ?>
 
 <!-- Page Header (DVS Match) -->
@@ -11,11 +12,9 @@ $published_date = !empty($event['date']) ? _d($event['date']) : '';
         <div class="row align-items-center">
             <div class="col-lg-7">
                 <h1 class="page-header-title"><?php echo html_escape($page_title); ?></h1>
-                <?php if (!empty($published_date)) { ?>
-                    <p class="page-header-subtitle text-muted mb-0 mt-2">
-                        <?php echo ($current_lang == 'en') ? 'Published on ' . $published_date : 'প্রকাশিত: ' . $published_date; ?>
-                    </p>
-                <?php } ?>
+                <p class="page-header-subtitle text-muted mb-0 mt-2">
+                    Published on <?php echo $published_date_formatted; ?>
+                </p>
             </div>
             <div class="col-lg-5 d-none d-lg-block text-end">
                 <div class="display-1 opacity-80 page-header-icon">
@@ -44,11 +43,9 @@ $published_date = !empty($event['date']) ? _d($event['date']) : '';
                                 <span class="badge p-2 text-white" style="background-color: var(--dark-color); border-radius: 6px; font-weight: 500;">
                                     <i class="fas fa-newspaper me-1"></i> <?php echo ($current_lang == 'en') ? 'Notice' : 'নোটিশ'; ?>
                                 </span>
-                                <?php if (!empty($published_date)) { ?>
-                                    <span class="text-muted small">
-                                        <i class="far fa-calendar-alt me-1 text-success"></i> <?php echo $published_date; ?>
-                                    </span>
-                                <?php } ?>
+                                <span class="text-muted small">
+                                    <i class="far fa-calendar-alt me-1 text-muted"></i> Published on <?php echo $published_date_formatted; ?>
+                                </span>
                             </div>
                         </div>
                     </div>
