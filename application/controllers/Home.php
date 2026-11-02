@@ -161,7 +161,13 @@ class Home extends Frontend_Controller
             $event = $this->db->order_by('id', 'desc')->get_where('front_cms_news_list', array('branch_id' => $branchID, 'show_web' => 1))->row_array();
         }
         $this->data['event'] = $event;
-        $this->data['page_data'] = $this->home_model->get('front_cms_news', array('branch_id' => $branchID), true);
+        $page_data = $this->home_model->get('front_cms_news', array('branch_id' => $branchID), true);
+        if (empty($page_data)) {
+            $page_data = [];
+        }
+        $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
+        $page_data['page_title'] = ($current_lang == 'en') ? 'Notice Details' : 'নোটিশ বিস্তারিত';
+        $this->data['page_data'] = $page_data;
         $this->data['main_contents'] = $this->load->view('home/news_view', $this->data, true);
         $this->load->view('home/layout/index', $this->data);
     }

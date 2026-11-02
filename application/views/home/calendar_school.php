@@ -50,3 +50,4 @@ $content_text = ($current_lang == 'en') ? 'View the academic calendar for our sc
         </div>
     </div>
 </section>
+

@@ -35,33 +35,38 @@ $published_date_formatted = date('F j, Y', $date_timestamp);
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-10">
-                <div class="card shadow-sm mb-4 border-0" style="border-radius: 12px; overflow: hidden; background: #fff;">
-                    <div class="card-header bg-white py-4 px-4 px-md-5 border-bottom">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
                         <div class="d-md-flex justify-content-between align-items-center">
-                            <h3 class="mb-md-0 mb-3 fw-bold" style="color: #1e293b;"><?php echo html_escape($event['title']); ?></h3>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="badge p-2 text-white" style="background-color: var(--dark-color); border-radius: 6px; font-weight: 500;">
+                            <h3 class="mb-md-0 mb-2 fw-bold" style="color: #1e293b;"><?php echo html_escape($event['title']); ?></h3>
+                            <div>
+                                <span class="badge p-2 me-2 text-white" style="background-color: var(--dark-color); border-radius: 6px; font-weight: 500;">
                                     <i class="fas fa-newspaper me-1"></i> <?php echo ($current_lang == 'en') ? 'Notice' : 'নোটিশ'; ?>
                                 </span>
-                                <span class="text-muted small">
-                                    <i class="far fa-calendar-alt me-1 text-muted"></i> Published on <?php echo $published_date_formatted; ?>
+                                <span class="text-muted">
+                                    <i class="far fa-calendar-alt me-1"></i> Published on <?php echo $published_date_formatted; ?>
                                 </span>
                             </div>
                         </div>
                     </div>
                     <div class="card-body p-4 p-md-5">
-                        <?php if (!empty($event['image'])) { ?>
-                            <div class="text-center mb-4">
-                                <img src="<?php echo base_url('uploads/frontend/news/' . $event['image']); ?>" alt="<?php echo html_escape($event['title']); ?>" class="img-fluid rounded shadow-sm" style="max-height: 550px;">
+                        <div class="post-content mb-4" id="description">
+                            <?php if (!empty($event['image'])) { ?>
+                                <p class="text-center mb-4">
+                                    <img src="<?php echo base_url('uploads/frontend/news/' . $event['image']); ?>" alt="<?php echo html_escape($event['title']); ?>" class="img-fluid" style="border: 1px solid #dee2e6; border-radius: 6px; padding: 8px; max-height: 650px; background: #fff;">
+                                    <br>
+                                </p>
+                            <?php } ?>
+                            <div class="lh-lg" style="color: #334155; font-size: 1.05rem;">
+                                <?php echo $event['description']; ?>
                             </div>
-                        <?php } ?>
-                        <div class="post-content lh-lg" style="color: #334155; font-size: 1.05rem;">
-                            <?php echo $event['description']; ?>
                         </div>
-                        <div class="mt-5 pt-4 border-top">
-                            <a href="<?php echo base_url('notice'); ?>" class="btn btn-outline-success px-4 py-2" style="border-radius: 8px; font-weight: 500;">
-                                <i class="fas fa-arrow-left me-2"></i> <?php echo ($current_lang == 'en') ? 'Back to Notice Board' : 'সকল নোটিশে ফিরে যান'; ?>
-                            </a>
+                        <div class="row mt-4 pt-3 border-top">
+                            <div class="col-md-6 d-flex align-items-center">
+                                <button onclick="history.go(-1)" class="btn text-light" style="background-color: var(--dark-color); border-radius: 6px; font-weight: 500; padding: 7px 22px;">
+                                    <i class="fas fa-arrow-left me-2"></i> Back
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
