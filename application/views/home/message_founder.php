@@ -98,3 +98,4 @@ if (!empty($messages_data[$current_lang][$num_key]['message'])) {
         </div>
     </div>
 </div>
+

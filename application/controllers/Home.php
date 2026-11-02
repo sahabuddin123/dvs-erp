@@ -823,6 +823,19 @@ class Home extends Frontend_Controller
         $this->load->view('home/layout/index', $this->data);
     }
 
+    public function calendar_school()
+    {
+        $branchID = $this->home_model->getDefaultBranch();
+        $this->data['branchID'] = $branchID;
+        $this->data['page_data'] = [
+            'page_title' => 'একাডেমিক ক্যালেন্ডার (স্কুল)',
+            'title' => 'সাবস্ক্রাইব করা শিক্ষাবর্ষের অ্যাকাডেমিক ক্যালেন্ডার'
+        ];
+        $this->data['active_menu'] = 'calendar-school';
+        $this->data['main_contents'] = $this->load->view('home/calendar_school', $this->data, true);
+        $this->load->view('home/layout/index', $this->data);
+    }
+
     public function staff()
     {
         $branchID = $this->home_model->getDefaultBranch();
