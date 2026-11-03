@@ -481,6 +481,10 @@ class Home extends Frontend_Controller
 
             $this->form_validation->set_rules("class_id", "Class", "trim|required");
 
+            $this->form_validation->set_rules("father_mobile_no", "Father Mobile No", "trim|numeric");
+
+            $this->form_validation->set_rules("mother_mobile_no", "Mother Mobile No", "trim|numeric");
+
             $this->form_validation->set_rules("guardian_photo", "Guardian Photo", "callback_handle_upload[guardian_photo]");
 
             $this->form_validation->set_rules("father_photo", "Father Photo", "callback_handle_upload[father_photo]");
@@ -648,6 +652,10 @@ class Home extends Frontend_Controller
                     'father_name' => $this->input->post('father_name'),
 
                     'mother_name' => $this->input->post('mother_name'),
+
+                    'father_mobile_no' => $this->input->post('father_mobile_no'),
+
+                    'mother_mobile_no' => $this->input->post('mother_mobile_no'),
 
                     'grd_occupation' => $this->input->post('guardian_occupation'),
 

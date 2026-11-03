@@ -227,6 +227,8 @@ class Student extends Admin_Controller
                 if (isset($validArr['guardian_email'])) {
                     $this->form_validation->set_rules('grd_email', translate('email'), 'trim|required');
                 }
+                $this->form_validation->set_rules('father_mobileno', translate('father_name') . ' Mobile', 'trim|numeric');
+                $this->form_validation->set_rules('mother_mobileno', translate('mother_name') . ' Mobile', 'trim|numeric');
                 if (isset($validArr['guardian_mobile_no'])) {
                     $this->form_validation->set_rules('grd_mobileno', translate('mobile_no'), 'trim|required|numeric');
                 }

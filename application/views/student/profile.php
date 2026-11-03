@@ -1158,6 +1158,12 @@ if (empty($empty_table)) {
 										<td><?php echo $getParent['mother_name']?></td>
 									</tr>
 									<tr>
+										<th>পিতার মোবাইল (Father's Mobile)</th>
+										<td><?php echo !empty($getParent['father_mobileno']) ? $getParent['father_mobileno'] : 'N/A'?></td>
+										<th>মাতার মোবাইল (Mother's Mobile)</th>
+										<td><?php echo !empty($getParent['mother_mobileno']) ? $getParent['mother_mobileno'] : 'N/A'?></td>
+									</tr>
+									<tr>
 										<th><?=translate('occupation')?></th>
 										<td><?php echo $getParent['occupation']?></td>
 										<th><?=translate('income')?></th>

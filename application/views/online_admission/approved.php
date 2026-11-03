@@ -420,18 +420,32 @@
 
 					<div class="row">
 						<?php if ($father_name['status']) { ?>
-						<div class="col-md-6 mb-sm">
+						<div class="col-md-3 mb-sm">
 							<div class="form-group">
 								<label class="control-label"><?=translate('father_name')?><?php echo $father_name['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 								<input type="text" class="form-control" name="father_name" value="<?=set_value('father_name', $stuDetails['father_name'])?>" />
 								<span class="error"></span>
 							</div>
 						</div>
+						<div class="col-md-3 mb-sm">
+							<div class="form-group">
+								<label class="control-label">পিতার মোবাইল নং</label>
+								<input type="text" class="form-control" name="father_mobileno" value="<?=set_value('father_mobileno', isset($stuDetails['father_mobile_no']) ? $stuDetails['father_mobile_no'] : '')?>" />
+								<span class="error"></span>
+							</div>
+						</div>
 						<?php } if ($mother_name['status']) { ?>
-						<div class="col-md-6 mb-sm">
+						<div class="col-md-3 mb-sm">
 							<div class="form-group">
 								<label class="control-label"><?=translate('mother_name')?><?php echo $mother_name['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 								<input type="text" class="form-control" name="mother_name" value="<?=set_value('mother_name', $stuDetails['mother_name'])?>" />
+								<span class="error"></span>
+							</div>
+						</div>
+						<div class="col-md-3 mb-sm">
+							<div class="form-group">
+								<label class="control-label">মাতার মোবাইল নং</label>
+								<input type="text" class="form-control" name="mother_mobileno" value="<?=set_value('mother_mobileno', isset($stuDetails['mother_mobile_no']) ? $stuDetails['mother_mobile_no'] : '')?>" />
 								<span class="error"></span>
 							</div>
 						</div>

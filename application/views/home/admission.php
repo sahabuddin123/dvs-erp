@@ -817,10 +817,10 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                 $guardian_photo = $this->student_fields_model->getOnlineStatus('guardian_photo', $branchID);
                 ?>
 
-                <!-- Row 1: Parents' Names in Bangla & English side-by-side -->
+                <!-- Row 1: Father's Details (Name BN, Name EN, Mobile) -->
                 <div class="row">
                     <?php if ($father_name['status']) { ?>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <div class="form-group">
                             <label class="form-label fw-semibold">
                                 <?php echo $is_en ? 'Father Name (in Bengali)' : 'পিতার নাম (বাংলায়)'; ?><?php echo $father_name['required'] == 1 ? ' <span class="required text-danger">*</span>' : ''; ?>
@@ -829,7 +829,7 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                                 <span class="input-group-text"><i class="fas fa-male"></i></span>
                                 <input type="text" name="father_name" id="online_father_name" class="form-control" value="<?php echo set_value('father_name'); ?>" placeholder="<?php echo $is_en ? 'e.g. Md. Rafiqul Islam' : 'যেমন: মো: রফিকুল ইসলাম'; ?>" autocomplete="off" <?php echo $father_name['required'] == 1 ? 'required' : ''; ?> />
                             </div>
-                            <span class="error text-danger"></span>
+                            <span class="error text-danger"><?php echo form_error('father_name'); ?></span>
                         </div>
                     </div>
                     <?php } ?>
@@ -838,9 +838,9 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                     <?php 
                     if ($cf_father_name_en) {
                         $f_lbl = $is_en ? 'Father Name (in English)' : 'পিতার নাম (ইংরেজিতে)';
-                        echo render_single_online_custom_field($cf_father_name_en, 'student', false, 3, $f_lbl, 'e.g. MD. RAFIQUL ISLAM', 'fas fa-font');
+                        echo render_single_online_custom_field($cf_father_name_en, 'student', false, 4, $f_lbl, 'e.g. MD. RAFIQUL ISLAM', 'fas fa-font');
                     } else { ?>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <div class="form-group">
                             <label class="form-label fw-semibold"><?php echo $is_en ? 'Father Name (in English)' : 'পিতার নাম (ইংরেজিতে)'; ?> <span class="required text-danger">*</span></label>
                             <div class="input-group">
@@ -852,8 +852,22 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                     </div>
                     <?php } ?>
 
+                    <div class="col-md-4 mb-3">
+                        <div class="form-group">
+                            <label class="form-label fw-semibold"><?php echo $is_en ? "Father's Mobile No" : 'পিতার মোবাইল নং'; ?></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                <input type="text" class="form-control" name="father_mobile_no" id="online_father_mobile_no" value="<?php echo set_value('father_mobile_no'); ?>" placeholder="017xxxxxxxx" autocomplete="off" />
+                            </div>
+                            <span class="error text-danger"><?php echo form_error('father_mobile_no'); ?></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Mother's Details (Name BN, Name EN, Mobile) -->
+                <div class="row">
                     <?php if ($mother_name['status']) { ?>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <div class="form-group">
                             <label class="form-label fw-semibold">
                                 <?php echo $is_en ? 'Mother Name (in Bengali)' : 'মাতার নাম (বাংলায়)'; ?><?php echo $mother_name['required'] == 1 ? ' <span class="required text-danger">*</span>' : ''; ?>
@@ -862,7 +876,7 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                                 <span class="input-group-text"><i class="fas fa-female"></i></span>
                                 <input type="text" name="mother_name" id="online_mother_name" class="form-control" value="<?php echo set_value('mother_name'); ?>" placeholder="<?php echo $is_en ? 'e.g. Fatema Begum' : 'যেমন: ফাতেমা বেগম'; ?>" autocomplete="off" <?php echo $mother_name['required'] == 1 ? 'required' : ''; ?> />
                             </div>
-                            <span class="error text-danger"></span>
+                            <span class="error text-danger"><?php echo form_error('mother_name'); ?></span>
                         </div>
                     </div>
                     <?php } ?>
@@ -871,9 +885,9 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                     <?php 
                     if ($cf_mother_name_en) {
                         $m_lbl = $is_en ? 'Mother Name (in English)' : 'মাতার নাম (ইংরেজিতে)';
-                        echo render_single_online_custom_field($cf_mother_name_en, 'student', false, 3, $m_lbl, 'e.g. FATEMA BEGUM', 'fas fa-font');
+                        echo render_single_online_custom_field($cf_mother_name_en, 'student', false, 4, $m_lbl, 'e.g. FATEMA BEGUM', 'fas fa-font');
                     } else { ?>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <div class="form-group">
                             <label class="form-label fw-semibold"><?php echo $is_en ? 'Mother Name (in English)' : 'মাতার নাম (ইংরেজিতে)'; ?> <span class="required text-danger">*</span></label>
                             <div class="input-group">
@@ -884,6 +898,17 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                         </div>
                     </div>
                     <?php } ?>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="form-group">
+                            <label class="form-label fw-semibold"><?php echo $is_en ? "Mother's Mobile No" : 'মাতার মোবাইল নং'; ?></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                <input type="text" class="form-control" name="mother_mobile_no" id="online_mother_mobile_no" value="<?php echo set_value('mother_mobile_no'); ?>" placeholder="018xxxxxxxx" autocomplete="off" />
+                            </div>
+                            <span class="error text-danger"><?php echo form_error('mother_mobile_no'); ?></span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Row 2: Guardian Name, Relation, Occupation -->
@@ -1492,8 +1517,10 @@ function populateOnlineSummary() {
     $('#online_sum_gender_dob').text(gender + ' / ' + dobDisplay);
     $('#online_sum_mobile').text(mobile);
 
-    $('#online_sum_father').text(fatherName);
-    $('#online_sum_mother').text(motherName);
+    var fatherMobile = $('#online_father_mobile_no').val();
+    var motherMobile = $('#online_mother_mobile_no').val();
+    $('#online_sum_father').text(fatherName + (fatherMobile ? ' (' + fatherMobile + ')' : ''));
+    $('#online_sum_mother').text(motherName + (motherMobile ? ' (' + motherMobile + ')' : ''));
     $('#online_sum_guardian').text(grdName);
     $('#online_sum_grd_mobile').text(grdMobile);
 }

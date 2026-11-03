@@ -903,17 +903,17 @@ endif;
 					?>
 
 					<div id="guardian_form" <?php if(set_value('guardian_chk') == true) echo 'style="display: none;"'; ?>>
-						<!-- Row 1: Parents' Names in Bangla & English side-by-side -->
+						<!-- Row 1: Father's Details (Name BN, Name EN, Mobile) -->
 						<div class="row">
 							<?php if ($father_name['status']) { ?>
-							<div class="col-md-3 mb-sm">
+							<div class="col-md-4 mb-sm">
 								<div class="form-group">
 									<label class="control-label">পিতার নাম (বাংলায়) <?php echo $father_name['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-male"></i></span>
 										<input type="text" class="form-control" name="father_name" id="father_name" value="<?=set_value('father_name')?>" placeholder="যেমন: মো: রফিকুল ইসলাম" <?php echo $father_name['required'] == 1 ? 'required' : ''; ?> />
 									</div>
-									<span class="error"></span>
+									<span class="error"><?=form_error('father_name')?></span>
 								</div>
 							</div>
 							<?php } ?>
@@ -921,9 +921,9 @@ endif;
 							<!-- Custom Field 2: Father Name in English -->
 							<?php 
 							if ($cf_father_name_en) {
-								echo render_single_custom_field($cf_father_name_en, 'student', false, 3, 'পিতার নাম (ইংরেজিতে)', 'e.g. MD. RAFIQUL ISLAM', 'fas fa-font');
+								echo render_single_custom_field($cf_father_name_en, 'student', false, 4, 'পিতার নাম (ইংরেজিতে)', 'e.g. MD. RAFIQUL ISLAM', 'fas fa-font');
 							} else { ?>
-							<div class="col-md-3 mb-sm">
+							<div class="col-md-4 mb-sm">
 								<div class="form-group">
 									<label class="control-label">পিতার নাম (ইংরেজিতে) <span class="required">*</span></label>
 									<div class="input-group">
@@ -935,15 +935,29 @@ endif;
 							</div>
 							<?php } ?>
 
+							<div class="col-md-4 mb-sm">
+								<div class="form-group">
+									<label class="control-label">পিতার মোবাইল নং (Father's Mobile No)</label>
+									<div class="input-group">
+										<span class="input-group-addon"><i class="fas fa-phone"></i></span>
+										<input type="text" class="form-control" name="father_mobileno" id="father_mobileno" value="<?=set_value('father_mobileno')?>" placeholder="017xxxxxxxx" />
+									</div>
+									<span class="error"><?=form_error('father_mobileno')?></span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Row 2: Mother's Details (Name BN, Name EN, Mobile) -->
+						<div class="row">
 							<?php if ($mother_name['status']) { ?>
-							<div class="col-md-3 mb-sm">
+							<div class="col-md-4 mb-sm">
 								<div class="form-group">
 									<label class="control-label">মাতার নাম (বাংলায়) <?php echo $mother_name['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-female"></i></span>
 										<input type="text" class="form-control" name="mother_name" id="mother_name" value="<?=set_value('mother_name')?>" placeholder="যেমন: ফাতেমা বেগম" <?php echo $mother_name['required'] == 1 ? 'required' : ''; ?> />
 									</div>
-									<span class="error"></span>
+									<span class="error"><?=form_error('mother_name')?></span>
 								</div>
 							</div>
 							<?php } ?>
@@ -951,9 +965,9 @@ endif;
 							<!-- Custom Field 3: Mother Name in English -->
 							<?php 
 							if ($cf_mother_name_en) {
-								echo render_single_custom_field($cf_mother_name_en, 'student', false, 3, 'মাতার নাম (ইংরেজিতে)', 'e.g. FATEMA BEGUM', 'fas fa-font');
+								echo render_single_custom_field($cf_mother_name_en, 'student', false, 4, 'মাতার নাম (ইংরেজিতে)', 'e.g. FATEMA BEGUM', 'fas fa-font');
 							} else { ?>
-							<div class="col-md-3 mb-sm">
+							<div class="col-md-4 mb-sm">
 								<div class="form-group">
 									<label class="control-label">মাতার নাম (ইংরেজিতে) <span class="required">*</span></label>
 									<div class="input-group">
@@ -964,6 +978,17 @@ endif;
 								</div>
 							</div>
 							<?php } ?>
+
+							<div class="col-md-4 mb-sm">
+								<div class="form-group">
+									<label class="control-label">মাতার মোবাইল নং (Mother's Mobile No)</label>
+									<div class="input-group">
+										<span class="input-group-addon"><i class="fas fa-phone"></i></span>
+										<input type="text" class="form-control" name="mother_mobileno" id="mother_mobileno" value="<?=set_value('mother_mobileno')?>" placeholder="018xxxxxxxx" />
+									</div>
+									<span class="error"><?=form_error('mother_mobileno')?></span>
+								</div>
+							</div>
 						</div>
 
 						<!-- Row 2: Guardian Name, Relation, Occupation -->
@@ -1593,8 +1618,10 @@ function dvsPopulateSummary() {
 	$('#sum_gender_dob').text(gender + ' / ' + dobDisplay);
 	$('#sum_mobile').text(mobile);
 
-	$('#sum_father').text(fatherName);
-	$('#sum_mother').text(motherName);
+	var fatherMobile = $('#father_mobileno').val();
+	var motherMobile = $('#mother_mobileno').val();
+	$('#sum_father').text(fatherName + (fatherMobile ? ' (' + fatherMobile + ')' : ''));
+	$('#sum_mother').text(motherName + (motherMobile ? ' (' + motherMobile + ')' : ''));
 	$('#sum_guardian').text(grdName);
 	$('#sum_grd_mobile').text(grdMobile);
 }

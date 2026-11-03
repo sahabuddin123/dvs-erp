@@ -85,6 +85,8 @@ class Online_admission_model extends MY_Model
                 'relation' => $this->input->post('grd_relation'),
                 'father_name' => $this->input->post('father_name'),
                 'mother_name' => $this->input->post('mother_name'),
+                'father_mobileno' => $this->input->post('father_mobileno'),
+                'mother_mobileno' => $this->input->post('mother_mobileno'),
                 'occupation' => $this->input->post('grd_occupation'),
                 'income' => $this->input->post('grd_income'),
                 'education' => $this->input->post('grd_education'),

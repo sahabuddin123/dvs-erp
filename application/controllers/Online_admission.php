@@ -226,6 +226,8 @@ class Online_admission extends Admin_Controller
                 $this->form_validation->set_rules('mother_name', translate('mother_name'), 'trim|required');
                 $guardian = true;
             }
+            $this->form_validation->set_rules('father_mobileno', translate('father_name') . ' Mobile', 'trim|numeric');
+            $this->form_validation->set_rules('mother_mobileno', translate('mother_name') . ' Mobile', 'trim|numeric');
             if (isset($validArr['guardian_occupation'])) {
                 $this->form_validation->set_rules('grd_occupation', translate('occupation'), 'trim|required');
                 $guardian = true;
