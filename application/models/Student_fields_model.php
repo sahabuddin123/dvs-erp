@@ -8,9 +8,16 @@ class Student_fields_model extends CI_Model
         parent::__construct();
     }
 
-    // test save and update function
+    public function cleanBranchID($branchID)
+    {
+        $branchID = (int)$branchID;
+        return ($branchID <= 0) ? 1 : $branchID;
+    }
+
+// test save and update function
     public function getOnlineStatus($prefix, $branchID)
     {
+        $branchID = $this->cleanBranchID($branchID);
         $this->db->select('if(oaf.status is null, student_fields.default_status, oaf.status) as status,if(oaf.required is null, student_fields.default_required, oaf.required) as required');
         $this->db->from('student_fields');
         $this->db->join('online_admission_fields as oaf', 'oaf.fields_id = student_fields.id and oaf.system = 1 and oaf.branch_id = ' . $branchID, 'left');
@@ -21,6 +28,7 @@ class Student_fields_model extends CI_Model
 
     public function getOnlineStatusArr($branchID)
     {
+        $branchID = $this->cleanBranchID($branchID);
         $this->db->select('student_fields.id,student_fields.prefix,if(oaf.status is null, student_fields.default_status, oaf.status) as status,if(oaf.required is null, student_fields.default_required, oaf.required) as required');
         $this->db->from('student_fields');
         $this->db->join('online_admission_fields as oaf', 'oaf.fields_id = student_fields.id and oaf.system = 1 and oaf.branch_id = ' . $branchID, 'left');
@@ -31,6 +39,7 @@ class Student_fields_model extends CI_Model
 
     public function getStatus($prefix, $branchID)
     {
+        $branchID = $this->cleanBranchID($branchID);
         $this->db->select('if(oaf.status is null, student_fields.default_status, oaf.status) as status,if(oaf.required is null, student_fields.default_required, oaf.required) as required');
         $this->db->from('student_fields');
         $this->db->join('student_admission_fields as oaf', 'oaf.fields_id = student_fields.id and oaf.branch_id = ' . $branchID, 'left');
@@ -41,6 +50,7 @@ class Student_fields_model extends CI_Model
 
     public function getStatusArr($branchID)
     {
+        $branchID = $this->cleanBranchID($branchID);
         $this->db->select('student_fields.id,student_fields.prefix,if(oaf.status is null, student_fields.default_status, oaf.status) as status,if(oaf.required is null, student_fields.default_required, oaf.required) as required');
         $this->db->from('student_fields');
         $this->db->join('student_admission_fields as oaf', 'oaf.fields_id = student_fields.id and oaf.branch_id = ' . $branchID, 'left');
@@ -51,6 +61,7 @@ class Student_fields_model extends CI_Model
 
     public function getOnlineCustomFields($branchID)
     {
+        $branchID = $this->cleanBranchID($branchID);
         $this->db->select('custom_field.*,if(oaf.status is null, custom_field.status, oaf.status) as fstatus,if(oaf.required is null, custom_field.required, oaf.required) as required');
         $this->db->from('custom_field');
         $this->db->join('online_admission_fields as oaf', 'oaf.fields_id = custom_field.id and oaf.system = 0 and oaf.branch_id = ' . $branchID, 'left');
@@ -64,6 +75,7 @@ class Student_fields_model extends CI_Model
 
     public function getStatusProfile($prefix, $branchID)
     {
+        $branchID = $this->cleanBranchID($branchID);
         $this->db->select('if(oaf.status is null, student_fields.default_status, oaf.status) as status,if(oaf.required is null, student_fields.default_required, oaf.required) as required');
         $this->db->from('student_fields');
         $this->db->join('student_profile_fields as oaf', 'oaf.fields_id = student_fields.id and oaf.branch_id = ' . $branchID, 'left');
@@ -74,6 +86,7 @@ class Student_fields_model extends CI_Model
 
     public function getStatusProfileArr($branchID)
     {
+        $branchID = $this->cleanBranchID($branchID);
         $this->db->select('student_fields.id,student_fields.prefix,if(oaf.status is null, student_fields.default_status, oaf.status) as status,if(oaf.required is null, student_fields.default_required, oaf.required) as required');
         $this->db->from('student_fields');
         $this->db->join('student_profile_fields as oaf', 'oaf.fields_id = student_fields.id and oaf.branch_id = ' . $branchID, 'left');

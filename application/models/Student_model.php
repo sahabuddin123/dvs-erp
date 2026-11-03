@@ -468,6 +468,10 @@ class Student_model extends MY_Model
     public function studentListDT()
     {
         $branchID = $this->application_model->get_branch_id();
+        if (empty($branchID)) { $branchID = $this->input->post('branch_id'); }
+        if (empty($branchID)) { $branchID = get_loggedin_branch_id(); }
+        if (empty($branchID)) { $branchID = 1; }
+        $branchID = (int)$branchID;
         $classID = $this->input->post('class_id');
         $sectionID = $this->input->post('section_id');
         $sessionID = get_session_id();
@@ -541,6 +545,7 @@ class Student_model extends MY_Model
         $records = array();
         $records = json_decode($results);
         $data = array();
+        if (!empty($records) && isset($records->data) && is_array($records->data)) {
         foreach ($records->data as $key => $record) {
             $fee_progress = $this->getFeeProgress($record->id);
 
@@ -606,10 +611,11 @@ class Student_model extends MY_Model
             $row[] = $actions;
             $data[] = $row;
         }
+        }
         $json_data = array(
-            "draw"                => intval($records->draw),
-            "recordsTotal"        => intval($records->recordsTotal),
-            "recordsFiltered"     => intval($records->recordsFiltered),
+            "draw"                => !empty($records->draw) ? intval($records->draw) : intval($this->input->post('draw')),
+            "recordsTotal"        => !empty($records->recordsTotal) ? intval($records->recordsTotal) : 0,
+            "recordsFiltered"     => !empty($records->recordsFiltered) ? intval($records->recordsFiltered) : 0,
             "data"                => $data,
         );
         return json_encode($json_data);

@@ -379,8 +379,9 @@ class Datatables
         $sWhere    = '';
         $searchCol = array();
         $mColArray = $this->ci->input->post('columns');
-        $search    = $this->ci->input->post('search');
-        $sSearch   = $this->ci->db->escape_like_str(trim($search['value']));
+        $search      = $this->ci->input->post('search');
+        $searchValue = (is_array($search) && isset($search['value'])) ? (string)$search['value'] : '';
+        $sSearch     = $this->ci->db->escape_like_str(trim($searchValue));
         $columns   = array_values(array_diff($this->columns, $this->unset_columns));
 
         if ($sSearch != '' && $this->search_arr != '') {

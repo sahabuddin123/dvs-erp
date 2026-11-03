@@ -3,6 +3,7 @@
 # --------------------------------------------------
 /scratch/
 scratch/
+!/scratch/live_server_migration.sql
 cookies_live.txt
 *cookie*.txt
 cookies/
@@ -90,9 +91,11 @@ assets/frontend/dvs/img/*.pdf
 *.sql.tar
 *.dump
 
-# DVS frontend storage (dynamic uploads)
-/assets/frontend/dvs/storage/*
-!/assets/frontend/dvs/storage/.gitignore
+# DVS frontend storage (only ignore runtime user-submitted uploads)
+/assets/frontend/dvs/storage/uploads/admissions/*
+!/assets/frontend/dvs/storage/uploads/admissions/.gitkeep
+/assets/frontend/dvs/storage/uploads/resumes/*
+!/assets/frontend/dvs/storage/uploads/resumes/.gitkeep
 
 # --------------------------------------------------
 # Archives & Compressed Files

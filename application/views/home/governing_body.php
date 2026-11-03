@@ -1,8 +1,12 @@
 <?php 
 defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
-$page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title', ($current_lang == 'en' ? 'Governing Body' : 'পরিচালক মণ্ডলী')) : (!empty($page_data['page_title']) ? $page_data['page_title'] : 'পরিচালক মণ্ডলী');
-$description = function_exists('get_lang_field') ? get_lang_field($page_data, 'content', ($current_lang == 'en' ? 'Meet the dedicated governing body that guides our institution.' : 'পরিচালক মণ্ডলী পরিচিত হন যারা আমাদের প্রতিষ্ঠানকে পরিচালনা করে।')) : 'পরিচালক মণ্ডলী পরিচিত হন যারা আমাদের প্রতিষ্ঠানকে পরিচালনা করে।';
+$page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title', ($current_lang == 'en' ? 'Governing Body' : 'পরিচালনা পর্ষদ')) : (!empty($page_data['page_title']) ? $page_data['page_title'] : 'পরিচালনা পর্ষদ');
+$description = function_exists('get_lang_field') ? get_lang_field($page_data, 'content', '') : (!empty($page_data['content']) ? $page_data['content'] : '');
+// If content has legacy madrasah table or committee list, override with clean DVS introduction
+if (empty($description) || strpos($description, 'সিরাজুল') !== false || strpos($description, 'কমিটি লিস্ট') !== false || strpos($description, 'মাদরাসা') !== false || strpos($description, 'মাদ্রাসা') !== false) {
+    $description = ($current_lang == 'en') ? 'Meet the dedicated governing body and council that guides and governs Dream Valley School.' : 'ড্রিম ভ্যালী স্কুলের নীতি নির্ধারণ, সার্বিক পরিচালনা ও মানসম্মত শিক্ষা নিশ্চিতকরণে আমাদের সম্মানিত পরিচালনা পর্ষদ ও অভিভাবক পরিষদ নিরলসভাবে দায়িত্ব পালন করে আসছেন।';
+}
 $date_display = !empty($page_data['created_at']) ? date('M d, Y', strtotime($page_data['created_at'])) : 'Jun 24, 2026';
 ?>
 
@@ -86,7 +90,7 @@ $date_display = !empty($page_data['created_at']) ? date('M d, Y', strtotime($pag
                                     <div class="card h-100 shadow-sm border-0">
                                         <div class="card-body text-center p-4">
                                             <div class="mb-3">
-                                                <img src="<?php echo $img_src; ?>" alt="<?php echo html_escape($m_name); ?>" class="img-fluid" style="height: 200px;">
+                                                <img src="<?php echo $img_src; ?>" onerror="this.onerror=null;this.src='<?php echo base_url('uploads/app_image/defualt.png'); ?>';" alt="<?php echo html_escape($m_name); ?>" class="img-fluid rounded" style="height: 200px; width: 100%; object-fit: cover;">
                                             </div>
                                             <h5 class="mb-1 fw-bold"><?php echo html_escape($m_name); ?></h5>
                                             <p class="text-muted small mb-1"><?php echo html_escape($m_surname); ?></p>

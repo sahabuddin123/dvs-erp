@@ -57,15 +57,18 @@ class Setting extends Admin_Controller
                 'footer_about_text_en' => 'TEXT NULL DEFAULT NULL',
                 'copyright_text_en'    => 'TEXT NULL DEFAULT NULL',
             );
+            $old_debug = $this->db->db_debug;
+            $this->db->db_debug = FALSE;
             foreach ($required_columns as $col => $def) {
                 if (!in_array($col, $existing_fields)) {
-                    $this->db->query("ALTER TABLE `front_cms_setting` ADD `$col` $def");
+                    @$this->db->query("ALTER TABLE `front_cms_setting` ADD `$col` $def");
                 }
             }
             // Expand restrictive varchar lengths to TEXT so long Bengali text / HTML never causes 500 error
-            $this->db->query("ALTER TABLE `front_cms_setting` MODIFY `footer_about_text` TEXT NULL");
-            $this->db->query("ALTER TABLE `front_cms_setting` MODIFY `copyright_text` TEXT NULL");
-            $this->db->query("ALTER TABLE `front_cms_setting` MODIFY `address` TEXT NULL");
+            @$this->db->query("ALTER TABLE `front_cms_setting` MODIFY `footer_about_text` TEXT NULL");
+            @$this->db->query("ALTER TABLE `front_cms_setting` MODIFY `copyright_text` TEXT NULL");
+            @$this->db->query("ALTER TABLE `front_cms_setting` MODIFY `address` TEXT NULL");
+            $this->db->db_debug = $old_debug;
         } catch (Throwable $e) {
             log_message('error', 'front_cms_setting schema check error: ' . $e->getMessage());
         }

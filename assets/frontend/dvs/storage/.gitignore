@@ -1,2 +1,5 @@
-*
-!.gitignore
+# Ignore runtime user uploads
+/uploads/admissions/*
+!/uploads/admissions/.gitkeep
+/uploads/resumes/*
+!/uploads/resumes/.gitkeep

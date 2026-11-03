@@ -3,38 +3,119 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-// return translation
-function translate($word = '')
-{
-    $CI = &get_instance();
-    if ($CI->session->has_userdata('set_lang')) {
-        $set_lang = $CI->session->userdata('set_lang');
-    } else {
-        $set_lang = get_global_setting('translation');
-    }
-
-    if ($set_lang == '') {
-        $set_lang = 'english';
-    }
-
-    $sql = "SELECT `english`,`" . $set_lang . "` FROM `languages` WHERE `word` = '$word'";
-    $query = $CI->db->query($sql);
-    if ($query->num_rows() > 0) {
-        if (isset($query->row()->$set_lang) && $query->row()->$set_lang != '') {
-            return $query->row()->$set_lang;
-        } else {
-            return $query->row()->english;
-        }
-    } else {
-        $arrayData = array(
-            'word' => $word,
-            'english' => ucwords(str_replace('_', ' ', $word)),
-        );
-        $CI->db->insert('languages', $arrayData);
-        return ucwords(str_replace('_', ' ', $word));
-    }
-}
-
+// return translation
+function translate($word = '')
+{
+    if (empty($word)) {
+        return '';
+    }
+    $CI = &get_instance();
+    if ($CI->session->has_userdata('set_lang')) {
+        $set_lang = $CI->session->userdata('set_lang');
+    } else {
+        $set_lang = get_global_setting('translation');
+    }
+
+    if ($set_lang == '') {
+        $set_lang = 'bengali';
+    }
+
+    $safe_word = $CI->db->escape_str($word);
+    $safe_lang = $CI->db->escape_str($set_lang);
+    $sql = "SELECT `english`,`" . $safe_lang . "` FROM `languages` WHERE `word` = '$safe_word'";
+    $query = $CI->db->query($sql);
+    if ($query && $query->num_rows() > 0) {
+        $val = isset($query->row()->$set_lang) ? trim($query->row()->$set_lang) : '';
+        if ($val !== '') {
+            return $val;
+        } else {
+            $fallback = dvs_language_fallback($word, $set_lang);
+            if ($fallback !== null) {
+                return $fallback;
+            }
+            return !empty($query->row()->english) ? $query->row()->english : ucwords(str_replace('_', ' ', $word));
+        }
+    } else {
+        $fallback = dvs_language_fallback($word, $set_lang);
+        $english_label = ucwords(str_replace('_', ' ', $word));
+        $arrayData = array(
+            'word' => $word,
+            'english' => $english_label,
+            'bengali' => ($fallback !== null) ? $fallback : $english_label,
+        );
+        $CI->db->insert('languages', $arrayData);
+        if ($set_lang == 'bengali' && $fallback !== null) {
+            return $fallback;
+        }
+        return $english_label;
+    }
+}
+
+function dvs_language_fallback($word, $lang = 'bengali')
+{
+    if ($lang !== 'bengali') {
+        return null;
+    }
+    static $bn_dict = array(
+        'home' => 'হোম',
+        'about_us' => 'আমাদের সম্পর্কে',
+        'academic' => 'একাডেমিক',
+        'notice' => 'নোটিশ',
+        'notice_board' => 'নোটিশ বোর্ড',
+        'student_information' => 'শিক্ষার্থীর তথ্য',
+        'online_admission' => 'অনলাইন ভর্তি',
+        'gallery' => 'গ্যালারি',
+        'contact' => 'যোগাযোগ',
+        'directors_message' => 'পরিচালকের বাণী',
+        'director_message' => 'পরিচালকের বাণী',
+        'founder_message' => 'প্রতিষ্ঠাতার বাণী',
+        'principal_message' => 'অধ্যক্ষের বাণী',
+        'career' => 'ক্যারিয়ার',
+        'menu' => 'মেনু',
+        'institution_history' => 'প্রতিষ্ঠানের ইতিহাস',
+        'governing_body' => 'পরিচালনা পর্ষদ',
+        'teachers_information' => 'শিক্ষকদের তথ্য',
+        'staff_information' => 'কর্মকর্তা-কর্মচারী',
+        'academic_calendar' => 'একাডেমিক ক্যালেন্ডার',
+        'exam_results' => 'পরীক্ষার ফলাফল',
+        'class_routine' => 'ক্লাস রুটিন',
+        'login' => 'লগইন',
+        'register' => 'নিবন্ধন',
+        'dashboard' => 'ড্যাশবোর্ড',
+        'profile' => 'প্রোফাইল',
+        'admission' => 'ভর্তি',
+        'quick_view' => 'দ্রুত দেখুন',
+        'details' => 'বিস্তারিত',
+        'filter' => 'ফিল্টার',
+        'branch' => 'শাখা',
+        'class' => 'শ্রেণি',
+        'section' => 'শাখা/অধ্যায়',
+        'gender' => 'লিঙ্গ',
+        'category' => 'বিভাগ',
+        'roll' => 'রোল',
+        'fees_progress' => 'ফি পরিশোধের অগ্রগতি',
+        'action' => 'অ্যাকশন',
+        'select_ground' => 'গ্রাউন্ড নির্বাচন করুন',
+        'student_list' => 'ছাত্র তালিকা',
+        'photo' => 'ছবি',
+        'name' => 'নাম',
+        'guardian_name' => 'অভিভাবকের নাম',
+        'male' => 'পুরুষ',
+        'female' => 'মহিলা',
+        'father_name' => 'পিতার নাম',
+        'mother_name' => 'মাতার নাম',
+        'guardian' => 'অভিভাবক',
+        'mobile_no' => 'মোবাইল নং',
+        'birthday' => 'জন্ম তারিখ',
+        'blood_group' => 'রক্তের গ্রুপ',
+        'religion' => 'ধর্ম',
+        'address' => 'ঠিকানা',
+        'present_address' => 'বর্তমান ঠিকানা',
+        'permanent_address' => 'স্থায়ী ঠিকানা',
+    );
+    return isset($bn_dict[$word]) ? $bn_dict[$word] : null;
+}
+
 function moduleIsEnabled($prefix)
 {
     $ci = &get_instance();
