@@ -11,6 +11,8 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
     <meta name="description" content="<?php echo !empty($page_data['meta_description']) ? $page_data['meta_description'] : 'ড্রিম ভ্যালী স্কুল - যেখানে স্বপ্ন ডানা মেলে'; ?>">
     
     <!-- Favicon -->
+    <link rel="shortcut icon" href="<?php echo base_url('assets/images/favicon.png'); ?>">
+    <link rel="icon" type="image/png" href="<?php echo base_url('assets/images/favicon.png'); ?>">
     <?php 
         $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
         $curr_page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title') : (!empty($page_data['page_title']) ? $page_data['page_title'] : '');

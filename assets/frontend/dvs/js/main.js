@@ -129,3 +129,40 @@ document.addEventListener('DOMContentLoaded', function() {
         if (allButton) allButton.click();
     }
 });
+
+// Global getSectionByClass for frontend admission forms
+function getSectionByClass(class_id) {
+    var $sec = $('#online_section_id, #section_id, select[name="section"], select[name="section_id"]');
+    if (!class_id) {
+        $sec.html('<option value="">' + (typeof isEnglishLang !== 'undefined' && isEnglishLang ? 'Select Class First' : 'প্রথমে শ্রেণি নির্বাচন করুন') + '</option>');
+        if ($.fn.select2 && $sec.hasClass('select2-hidden-accessible')) {
+            $sec.trigger('change.select2');
+        }
+        return;
+    }
+
+    $sec.html('<option value="">' + (typeof isEnglishLang !== 'undefined' && isEnglishLang ? 'Loading Sections...' : 'শাখা লোড হচ্ছে...') + '</option>');
+
+    var postData = { class_id: class_id };
+    if (typeof csrfData !== 'undefined' && csrfData) {
+        $.extend(postData, csrfData);
+    }
+
+    var baseUrl = typeof base_url !== 'undefined' ? base_url : '/';
+    $.ajax({
+        url: baseUrl + 'home/getSectionByClass',
+        type: 'POST',
+        data: postData,
+        dataType: 'html',
+        success: function(response) {
+            $sec.html(response);
+            if ($.fn.select2 && $sec.hasClass('select2-hidden-accessible')) {
+                $sec.trigger('change.select2');
+            }
+        },
+        error: function() {
+            $sec.html('<option value="">' + (typeof isEnglishLang !== 'undefined' && isEnglishLang ? 'No Sections Available' : 'শাখা পাওয়া যায়নি') + '</option>');
+        }
+    });
+}
+window.getSectionByClass = getSectionByClass;

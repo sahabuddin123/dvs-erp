@@ -304,7 +304,7 @@ class Student_model extends MY_Model
             $this->db->where('s.admission_date <=', $end);
         }
         $this->db->where('e.branch_id', $branchID);
-        $this->db->where('e.session_id', get_session_id());
+        $this->db->where('e.session_id', $session_id);
         $this->db->order_by('s.id', 'ASC');
         if ($sectionID != 'all' && !empty($sectionID)) {
             $this->db->where('e.section_id', $sectionID);
@@ -323,7 +323,7 @@ class Student_model extends MY_Model
         $this->db->join('class as c', 'e.class_id = c.id', 'left');
         $this->db->join('section as se', 'e.section_id=se.id', 'left');
         $this->db->join('parent as sp', 'sp.id = s.parent_id', 'left');
-        $this->db->where('e.session_id', get_session_id());
+        $this->db->where('e.session_id', $session_id);
         if (!is_superadmin_loggedin()) {
             $this->db->where('e.branch_id', get_loggedin_branch_id());
         }
@@ -342,6 +342,7 @@ class Student_model extends MY_Model
 
     public function getSingleStudent($id = '', $enroll = false)
     {
+        $session_id = get_session_id();
         $this->db->select('s.*,l.username,l.active,e.class_id,e.section_id,e.id as enrollid,e.roll,e.branch_id,e.session_id,c.name as class_name,se.name as section_name,sc.name as category_name');
         $this->db->from('enroll as e');
         $this->db->join('student as s', 'e.student_id = s.id', 'left');
@@ -354,7 +355,7 @@ class Student_model extends MY_Model
         } else {
             $this->db->where('s.id', $id);
         }
-        $this->db->where('e.session_id', get_session_id());
+        $this->db->where('e.session_id', $session_id);
         if (!is_superadmin_loggedin()) {
             $this->db->where('e.branch_id', get_loggedin_branch_id());
         }
@@ -439,7 +440,7 @@ class Student_model extends MY_Model
             $this->db->where('e.section_id', $section_id);
         }
         $this->db->where('e.branch_id', $branch_id);
-        $this->db->where('e.session_id', get_session_id());
+        $this->db->where('e.session_id', $session_id);
         $this->db->order_by('s.id', 'ASC');
         $this->db->group_by('p.id');
         $query = $this->db->get();
@@ -457,7 +458,7 @@ class Student_model extends MY_Model
         if ($section_id != 'all') {
             $this->db->where('e.section_id', $section_id);
         }
-        $this->db->where('e.session_id', get_session_id());
+        $this->db->where('e.session_id', $session_id);
         $this->db->where('s.parent_id', $parent_id);
         $this->db->order_by('s.id', 'ASC');
         $query = $this->db->get();

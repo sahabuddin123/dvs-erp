@@ -57,7 +57,7 @@ $app_address = get_lang_field($cms_setting, 'address', 'চরবাটা, স�
             <div class="col-lg-8">
                 <div class="logo-section d-flex align-items-center">
                    <a href="<?php echo base_url(); ?>" class="me-3"> 
-                        <img src="<?php echo base_url('assets/frontend/dvs/storage/uploads/settings/logo_light_1773127288.png'); ?>" alt="Logo" style="max-height: 80px;">
+                        <img src="<?php echo base_url('assets/frontend/dvs/storage/uploads/settings/logo_light_1773127288.png'); ?>" onerror="this.onerror=null;this.src='<?php echo base_url('uploads/app_image/logo.png'); ?>';" alt="Logo" style="max-height: 80px;">
                     </a>
                     <div class="school-info">
                         <h1 style="color: var(--primary-color); font-weight: 800; font-size: 1.85rem; margin-bottom: 2px;">
@@ -120,7 +120,7 @@ $app_address = get_lang_field($cms_setting, 'address', 'চরবাটা, স�
 <nav class="navbar navbar-expand-lg sticky-top bg-white shadow-sm py-2">
     <div class="container">
         <a class="navbar-brand d-lg-none" href="<?php echo base_url(); ?>">
-            <img src="<?php echo base_url('assets/frontend/dvs/storage/uploads/settings/logo_light_1773127288.png'); ?>" alt="Logo" height="40" class="me-2">
+            <img src="<?php echo base_url('assets/frontend/dvs/storage/uploads/settings/logo_light_1773127288.png'); ?>" onerror="this.onerror=null;this.src='<?php echo base_url('uploads/app_image/logo.png'); ?>';" alt="Logo" height="40" class="me-2">
             <span style="font-weight: 700; color: var(--primary-color); font-size: 1.1rem;"><?php echo $app_title; ?></span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavbar"

@@ -19,7 +19,7 @@ if (empty($copyright)) {
         <div class="row">
             <!-- Col 1: Brand & Social -->
             <div class="col-md-4 mb-4">
-                <img src="<?php echo base_url('assets/frontend/dvs/storage/uploads/settings/logo_dark_1781374935.png'); ?>" alt="Logo" class="footer-logo">
+                <img src="<?php echo base_url('assets/frontend/dvs/storage/uploads/settings/logo_dark_1781374935.png'); ?>" onerror="this.onerror=null;this.src='<?php echo base_url('uploads/app_image/logo.png'); ?>';" alt="Logo" class="footer-logo">
                 <h1><?php echo html_escape($app_title); ?></h1>
                 <?php if (!empty($app_tagline)) { ?>
                     <p style="color: #9ca3af; font-size: 0.9rem; font-style: italic;"><?php echo html_escape($app_tagline); ?></p>
