@@ -158,5 +158,35 @@
         </div>
     </div>
     <?php } ?>
+
+	<!-- Failsafe preloader dismissal -->
+	<script type="text/javascript">
+		(function() {
+			function removeLoadingOverlay() {
+				var b = document.body;
+				if (b && b.classList.contains('loading-overlay-showing')) {
+					b.classList.remove('loading-overlay-showing');
+				}
+				var overlays = document.querySelectorAll('.loading-overlay');
+				for (var i = 0; i < overlays.length; i++) {
+					overlays[i].style.opacity = '0';
+					overlays[i].style.pointerEvents = 'none';
+					setTimeout(function(el) {
+						if (el) el.style.display = 'none';
+					}.bind(null, overlays[i]), 350);
+				}
+			}
+
+			if (document.readyState === 'complete') {
+				removeLoadingOverlay();
+			} else {
+				window.addEventListener('load', removeLoadingOverlay);
+				document.addEventListener('DOMContentLoaded', function() {
+					setTimeout(removeLoadingOverlay, 300);
+				});
+				setTimeout(removeLoadingOverlay, 1000);
+			}
+		})();
+	</script>
 </body>
 </html>

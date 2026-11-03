@@ -978,9 +978,22 @@ window.theme = {};
 			}
 
 			if ( this.$wrapper.is('body') || this.options.hideOnWindowLoad ) {
-				$( window ).on( 'load error', function() {
+				if ( document.readyState === 'complete' ) {
 					_self.hide();
-				});
+				} else {
+					$( window ).on( 'load error', function() {
+						_self.hide();
+					});
+					$( document ).ready(function() {
+						setTimeout(function() {
+							_self.hide();
+						}, 300);
+					});
+				}
+				// Absolute safety net so backend/UI never gets stuck indefinitely
+				setTimeout(function() {
+					_self.hide();
+				}, 800);
 			}
 
 			if ( this.options.listenOn ) {
@@ -1033,10 +1046,13 @@ window.theme = {};
 
 			this.$wrapper.removeClass( 'loading-overlay-showing' );
 			setTimeout(function() {
-				if ( this.position != 'relative' || this.position != 'absolute' || this.position != 'fixed' ) {
+				if ( _self.position && _self.position != 'relative' && _self.position != 'absolute' && _self.position != 'fixed' ) {
 					_self.$wrapper.css({ position: '' });
 				}
-			}, 500);
+				if ( _self.$wrapper.is('body') ) {
+					_self.$wrapper.find('.loading-overlay').fadeOut(300);
+				}
+			}, 300);
 		},
 
 		matchProperties: function() {
