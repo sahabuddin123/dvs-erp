@@ -865,3 +865,62 @@ INSERT INTO `languages` (`word`, `english`, `bengali`) SELECT 'transitions', 'Tr
 UPDATE `languages` SET `bengali` = 'ট্রানজিশন / লেনদেন' WHERE `word` = 'transitions';
 INSERT INTO `languages` (`word`, `english`, `bengali`) SELECT 'statement', 'Statement', 'বিবরণী' WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'statement');
 UPDATE `languages` SET `bengali` = 'বিবরণী' WHERE `word` = 'statement';
+
+-- ------------------------------------------------------------------------------
+-- পার্ট ৮: অফিস একাউন্টিং এর আয় ও ব্যয় খাত সংযোজন (Voucher Heads - Income & Expense)
+-- ------------------------------------------------------------------------------
+
+-- ৮.১ 'আপ্যয়ন' ঠিক করা
+UPDATE `voucher_head` SET `name` = 'আপ্যায়ন খরচ' WHERE `name` IN ('আপ্যয়ন', 'আপ্যায়ন') AND `branch_id` = 1;
+
+-- ৮.২ ব্যয়ের খাতসমূহ (Expense Heads)
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'শিক্ষক ও কর্মচারীদের বেতন ও ভাতা', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'শিক্ষক ও কর্মচারীদের বেতন ও ভাতা' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'অফিস ও স্টেশনারি খরচ', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'অফিস ও স্টেশনারি খরচ' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'বিদ্যুৎ বিল', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'বিদ্যুৎ বিল' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'ইন্টারনেট ও টেলিফোন বিল', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'ইন্টারনেট ও টেলিফোন বিল' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'পানি ও ইউটিলিটি বিল', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'পানি ও ইউটিলিটি বিল' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'ভবন ও মাঠের ভাড়া', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'ভবন ও মাঠের ভাড়া' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'কাগজপত্র ও ফটোকপি খরচ', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'কাগজপত্র ও ফটোকপি খরচ' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'প্রশ্নপত্র ও পরীক্ষার খাতা প্রিন্টিং', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'প্রশ্নপত্র ও পরীক্ষার খাতা প্রিন্টিং' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'ভবন ও অবকাঠামো মেরামত ও রক্ষণাবেক্ষণ', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'ভবন ও অবকাঠামো মেরামত ও রক্ষণাবেক্ষণ' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'বিজ্ঞাপন, ব্যানার ও প্রচার খরচ', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'বিজ্ঞাপন, ব্যানার ও প্রচার খরচ' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'বার্ষিক ক্রীড়া ও সাংস্কৃতিক অনুষ্ঠান', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'বার্ষিক ক্রীড়া ও সাংস্কৃতিক অনুষ্ঠান' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'পুরস্কার, মেডেল ও ক্রেস্ট', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'পুরস্কার, মেডেল ও ক্রেস্ট' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'মিলাদ, দোয়া ও ধর্মীয় অনুষ্ঠান', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'মিলাদ, দোয়া ও ধর্মীয় অনুষ্ঠান' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'জাতীয় দিবস উদযাপন', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'জাতীয় দিবস উদযাপন' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'বই ও লাইব্রেরি সামগ্রী ক্রয়', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'বই ও লাইব্রেরি সামগ্রী ক্রয়' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'কম্পিউটার ও ল্যাব সামগ্রী ক্রয়', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'কম্পিউটার ও ল্যাব সামগ্রী ক্রয়' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'আসবাবপত্র ও ডেকোরেশন', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'আসবাবপত্র ও ডেকোরেশন' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'স্যানিটেশন ও পরিষ্কার-পরিচ্ছন্নতা সামগ্রী', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'স্যানিটেশন ও পরিষ্কার-পরিচ্ছন্নতা সামগ্রী' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'প্রাথমিক চিকিৎসা ও ফার্স্ট এইড', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'প্রাথমিক চিকিৎসা ও ফার্স্ট এইড' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'যাতায়াত ও ভ্রমণ ভাতা (TA/DA)', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'যাতায়াত ও ভ্রমণ ভাতা (TA/DA)' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'স্কুল পরিবহন / ভ্যান জ্বালানি ও মেরামত', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'স্কুল পরিবহন / ভ্যান জ্বালানি ও মেরামত' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'ডাক ও কুরিয়ার খরচ', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'ডাক ও কুরিয়ার খরচ' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'ব্যাংক চার্জ ও সার্ভিস ফি', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'ব্যাংক চার্জ ও সার্ভিস ফি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'সফটওয়্যার, ডোমেইন ও হোস্টিং রিনিউয়াল', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'সফটওয়্যার, ডোমেইন ও হোস্টিং রিনিউয়াল' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'আইডি কার্ড ও ডায়েরি তৈরি খরচ', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'আইডি কার্ড ও ডায়েরি তৈরি খরচ' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'ইউনিফর্ম ও ব্যাজ তৈরি খরচ', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'ইউনিফর্ম ও ব্যাজ তৈরি খরচ' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'আইন ও অডিট ফি', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'আইন ও অডিট ফি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'বিবিধ ও জরুরি অপ্রত্যাশিত খরচ', 'expense', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'বিবিধ ও জরুরি অপ্রত্যাশিত খরচ' AND `branch_id` = 1);
+
+-- ৮.৩ আয়ের খাতসমূহ (Income Heads)
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'ভর্তি ফরম ও প্রসপেক্টাস বিক্রি', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'ভর্তি ফরম ও প্রসপেক্টাস বিক্রি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'নতুন ভর্তি ও সেশন ফি', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'নতুন ভর্তি ও সেশন ফি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'মাসিক বেতন ও টিউশন ফি', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'মাসিক বেতন ও টিউশন ফি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'পরীক্ষার ফি', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'পরীক্ষার ফি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'রেজিস্ট্রেশন ও প্রশংসাপত্র ফি', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'রেজিস্ট্রেশন ও প্রশংসাপত্র ফি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'টিসি / ট্রান্সফার সার্টিফিকেট ফি', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'টিসি / ট্রান্সফার সার্টিফিকেট ফি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'বিলম্ব ফি ও জরিমানা', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'বিলম্ব ফি ও জরিমানা' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'আইডি কার্ড ও ডিজিটাল ডায়েরি ফি', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'আইডি কার্ড ও ডিজিটাল ডায়েরি ফি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'ইউনিফর্ম, ব্যাজ ও টাই বিক্রি', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'ইউনিফর্ম, ব্যাজ ও টাই বিক্রি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'বই, খাতা ও সিলেবাস বিতরণ ফি', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'বই, খাতা ও সিলেবাস বিতরণ ফি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'বার্ষিক ক্রীড়া ও সাংস্কৃতিক চাঁদা', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'বার্ষিক ক্রীড়া ও সাংস্কৃতিক চাঁদা' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'স্কুল পরিবহন / ভ্যান ভাড়া বাবদ আয়', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'স্কুল পরিবহন / ভ্যান ভাড়া বাবদ আয়' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'বোর্ড / কেন্দ্র পরীক্ষার ফি', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'বোর্ড / কেন্দ্র পরীক্ষার ফি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'প্রতিষ্ঠাতা ও পরিচালনা পর্ষদের অনুদান', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'প্রতিষ্ঠাতা ও পরিচালনা পর্ষদের অনুদান' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'সাধারণ অনুদান ও শুভানুধ্যায়ীদের সাহায্য', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'সাধারণ অনুদান ও শুভানুধ্যায়ীদের সাহায্য' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'ব্যাংক মুনাফা / সুদ বাবদ আয়', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'ব্যাংক মুনাফা / সুদ বাবদ আয়' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'পুরনো খবরের কাগজ ও স্ক্র্যাপ বিক্রি', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'পুরনো খবরের কাগজ ও স্ক্র্যাপ বিক্রি' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'ক্যান্টিন / দোকান ভাড়া বাবদ আয়', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'ক্যান্টিন / দোকান ভাড়া বাবদ আয়' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'স্পন্সরশিপ ও বিজ্ঞাপন বাবদ আয়', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'স্পন্সরশিপ ও বিজ্ঞাপন বাবদ আয়' AND `branch_id` = 1);
+INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'বিবিধ ও অন্যান্য আয়', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'বিবিধ ও অন্যান্য আয়' AND `branch_id` = 1);
