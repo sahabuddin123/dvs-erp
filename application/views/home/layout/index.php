@@ -49,7 +49,7 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- CSRF Setup -->
+    <!-- CSRF Setup & Global Helpers -->
     <script type="text/javascript">
         var base_url = "<?php echo base_url(); ?>";
         var csrfData = <?php echo json_encode(csrf_jquery_token()); ?>;
@@ -58,6 +58,42 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
                 data: csrfData
             });
         });
+
+        // Global getSectionByClass definition available early on all frontend pages
+        window.getSectionByClass = window.getSectionByClass || function(class_id) {
+            var $sec = $('#online_section_id, #section_id, select[name="section"], select[name="section_id"]');
+            var isEn = <?php echo ($current_lang == 'en') ? 'true' : 'false'; ?>;
+            if (!class_id) {
+                var placeholder = isEn ? 'Select Class First' : 'প্রথমে শ্রেণি নির্বাচন করুন';
+                $sec.html('<option value="">' + placeholder + '</option>');
+                if ($.fn.select2 && $sec.hasClass('select2-hidden-accessible')) {
+                    $sec.trigger('change.select2');
+                }
+                return;
+            }
+            var loadingText = isEn ? 'Loading Sections...' : 'শাখা লোড হচ্ছে...';
+            $sec.html('<option value="">' + loadingText + '</option>');
+            var postData = { class_id: class_id };
+            if (typeof csrfData !== 'undefined' && csrfData) {
+                $.extend(postData, csrfData);
+            }
+            var ajaxUrl = (typeof base_url !== 'undefined' ? base_url : '<?=base_url()?>') + 'home/getSectionByClass';
+            $.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                data: postData,
+                dataType: 'html',
+                success: function(response) {
+                    $sec.html(response);
+                    if ($.fn.select2 && $sec.hasClass('select2-hidden-accessible')) {
+                        $sec.trigger('change.select2');
+                    }
+                },
+                error: function() {
+                    $sec.html('<option value="">' + (isEn ? 'Failed to load' : 'লোড করা যায়নি') + '</option>');
+                }
+            });
+        };
     </script>
 
     <!-- DVS Root Theme Variables -->

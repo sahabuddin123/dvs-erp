@@ -5,34 +5,59 @@
 -- ==============================================================================
 
 -- ------------------------------------------------------------------------------
--- পার্ট ১: টেবিল স্ট্রাকচার ও মিসিং কলাম যোগ করা (Schema Alterations)
+-- পার্ট ১: টেবিল স্ট্রাকচার ও মিসিং কলাম যোগ করা (Schema Alterations - Safe / Idempotent)
+-- (যদি কলাম ইতোমধ্যে থাকে তবে এরর হবে না, স্বয়ংক্রিয়ভাবে স্কিপ করবে)
 -- ------------------------------------------------------------------------------
 
--- ১.১ student টেবিলে active কলাম যোগ (স্টুডেন্ট লিস্ট ৫০০ এরর ফিক্স)
-ALTER TABLE `student` ADD COLUMN `active` TINYINT(1) NOT NULL DEFAULT 1 AFTER `photo`;
+DROP PROCEDURE IF EXISTS `AddColIfNotExists`;
+DELIMITER $$
+CREATE PROCEDURE `AddColIfNotExists`(
+    IN tableName VARCHAR(64),
+    IN colName VARCHAR(64),
+    IN colDef TEXT
+)
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS 
+        WHERE table_schema = DATABASE() 
+        AND table_name = tableName 
+        AND column_name = colName
+    ) THEN
+        SET @ddl = CONCAT('ALTER TABLE `', tableName, '` ADD COLUMN `', colName, '` ', colDef);
+        PREPARE stmt FROM @ddl;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END$$
+DELIMITER ;
+
+-- ১.১ student টেবিলে active কলাম যোগ
+CALL AddColIfNotExists('student', 'active', 'TINYINT(1) NOT NULL DEFAULT 1 AFTER `photo`');
 UPDATE `student` s 
 INNER JOIN `login_credential` l ON l.user_id = s.id AND l.role = 7 
 SET s.active = l.active;
 
 -- ১.২ parent টেবিলে পিতা-মাতার আলাদা মোবাইল ও ছবি কলাম
-ALTER TABLE `parent` ADD COLUMN `father_mobileno` VARCHAR(20) NULL DEFAULT NULL AFTER `mother_name`;
-ALTER TABLE `parent` ADD COLUMN `mother_mobileno` VARCHAR(20) NULL DEFAULT NULL AFTER `father_mobileno`;
-ALTER TABLE `parent` ADD COLUMN `father_photo` VARCHAR(255) NULL DEFAULT NULL AFTER `photo`;
-ALTER TABLE `parent` ADD COLUMN `mother_photo` VARCHAR(255) NULL DEFAULT NULL AFTER `father_photo`;
+CALL AddColIfNotExists('parent', 'father_mobileno', 'VARCHAR(20) NULL DEFAULT NULL AFTER `mother_name`');
+CALL AddColIfNotExists('parent', 'mother_mobileno', 'VARCHAR(20) NULL DEFAULT NULL AFTER `father_mobileno`');
+CALL AddColIfNotExists('parent', 'father_photo', 'VARCHAR(255) NULL DEFAULT NULL AFTER `photo`');
+CALL AddColIfNotExists('parent', 'mother_photo', 'VARCHAR(255) NULL DEFAULT NULL AFTER `father_photo`');
 
 -- ১.৩ online_admission টেবিলে পিতা-মাতার আলাদা মোবাইল ও ছবি কলাম
-ALTER TABLE `online_admission` ADD COLUMN `father_mobile_no` VARCHAR(20) NULL DEFAULT NULL AFTER `mother_name`;
-ALTER TABLE `online_admission` ADD COLUMN `mother_mobile_no` VARCHAR(20) NULL DEFAULT NULL AFTER `father_mobile_no`;
-ALTER TABLE `online_admission` ADD COLUMN `father_photo` VARCHAR(255) NULL DEFAULT NULL AFTER `grd_photo`;
-ALTER TABLE `online_admission` ADD COLUMN `mother_photo` VARCHAR(255) NULL DEFAULT NULL AFTER `father_photo`;
+CALL AddColIfNotExists('online_admission', 'father_mobile_no', 'VARCHAR(20) NULL DEFAULT NULL AFTER `mother_name`');
+CALL AddColIfNotExists('online_admission', 'mother_mobile_no', 'VARCHAR(20) NULL DEFAULT NULL AFTER `father_mobile_no`');
+CALL AddColIfNotExists('online_admission', 'father_photo', 'VARCHAR(255) NULL DEFAULT NULL AFTER `grd_photo`');
+CALL AddColIfNotExists('online_admission', 'mother_photo', 'VARCHAR(255) NULL DEFAULT NULL AFTER `father_photo`');
 
 -- ১.৪ front_cms_setting টেবিলে ইংরেজি/বাইলিঙ্গুয়াল কলাম ও টেক্সট সাইজ বৃদ্ধি
-ALTER TABLE `front_cms_setting` ADD COLUMN `application_title_en` VARCHAR(255) NULL DEFAULT NULL;
-ALTER TABLE `front_cms_setting` ADD COLUMN `site_tagline` VARCHAR(255) NULL DEFAULT NULL;
-ALTER TABLE `front_cms_setting` ADD COLUMN `site_tagline_en` VARCHAR(255) NULL DEFAULT NULL;
-ALTER TABLE `front_cms_setting` ADD COLUMN `address_en` TEXT NULL DEFAULT NULL;
-ALTER TABLE `front_cms_setting` ADD COLUMN `footer_about_text_en` TEXT NULL DEFAULT NULL;
-ALTER TABLE `front_cms_setting` ADD COLUMN `copyright_text_en` TEXT NULL DEFAULT NULL;
+CALL AddColIfNotExists('front_cms_setting', 'application_title_en', 'VARCHAR(255) NULL DEFAULT NULL');
+CALL AddColIfNotExists('front_cms_setting', 'site_tagline', 'VARCHAR(255) NULL DEFAULT NULL');
+CALL AddColIfNotExists('front_cms_setting', 'site_tagline_en', 'VARCHAR(255) NULL DEFAULT NULL');
+CALL AddColIfNotExists('front_cms_setting', 'address_en', 'TEXT NULL DEFAULT NULL');
+CALL AddColIfNotExists('front_cms_setting', 'footer_about_text_en', 'TEXT NULL DEFAULT NULL');
+CALL AddColIfNotExists('front_cms_setting', 'copyright_text_en', 'TEXT NULL DEFAULT NULL');
+
+DROP PROCEDURE IF EXISTS `AddColIfNotExists`;
 
 ALTER TABLE `front_cms_setting` MODIFY `footer_about_text` TEXT NULL;
 ALTER TABLE `front_cms_setting` MODIFY `copyright_text` TEXT NULL;
@@ -255,8 +280,9 @@ UPDATE `front_cms_services_list` SET
 WHERE `description` LIKE '%মাদ্রাসা%';
 
 UPDATE `card_templete` SET 
-    `card_title` = REPLACE(`card_title`, 'Mahmudia', 'Dream Valley School') 
-WHERE `card_title` LIKE '%Mahmudia%';
+    `name` = REPLACE(`name`, 'Mahmudia', 'Dream Valley School'),
+    `content` = REPLACE(`content`, 'Mahmudia', 'Dream Valley School')
+WHERE `name` LIKE '%Mahmudia%' OR `content` LIKE '%Mahmudia%';
 
 UPDATE `certificates_templete` SET 
     `name` = REPLACE(`name`, 'মাদ্রাসা', 'স্কুল'), 

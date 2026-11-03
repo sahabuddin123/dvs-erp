@@ -15,7 +15,7 @@
 			foreach ($students as $row):
 		?>
 		<div class="col-md-12 mb-lg">
-			<div class="profile-head">
+			<div class="profile-head" style="background-image: url('<?=get_profile_bg_url()?>');">
 				<div class="col-md-12 col-lg-4 col-xl-3">
 					<div class="image-content-center user-pro">
 						<div class="preview">

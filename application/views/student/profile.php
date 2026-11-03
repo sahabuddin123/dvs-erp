@@ -67,7 +67,7 @@ if (!empty($student['birthday'])) {
 ?>
 <div class="row appear-animation" data-appear-animation="<?=$global_config['animations'] ?>" data-appear-animation-delay="100">
 	<div class="col-md-12 mb-lg">
-		<div class="profile-head" style="box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.15);">
+		<div class="profile-head" style="background-image: url('<?=get_profile_bg_url()?>'); box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.15);">
 			<div class="col-md-12 col-lg-3 col-xl-3">
 				<div class="image-content-center user-pro">
 					<div class="preview" style="box-shadow: 0 4px 14px rgba(0,0,0,0.25); border: 3px solid rgba(255,255,255,0.85);">

@@ -78,17 +78,42 @@ class Settings extends Admin_Controller
         }
 
         if ($this->input->post('submit') == 'logo') {
-            move_uploaded_file($_FILES['logo_file']['tmp_name'], 'uploads/app_image/logo.png');
-            move_uploaded_file($_FILES['text_logo']['tmp_name'], 'uploads/app_image/logo-small.png');
-            move_uploaded_file($_FILES['print_file']['tmp_name'], 'uploads/app_image/printing-logo.png');
-            move_uploaded_file($_FILES['report_card']['tmp_name'], 'uploads/app_image/report-card-logo.png');
+            $upload_map = [
+                'logo_file'   => 'uploads/app_image/logo.png',
+                'text_logo'   => 'uploads/app_image/logo-small.png',
+                'print_file'  => 'uploads/app_image/printing-logo.png',
+                'report_card' => 'uploads/app_image/report-card-logo.png',
+                'slider_1'    => 'uploads/login_image/slider_1.jpg',
+                'slider_2'    => 'uploads/login_image/slider_2.jpg',
+                'slider_3'    => 'uploads/login_image/slider_3.jpg',
+                'sidebox_1'   => 'assets/login_page/image/sidebox.jpg',
+                'profile_bg'  => 'assets/images/profile_bg.jpg',
+            ];
 
-            move_uploaded_file($_FILES['slider_1']['tmp_name'], 'uploads/login_image/slider_1.jpg');
-            move_uploaded_file($_FILES['slider_2']['tmp_name'], 'uploads/login_image/slider_2.jpg');
-            move_uploaded_file($_FILES['slider_3']['tmp_name'], 'uploads/login_image/slider_3.jpg');
-
-            move_uploaded_file($_FILES['sidebox_1']['tmp_name'], 'assets/login_page/image/sidebox.jpg');
-            move_uploaded_file($_FILES['profile_bg']['tmp_name'], 'assets/images/profile_bg.jpg');
+            foreach ($upload_map as $field => $dest) {
+                if (!empty($_FILES[$field]['tmp_name']) && is_uploaded_file($_FILES[$field]['tmp_name'])) {
+                    @mkdir(dirname($dest), 0755, true);
+                    // Check if PNG and destination is JPG, convert cleanly
+                    $img_info = @getimagesize($_FILES[$field]['tmp_name']);
+                    if ($img_info !== false && $img_info[2] == IMAGETYPE_PNG && substr($dest, -4) === '.jpg') {
+                        $png = @imagecreatefrompng($_FILES[$field]['tmp_name']);
+                        if ($png) {
+                            $bg = imagecreatetruecolor(imagesx($png), imagesy($png));
+                            $white = imagecolorallocate($bg, 255, 255, 255);
+                            imagefill($bg, 0, 0, $white);
+                            imagecopy($bg, $png, 0, 0, 0, 0, imagesx($png), imagesy($png));
+                            imagejpeg($bg, $dest, 92);
+                            imagedestroy($bg);
+                            imagedestroy($png);
+                        } else {
+                            move_uploaded_file($_FILES[$field]['tmp_name'], $dest);
+                        }
+                    } else {
+                        move_uploaded_file($_FILES[$field]['tmp_name'], $dest);
+                    }
+                    @touch($dest);
+                }
+            }
 
             set_alert('success', translate('the_configuration_has_been_updated'));
             $this->session->set_flashdata('active', 3);
