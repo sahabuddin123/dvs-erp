@@ -424,7 +424,15 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                             <label class="form-label fw-semibold"><?php echo $is_en ? 'School Name' : 'বিদ্যালয়ের নাম'; ?> <span class="required text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-landmark"></i></span>
-                                <input type="text" class="form-control" name="schoolname" value="<?php echo get_type_name_by_id('branch', $branchID, 'school_name'); ?>" readonly />
+                                <?php
+                                $branchSchoolName = get_type_name_by_id('branch', $branchID, 'school_name');
+                                if (!$is_en && !empty($cms_setting['application_title'])) {
+                                    $displaySchoolName = $cms_setting['application_title'];
+                                } else {
+                                    $displaySchoolName = !empty($branchSchoolName) ? $branchSchoolName : 'Dream Valley School';
+                                }
+                                ?>
+                                <input type="text" class="form-control" name="schoolname" value="<?php echo html_escape($displaySchoolName); ?>" readonly />
                             </div>
                         </div>
                     </div>
