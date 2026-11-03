@@ -280,7 +280,7 @@ class Student_model extends MY_Model
         $r = $this->db->get()->row_array();
         $total_amount = floatval($r['totalfees']);
         $total_paid = floatval($r['totalpay'] + $r['totaldiscount']);
-        if ($total_paid != 0) {
+        if ($total_paid != 0 && $total_amount > 0) {
             $percentage = ($total_paid / $total_amount) * 100;
             return number_format($percentage);
         } else {
@@ -502,6 +502,7 @@ class Student_model extends MY_Model
         $this->datatables->select('enroll.*,CONCAT_WS(" ",student.first_name, student.last_name) as fullname,student.photo,student.mobileno,student.admission_date,student.gender,student.register_no,student.birthday,enroll.roll,class.name as class_name,student.parent_id,section.name as section_name,student_category.name as category,parent.name as guardian_name,parent.mobileno as guardian_mobileno' . $field_select);
         $this->datatables->from('enroll');
         $this->datatables->join('student', 'student.id = enroll.student_id', 'inner');
+        $this->datatables->join('login_credential', 'login_credential.user_id = student.id and login_credential.role = 7', 'left');
         $this->datatables->join('class', 'class.id = enroll.class_id', 'left');
         $this->datatables->join('section', 'section.id = enroll.section_id', 'left');
         $this->datatables->join('student_category', 'student_category.id = student.category_id', 'left');
@@ -509,7 +510,7 @@ class Student_model extends MY_Model
         $this->datatables->search_value('student.register_no,student.first_name,student.last_name,student.gender,student_category.name,class.name,section.name,enroll.roll,parent.name' . $field_select);
         $this->datatables->column_order('enroll.id,enroll.id,student.first_name,class.name,section.name,student.gender,student.mobileno,student.register_no,enroll.roll,student.birthday,parent.name' . $custom_fields_column_order);
         $this->datatables->order_by('enroll.id', 'desc');
-        $this->datatables->where('student.active', 1);
+        $this->datatables->where('(student.active = 1 AND (login_credential.active = 1 OR login_credential.active IS NULL))');
         $this->datatables->where('enroll.session_id', $sessionID);
         $this->datatables->where('enroll.branch_id', $branchID);
         if (!empty($classID)) {
@@ -569,20 +570,20 @@ class Student_model extends MY_Model
                                 <input type='checkbox' class='cb_bulkdelete' id='" . $record->student_id . "'><i></i>
                             </label>
                         </div></div>";
-if ($validArr['student_photo']) {
+            if (!empty($validArr['student_photo'])) {
             $row[] = $photo;
 }
             $row[] = $record->fullname;
             $row[] = $record->class_name;
             $row[] = $record->section_name;
-if ($validArr['gender']) {
+            if (!empty($validArr['gender'])) {
             $row[] = translate($record->gender);
 }
-if ($validArr['student_mobile_no']) {
+            if (!empty($validArr['student_mobile_no'])) {
             $row[] = $record->mobileno;
 }
             $row[] = $record->register_no . "\n<small class='text-muted bs-block'>"._d($record->admission_date)."</small>";
-if ($validArr['roll']) {
+            if (!empty($validArr['roll'])) {
             $row[] = $record->roll;
 }
             $row[] = $stu_age;

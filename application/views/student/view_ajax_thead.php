@@ -13,19 +13,19 @@
 				<label class="i-checks"><input type="checkbox" id="selectAllchkbox"><i></i></label>
 			</div>
 		</th>
-<?php if ($validArr['student_photo']) { ?>
+<?php if (!empty($validArr['student_photo'])) { ?>
 		<th class="no-sort"><?=translate('photo')?></th>
 <?php } ?>
 		<th><?=translate('name')?></th>
 		<th><?=translate('class')?></th>
 		<th><?=translate('section')?></th>
-<?php if ($validArr['gender']) { ?>
+<?php if (!empty($validArr['gender'])) { ?>
 		<th><?=translate('gender')?></th>
-<?php } if ($validArr['student_mobile_no']) { ?>
+<?php } if (!empty($validArr['student_mobile_no'])) { ?>
 		<th><?=translate('mobile_no')?></th>
 <?php } ?>
 		<th><?=translate('register_no')?></th>
-<?php if ($validArr['roll']) { ?>
+<?php if (!empty($validArr['roll'])) { ?>
 		<th width="80"><?=translate('roll')?></th>
 <?php } ?>
 		<th><?=translate('age')?></th>
