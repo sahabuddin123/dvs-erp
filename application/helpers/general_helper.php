@@ -172,16 +172,18 @@ function is_secure($url)
 
 function get_global_setting($name = '')
 {
+    static $global_settings_cache = null;
     $CI = &get_instance();
-    $name = trim($name);
-    $CI->db->where('id', 1);
-    $CI->db->select($name);
-    $query = $CI->db->get('global_settings');
-
-    if ($query->num_rows() > 0) {
-        $row = $query->row();
-        return $row->$name;
+    if ($global_settings_cache === null) {
+        $q = $CI->db->query("SELECT * FROM `global_settings` WHERE `id` = 1");
+        if ($q && $q->num_rows() > 0) {
+            $global_settings_cache = $q->row();
+        } else {
+            $global_settings_cache = new stdClass();
+        }
     }
+    $name = trim($name);
+    return isset($global_settings_cache->$name) ? $global_settings_cache->$name : null;
 }
 
 // is superadmin logged in @return boolean

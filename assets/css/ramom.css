@@ -376,7 +376,7 @@ input[type="number"] {
 	position: absolute;
 	height: 100%;
 	width: 80%;
-	background: #c866a1;
+	background: linear-gradient(135deg, rgba(0, 127, 61, 0.45) 0%, rgba(0, 60, 28, 0.75) 100%);
 	opacity: .40;
 	top: 0;
 	left: -20%;
