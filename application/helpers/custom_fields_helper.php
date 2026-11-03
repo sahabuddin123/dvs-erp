@@ -400,3 +400,80 @@ function render_custom_Fields_excluding($belongs_to, $branch_id = null, $edit_id
     }
     return '';
 }
+
+
+function render_single_online_custom_field($field, $belongs_to = 'student', $edit_id = false, $override_col = null, $custom_label = null, $placeholder = null, $icon = null)
+{
+    if (empty($field) || (isset($field['fstatus']) && $field['fstatus'] == 0)) {
+        return '';
+    }
+    $fieldLabel = !empty($custom_label) ? $custom_label : ucfirst($field['field_label']);
+    $fieldType = $field['field_type'];
+    $bsColumn = !empty($override_col) ? $override_col : (!empty($field['bs_column']) ? $field['bs_column'] : 4);
+    $required = $field['required'];
+    $formTo = !empty($field['form_to']) ? $field['form_to'] : $belongs_to;
+    $fieldID = $field['id'];
+    $name = "custom_fields[" . $formTo . "][" . $fieldID . "]";
+
+    $value = $field['default_value'];
+    if ($edit_id !== false) {
+        $return = get_online_custom_field_value($edit_id, $fieldID, $formTo);
+        if (!empty($return)) {
+            $value = $return;
+        }
+    }
+    if (isset($_POST['custom_fields'][$formTo][$fieldID])) {
+        $value = $_POST['custom_fields'][$formTo][$fieldID];
+    }
+
+    $ph = !empty($placeholder) ? ' placeholder="' . html_escape($placeholder) . '"' : '';
+    $reqAttr = ($required == 1) ? ' required' : '';
+
+    $html = '<div class="col-md-' . $bsColumn . ' mb-3"><div class="form-group">';
+    $html .= '<label class="form-label control-label">' . $fieldLabel . ($required == 1 ? ' <span class="required text-danger">*</span>' : '') . '</label>';
+    
+    if (!empty($icon) && $fieldType != 'checkbox' && $fieldType != 'textarea') {
+        $html .= '<div class="input-group"><span class="input-group-text"><i class="' . $icon . '"></i></span>';
+    }
+
+    if ($fieldType == 'text' || $fieldType == 'number' || $fieldType == 'email') {
+        $html .= '<input type="' . $fieldType . '" class="form-control" autocomplete="off" name="' . $name . '" value="' . html_escape($value) . '"' . $ph . $reqAttr . ' />';
+    } elseif ($fieldType == 'textarea') {
+        $html .= '<textarea class="form-control" rows="2" name="' . $name . '"' . $ph . $reqAttr . '>' . html_escape($value) . '</textarea>';
+    } elseif ($fieldType == 'dropdown') {
+        $html .= '<select class="form-select form-control" data-plugin-selectTwo data-width="100%" data-minimum-results-for-search="Infinity" name="' . $name . '"' . $reqAttr . '>';
+        $html .= dropdownField($field['default_value'], $value);
+        $html .= '</select>';
+    } elseif ($fieldType == 'date') {
+        $html .= '<input type="text" class="form-control" data-plugin-datepicker autocomplete="off" name="' . $name . '" value="' . html_escape($value) . '"' . $ph . $reqAttr . ' />';
+    } elseif ($fieldType == 'checkbox') {
+        $html .= '<div class="form-check"><input class="form-check-input" type="checkbox" name="[' . $formTo . '][' . $fieldID . ']" value="1" ' . ($value == 1 ? 'checked' : '') . ' id="cf_' . $fieldID . '"><label class="form-check-label" for="cf_' . $fieldID . '">' . $fieldLabel . '</label></div>';
+    }
+
+    if (!empty($icon) && $fieldType != 'checkbox' && $fieldType != 'textarea') {
+        $html .= '</div>';
+    }
+
+    $html .= '<span class="error text-danger">' . form_error($name) . '</span>';
+    $html .= '</div></div>';
+    return $html;
+}
+
+function render_online_custom_fields_excluding($belongs_to, $branch_id = null, $edit_id = false, $col_sm = null, $exclude_ids = array())
+{
+    $CI = &get_instance();
+    if (empty($branch_id)) {
+        $branch_id = $CI->application_model->get_branch_id();
+    }
+    $allFields = getOnlineCustomFields($belongs_to, $branch_id);
+    if (count($allFields)) {
+        $html = '';
+        foreach ($allFields as $field) {
+            if (!in_array($field['id'], $exclude_ids) && $field['fstatus'] == 1) {
+                $html .= render_single_online_custom_field($field, $belongs_to, $edit_id, $col_sm);
+            }
+        }
+        return $html;
+    }
+    return '';
+}
