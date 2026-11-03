@@ -96,9 +96,72 @@ function getCustomFields($belong_to, $branchID = '')
     return $fields;
 }
 
+function get_calculated_age_bangla($birthday, $target_date = null)
+{
+    if (empty($birthday) || $birthday == '0000-00-00') {
+        return '';
+    }
+    try {
+        $dob = new DateTime($birthday);
+        $target = !empty($target_date) ? new DateTime($target_date) : new DateTime();
+        $diff = $target->diff($dob);
+        
+        $years = $diff->y;
+        $months = $diff->m;
+        $days = $diff->d;
+
+        $en_digits = array('0','1','2','3','4','5','6','7','8','9');
+        $bn_digits = array('০','১','২','৩','৪','৫','৬','৭','৮','৯');
+
+        $parts = array();
+        if ($years > 0) {
+            $parts[] = str_replace($en_digits, $bn_digits, $years) . ' বছর';
+        }
+        if ($months > 0) {
+            $parts[] = str_replace($en_digits, $bn_digits, $months) . ' মাস';
+        }
+        if (empty($parts) && $days > 0) {
+            $parts[] = str_replace($en_digits, $bn_digits, $days) . ' দিন';
+        }
+        return !empty($parts) ? implode(' ', $parts) : '০ বছর';
+    } catch (Exception $e) {
+        return '';
+    }
+}
+
 function saveCustomFields($post, $userID)
 {
 	$CI = &get_instance();
+	if (!is_array($post)) {
+		$post = array();
+	}
+
+	// Auto calculate age in Bengali for custom field 'শিক্ষার্থীর বয়স (বাংলায়)' if not provided
+	$CI->db->select('id');
+	$CI->db->where('form_to', 'student');
+	$CI->db->like('field_label', 'বয়স');
+	$ageField = $CI->db->get('custom_field')->row_array();
+	if (!empty($ageField)) {
+		$ageFieldId = $ageField['id'];
+		if (empty($post[$ageFieldId])) {
+			$birthday = $CI->input->post('birthday');
+			if (empty($birthday)) {
+				$CI->db->select('birthday');
+				$CI->db->where('id', $userID);
+				$st = $CI->db->get('student')->row_array();
+				if (!empty($st['birthday'])) {
+					$birthday = $st['birthday'];
+				}
+			}
+			if (!empty($birthday)) {
+				$calculatedAge = get_calculated_age_bangla($birthday);
+				if (!empty($calculatedAge)) {
+					$post[$ageFieldId] = $calculatedAge;
+				}
+			}
+		}
+	}
+
 	$arrayData = array();
 	foreach ($post as $key => $value) {
 		$insertData = array(
@@ -252,6 +315,36 @@ function render_online_custom_fields($belongs_to, $branch_id = null, $edit_id = 
 function saveCustomFieldsOnline($post, $userID)
 {
     $CI = &get_instance();
+    if (!is_array($post)) {
+        $post = array();
+    }
+
+    // Auto calculate age in Bengali for custom field 'শিক্ষার্থীর বয়স (বাংলায়)' if not provided
+    $CI->db->select('id');
+    $CI->db->where('form_to', 'student');
+    $CI->db->like('field_label', 'বয়স');
+    $ageField = $CI->db->get('custom_field')->row_array();
+    if (!empty($ageField)) {
+        $ageFieldId = $ageField['id'];
+        if (empty($post[$ageFieldId])) {
+            $birthday = $CI->input->post('birthday');
+            if (empty($birthday)) {
+                $CI->db->select('birthday');
+                $CI->db->where('id', $userID);
+                $st = $CI->db->get('online_admission')->row_array();
+                if (!empty($st['birthday'])) {
+                    $birthday = $st['birthday'];
+                }
+            }
+            if (!empty($birthday)) {
+                $calculatedAge = get_calculated_age_bangla($birthday);
+                if (!empty($calculatedAge)) {
+                    $post[$ageFieldId] = $calculatedAge;
+                }
+            }
+        }
+    }
+
     $arrayData = array();
     foreach ($post as $key => $value) {
         $insertData = array(

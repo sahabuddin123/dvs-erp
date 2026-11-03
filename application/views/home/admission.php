@@ -562,10 +562,10 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                     <?php } ?>
                 </div>
 
-                <!-- Row 2: Gender, Blood, DOB, Age in Bangla -->
+                <!-- Row 2: Gender, Blood, DOB (Age auto-calculated in backend) -->
                 <div class="row">
                     <?php if ($gender['status']) { ?>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <div class="form-group">
                             <label class="form-label fw-semibold"><?php echo $is_en ? 'Gender' : 'লিঙ্গ'; ?><?php echo ($gender['required'] == 1 ? ' <span class="required text-danger">*</span>' : ''); ?></label>
                             <?php
@@ -582,7 +582,7 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                     <?php } ?>
 
                     <?php if ($blood_group['status']) { ?>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <div class="form-group">
                             <label class="form-label fw-semibold"><?php echo $is_en ? 'Blood Group' : 'রক্তের গ্রুপ'; ?><?php echo $blood_group['required'] == 1 ? ' <span class="required text-danger">*</span>' : ''; ?></label>
                             <?php
@@ -595,7 +595,7 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                     <?php } ?>
 
                     <?php if ($birthday['status']) { ?>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <div class="form-group">
                             <label class="form-label fw-semibold"><?php echo $is_en ? 'Date of Birth' : 'জন্ম তারিখ'; ?><?php echo $birthday['required'] == 1 ? ' <span class="required text-danger">*</span>' : ''; ?></label>
                             <div class="input-group">
@@ -606,15 +606,6 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                         </div>
                     </div>
                     <?php } ?>
-
-                    <!-- Custom Field 12: Age in Bangla -->
-                    <?php 
-                    if ($cf_student_age) {
-                        $age_lbl = $is_en ? 'Student Age (in Bengali)' : 'শিক্ষার্থীর বয়স (বাংলায়)';
-                        $age_ph  = $is_en ? 'e.g. 7 Years 6 Months' : 'যেমন: ৭ বছর ৬ মাস';
-                        echo render_single_online_custom_field($cf_student_age, 'student', false, 3, $age_lbl, $age_ph, 'fas fa-calendar-check');
-                    }
-                    ?>
                 </div>
 
                 <!-- Row 3: Birth Registration & Stipend -->
@@ -1413,6 +1404,43 @@ function onlinePrevStep(currentStep) {
     }
 }
 
+function calculateOnlineAge(dobStr, isEn) {
+    if (!dobStr) return '';
+    var parts = dobStr.split('-');
+    if (parts.length !== 3) return '';
+    var y = parseInt(parts[0], 10), m = parseInt(parts[1], 10) - 1, d = parseInt(parts[2], 10);
+    var birthDate = new Date(y, m, d);
+    if (isNaN(birthDate.getTime())) return '';
+    var today = new Date();
+    var years = today.getFullYear() - birthDate.getFullYear();
+    var months = today.getMonth() - birthDate.getMonth();
+    var days = today.getDate() - birthDate.getDate();
+    if (days < 0) { months--; }
+    if (months < 0) { years--; months += 12; }
+    if (years < 0) return '';
+    if (isEn) {
+        var resEn = [];
+        if (years > 0) resEn.push(years + ' Year' + (years > 1 ? 's' : ''));
+        if (months > 0) resEn.push(months + ' Month' + (months > 1 ? 's' : ''));
+        if (resEn.length === 0 && days > 0) resEn.push(days + ' Day' + (days > 1 ? 's' : ''));
+        return resEn.length > 0 ? resEn.join(' ') : '0 Year';
+    } else {
+        var enDigits = ['0','1','2','3','4','5','6','7','8','9'];
+        var bnDigits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+        var toBn = function(num) {
+            return String(num).split('').map(function(ch) {
+                var idx = enDigits.indexOf(ch);
+                return idx !== -1 ? bnDigits[idx] : ch;
+            }).join('');
+        };
+        var resBn = [];
+        if (years > 0) resBn.push(toBn(years) + ' বছর');
+        if (months > 0) resBn.push(toBn(months) + ' মাস');
+        if (resBn.length === 0 && days > 0) resBn.push(toBn(days) + ' দিন');
+        return resBn.length > 0 ? resBn.join(' ') : '০ বছর';
+    }
+}
+
 function populateOnlineSummary() {
     var classText = $('#online_class_id option:selected').text();
     var sectionText = $('#online_section_id option:selected').text() || '-';
@@ -1432,13 +1460,22 @@ function populateOnlineSummary() {
     var grdName = $('#online_guardian_name').val() || '-';
     var grdMobile = $('#online_guardian_mobile_no').val() || '-';
 
+    var isEn = <?php echo $is_en ? 'true' : 'false'; ?>;
+    var dobDisplay = dob;
+    if (dob && dob !== '-') {
+        var ageText = calculateOnlineAge(dob, isEn);
+        if (ageText) {
+            dobDisplay += (isEn ? ' (Age: ' : ' (বয়স: ') + ageText + ')';
+        }
+    }
+
     $('#online_sum_class').text(classText);
     $('#online_sum_section').text(sectionText);
     $('#online_sum_category').text(catText);
 
     $('#online_sum_name_bn').text(fullNameBn);
     $('#online_sum_name_en').text(fullNameEn);
-    $('#online_sum_gender_dob').text(gender + ' / ' + dob);
+    $('#online_sum_gender_dob').text(gender + ' / ' + dobDisplay);
     $('#online_sum_mobile').text(mobile);
 
     $('#online_sum_father').text(fatherName);

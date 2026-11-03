@@ -591,10 +591,10 @@ endif;
 						<?php } ?>
 					</div>
 
-					<!-- Row 2: Gender, Blood Group, Birthday, Age in Bangla -->
+					<!-- Row 2: Gender, Blood Group, Birthday (Age auto-calculated in backend) -->
 					<div class="row">
 						<?php if ($gender['status']) { ?>
-						<div class="col-md-3 mb-sm">
+						<div class="col-md-4 mb-sm">
 							<div class="form-group">
 								<label class="control-label"><?=translate('gender')?> (লিঙ্গ) <?php echo $gender['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 								<?php
@@ -611,7 +611,7 @@ endif;
 						<?php } ?>
 
 						<?php if ($blood_group['status']) { ?>
-						<div class="col-md-3 mb-sm">
+						<div class="col-md-4 mb-sm">
 							<div class="form-group">
 								<label class="control-label"><?=translate('blood_group')?> (রক্তের গ্রুপ) <?php echo $blood_group['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 								<?php
@@ -625,7 +625,7 @@ endif;
 						<?php } ?>
 
 						<?php if ($birthday['status']) { ?>
-						<div class="col-md-3 mb-sm">
+						<div class="col-md-4 mb-sm">
 							<div class="form-group">
 								<label class="control-label"><?=translate('birthday')?> (জন্ম তারিখ) <?php echo $birthday['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 								<div class="input-group">
@@ -637,13 +637,6 @@ endif;
 							</div>
 						</div>
 						<?php } ?>
-
-						<!-- Custom Field 12: Age in Bangla -->
-						<?php 
-						if ($cf_student_age) {
-							echo render_single_custom_field($cf_student_age, 'student', false, 3, 'শিক্ষার্থীর বয়স (বাংলায়)', 'যেমন: ৭ বছর ৬ মাস', 'fas fa-calendar-check');
-						}
-						?>
 					</div>
 
 					<!-- Row 3: Birth Registration Info & Stipend -->
@@ -1521,6 +1514,35 @@ function dvsPrevStep(currentStep) {
 	}
 }
 
+function dvsCalculateAgeBangla(dobStr) {
+	if (!dobStr) return '';
+	var parts = dobStr.split('-');
+	if (parts.length !== 3) return '';
+	var y = parseInt(parts[0], 10), m = parseInt(parts[1], 10) - 1, d = parseInt(parts[2], 10);
+	var birthDate = new Date(y, m, d);
+	if (isNaN(birthDate.getTime())) return '';
+	var today = new Date();
+	var years = today.getFullYear() - birthDate.getFullYear();
+	var months = today.getMonth() - birthDate.getMonth();
+	var days = today.getDate() - birthDate.getDate();
+	if (days < 0) { months--; }
+	if (months < 0) { years--; months += 12; }
+	if (years < 0) return '';
+	var enDigits = ['0','1','2','3','4','5','6','7','8','9'];
+	var bnDigits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+	var toBn = function(num) {
+		return String(num).split('').map(function(ch) {
+			var idx = enDigits.indexOf(ch);
+			return idx !== -1 ? bnDigits[idx] : ch;
+		}).join('');
+	};
+	var res = [];
+	if (years > 0) res.push(toBn(years) + ' বছর');
+	if (months > 0) res.push(toBn(months) + ' মাস');
+	if (res.length === 0 && days > 0) res.push(toBn(days) + ' দিন');
+	return res.length > 0 ? res.join(' ') : '০ বছর';
+}
+
 function dvsPopulateSummary() {
 	var classText = $('#class_id option:selected').text();
 	var sectionText = $('#section_id option:selected').text();
@@ -1536,6 +1558,14 @@ function dvsPopulateSummary() {
 	var dob = $('#birthday').val() || '-';
 	var mobile = $('#mobileno').val() || '-';
 
+	var dobDisplay = dob;
+	if (dob && dob !== '-') {
+		var ageBn = dvsCalculateAgeBangla(dob);
+		if (ageBn) {
+			dobDisplay += ' (বয়স: ' + ageBn + ')';
+		}
+	}
+
 	var fatherName = $('#father_name').val() || '-';
 	var motherName = $('#mother_name').val() || '-';
 	var grdName = $('#chkGuardian').is(':checked') ? ($('#parent_id option:selected').text() || 'পূর্ব নিবন্ধিত') : ($('#grd_name').val() || '-');
@@ -1548,7 +1578,7 @@ function dvsPopulateSummary() {
 
 	$('#sum_name_bn').text(fullNameBn);
 	$('#sum_name_en').text(fullNameEn);
-	$('#sum_gender_dob').text(gender + ' / ' + dob);
+	$('#sum_gender_dob').text(gender + ' / ' + dobDisplay);
 	$('#sum_mobile').text(mobile);
 
 	$('#sum_father').text(fatherName);

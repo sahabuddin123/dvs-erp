@@ -305,9 +305,10 @@ class Student extends Admin_Controller
                 // handle custom fields data
                 $class_slug = $this->router->fetch_class();
                 $customField = $this->input->post("custom_fields[$class_slug]");
-                if (!empty($customField)) {
-                    saveCustomFields($customField, $studentID);
+                if (empty($customField)) {
+                    $customField = array();
                 }
+                saveCustomFields($customField, $studentID);
 
                 // send student admission email
                 $this->email_model->studentAdmission($studentData);
@@ -659,9 +660,10 @@ class Student extends Admin_Controller
                 // handle custom fields data
                 $class_slug = $this->router->fetch_class();
                 $customField = $this->input->post("custom_fields[$class_slug]");
-                if (!empty($customField)) {
-                    saveCustomFields($customField, $id);
+                if (empty($customField)) {
+                    $customField = array();
                 }
+                saveCustomFields($customField, $id);
                 set_alert('success', translate('information_has_been_updated_successfully'));
                 redirect(base_url('student/profile/' . $id));
             }

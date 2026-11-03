@@ -691,11 +691,13 @@ class Home extends Frontend_Controller
 
                 $customField = $this->input->post("custom_fields[$class_slug]");
 
-                if (!empty($customField)) {
+                if (empty($customField)) {
 
-                    saveCustomFieldsOnline($customField, $studentID);
+                    $customField = array();
 
                 }
+
+                saveCustomFieldsOnline($customField, $studentID);
 
                 // check out admission payment status
 
