@@ -374,7 +374,7 @@ class Home extends Frontend_Controller
 
 
 
-    public function students()
+        public function students()
     {
         $branchID = $this->home_model->getDefaultBranch();
         $this->data['branchID'] = $branchID;
@@ -385,63 +385,155 @@ class Home extends Frontend_Controller
             'title_en' => 'Student Information'
         );
         $this->data['active_menu'] = 'students';
+
+        // Fetch dynamic sections for this branch
+        $this->db->where('branch_id', $branchID);
+        $this->db->order_by('id', 'ASC');
+        $sections = $this->db->get('section')->result_array();
+
+        // Count enrolled students per section in active session
+        $session_id = get_session_id();
+        $student_counts = array();
+        $counts = $this->db->select('section_id, count(id) as total')
+            ->where('branch_id', $branchID)
+            ->where('session_id', $session_id)
+            ->group_by('section_id')
+            ->get('enroll')
+            ->result_array();
+        foreach ($counts as $c) {
+            $student_counts[$c['section_id']] = $c['total'];
+        }
+
+        $this->data['sections'] = $sections;
+        $this->data['student_counts'] = $student_counts;
         $this->data['main_contents'] = $this->load->view('home/students', $this->data, true);
         $this->load->view('home/layout/index', $this->data);
     }
 
-
-
-    public function student_department($slug = '')
-
+    public function student_section($section_id = 0)
     {
-
         $branchID = $this->home_model->getDefaultBranch();
-
         $this->data['branchID'] = $branchID;
 
-        
+        // Fetch section details
+        $section = $this->db->where('id', $section_id)->where('branch_id', $branchID)->get('section')->row_array();
+        if (empty($section)) {
+            $section = $this->db->where('id', $section_id)->get('section')->row_array();
+        }
 
-        $departments = array(
+        if (empty($section)) {
+            redirect(base_url('students'));
+            return;
+        }
 
-            'sokal-bangla' => array('bn' => 'সকাল বাংলা', 'en' => 'Morning Bangla'),
+        $this->data['section'] = $section;
+        $this->data['section_id'] = $section['id'];
 
-            'din-bangla' => array('bn' => 'দিন বাংলা', 'en' => 'Day Bangla'),
+        // Active session & academic year
+        $session_id = get_session_id();
+        $this->data['session_id'] = $session_id;
+        $session_row = $this->db->where('id', $session_id)->get('schoolyear')->row_array();
+        $academic_year = !empty($session_row['school_year']) ? $session_row['school_year'] : date('Y');
+        $this->data['academic_year'] = $academic_year;
 
-            'sokal-english' => array('bn' => 'সকাল ইংরেজি', 'en' => 'Morning English'),
+        // Fetch classes allocated to this section
+        $this->db->select('c.id, c.name');
+        $this->db->from('class as c');
+        $this->db->join('sections_allocation as sa', 'sa.class_id = c.id', 'inner');
+        $this->db->where('sa.section_id', $section['id']);
+        $this->db->where('c.branch_id', $branchID);
+        $this->db->order_by('c.id', 'ASC');
+        $classes = $this->db->get()->result_array();
 
-            'din-english' => array('bn' => 'দিন ইংরেজি', 'en' => 'Day English')
+        if (empty($classes)) {
+            // Fallback: all classes of the branch
+            $classes = $this->db->where('branch_id', $branchID)->order_by('id', 'ASC')->get('class')->result_array();
+        }
+        $this->data['classes'] = $classes;
 
-        );
+        // Check if class_id is passed via GET or POST
+        $class_id = $this->input->get_post('class_id', true);
+        $this->data['selected_class_id'] = $class_id;
+        $students = array();
 
+        if (!empty($class_id)) {
+            $this->db->select("e.id as enroll_id, e.roll, s.id as student_id, CONCAT_WS(' ', s.first_name, s.last_name) as fullname, s.photo, s.register_no, s.gender, c.name as class_name, se.name as section_name");
+            $this->db->from('enroll as e');
+            $this->db->join('student as s', 's.id = e.student_id', 'inner');
+            $this->db->join('login_credential as l', 'l.user_id = s.id AND l.role = 7', 'left');
+            $this->db->join('class as c', 'c.id = e.class_id', 'left');
+            $this->db->join('section as se', 'se.id = e.section_id', 'left');
+            $this->db->where('e.section_id', $section['id']);
+            $this->db->where('e.class_id', $class_id);
+            $this->db->where('e.branch_id', $branchID);
+            $this->db->where('e.session_id', $session_id);
+            $this->db->where('(l.active = 1 OR l.active IS NULL)');
+            $this->db->order_by('e.roll', 'ASC');
+            $this->db->order_by('s.id', 'ASC');
+            $students = $this->db->get()->result_array();
+        }
 
+        $this->data['students'] = $students;
 
         $current_lang = !empty($this->data['current_lang']) ? $this->data['current_lang'] : 'bn';
-
-        $dept_name = isset($departments[$slug]) ? ($current_lang == 'en' ? $departments[$slug]['en'] : $departments[$slug]['bn']) : ucwords(str_replace('-', ' ', $slug));
-
-
-
-        $this->data['dept_name'] = $dept_name;
-
         $this->data['page_data'] = array(
-
-            'page_title' => $dept_name,
-
-            'title' => ($current_lang == 'en') ? 'Student List' : 'শিক্ষার্থীদের তালিকা'
-
+            'page_title' => $section['name'],
+            'page_title_en' => $section['name'],
+            'title' => ($current_lang == 'en') ? 'Student List - ' . $section['name'] : 'শিক্ষার্থী তালিকা - ' . $section['name']
         );
-
-        $this->data['student_list'] = array();
-
         $this->data['active_menu'] = 'students';
-
-        $this->data['main_contents'] = $this->load->view('home/student_department', $this->data, true);
-
+        $this->data['main_contents'] = $this->load->view('home/student_section', $this->data, true);
         $this->load->view('home/layout/index', $this->data);
-
     }
 
+    public function get_section_students_ajax()
+    {
+        $branchID = $this->home_model->getDefaultBranch();
+        $section_id = $this->input->get_post('section_id', true);
+        $class_id = $this->input->get_post('class_id', true);
+        $session_id = get_session_id();
 
+        if (empty($section_id) || empty($class_id)) {
+            echo json_encode(array(
+                'status' => 'error',
+                'message' => 'শ্রেণি নির্বাচন করুন।'
+            ));
+            return;
+        }
+
+        $this->db->select("e.id as enroll_id, e.roll, s.id as student_id, CONCAT_WS(' ', s.first_name, s.last_name) as fullname, s.photo, s.register_no, s.gender, c.name as class_name, se.name as section_name");
+        $this->db->from('enroll as e');
+        $this->db->join('student as s', 's.id = e.student_id', 'inner');
+        $this->db->join('login_credential as l', 'l.user_id = s.id AND l.role = 7', 'left');
+        $this->db->join('class as c', 'c.id = e.class_id', 'left');
+        $this->db->join('section as se', 'se.id = e.section_id', 'left');
+        $this->db->where('e.section_id', $section_id);
+        $this->db->where('e.class_id', $class_id);
+        $this->db->where('e.branch_id', $branchID);
+        $this->db->where('e.session_id', $session_id);
+        $this->db->where('(l.active = 1 OR l.active IS NULL)');
+        $this->db->order_by('e.roll', 'ASC');
+        $this->db->order_by('s.id', 'ASC');
+        $students = $this->db->get()->result_array();
+
+        $current_lang = (!empty($this->session->userdata('set_lang')) && $this->session->userdata('set_lang') == 'english') ? 'en' : 'bn';
+
+        $html = $this->load->view('home/student_list_table', array(
+            'students' => $students,
+            'current_lang' => $current_lang
+        ), true);
+
+        echo json_encode(array(
+            'status' => 'success',
+            'count' => count($students),
+            'html' => $html
+        ));
+    }
+
+    public function student_department($slug = '')
+    {
+        redirect(base_url('students'));
+    }
 
     public function admission()
 
