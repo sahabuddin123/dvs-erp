@@ -1025,19 +1025,33 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
                 </div>
                 <?php } ?>
 
-                <!-- Row 6: Guardian Photo -->
-                <?php if ($guardian_photo['status']) { ?>
+                <!-- Row 6: Father, Mother, Guardian Photos (Separate) -->
                 <div class="row">
-                    <div class="col-md-12 mb-3">
+                    <div class="col-md-4 mb-3">
                         <div class="form-group">
-                            <label class="form-label fw-semibold"><?php echo $is_en ? 'Guardian Photo' : 'অভিভাবকের ছবি'; ?><?php echo $guardian_photo['required'] == 1 ? ' <span class="required text-danger">*</span>' : ''; ?></label>
-                            <input type="file" class="form-control" name="guardian_photo" id="guardianPhoto" accept=".jpg,.jpeg,.png,.bmp" <?php echo $guardian_photo['required'] == 1 ? 'required' : ''; ?> />
-                            <small class="text-muted"><?php echo $is_en ? 'Allowed formats: JPG, PNG, JPEG. Max size 2MB.' : 'অনুমোদিত ফরম্যাট: JPG, PNG, JPEG। সর্বোচ্চ সাইজ: ২ মেগাবাইট।'; ?></small>
-                            <span class="error text-danger"></span>
+                            <label class="form-label fw-semibold"><i class="fas fa-camera text-success"></i> <?php echo $is_en ? "Father's Photo" : 'পিতার ছবি'; ?></label>
+                            <input type="file" class="form-control" name="father_photo" id="fatherPhoto" accept=".jpg,.jpeg,.png,.bmp" />
+                            <small class="text-muted"><?php echo $is_en ? 'Allowed: JPG, PNG, JPEG. Max 2MB.' : 'অনুমোদিত: JPG, PNG, JPEG। সর্বোচ্চ ২MB'; ?></small>
+                            <span class="error text-danger"><?php echo form_error('father_photo'); ?></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-group">
+                            <label class="form-label fw-semibold"><i class="fas fa-camera text-success"></i> <?php echo $is_en ? "Mother's Photo" : 'মাতার ছবি'; ?></label>
+                            <input type="file" class="form-control" name="mother_photo" id="motherPhoto" accept=".jpg,.jpeg,.png,.bmp" />
+                            <small class="text-muted"><?php echo $is_en ? 'Allowed: JPG, PNG, JPEG. Max 2MB.' : 'অনুমোদিত: JPG, PNG, JPEG। সর্বোচ্চ ২MB'; ?></small>
+                            <span class="error text-danger"><?php echo form_error('mother_photo'); ?></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-group">
+                            <label class="form-label fw-semibold"><i class="fas fa-camera text-success"></i> <?php echo $is_en ? 'Guardian Photo' : 'অভিভাবকের ছবি'; ?><?php echo (isset($guardian_photo['required']) && $guardian_photo['required'] == 1) ? ' <span class="required text-danger">*</span>' : ''; ?></label>
+                            <input type="file" class="form-control" name="guardian_photo" id="guardianPhoto" accept=".jpg,.jpeg,.png,.bmp" <?php echo (isset($guardian_photo['required']) && $guardian_photo['required'] == 1) ? 'required' : ''; ?> />
+                            <small class="text-muted"><?php echo $is_en ? 'Allowed: JPG, PNG, JPEG. Max 2MB.' : 'অনুমোদিত: JPG, PNG, JPEG। সর্বোচ্চ ২MB'; ?></small>
+                            <span class="error text-danger"><?php echo form_error('guardian_photo'); ?></span>
                         </div>
                     </div>
                 </div>
-                <?php } ?>
 
                 <!-- Step 3 Navigation Footer -->
                 <div class="online-nav-footer">

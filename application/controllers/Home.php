@@ -483,6 +483,10 @@ class Home extends Frontend_Controller
 
             $this->form_validation->set_rules("guardian_photo", "Guardian Photo", "callback_handle_upload[guardian_photo]");
 
+            $this->form_validation->set_rules("father_photo", "Father Photo", "callback_handle_upload[father_photo]");
+
+            $this->form_validation->set_rules("mother_photo", "Mother Photo", "callback_handle_upload[mother_photo]");
+
             $this->form_validation->set_rules("student_photo", "Student Photo", "callback_handle_upload[student_photo]");
 
 
@@ -662,6 +666,10 @@ class Home extends Frontend_Controller
                     'grd_state' => $this->input->post('guardian_state'),
 
                     'grd_photo' => $this->uploadImage('images/parent', 'guardian_photo'),
+
+                    'father_photo' => $this->uploadImage('images/parent', 'father_photo'),
+
+                    'mother_photo' => $this->uploadImage('images/parent', 'mother_photo'),
 
                     'status' => 1,
 

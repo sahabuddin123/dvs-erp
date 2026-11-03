@@ -233,6 +233,9 @@ class Student extends Admin_Controller
                 if (isset($validArr['guardian_address'])) {
                     $this->form_validation->set_rules('grd_address', translate('address'), 'trim|required');
                 }
+                $this->form_validation->set_rules('father_photo', translate('father_name') . ' Picture', 'callback_photoHandleUpload[father_photo]');
+                $this->form_validation->set_rules('mother_photo', translate('mother_name') . ' Picture', 'callback_photoHandleUpload[mother_photo]');
+                $this->form_validation->set_rules('guardian_photo', translate('guardian_picture'), 'callback_photoHandleUpload[guardian_photo]');
                 if (isset($validArr['guardian_photo'])) {
                     if (isset($_FILES["guardian_photo"]) && empty($_FILES["guardian_photo"]['name'])) {
                         $this->form_validation->set_rules('guardian_photo', translate('guardian_picture'), 'required');

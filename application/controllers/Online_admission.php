@@ -128,6 +128,8 @@ class Online_admission extends Admin_Controller
 
             // checking profile photo format
             $this->form_validation->set_rules('student_photo', translate('profile_picture'), 'callback_photoHandleUpload[student_photo]');
+            $this->form_validation->set_rules('father_photo', translate('father_name') . ' Picture', 'callback_photoHandleUpload[father_photo]');
+            $this->form_validation->set_rules('mother_photo', translate('mother_name') . ' Picture', 'callback_photoHandleUpload[mother_photo]');
             $this->form_validation->set_rules('guardian_photo', translate('profile_picture'), 'callback_photoHandleUpload[guardian_photo]');
 
             // custom fields validation rules

@@ -10,9 +10,15 @@ class MY_Model extends CI_Model {
 		return hash("sha512", $password . config_item("encryption_key"));
 	}
 	
-	public function uploadImage($role, $fields = "user_photo") {
+	public function uploadImage($role, $fields = "user_photo", $old_field = "") {
 		$return_photo = 'defualt.png';
-		$old_user_photo = $this->input->post('old_user_photo');
+		if (empty($old_field)) {
+			$old_field = 'old_' . $fields;
+		}
+		$old_user_photo = $this->input->post($old_field);
+		if (empty($old_user_photo)) {
+			$old_user_photo = $this->input->post('old_user_photo');
+		}
 		if (isset($_FILES["$fields"]) && !empty($_FILES["$fields"]['name'])) {
 			$config['upload_path'] = './uploads/images/' . $role . '/';
 			$config['allowed_types'] = '*';
@@ -21,7 +27,7 @@ class MY_Model extends CI_Model {
 			$this->upload->initialize($config);
 			if ($this->upload->do_upload("$fields")) {
 	            // need to unlink previous photo
-	            if (!empty($old_user_photo)) {
+	            if (!empty($old_user_photo) && $old_user_photo != 'defualt.png') {
 	            	$unlink_path = 'uploads/images/' . $role . '/';
 	                if (file_exists($unlink_path . $old_user_photo)) {
 	                    @unlink($unlink_path . $old_user_photo);

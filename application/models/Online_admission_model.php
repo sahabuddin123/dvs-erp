@@ -16,6 +16,8 @@ class Online_admission_model extends MY_Model
     {
         $existStudent_photo = $this->input->post('exist_student_photo');
         $existGuardian_photo = $this->input->post('exist_guardian_photo');
+        $existFather_photo = $this->input->post('exist_father_photo');
+        $existMother_photo = $this->input->post('exist_mother_photo');
         if (empty($existStudent_photo)) {
             $studentPhoto = $this->uploadImage('student', 'student_photo');
         } else {
@@ -25,6 +27,16 @@ class Online_admission_model extends MY_Model
             $guardianPhoto = $this->uploadImage('parent', 'guardian_photo');
         } else {
             $guardianPhoto = $existGuardian_photo;
+        }
+        if (empty($existFather_photo)) {
+            $fatherPhoto = $this->uploadImage('parent', 'father_photo');
+        } else {
+            $fatherPhoto = $existFather_photo;
+        }
+        if (empty($existMother_photo)) {
+            $motherPhoto = $this->uploadImage('parent', 'mother_photo');
+        } else {
+            $motherPhoto = $existMother_photo;
         }
 
         $hostelID = empty($data['hostel_id']) ? 0 : $data['hostel_id'];
@@ -83,6 +95,8 @@ class Online_admission_model extends MY_Model
                 'state' => $this->input->post('grd_state'),
                 'branch_id' => $getBranch['id'],
                 'photo' => $guardianPhoto,
+                'father_photo' => $fatherPhoto,
+                'mother_photo' => $motherPhoto,
             );
             $this->db->insert('parent', $arrayParent);
             $parentID = $this->db->insert_id();

@@ -1184,8 +1184,14 @@ if (empty($empty_table)) {
 										<td colspan="3" height="80px;"><?php echo $getParent['address']?></td>
 									</tr>
 									<tr>
-										<th><?=translate('guardian_picture')?></th>
-										<td colspan="3"><img class="img-border" width="100" height="100" src="<?=get_image_url('parent', $getParent['photo'])?>"></td>
+										<th>পিতার ছবি (Father)</th>
+										<td><img class="img-border" width="100" height="100" src="<?=get_image_url('parent', !empty($getParent['father_photo']) ? $getParent['father_photo'] : 'defualt.png')?>"></td>
+										<th>মাতার ছবি (Mother)</th>
+										<td><img class="img-border" width="100" height="100" src="<?=get_image_url('parent', !empty($getParent['mother_photo']) ? $getParent['mother_photo'] : 'defualt.png')?>"></td>
+									</tr>
+									<tr>
+										<th><?=translate('guardian_picture')?> (অভিভাবক)</th>
+										<td colspan="3"><img class="img-border" width="100" height="100" src="<?=get_image_url('parent', !empty($getParent['photo']) ? $getParent['photo'] : 'defualt.png')?>"></td>
 									</tr>
 								</tbody>
 							</table>

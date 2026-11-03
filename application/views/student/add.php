@@ -1105,18 +1105,30 @@ endif;
 						</div>
 						<?php } ?>
 
-						<!-- Row 6: Guardian Photo -->
-						<?php if ($guardian_photo['status']) { ?>
+						<!-- Row 6: Father, Mother, Guardian Photo Upload (Separate) -->
 						<div class="row">
-							<div class="col-md-12 mb-sm">
+							<div class="col-md-4 mb-sm">
 								<div class="form-group">
-									<label for="input-file-now"><?=translate('guardian_picture')?> (অভিভাবকের ছবি) <?php echo $guardian_photo['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
-									<input type="file" name="guardian_photo" class="dropify" data-default-file="<?=get_image_url('parent')?>" data-height="110" />
-									<span class="error"></span>
+									<label class="control-label"><i class="fas fa-camera text-primary"></i> <?=translate('father_name')?>র ছবি (পিতার ছবি)</label>
+									<input type="file" name="father_photo" id="father_photo" class="dropify" data-default-file="<?=get_image_url('parent')?>" data-height="110" />
+									<span class="error"><?=form_error('father_photo')?></span>
+								</div>
+							</div>
+							<div class="col-md-4 mb-sm">
+								<div class="form-group">
+									<label class="control-label"><i class="fas fa-camera text-primary"></i> <?=translate('mother_name')?>র ছবি (মাতার ছবি)</label>
+									<input type="file" name="mother_photo" id="mother_photo" class="dropify" data-default-file="<?=get_image_url('parent')?>" data-height="110" />
+									<span class="error"><?=form_error('mother_photo')?></span>
+								</div>
+							</div>
+							<div class="col-md-4 mb-sm">
+								<div class="form-group">
+									<label class="control-label"><i class="fas fa-camera text-primary"></i> <?=translate('guardian_picture')?> (অভিভাবকের ছবি) <?php echo (isset($guardian_photo['required']) && $guardian_photo['required'] == 1) ? ' <span class="required">*</span>' : ''; ?></label>
+									<input type="file" name="guardian_photo" id="guardian_photo" class="dropify" data-default-file="<?=get_image_url('parent')?>" data-height="110" />
+									<span class="error"><?=form_error('guardian_photo')?></span>
 								</div>
 							</div>
 						</div>
-						<?php } ?>
 
 						<!-- Row 7: Guardian Login Details -->
 						<div class="<?=$getBranch['grd_generate'] == 1 || $getBranch['grd_generate'] == "" ? 'hidden-div' : ''?>" id="grdLogin">

@@ -76,6 +76,8 @@ class Student_model extends MY_Model
                         'state' => $this->input->post('grd_state'),
                         'branch_id' => $this->application_model->get_branch_id(),
                         'photo' => $this->uploadImage('parent', 'guardian_photo'),
+                        'father_photo' => $this->uploadImage('parent', 'father_photo'),
+                        'mother_photo' => $this->uploadImage('parent', 'mother_photo'),
                     );
                     $this->db->insert('parent', $arrayParent);
                     $parentID = $this->db->insert_id();
