@@ -676,14 +676,20 @@ endif;
 							<label class="control-label"><?php echo translate('fees_allocation') ?></label>
 							<select class="form-control" multiple="multiple" name="transport_fees_month[]" data-plugin-multiselect data-plugin-options='{"numberDisplayed" : 6,"buttonClass": "btn btn-default cus-multiselect", "buttonWidth": "100%", "maxHeight": 400, "maxWidth": 400, "includeSelectAllOption": true, "nonSelectedText" : "<?=translate('select_month')?>" }'>
 								<?php 
-								$this->db->where('branch_id', $branch_id);
-								$this->db->where('session_id', get_session_id());
-								$this->db->order_by('month', 'asc');
-								$results = $this->db->get('transport_fee_fine')->result();
-								$getMonths = $this->app_lib->getMonthslist();
-								foreach ($results as $key => $value) {
-									echo '<option value="'.$value->id.'">'.$getMonths[$value->month].'</option>';
-								}?>
+								if ($this->db->table_exists('transport_fee_fine')) {
+									$this->db->where('branch_id', $branch_id);
+									$this->db->where('session_id', get_session_id());
+									$this->db->order_by('month', 'asc');
+									$results = $this->db->get('transport_fee_fine')->result();
+									$getMonths = $this->app_lib->getMonthslist();
+									if (!empty($results)) {
+										foreach ($results as $key => $value) {
+											$monthName = isset($getMonths[$value->month]) ? $getMonths[$value->month] : $value->month;
+											echo '<option value="'.$value->id.'">'.$monthName.'</option>';
+										}
+									}
+								}
+								?>
 							</select>
 							<span class="error"></span>
 						</div>
