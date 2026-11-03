@@ -535,7 +535,7 @@
 						<div class="col-md-4 mb-sm">
 							<input type="hidden" name="exist_father_photo" value="<?php echo isset($stuDetails['father_photo']) ? $stuDetails['father_photo'] : ''; ?>">
 							<div class="form-group">
-								<label><?=translate('father_name')?>র ছবি (পিতার ছবি)</label>
+								<label><i class="fas fa-camera text-primary"></i> পিতার ছবি (Father's Photo)</label>
 								<input type="file" name="father_photo" class="dropify" data-default-file="<?=get_image_url('parent', isset($stuDetails['father_photo']) ? $stuDetails['father_photo'] : '')?>" />
 								<span class="error"></span>
 							</div>
@@ -543,7 +543,7 @@
 						<div class="col-md-4 mb-sm">
 							<input type="hidden" name="exist_mother_photo" value="<?php echo isset($stuDetails['mother_photo']) ? $stuDetails['mother_photo'] : ''; ?>">
 							<div class="form-group">
-								<label><?=translate('mother_name')?>র ছবি (মাতার ছবি)</label>
+								<label><i class="fas fa-camera text-primary"></i> মাতার ছবি (Mother's Photo)</label>
 								<input type="file" name="mother_photo" class="dropify" data-default-file="<?=get_image_url('parent', isset($stuDetails['mother_photo']) ? $stuDetails['mother_photo'] : '')?>" />
 								<span class="error"></span>
 							</div>
@@ -552,7 +552,7 @@
 						<div class="col-md-4 mb-sm">
 							<input type="hidden" name="exist_guardian_photo" value="<?php echo $stuDetails['grd_photo'] ?>">
 							<div class="form-group">
-								<label><?=translate('guardian_picture')?> (অভিভাবকের ছবি) <?php echo $guardian_photo['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+								<label><i class="fas fa-camera text-primary"></i> অভিভাবকের ছবি (Guardian's Photo) <?php echo $guardian_photo['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 								<input type="file" name="guardian_photo" class="dropify" data-default-file="<?=get_image_url('parent', $stuDetails['grd_photo'])?>" />
 								<span class="error"></span>
 							</div>
