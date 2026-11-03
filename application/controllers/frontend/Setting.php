@@ -16,6 +16,7 @@ class Setting extends Admin_Controller
         if (!get_permission('frontend_setting', 'is_view')) {
             access_denied();
         }
+        $this->ensure_schema();
         $branchID = $this->frontend_model->getBranchID();
         if ($_POST) {
             $branch_id = $this->input->post('branch_id');
@@ -41,6 +42,34 @@ class Setting extends Admin_Controller
         $this->load->view('layout/index', $this->data);
     }
 
+    /**
+     * Ensure database schema has all columns and compatible data types
+     */
+    private function ensure_schema()
+    {
+        try {
+            $existing_fields = $this->db->list_fields('front_cms_setting');
+            $required_columns = array(
+                'application_title_en' => 'VARCHAR(255) NULL DEFAULT NULL',
+                'site_tagline'         => 'VARCHAR(255) NULL DEFAULT NULL',
+                'site_tagline_en'      => 'VARCHAR(255) NULL DEFAULT NULL',
+                'address_en'           => 'TEXT NULL DEFAULT NULL',
+                'footer_about_text_en' => 'TEXT NULL DEFAULT NULL',
+                'copyright_text_en'    => 'TEXT NULL DEFAULT NULL',
+            );
+            foreach ($required_columns as $col => $def) {
+                if (!in_array($col, $existing_fields)) {
+                    $this->db->query("ALTER TABLE `front_cms_setting` ADD `$col` $def");
+                }
+            }
+            // Expand restrictive varchar lengths to TEXT so long Bengali text / HTML never causes 500 error
+            $this->db->query("ALTER TABLE `front_cms_setting` MODIFY `footer_about_text` TEXT NULL");
+            $this->db->query("ALTER TABLE `front_cms_setting` MODIFY `copyright_text` TEXT NULL");
+            $this->db->query("ALTER TABLE `front_cms_setting` MODIFY `address` TEXT NULL");
+        } catch (Throwable $e) {
+            log_message('error', 'front_cms_setting schema check error: ' . $e->getMessage());
+        }
+    }
 
     public function save()
     {
@@ -48,7 +77,11 @@ class Setting extends Admin_Controller
             ajax_access_denied();
         }
         if ($_POST) {
+            $this->ensure_schema();
             $branchID = $this->frontend_model->getBranchID();
+            if (empty($branchID)) {
+                $branchID = 1;
+            }
             $this->form_validation->set_rules('application_title', 'Cms Title', 'trim|required');
             $this->form_validation->set_rules('url_alias', 'Cms Url Alias', 'trim|required|callback_unique_url');
             $this->form_validation->set_rules('receive_email_to', 'Receive Email To', 'trim|required|valid_email');
@@ -102,8 +135,8 @@ class Setting extends Admin_Controller
                     'email' => $this->input->post('email'),
                     'footer_about_text' => $this->input->post('footer_about_text'),
                     'footer_about_text_en' => $this->input->post('footer_about_text_en'),
-                    'copyright_text' => $this->input->post('copyright_text'),
-                    'copyright_text_en' => $this->input->post('copyright_text_en'),
+                    'copyright_text' => $this->input->post('copyright_text', false),
+                    'copyright_text_en' => $this->input->post('copyright_text_en', false),
                     'working_hours' => $this->input->post('working_hours'),
                     'google_analytics' => $this->input->post('google_analytics', false),
                     'facebook_url' => $this->input->post('facebook_url'),
@@ -114,12 +147,18 @@ class Setting extends Admin_Controller
                     'pinterest_url' => $this->input->post('pinterest_url'),
                     'instagram_url' => $this->input->post('instagram_url'),
                 );
+
+                $upload_dir = './uploads/frontend/images/';
+                if (!is_dir($upload_dir)) {
+                    @mkdir($upload_dir, 0777, true);
+                }
+
                 // upload logo
                 if (isset($_FILES["logo"]) && !empty($_FILES["logo"]['name'])) {
                     $imageNmae = $_FILES['logo']['name'];
                     $extension = pathinfo($imageNmae, PATHINFO_EXTENSION);
                     $newLogoName = "logo$branchID." . $extension;
-                    $image_path = './uploads/frontend/images/' . $newLogoName;
+                    $image_path = $upload_dir . $newLogoName;
                     if (move_uploaded_file($_FILES['logo']['tmp_name'], $image_path)) {
                         $cms_setting['logo'] = $newLogoName;
                     }
@@ -130,24 +169,49 @@ class Setting extends Admin_Controller
                     $imageNmae = $_FILES['fav_icon']['name'];
                     $extension = pathinfo($imageNmae, PATHINFO_EXTENSION);
                     $newLogoName = "fav_icon$branchID." . $extension;
-                    $image_path = './uploads/frontend/images/' . $newLogoName;
+                    $image_path = $upload_dir . $newLogoName;
                     if (move_uploaded_file($_FILES['fav_icon']['tmp_name'], $image_path)) {
                         $cms_setting['fav_icon'] = $newLogoName;
                     }
                 }
 
-                // update all information in the database
-                $this->db->where(array('branch_id' => $branchID));
-                $get = $this->db->get('front_cms_setting');
-                if ($get->num_rows() > 0) {
-                    $this->db->where('id', $get->row()->id);
-                    $this->db->update('front_cms_setting', $cms_setting);
-                } else {
-                    $this->db->insert('front_cms_setting', $cms_setting);
+                // Safe filtering of columns to prevent MySQL unknown column errors
+                $table_fields = $this->db->list_fields('front_cms_setting');
+                $filtered_setting = array();
+                foreach ($cms_setting as $col => $val) {
+                    if (in_array($col, $table_fields)) {
+                        $filtered_setting[$col] = $val;
+                    }
                 }
 
-                set_alert('success', translate('information_has_been_saved_successfully'));
-                $array = array('status' => 'success');
+                try {
+                    // update all information in the database
+                    $this->db->where(array('branch_id' => $branchID));
+                    $get = $this->db->get('front_cms_setting');
+                    if ($get->num_rows() > 0) {
+                        $this->db->where('id', $get->row()->id);
+                        $this->db->update('front_cms_setting', $filtered_setting);
+                    } else {
+                        // Ensure non-null fields have default values on insert
+                        if (!isset($filtered_setting['theme']) || empty($filtered_setting['theme'])) {
+                            $filtered_setting['theme'] = 'red';
+                        }
+                        if (!isset($filtered_setting['fav_icon']) || empty($filtered_setting['fav_icon'])) {
+                            $filtered_setting['fav_icon'] = 'fav_icon1.png';
+                        }
+                        if (!isset($filtered_setting['logo']) || empty($filtered_setting['logo'])) {
+                            $filtered_setting['logo'] = 'logo1.png';
+                        }
+                        $filtered_setting['branch_id'] = $branchID;
+                        $this->db->insert('front_cms_setting', $filtered_setting);
+                    }
+
+                    set_alert('success', translate('information_has_been_saved_successfully'));
+                    $array = array('status' => 'success');
+                } catch (Throwable $e) {
+                    log_message('error', 'Frontend Setting Save Error: ' . $e->getMessage());
+                    $array = array('status' => 'fail', 'error' => array('database_error' => $e->getMessage()));
+                }
             } else {
                 $error = $this->form_validation->error_array();
                 $array = array('status' => 'fail', 'error' => $error);
@@ -160,7 +224,10 @@ class Setting extends Admin_Controller
     public function unique_url($alias)
     {
         $branchID = $this->frontend_model->getBranchID();
-        $this->db->where_not_in('branch_id', $branchID);
+        if (empty($branchID)) {
+            $branchID = 1;
+        }
+        $this->db->where_not_in('branch_id', (array)$branchID);
         $this->db->where('url_alias', $alias);
         $query = $this->db->get('front_cms_setting');
         if ($query->num_rows() > 0) {
