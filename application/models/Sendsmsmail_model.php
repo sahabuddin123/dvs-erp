@@ -156,4 +156,67 @@ class Sendsmsmail_model extends CI_Model
             return $this->mram_sms->send($sendTo, $message);
         }
     }
+
+    // --------------------------------------------------
+    // SMS Dashboard & Tracking Methods
+    // --------------------------------------------------
+    public function getSmsStats($branchID)
+    {
+        $today = date('Y-m-d');
+        $this_month = date('Y-m');
+
+        $total = $this->db->where('branch_id', $branchID)->count_all_results('sms_logs');
+        $totalSent = $this->db->where('branch_id', $branchID)->where('status', 'sent')->count_all_results('sms_logs');
+        $failed = $this->db->where('branch_id', $branchID)->where('status', 'failed')->count_all_results('sms_logs');
+        
+        $todayCount = $this->db->where('branch_id', $branchID)
+                               ->like('created_at', $today, 'after')
+                               ->where('status', 'sent')
+                               ->count_all_results('sms_logs');
+
+        $monthCount = $this->db->where('branch_id', $branchID)
+                               ->like('created_at', $this_month, 'after')
+                               ->where('status', 'sent')
+                               ->count_all_results('sms_logs');
+
+        $successRate = ($total > 0) ? round(($totalSent / $total) * 100, 1) : 100;
+
+        return [
+            'total'        => $total,
+            'total_sent'   => $totalSent,
+            'failed'       => $failed,
+            'today_sent'   => $todayCount,
+            'month_sent'   => $monthCount,
+            'success_rate' => $successRate,
+        ];
+    }
+
+    public function getSmsLogs($branchID, $filters = [], $limit = 100, $offset = 0)
+    {
+        $this->db->where('branch_id', $branchID);
+
+        if (!empty($filters['start_date'])) {
+            $this->db->where('DATE(created_at) >=', $filters['start_date']);
+        }
+        if (!empty($filters['end_date'])) {
+            $this->db->where('DATE(created_at) <=', $filters['end_date']);
+        }
+        if (!empty($filters['status']) && $filters['status'] !== 'all') {
+            $this->db->where('status', $filters['status']);
+        }
+        if (!empty($filters['search'])) {
+            $this->db->group_start();
+            $this->db->like('recipient', $filters['search']);
+            $this->db->or_like('recipient_name', $filters['search']);
+            $this->db->or_like('message', $filters['search']);
+            $this->db->group_end();
+        }
+
+        $this->db->order_by('id', 'DESC');
+        if ($limit > 0) {
+            $this->db->limit($limit, $offset);
+        }
+        return $this->db->get('sms_logs')->result_array();
+    }
+
 }

@@ -370,7 +370,7 @@ class Sendsmsmail extends Admin_Controller
     }
 
     // edit send sms mail template
-    public function template_edit($type = '', $id)
+    public function template_edit($type = '', $id = '')
     {
         $typeA = array('email', 'sms');
         $result = in_array($type, $typeA);
@@ -555,4 +555,143 @@ class Sendsmsmail extends Admin_Controller
             $this->load->view('sendsmsmail/messageModal', $this->data);
         }
     }
+
+    public function dashboard()
+    {
+        if (!get_permission('sendsmsmail', 'is_view') && !get_permission('sendsmsmail', 'is_add')) {
+            access_denied();
+        }
+
+        $branchID = $this->application_model->get_branch_id();
+        $this->load->library('mram_sms');
+
+        // Process filters
+        $filters = [];
+        if ($this->input->get('daterange')) {
+            $dates = explode(' - ', $this->input->get('daterange'));
+            if (count($dates) == 2) {
+                $filters['start_date'] = date("Y-m-d", strtotime(trim($dates[0])));
+                $filters['end_date'] = date("Y-m-d", strtotime(trim($dates[1])));
+            }
+        }
+        if ($this->input->get('status') && $this->input->get('status') !== 'all') {
+            $filters['status'] = $this->input->get('status');
+        }
+        if ($this->input->get('search')) {
+            $filters['search'] = trim($this->input->get('search'));
+        }
+
+        // Live balance from M-RAM
+        $balanceData = $this->mram_sms->getBalance();
+
+        // Statistics
+        $stats = $this->sendsmsmail_model->getSmsStats($branchID);
+        $logs = $this->sendsmsmail_model->getSmsLogs($branchID, $filters, 100);
+
+        $this->data['branch_id'] = $branchID;
+        $this->data['balanceData'] = $balanceData;
+        $this->data['stats'] = $stats;
+        $this->data['logs'] = $logs;
+        $this->data['filters'] = $filters;
+        $this->data['title'] = 'SMS ' . translate('dashboard');
+        $this->data['sub_page'] = 'sendsmsmail/dashboard';
+        $this->data['main_menu'] = 'sendsmsmail';
+        $this->load->view('layout/index', $this->data);
+    }
+
+    public function get_balance_ajax()
+    {
+        $this->load->library('mram_sms');
+        $data = $this->mram_sms->getBalance();
+        echo json_encode($data);
+    }
+
+    public function send_quick_sms_ajax()
+    {
+        if (!get_permission('sendsmsmail', 'is_add')) {
+            echo json_encode(['status' => 'fail', 'message' => translate('access_denied')]);
+            return;
+        }
+
+        $branchID = $this->application_model->get_branch_id();
+        $target = $this->input->post('recipient_target');
+        $message = trim($this->input->post('message'));
+
+        if (empty($message)) {
+            echo json_encode(['status' => 'fail', 'message' => 'Please enter message content']);
+            return;
+        }
+
+        $recipients = [];
+        $recipientType = 'custom';
+        $recipientName = null;
+
+        if ($target === 'custom') {
+            $customNumbers = $this->input->post('custom_numbers');
+            if (empty($customNumbers)) {
+                echo json_encode(['status' => 'fail', 'message' => 'Please enter at least one mobile number']);
+                return;
+            }
+            $recipients = preg_split('/[\s,;+]+/', trim($customNumbers));
+        } elseif ($target === 'students') {
+            $students = $this->sendsmsmail_model->getStudent($branchID);
+            foreach ($students as $stu) {
+                if (!empty($stu['mobileno'])) {
+                    $recipients[] = $stu['mobileno'];
+                }
+            }
+            $recipientType = 'student';
+            $recipientName = 'Bulk Students';
+        } elseif ($target === 'parents') {
+            $parents = $this->sendsmsmail_model->getParent($branchID);
+            foreach ($parents as $p) {
+                if (!empty($p['mobileno'])) {
+                    $recipients[] = $p['mobileno'];
+                }
+            }
+            $recipientType = 'parent';
+            $recipientName = 'Bulk Parents';
+        } elseif ($target === 'staff') {
+            $staffList = $this->sendsmsmail_model->getStaff($branchID);
+            foreach ($staffList as $st) {
+                if (!empty($st['mobileno'])) {
+                    $recipients[] = $st['mobileno'];
+                }
+            }
+            $recipientType = 'staff';
+            $recipientName = 'Bulk Staff';
+        }
+
+        $this->load->library('mram_sms');
+        $validNumbers = $this->mram_sms->parseNumbers($recipients);
+
+        if (empty($validNumbers)) {
+            echo json_encode(['status' => 'fail', 'message' => 'No valid mobile numbers found for sending']);
+            return;
+        }
+
+        $metadata = [
+            'branch_id'      => $branchID,
+            'recipient_name' => $recipientName,
+            'recipient_type' => $recipientType,
+            'sent_by'        => get_loggedin_user_id(),
+        ];
+
+        $response = $this->mram_sms->send($validNumbers, $message, $metadata);
+
+        if ($response !== false) {
+            echo json_encode([
+                'status'   => 'success',
+                'message'  => 'SMS successfully sent to ' . count($validNumbers) . ' recipient(s)!',
+                'count'    => count($validNumbers),
+                'response' => $response,
+            ]);
+        } else {
+            echo json_encode([
+                'status'  => 'fail',
+                'message' => 'Failed to send SMS via M-RAM Gateway. Please check balance and credentials.',
+            ]);
+        }
+    }
+
 }

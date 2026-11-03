@@ -24,3 +24,4 @@ $config['port']        = function_exists('env') ? (int)env('REDIS_PORT', 6379) :
 $config['timeout']     = function_exists('env') ? (float)env('REDIS_TIMEOUT', 1.5) : 1.5;
 $config['prefix']      = function_exists('env') ? env('REDIS_PREFIX', 'dvs_') : 'dvs_';
 $config['database']    = function_exists('env') ? (int)env('REDIS_DATABASE', 0) : 0;
+

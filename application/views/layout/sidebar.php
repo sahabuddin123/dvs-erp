@@ -1272,6 +1272,13 @@
                             <i class="icons icon-bell"></i><span><?=translate('bulk_sms_and_email')?></span>
                         </a>
                         <ul class="nav nav-children">
+                            <?php if (get_permission('sendsmsmail', 'is_view') || get_permission('sendsmsmail', 'is_add')) {  ?>
+                            <li class="<?php if ($sub_page == 'sendsmsmail/dashboard') echo 'nav-active';?>">
+                                <a href="<?=base_url('sendsmsmail/dashboard')?>">
+                                    <span><i class="fas fa-caret-right"></i> SMS <?=translate('dashboard')?></span>
+                                </a>
+                            </li>
+                            <?php } ?>
                             <?php if (get_permission('sendsmsmail', 'is_add')) {  ?>
                             <li class="<?php if ($sub_page == 'sendsmsmail/sms' || $sub_page == 'sendsmsmail/email') echo 'nav-active';?>">
                                 <a href="<?=base_url('sendsmsmail/sms')?>">
