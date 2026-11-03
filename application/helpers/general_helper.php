@@ -734,4 +734,58 @@ function get_frontend_visitor_stats()
         'month' => $baseline_month + $month_count,
         'today' => $baseline_today + $today_count,
     ];
-}
+}
+
+// --------------------------------------------------
+// Redis Cache Helpers (radius cache)
+// --------------------------------------------------
+if (!function_exists('redis_cache')) {
+    function redis_cache()
+    {
+        static $instance = null;
+        if ($instance === null) {
+            $CI =& get_instance();
+            if (isset($CI->redis_cache)) {
+                $instance = $CI->redis_cache;
+            } else {
+                if (file_exists(APPPATH . 'libraries/Redis_cache.php')) {
+                    require_once APPPATH . 'libraries/Redis_cache.php';
+                    $instance = new Redis_cache();
+                }
+            }
+        }
+        return $instance;
+    }
+}
+
+if (!function_exists('redis_get')) {
+    function redis_get($key, $default = null)
+    {
+        $cache = redis_cache();
+        return $cache ? $cache->get($key, $default) : $default;
+    }
+}
+
+if (!function_exists('redis_set')) {
+    function redis_set($key, $value, $ttl = 3600)
+    {
+        $cache = redis_cache();
+        return $cache ? $cache->set($key, $value, $ttl) : false;
+    }
+}
+
+if (!function_exists('redis_delete')) {
+    function redis_delete($key)
+    {
+        $cache = redis_cache();
+        return $cache ? $cache->delete($key) : false;
+    }
+}
+
+if (!function_exists('redis_remember')) {
+    function redis_remember($key, $ttl, $callback)
+    {
+        $cache = redis_cache();
+        return $cache ? $cache->remember($key, $ttl, $callback) : call_user_func($callback);
+    }
+}

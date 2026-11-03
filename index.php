@@ -54,12 +54,20 @@
  * NOTE: If you change these, also change the error_reporting() code below
  */
     
+	// Load .env environment variables
+	if (file_exists(__DIR__ . '/application/libraries/Dotenv.php')) {
+		require_once __DIR__ . '/application/libraries/Dotenv.php';
+		if (file_exists(__DIR__ . '/.env')) {
+			Dotenv::load(__DIR__ . '/.env');
+		}
+	}
+
 	ini_set('max_execution_time', 300);
 	ini_set('memory_limit', '128M');
 	ini_set('post_max_size', '128M');
 	ini_set('upload_max_filesize', '128M');
  
-	define('ENVIRONMENT', 'development');
+	define('ENVIRONMENT', function_exists('env') ? env('APP_ENV', 'development') : 'development');
 
 /*
  *---------------------------------------------------------------

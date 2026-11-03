@@ -46,7 +46,54 @@ class MY_Controller extends CI_Controller
         $branchID = $this->application_model->get_branch_id();
         $this->db->where('branch_id', $branchID);
         $this->db->select('*')->from('payment_config');
-        return $this->db->get()->row_array();
+        $config = $this->db->get()->row_array();
+        if (empty($config)) {
+            $config = [];
+        }
+
+        // Environment overrides for bKash
+        if (function_exists('env')) {
+            if (empty($config['bkash_app_key']) && env('BKASH_APP_KEY')) {
+                $config['bkash_app_key'] = env('BKASH_APP_KEY');
+            }
+            if (empty($config['bkash_app_secret']) && env('BKASH_APP_SECRET')) {
+                $config['bkash_app_secret'] = env('BKASH_APP_SECRET');
+            }
+            if (empty($config['bkash_username']) && env('BKASH_USERNAME')) {
+                $config['bkash_username'] = env('BKASH_USERNAME');
+            }
+            if (empty($config['bkash_password']) && env('BKASH_PASSWORD')) {
+                $config['bkash_password'] = env('BKASH_PASSWORD');
+            }
+            if (!isset($config['bkash_sandbox']) && env('BKASH_SANDBOX') !== null) {
+                $config['bkash_sandbox'] = (int)env('BKASH_SANDBOX', 1);
+            }
+            if (empty($config['bkash_status']) && env('BKASH_STATUS') !== null) {
+                $config['bkash_status'] = (int)env('BKASH_STATUS', 1);
+            }
+
+            // Environment overrides for Nagad
+            if (empty($config['nagad_merchant_id']) && env('NAGAD_MERCHANT_ID')) {
+                $config['nagad_merchant_id'] = env('NAGAD_MERCHANT_ID');
+            }
+            if (empty($config['nagad_merchant_number']) && env('NAGAD_MERCHANT_NUMBER')) {
+                $config['nagad_merchant_number'] = env('NAGAD_MERCHANT_NUMBER');
+            }
+            if (empty($config['nagad_public_key']) && env('NAGAD_PUBLIC_KEY')) {
+                $config['nagad_public_key'] = env('NAGAD_PUBLIC_KEY');
+            }
+            if (empty($config['nagad_private_key']) && env('NAGAD_PRIVATE_KEY')) {
+                $config['nagad_private_key'] = env('NAGAD_PRIVATE_KEY');
+            }
+            if (!isset($config['nagad_sandbox']) && env('NAGAD_SANDBOX') !== null) {
+                $config['nagad_sandbox'] = (int)env('NAGAD_SANDBOX', 1);
+            }
+            if (empty($config['nagad_status']) && env('NAGAD_STATUS') !== null) {
+                $config['nagad_status'] = (int)env('NAGAD_STATUS', 1);
+            }
+        }
+
+        return $config;
     }
 
     public function getBranchDetails()

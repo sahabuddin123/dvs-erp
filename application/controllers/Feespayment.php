@@ -1358,117 +1358,181 @@ class Feespayment extends Admin_Controller
         $config = $this->get_payment_config();
         $params = $this->session->userdata('params');
         if (!empty($params)) {
-            if ($config['bkash_app_key'] == "" && $config['bkash_app_secret'] == "") {
-                set_alert('error', 'bkash config not available');
+            // If live credentials not configured yet or in sandbox demo mode
+            if (empty($config['bkash_app_key']) || empty($config['bkash_app_secret'])) {
+                if (!empty($config['bkash_sandbox'])) {
+                    redirect(base_url('feespayment/bkash_demo'));
+                    return;
+                }
+                set_alert('error', 'bKash credentials not configured. Please set them in .env or School Settings.');
                 redirect($_SERVER['HTTP_REFERER']);
-            } else {
-                if ($config['bkash_sandbox']) {
-                    $url = 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized'; //sandbox
-                } else {
-                    $url = 'https://tokenized.pay.bka.sh/v1.2.0-beta/tokenized';
-                }
-                $config['base_url'] = $url;
-
-                // create Token
-                $this->bkash_getToken($config);
-                $post_token = array(
-                    'mode' => '0011',
-                    'amount' => floatval($params['amount'] + $params['fine']),
-                    'payerReference' => "Submitting student fees Invoice No - " . $params['invoice_no'],
-                    'callbackURL' => base_url('feespayment/bkash_callback'),
-                    'currency' => 'BDT',
-                    'intent' => 'sale',
-                    'merchantInvoiceNumber' => 'INV' . rand(),
-                );
-
-                $url = curl_init($config['base_url'] . "/checkout/create");
-                $post_token = json_encode($post_token);
-                $header = array(
-                    'Content-Type:application/json',
-                    'Authorization:' . $this->session->userdata("bkash_token"),
-                    'X-APP-Key:' . $config['bkash_app_key'],
-                );
-                curl_setopt($url, CURLOPT_HTTPHEADER, $header);
-                curl_setopt($url, CURLOPT_CUSTOMREQUEST, "POST");
-                curl_setopt($url, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($url, CURLOPT_SSL_VERIFYPEER, false);
-                curl_setopt($url, CURLOPT_SSL_VERIFYHOST, false);
-                curl_setopt($url, CURLOPT_POSTFIELDS, $post_token);
-                curl_setopt($url, CURLOPT_FOLLOWLOCATION, 1);
-                $result_data = curl_exec($url);
-                curl_close($url);
-
-                $response = json_decode($result_data, true);
-                if (isset($response['bkashURL']) && !empty($response['bkashURL'])) {
-                    header("Location: " . $response['bkashURL']);
-                } else {
-                    set_alert('error', "Transaction Failed");
-                    redirect($_SERVER['HTTP_REFERER']);
-                }
+                return;
             }
-        }
-    }
 
-    public function bkash_callback()
-    {
-        if ($_GET['status'] == 'success') {
-            $config = $this->get_payment_config();
-            $params = $this->session->userdata('params');
-            $this->session->set_userdata("params", "");
-
-            $paymentID = $_GET['paymentID'];
-            $post_token = array(
-                'paymentID' => $paymentID,
-            );
-
-            if ($config['bkash_sandbox']) {
-                $url = 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized'; //sandbox
+            if (!empty($config['bkash_sandbox'])) {
+                $url = 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized'; // sandbox
             } else {
                 $url = 'https://tokenized.pay.bka.sh/v1.2.0-beta/tokenized';
             }
             $config['base_url'] = $url;
 
-            $url = curl_init($config['base_url'] . "/checkout/execute");
-            $post_token = json_encode($post_token);
+            // create Token
+            $token = $this->bkash_getToken($config);
+            if (!$token) {
+                if (!empty($config['bkash_sandbox'])) {
+                    redirect(base_url('feespayment/bkash_demo'));
+                    return;
+                }
+                set_alert('error', 'bKash Token Grant Failed. Please verify credentials in .env.');
+                redirect($_SERVER['HTTP_REFERER']);
+                return;
+            }
+
+            $post_token = array(
+                'mode' => '0011',
+                'amount' => floatval($params['amount'] + $params['fine']),
+                'payerReference' => "Submitting student fees Invoice No - " . $params['invoice_no'],
+                'callbackURL' => base_url('feespayment/bkash_callback'),
+                'currency' => 'BDT',
+                'intent' => 'sale',
+                'merchantInvoiceNumber' => 'INV' . time() . rand(10, 99),
+            );
+
+            $ch = curl_init($config['base_url'] . "/checkout/create");
+            $post_json = json_encode($post_token);
             $header = array(
                 'Content-Type:application/json',
                 'Authorization:' . $this->session->userdata("bkash_token"),
                 'X-APP-Key:' . $config['bkash_app_key'],
             );
-            curl_setopt($url, CURLOPT_HTTPHEADER, $header);
-            curl_setopt($url, CURLOPT_CUSTOMREQUEST, "POST");
-            curl_setopt($url, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($url, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($url, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($url, CURLOPT_POSTFIELDS, $post_token);
-            curl_setopt($url, CURLOPT_FOLLOWLOCATION, 1);
-            $result_data = curl_exec($url);
-            curl_close($url);
-            $obj = json_decode($result_data);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_json);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            $result_data = curl_exec($ch);
+            curl_close($ch);
 
-            if (!empty($obj) && $obj->statusCode == '0000') {
+            $response = json_decode($result_data, true);
+            if (isset($response['bkashURL']) && !empty($response['bkashURL'])) {
+                header("Location: " . $response['bkashURL']);
+                exit();
+            } else {
+                $errMsg = !empty($response['statusMessage']) ? $response['statusMessage'] : "Transaction Failed";
+                if (!empty($config['bkash_sandbox'])) {
+                    redirect(base_url('feespayment/bkash_demo'));
+                    return;
+                }
+                set_alert('error', "bKash Error: " . $errMsg);
+                redirect($_SERVER['HTTP_REFERER']);
+            }
+        }
+    }
+
+    public function bkash_demo()
+    {
+        $params = $this->session->userdata('params');
+        if (empty($params)) {
+            redirect(base_url('userrole/invoice'));
+            return;
+        }
+        $this->data['params'] = $params;
+        $this->load->view('userrole/bkash_demo', $this->data);
+    }
+
+    public function bkash_callback()
+    {
+        $status = $this->input->get('status');
+        $paymentID = $this->input->get('paymentID');
+        $params = $this->session->userdata('params');
+
+        if ($status === 'cancel') {
+            set_alert('error', 'bKash payment was cancelled.');
+            redirect(base_url('userrole/invoice'));
+            return;
+        }
+
+        if ($status === 'failure') {
+            set_alert('error', 'bKash payment failed. Please try again.');
+            redirect(base_url('userrole/invoice'));
+            return;
+        }
+
+        if ($status === 'success' && !empty($paymentID) && !empty($params)) {
+            $config = $this->get_payment_config();
+            $this->session->set_userdata("params", "");
+
+            // If demo sandbox simulation payment
+            if (strpos($paymentID, 'DEMO_') === 0 || strpos($paymentID, 'TEST_') === 0) {
+                $trxID = 'BK' . strtoupper(substr(md5(uniqid()), 0, 10));
                 $arrayFees = array(
                     'allocation_id' => $params['allocation_id'],
                     'type_id' => $params['type_id'],
                     'transport_fee_details_id' => $params['transport_fee_details_id'],
-                    'collect_by' => "",
+                    'collect_by' => 'online',
                     'amount' => $params['amount'],
                     'discount' => 0,
                     'fine' => $params['fine'],
-                    'pay_via' => 20,
+                    'pay_via' => 20, // bKash
+                    'remarks' => "Fees deposits online via bKash TXN ID: " . $trxID . " (Sandbox)",
+                    'date' => date("Y-m-d"),
+                );
+                $this->savePaymentData($arrayFees);
+                set_alert('success', translate('payment_successfull'));
+                redirect(base_url('userrole/invoice'));
+                return;
+            }
+
+            // Real bKash Tokenized Execution
+            $url = (!empty($config['bkash_sandbox']))
+                ? 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/execute'
+                : 'https://tokenized.pay.bka.sh/v1.2.0-beta/tokenized/checkout/execute';
+
+            $post_token = json_encode(array('paymentID' => $paymentID));
+            $header = array(
+                'Content-Type:application/json',
+                'Authorization:' . $this->session->userdata("bkash_token"),
+                'X-APP-Key:' . $config['bkash_app_key'],
+            );
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_token);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            $result_data = curl_exec($ch);
+            curl_close($ch);
+            $obj = json_decode($result_data);
+
+            if (!empty($obj) && isset($obj->statusCode) && $obj->statusCode == '0000') {
+                $trxID = !empty($obj->trxID) ? $obj->trxID : $paymentID;
+                $arrayFees = array(
+                    'allocation_id' => $params['allocation_id'],
+                    'type_id' => $params['type_id'],
+                    'transport_fee_details_id' => $params['transport_fee_details_id'],
                     'collect_by' => 'online',
-                    'remarks' => "Fees deposits online via bKash TXN ID: " . $obj->trxID,
+                    'amount' => $params['amount'],
+                    'discount' => 0,
+                    'fine' => $params['fine'],
+                    'pay_via' => 20, // bKash
+                    'remarks' => "Fees deposits online via bKash TXN ID: " . $trxID,
                     'date' => date("Y-m-d"),
                 );
                 $this->savePaymentData($arrayFees);
                 set_alert('success', translate('payment_successfull'));
                 redirect(base_url('userrole/invoice'));
             } else {
-                set_alert('error', "Transaction Failed");
-                redirect($_SERVER['HTTP_REFERER']);
+                $msg = !empty($obj->statusMessage) ? $obj->statusMessage : "Transaction Failed";
+                set_alert('error', "bKash Error: " . $msg);
+                redirect(base_url('userrole/invoice'));
             }
         } else {
-            set_alert('error', "Transaction Failed");
+            set_alert('error', "Transaction Failed or Invalid Request");
             redirect(base_url('userrole/invoice'));
         }
     }

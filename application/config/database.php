@@ -73,15 +73,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
+if (!function_exists('env')) {
+	if (file_exists(__DIR__ . '/../libraries/Dotenv.php')) {
+		require_once __DIR__ . '/../libraries/Dotenv.php';
+		if (file_exists(__DIR__ . '/../../.env')) {
+			Dotenv::load(__DIR__ . '/../../.env');
+		}
+	}
+}
+
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => '127.0.0.1',
-	'port'     => 3306,
-	'username' => 'root',
-	'password' => '',
-	'database' => 'erp_dvs',
-	'dbdriver' => 'mysqli',
-	'dbprefix' => '',
+	'hostname' => function_exists('env') ? env('DB_HOST', '127.0.0.1') : '127.0.0.1',
+	'port'     => function_exists('env') ? (int)env('DB_PORT', 3306) : 3306,
+	'username' => function_exists('env') ? env('DB_USERNAME', 'root') : 'root',
+	'password' => function_exists('env') ? env('DB_PASSWORD', '') : '',
+	'database' => function_exists('env') ? env('DB_DATABASE', 'erp_dvs') : 'erp_dvs',
+	'dbdriver' => function_exists('env') ? env('DB_CONNECTION', 'mysqli') : 'mysqli',
+	'dbprefix' => function_exists('env') ? env('DB_PREFIX', '') : '',
 	'pconnect' => FALSE,
 	'db_debug' => (ENVIRONMENT !== 'production'),
 	'cache_on' => FALSE,

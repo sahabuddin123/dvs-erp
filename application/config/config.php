@@ -23,7 +23,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = (isset($_SERVER['HTTPS']) ? "https://" : "http://") . $_SERVER['HTTP_HOST'] . str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
+if (!function_exists('env')) {
+	if (file_exists(__DIR__ . '/../libraries/Dotenv.php')) {
+		require_once __DIR__ . '/../libraries/Dotenv.php';
+		if (file_exists(__DIR__ . '/../../.env')) {
+			Dotenv::load(__DIR__ . '/../../.env');
+		}
+	}
+}
+
+$dynamic_base_url = (isset($_SERVER['HTTP_HOST']) ? ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://") . $_SERVER['HTTP_HOST'] . str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME'])) : 'http://localhost/erp-dvs/');
+$config['base_url'] = function_exists('env') ? env('APP_URL', $dynamic_base_url) : $dynamic_base_url;
 
 /*
 |--------------------------------------------------------------------------

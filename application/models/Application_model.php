@@ -22,27 +22,31 @@ class Application_model extends CI_Model
     {
         $branchID = 9999;
         $this->db->where('branch_id', $branchID);
-        $this->db->select('paypal_status,stripe_status,payumoney_status,paystack_status,razorpay_status,sslcommerz_status,jazzcash_status,midtrans_status,flutterwave_status')->from('payment_config');
+        $this->db->select('paypal_status,stripe_status,payumoney_status,paystack_status,razorpay_status,sslcommerz_status,jazzcash_status,midtrans_status,flutterwave_status,bkash_status,nagad_status')->from('payment_config');
         $status = $this->db->get()->row_array();
 
         $payvia_list = array('' => translate('select_payment_method'));
-        if ($status['paypal_status'] == 1)
+        if (!empty($status['bkash_status']) && $status['bkash_status'] == 1)
+            $payvia_list['bkash'] = 'bKash';
+        if (!empty($status['nagad_status']) && $status['nagad_status'] == 1)
+            $payvia_list['nagad'] = 'Nagad';
+        if (!empty($status['paypal_status']) && $status['paypal_status'] == 1)
             $payvia_list['paypal'] = 'Paypal';
-        if ($status['stripe_status'] == 1)
+        if (!empty($status['stripe_status']) && $status['stripe_status'] == 1)
             $payvia_list['stripe'] = 'Stripe';
-        if ($status['payumoney_status'] == 1)
+        if (!empty($status['payumoney_status']) && $status['payumoney_status'] == 1)
             $payvia_list['payumoney'] = 'PayUmoney';
-        if ($status['paystack_status'] == 1)
+        if (!empty($status['paystack_status']) && $status['paystack_status'] == 1)
             $payvia_list['paystack'] = 'Paystack';
-        if ($status['razorpay_status'] == 1)
+        if (!empty($status['razorpay_status']) && $status['razorpay_status'] == 1)
             $payvia_list['razorpay'] = 'Razorpay';
-        if ($status['sslcommerz_status'] == 1)
+        if (!empty($status['sslcommerz_status']) && $status['sslcommerz_status'] == 1)
             $payvia_list['sslcommerz'] = 'SSLcommerz';
-        if ($status['jazzcash_status'] == 1)
+        if (!empty($status['jazzcash_status']) && $status['jazzcash_status'] == 1)
             $payvia_list['jazzcash'] = 'Jazzcash';
-        if ($status['midtrans_status'] == 1)
+        if (!empty($status['midtrans_status']) && $status['midtrans_status'] == 1)
             $payvia_list['midtrans'] = 'Midtrans';
-        if ($status['flutterwave_status'] == 1)
+        if (!empty($status['flutterwave_status']) && $status['flutterwave_status'] == 1)
             $payvia_list['flutterwave'] = 'Flutter Wave';
 
         return $payvia_list;
