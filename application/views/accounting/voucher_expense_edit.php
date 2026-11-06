@@ -17,7 +17,7 @@
 				<?php echo form_open_multipart($this->uri->uri_string(), array('class' => 'form-horizontal form-bordered frm-submit-data')); ?>
 					<input type="hidden" name="voucher_type" value="expense">
 					<input type="hidden" name="voucher_old_id" value="<?=$expense['id']?>">
-					<?php if (is_superadmin_loggedin() ): ?>
+					<?php if (is_superadmin_loggedin() && is_multiple_branches() ): ?>
 					<div class="form-group">
 						<label class="control-label col-md-3"><?=translate('branch')?> <span class="required">*</span></label>
 						<div class="col-md-6">
@@ -29,6 +29,8 @@
 							<span class="error"></span>
 						</div>
 					</div>
+					<?php else: ?>
+					<input type="hidden" name="branch_id" id="branch_id" value="<?=$expense['branch_id']?>">
 					<?php endif; ?>
 					<div class="form-group">
 						<label class="col-md-3 control-label"><?php echo translate('account'); ?> <span class="required">*</span></label>

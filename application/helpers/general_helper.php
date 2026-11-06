@@ -687,11 +687,47 @@ function get_loggedin_user_type()
     return $CI->session->userdata('loggedin_type');
 }
 
-// get logged in user type
+// Check if institution has multiple branches
+function is_multiple_branches()
+{
+    static $multi = null;
+    if ($multi !== null) {
+        return $multi;
+    }
+    $CI = &get_instance();
+    $count = $CI->db->count_all_results('branch');
+    $multi = ($count > 1);
+    return $multi;
+}
+
+// Check if institution has only a single branch
+function is_single_branch()
+{
+    return !is_multiple_branches();
+}
+
+// Get the default single branch ID
+function get_single_branch_id()
+{
+    static $branch_id = null;
+    if ($branch_id !== null) {
+        return $branch_id;
+    }
+    $CI = &get_instance();
+    $row = $CI->db->select('id')->order_by('id', 'ASC')->limit(1)->get('branch')->row();
+    $branch_id = !empty($row->id) ? (int)$row->id : 1;
+    return $branch_id;
+}
+
+// get logged in user branch ID
 function get_loggedin_branch_id()
 {
     $CI = &get_instance();
-    return $CI->session->userdata('loggedin_branch');
+    $branch = $CI->session->userdata('loggedin_branch');
+    if (empty($branch) && is_single_branch()) {
+        return get_single_branch_id();
+    }
+    return $branch;
 }
 
 // get parent selected active children Id

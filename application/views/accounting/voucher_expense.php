@@ -37,18 +37,20 @@
 			<div class="tab-pane" id="create">
 				<?php echo form_open_multipart('accounting/voucher_save', array('class' => 'form-horizontal form-bordered frm-submit-data')); ?>
 				<input type="hidden" name="voucher_type" value="expense">
-					<?php if (is_superadmin_loggedin() ): ?>
+					<?php if (is_superadmin_loggedin() && is_multiple_branches() ): ?>
 					<div class="form-group">
 						<label class="control-label col-md-3"><?=translate('branch')?> <span class="required">*</span></label>
 						<div class="col-md-6">
 							<?php
 								$arrayBranch = $this->app_lib->getSelectList('branch');
-								echo form_dropdown("branch_id", $arrayBranch, set_value('branch_id'), "class='form-control' id='branch_id'
+								echo form_dropdown("branch_id", $arrayBranch, set_value('branch_id', $branch_id), "class='form-control' id='branch_id'
 								data-plugin-selectTwo data-width='100%' data-minimum-results-for-search='Infinity'");
 							?>
 							<span class="error"></span>
 						</div>
 					</div>
+					<?php else: ?>
+					<input type="hidden" name="branch_id" id="branch_id" value="<?=$branch_id?>">
 					<?php endif; ?>
 					<div class="form-group">
 						<label class="col-md-3 control-label"><?php echo translate('account'); ?> <span class="required">*</span></label>
@@ -174,5 +176,9 @@
 		        }
 		    });
 		});
+
+		if ($('#account_id option').length <= 1 && $('#branch_id').val()) {
+		    $('#branch_id').trigger('change');
+		}
     });
 </script>

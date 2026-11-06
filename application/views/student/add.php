@@ -1,5 +1,5 @@
-<?php $widget = (is_superadmin_loggedin() ? 3 : 4); ?>
-<?php if (is_superadmin_loggedin() ): ?>
+<?php $widget = ((is_superadmin_loggedin() && is_multiple_branches()) ? 3 : 4); ?>
+<?php if (is_superadmin_loggedin() && is_multiple_branches() ): ?>
 <section class="panel">
 	<header class="panel-heading">
 		<h4 class="panel-title"><?=translate('select_ground')?></h4>

@@ -12,7 +12,14 @@ class Application_model extends CI_Model
     public function get_branch_id()
     {
         if (is_superadmin_loggedin()) {
-            return $this->input->post('branch_id');
+            $post_branch = $this->input->post('branch_id');
+            if (!empty($post_branch)) {
+                return $post_branch;
+            }
+            if (is_single_branch()) {
+                return get_single_branch_id();
+            }
+            return '';
         } else {
             return get_loggedin_branch_id();
         }

@@ -172,6 +172,14 @@ class Admin_Controller extends MY_Controller
             $this->session->set_userdata('redirect_url', current_url());
             redirect(base_url('authentication'), 'refresh');
         }
+        if (is_single_branch()) {
+            if (empty($_POST['branch_id'])) {
+                $_POST['branch_id'] = (string)get_single_branch_id();
+            }
+            if (empty($this->data['branch_id'])) {
+                $this->data['branch_id'] = get_single_branch_id();
+            }
+        }
     }
 }
 

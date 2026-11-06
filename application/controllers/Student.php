@@ -37,7 +37,7 @@ class Student extends Admin_Controller
     {
         $branchID = $this->application_model->get_branch_id();
         $getBranch = $this->getBranchDetails();
-        if (is_superadmin_loggedin()) {
+        if (is_superadmin_loggedin() && is_multiple_branches()) {
             $this->form_validation->set_rules('branch_id', translate('branch'), 'trim|required');
         }
         $this->form_validation->set_rules('year_id', translate('academic_year'), 'trim|required');

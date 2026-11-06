@@ -785,3 +785,44 @@ function animation_panel_hide() {
     var $el = $("section .appear-animation");
     $el.removeClass( "appear-animation-visible " + $el.attr('data-appear-animation-type'));
 }
+
+// Universal Auto-Selection & Hiding of Branch when only 1 branch exists
+$(function() {
+    var checkAndAutoSelectBranch = function() {
+        var $branchSelect = $('#branch_id, select[name="branch_id"], select[name="branch"]');
+        if ($branchSelect.length && $branchSelect.is('select')) {
+            $branchSelect.each(function() {
+                var $sel = $(this);
+                var $realOptions = $sel.find('option').filter(function() {
+                    var v = $(this).val();
+                    return v !== '' && v !== 'all' && v !== null && typeof v !== 'undefined';
+                });
+                // If only 1 actual branch exists in the system
+                if ($realOptions.length === 1) {
+                    var singleBranchId = $realOptions.first().val();
+                    if (!$sel.val() || $sel.val() === '') {
+                        $sel.val(singleBranchId);
+                        if ($.fn.select2 && $sel.hasClass('select2-hidden-accessible')) {
+                            $sel.trigger('change.select2');
+                        }
+                        $sel.trigger('change');
+                    }
+                    // Hide the branch form group or filter column so user doesn't have to see or click it
+                    var $fg = $sel.closest('.form-group');
+                    if ($fg.length) {
+                        $fg.hide();
+                    }
+                    var $col = $sel.closest('.col-md-3, .col-md-4, .col-md-6, .col-sm-6').filter(function() {
+                        var text = $(this).text();
+                        return text.indexOf('Branch') !== -1 || text.indexOf('শাখা') !== -1 || text.indexOf('branch') !== -1;
+                    });
+                    if ($col.length) {
+                        $col.hide();
+                    }
+                }
+            });
+        }
+    };
+    checkAndAutoSelectBranch();
+    setTimeout(checkAndAutoSelectBranch, 300);
+});

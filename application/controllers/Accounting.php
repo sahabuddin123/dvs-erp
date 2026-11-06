@@ -128,7 +128,7 @@ class Accounting extends Admin_Controller
             if (!get_permission('voucher_head', 'is_add')) {
                 access_denied();
             }
-            if (is_superadmin_loggedin()) {
+            if (is_superadmin_loggedin() && is_multiple_branches()) {
                 $this->form_validation->set_rules('branch_id', translate('branch'), 'required');
             }
             $this->form_validation->set_rules('voucher_head', translate('name'), array('trim', 'required',
@@ -159,7 +159,7 @@ class Accounting extends Admin_Controller
             if (!get_permission('voucher_head', 'is_edit')) {
                 ajax_access_denied();
             }
-            if (is_superadmin_loggedin()) {
+            if (is_superadmin_loggedin() && is_multiple_branches()) {
                 $this->form_validation->set_rules('branch_id', translate('branch'), 'required');
             }
             $this->form_validation->set_rules('voucher_head', translate('name'), array('trim', 'required', array('unique_voucher_head',
@@ -362,7 +362,7 @@ if (is_superadmin_loggedin()){
                     ajax_access_denied();
                 }
             }
-            if (is_superadmin_loggedin()) {
+            if (is_superadmin_loggedin() && is_multiple_branches()) {
                 $this->form_validation->set_rules('branch_id', translate('branch'), 'required');
             }
             $this->form_validation->set_rules('account_id', translate('account'), 'trim|required');
