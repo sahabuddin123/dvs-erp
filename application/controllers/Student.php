@@ -786,8 +786,57 @@ class Student extends Admin_Controller
             redirect(base_url('student/view'));
         }
         $getParent = !empty($getStudent['parent_id']) ? $this->student_model->get('parent', array('id' => $getStudent['parent_id']), true) : array();
+
+        $branchID = !empty($getStudent['branch_id']) ? $getStudent['branch_id'] : 1;
+        $branch = $this->db->where('id', $branchID)->get('branch')->row_array();
+
+        $transport = array();
+        if (!empty($getStudent['route_id'])) {
+            $this->db->select('r.name as route_name, r.start_place, r.stop_place, v.vehicle_no, v.driver_name, v.driver_contact');
+            $this->db->from('transport_route as r');
+            $this->db->join('transport_assign as ta', 'ta.route_id = r.id', 'left');
+            $this->db->join('transport_vehicle as v', 'v.id = ta.vehicle_id', 'left');
+            $this->db->where('r.id', $getStudent['route_id']);
+            $transport = $this->db->get()->row_array();
+        }
+
+        $hostel = array();
+        if (!empty($getStudent['hostel_id'])) {
+            $this->db->select('h.name as hostel_name, h.category, hr.name as room_name, hr.no_beds, hr.cost');
+            $this->db->from('hostel as h');
+            $this->db->join('hostel_room as hr', 'hr.hostel_id = h.id', 'left');
+            $this->db->where('h.id', $getStudent['hostel_id']);
+            $hostel = $this->db->get()->row_array();
+        }
+
+        $subjects = array();
+        if (!empty($getStudent['class_id'])) {
+            $this->db->select('s.name as subject_name, s.subject_code, s.subject_type, s.subject_author');
+            $this->db->from('subject_assign as sa');
+            $this->db->join('subject as s', 's.id = sa.subject_id', 'inner');
+            $this->db->where('sa.class_id', $getStudent['class_id']);
+            if (!empty($getStudent['section_id'])) {
+                $this->db->where('sa.section_id', $getStudent['section_id']);
+            }
+            $subjects = $this->db->get()->result_array();
+        }
+
+        $enroll_id = !empty($getStudent['enrollid']) ? $getStudent['enrollid'] : 0;
+        $this->db->where('enroll_id', $enroll_id);
+        $this->db->order_by('id', 'DESC');
+        $admission_payment = $this->db->get('student_admission_payment')->row_array();
+
+        $session_id = !empty($getStudent['session_id']) ? $getStudent['session_id'] : get_session_id();
+        $session_name = get_type_name_by_id('schoolyear', $session_id, 'school_year');
+
         $this->data['student'] = $getStudent;
         $this->data['parent'] = $getParent;
+        $this->data['branch'] = $branch;
+        $this->data['transport'] = $transport;
+        $this->data['hostel'] = $hostel;
+        $this->data['subjects'] = $subjects;
+        $this->data['admission_payment'] = $admission_payment;
+        $this->data['session_name'] = $session_name;
         $this->load->view('student/profile_print', $this->data);
     }
 
