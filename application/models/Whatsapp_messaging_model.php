@@ -324,3 +324,4 @@ class Whatsapp_messaging_model extends MY_Model
         }
     }
 }
+

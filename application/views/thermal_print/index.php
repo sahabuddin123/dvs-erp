@@ -1,0 +1,242 @@
+<div class="row">
+	<!-- Left Side: Settings Form -->
+	<div class="col-md-7">
+		<section class="panel">
+			<header class="panel-heading">
+				<h4 class="panel-title"><i class="fas fa-print" style="color: #6366f1;"></i> Thermal Print কনফিগারেশন সেটিংস</h4>
+			</header>
+			<?php echo form_open('thermal_print/settings', ['class' => 'form-horizontal form-bordered validate']); ?>
+				<div class="panel-body">
+					<!-- Status -->
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?=translate('status')?> / স্ট্যাটাস <span class="required">*</span></label>
+						<div class="col-md-9">
+							<div class="radio-custom radio-success radio-inline">
+								<input type="radio" id="thermal_status_1" name="is_active" value="1" <?=(isset($settings->is_active) && $settings->is_active == 1) ? 'checked' : ''?>>
+								<label for="thermal_status_1"><i class="fas fa-check-circle text-success"></i> <?=translate('active')?> (চালু)</label>
+							</div>
+							<div class="radio-custom radio-danger radio-inline">
+								<input type="radio" id="thermal_status_0" name="is_active" value="0" <?=(isset($settings->is_active) && $settings->is_active == 0) ? 'checked' : ''?>>
+								<label for="thermal_status_0"><i class="fas fa-times-circle text-danger"></i> <?=translate('inactive')?> (বন্ধ)</label>
+							</div>
+						</div>
+					</div>
+
+					<!-- Printer Roll Width -->
+					<div class="form-group">
+						<label class="col-md-3 control-label">প্রিন্টার পেপার সাইজ <span class="required">*</span></label>
+						<div class="col-md-9">
+							<?php $p_width = isset($settings->printer_width) ? $settings->printer_width : '80mm'; ?>
+							<div class="radio-custom radio-inline">
+								<input type="radio" id="width_80" name="printer_width" value="80mm" <?=($p_width == '80mm') ? 'checked' : ''?>>
+								<label for="width_80"><strong>80mm (৩-ইঞ্চি Standard POS)</strong></label>
+							</div>
+							<div class="radio-custom radio-inline">
+								<input type="radio" id="width_58" name="printer_width" value="58mm" <?=($p_width == '58mm') ? 'checked' : ''?>>
+								<label for="width_58"><strong>58mm (২-ইঞ্চি Mini POS)</strong></label>
+							</div>
+							<span class="help-block"><small>আপনার থার্মাল প্রিন্টারের রোল অনুযায়ী সাইজ নির্বাচন করুন (সাধারণত 80mm সবচেয়ে জনপ্রিয়)।</small></span>
+						</div>
+					</div>
+
+					<!-- Options: Logo, Barcode, Auto-print -->
+					<div class="form-group">
+						<label class="col-md-3 control-label">রসিদ অপশনসমূহ</label>
+						<div class="col-md-9">
+							<div class="checkbox-custom checkbox-primary" style="margin-bottom: 6px;">
+								<input type="checkbox" name="show_logo" id="show_logo" value="1" <?=(isset($settings->show_logo) && $settings->show_logo == 1) ? 'checked' : ''?>>
+								<label for="show_logo">স্কুল লোগো প্রদর্শন করুন (Show School Logo)</label>
+							</div>
+							<div class="checkbox-custom checkbox-primary" style="margin-bottom: 6px;">
+								<input type="checkbox" name="show_barcode" id="show_barcode" value="1" <?=(isset($settings->show_barcode) && $settings->show_barcode == 1) ? 'checked' : ''?>>
+								<label for="show_barcode">বারকোড / ইনভয়েস কোড যুক্ত করুন (Show Barcode / Code)</label>
+							</div>
+							<div class="checkbox-custom checkbox-primary">
+								<input type="checkbox" name="auto_print" id="auto_print" value="1" <?=(isset($settings->auto_print) && $settings->auto_print == 1) ? 'checked' : ''?>>
+								<label for="auto_print">স্বয়ংক্রিয় প্রিন্ট ডায়লগ ওপেন করুন (Auto-trigger Print Dialog)</label>
+							</div>
+						</div>
+					</div>
+
+					<!-- Header Title -->
+					<div class="form-group">
+						<label class="col-md-3 control-label">হেডার শিরোনাম (Title) <span class="required">*</span></label>
+						<div class="col-md-9">
+							<input type="text" class="form-control" name="header_title" id="header_title" value="<?=(isset($settings->header_title) ? html_escape($settings->header_title) : 'ড্রিম ভ্যালি স্কুল')?>" required />
+						</div>
+					</div>
+
+					<!-- Header Subtitle -->
+					<div class="form-group">
+						<label class="col-md-3 control-label">উপ-শিরোনাম (Subtitle)</label>
+						<div class="col-md-9">
+							<input type="text" class="form-control" name="header_subtitle" id="header_subtitle" value="<?=(isset($settings->header_subtitle) ? html_escape($settings->header_subtitle) : '')?>" placeholder="যেমন: ইসলামিক কারিকুলাম উইথ তাহফিজুল কুরআন" />
+						</div>
+					</div>
+
+					<!-- Address -->
+					<div class="form-group">
+						<label class="col-md-3 control-label">স্কুল ঠিকানা</label>
+						<div class="col-md-9">
+							<input type="text" class="form-control" name="address" id="address" value="<?=(isset($settings->address) ? html_escape($settings->address) : '')?>" placeholder="খাসেরহাট মেইন রোড, চরবাটা, সুবর্ণচর, নোয়াখালী" />
+						</div>
+					</div>
+
+					<!-- Contact Info -->
+					<div class="form-group">
+						<label class="col-md-3 control-label">যোগাযোগ / মোবাইল</label>
+						<div class="col-md-9">
+							<input type="text" class="form-control" name="contact_info" id="contact_info" value="<?=(isset($settings->contact_info) ? html_escape($settings->contact_info) : '')?>" placeholder="মোবাইল: 01716-122899" />
+						</div>
+					</div>
+
+					<!-- Footer Text -->
+					<div class="form-group">
+						<label class="col-md-3 control-label">ফুটার বার্তা / শর্তাবলী</label>
+						<div class="col-md-9">
+							<textarea class="form-control" name="footer_text" id="footer_text" rows="3"><?=(isset($settings->footer_text) ? html_escape($settings->footer_text) : 'ধন্যবাদ! ফি একবার পরিশোধের পর তা ফেরতযোগ্য নয়।')?></textarea>
+						</div>
+					</div>
+				</div>
+
+				<footer class="panel-footer">
+					<div class="row">
+						<div class="col-md-offset-3 col-md-9">
+							<button type="submit" class="btn btn-default"><i class="fas fa-save"></i> <?=translate('save')?> / সংরক্ষণ করুন</button>
+							<a href="<?=base_url('thermal_print/test_print')?>" target="_blank" class="btn btn-info ml-sm"><i class="fas fa-print"></i> টেস্ট প্রিন্ট দিন (Test Print)</a>
+						</div>
+					</div>
+				</footer>
+			<?php echo form_close(); ?>
+		</section>
+	</div>
+
+	<!-- Right Side: POS Receipt Live Preview -->
+	<div class="col-md-5">
+		<section class="panel">
+			<header class="panel-heading">
+				<h4 class="panel-title"><i class="fas fa-receipt"></i> থার্মাল রসিদ প্রিভিউ (Live POS Preview)</h4>
+			</header>
+			<div class="panel-body" style="background: #f1f5f9; padding: 20px; display: flex; justify-content: center;">
+				<!-- Simulated Paper Roll -->
+				<div id="simulated_roll" style="background: #ffffff; width: <?=($p_width == '58mm') ? '240px' : '310px'?>; box-shadow: 0 4px 15px rgba(0,0,0,0.12); padding: 18px 14px; font-family: 'Courier New', Courier, monospace; font-size: 11px; line-height: 1.35; color: #111; border-top: 5px solid #6366f1; border-bottom: 5px dashed #cbd5e1; transition: width 0.3s ease;">
+					<!-- Header -->
+					<div class="text-center" style="text-align: center; margin-bottom: 6px;">
+						<?php if (isset($settings->show_logo) && $settings->show_logo == 1): ?>
+							<img src="<?=$this->application_model->getBranchImage($branch_id, 'printing-logo')?>" style="max-height: 35px; max-width: 140px; object-fit: contain; filter: grayscale(100%); margin-bottom: 3px;" alt="Logo" />
+						<?php endif; ?>
+						<div style="font-weight: 700; font-size: 13px;" id="pv_title"><?=html_escape($settings->header_title)?></div>
+						<div style="font-size: 9.5px; color: #444;" id="pv_subtitle"><?=html_escape($settings->header_subtitle)?></div>
+						<div style="font-size: 9px; color: #555;" id="pv_address"><?=html_escape($settings->address)?></div>
+						<div style="font-size: 9px; color: #555;" id="pv_contact"><?=html_escape($settings->contact_info)?></div>
+					</div>
+
+					<div style="border-top: 2px solid #000; margin: 6px 0;"></div>
+					<div style="text-align: center; font-weight: 700; font-size: 11px;">
+						** ফি আদায়ের রসিদ / RECEIPT **
+					</div>
+					<div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
+
+					<!-- Student Demo Info -->
+					<table style="width: 100%; font-size: 10.5px; border-collapse: collapse;">
+						<tr>
+							<td><strong>রসিদ নং:</strong> REC-2026-0012</td>
+							<td style="text-align: right;"><strong>তারিখ:</strong> <?=date('d M Y')?></td>
+						</tr>
+						<tr>
+							<td><strong>আইডি নং:</strong> SCH-00001</td>
+							<td style="text-align: right;"><strong>রোল:</strong> ০১</td>
+						</tr>
+						<tr>
+							<td colspan="2"><strong>শিক্ষার্থী:</strong> আবু বকর ছিদ্দিক</td>
+						</tr>
+						<tr>
+							<td colspan="2"><strong>শ্রেণি:</strong> প্লে (গোলাপ শাখা)</td>
+						</tr>
+					</table>
+
+					<!-- Table -->
+					<table style="width: 100%; border-collapse: collapse; margin-top: 6px;">
+						<thead>
+							<tr style="border-top: 1px dashed #000; border-bottom: 1px dashed #000;">
+								<th style="text-align: left; padding: 4px 0; font-size: 10.5px;">ফি বিবরণ</th>
+								<th style="text-align: right; padding: 4px 0; font-size: 10.5px;">ছাড়</th>
+								<th style="text-align: right; padding: 4px 0; font-size: 10.5px;">আদায়</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td style="padding: 3px 0;">মাসিক বেতন (নভেম্বর)</td>
+								<td style="text-align: right; padding: 3px 0;">0.00</td>
+								<td style="text-align: right; padding: 3px 0; font-weight: 700;">1,500.00</td>
+							</tr>
+							<tr>
+								<td style="padding: 3px 0;">পরীক্ষা ফি</td>
+								<td style="text-align: right; padding: 3px 0;">0.00</td>
+								<td style="text-align: right; padding: 3px 0; font-weight: 700;">500.00</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
+
+					<!-- Totals -->
+					<table style="width: 100%; font-size: 11px;">
+						<tr>
+							<td>মোট ফি:</td>
+							<td style="text-align: right;">৳ 2,000.00</td>
+						</tr>
+						<tr style="font-weight: 700; font-size: 12.5px;">
+							<td>মোট পরিশোধ:</td>
+							<td style="text-align: right;">৳ 2,000.00</td>
+						</tr>
+						<tr>
+							<td>পরিশোধ মাধ্যম:</td>
+							<td style="text-align: right; font-weight: 700;">Cash</td>
+						</tr>
+					</table>
+
+					<div style="border-top: 2px solid #000; margin: 6px 0;"></div>
+
+					<!-- Signatures -->
+					<table style="width: 100%; margin-top: 15px; font-size: 9px; text-align: center;">
+						<tr>
+							<td style="width: 50%;">----------------<br/>অভিভাবক</td>
+							<td style="width: 50%;">----------------<br/>ক্যাশিয়ার</td>
+						</tr>
+					</table>
+
+					<div style="text-align: center; font-size: 9px; margin-top: 10px; letter-spacing: 2px;">
+						*REC-2026-0012*
+					</div>
+
+					<div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
+
+					<div style="text-align: center; font-size: 9px; font-style: italic; color: #444;" id="pv_footer">
+						<?=nl2br(html_escape($settings->footer_text))?>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	// Paper Width Switcher
+	$('input[name="printer_width"]').on('change', function() {
+		if ($(this).val() === '58mm') {
+			$('#simulated_roll').css('width', '240px');
+		} else {
+			$('#simulated_roll').css('width', '310px');
+		}
+	});
+
+	// Live text reflection
+	$('#header_title').on('input', function() { $('#pv_title').text($(this).val()); });
+	$('#header_subtitle').on('input', function() { $('#pv_subtitle').text($(this).val()); });
+	$('#address').on('input', function() { $('#pv_address').text($(this).val()); });
+	$('#contact_info').on('input', function() { $('#pv_contact').text($(this).val()); });
+	$('#footer_text').on('input', function() { $('#pv_footer').text($(this).val()); });
+});
+</script>

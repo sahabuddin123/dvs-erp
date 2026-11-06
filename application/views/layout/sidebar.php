@@ -1396,6 +1396,9 @@
                         </ul>
                     </li>
                     <?php }} ?>
+                    <?php if (moduleIsEnabled('thermal_print')) {
+                        include "thermal_print_menu.php";
+                    } ?>
                     <?php
                     if (moduleIsEnabled('office_accounting')) {
                         if(get_permission('account', 'is_view') ||

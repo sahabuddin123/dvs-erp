@@ -295,6 +295,9 @@ if ($extINTL == true) {
 					</div>
 					<div class="text-right mr-lg hidden-print">
 						<button id="invoicePrint" class="btn btn-default ml-sm" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-print"></i> <?=translate('print')?></button>
+						<?php if (moduleIsEnabled('thermal_print')): ?>
+							<button id="invoiceThermalPrint" type="button" class="btn btn-primary ml-xs" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-receipt"></i> থার্মাল চালান (Thermal Invoice)</button>
+						<?php endif; ?>
 					</div>
 				</div>
 			</div>
@@ -500,6 +503,9 @@ if (moduleIsEnabled('transport')) {
 						<div class="invoice-summary text-right mt-lg visible-print-block" id="invPaymentHistory"></div>
 					</div>
 					<div class="text-right mr-lg hidden-print">
+						<?php if (moduleIsEnabled('thermal_print')): ?>
+							<button id="payReceiptThermalPrint" type="button" class="btn btn-primary mr-xs" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-receipt"></i> থার্মাল রসিদ (Thermal Receipt)</button>
+						<?php endif; ?>
 						<button id="payReceiptPrint" class="btn btn-default mr-xs" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-print"></i> Selected Pay Receipt</button>
 						<button id="paymentPrint" class="btn btn-default" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-print"></i> <?=translate('print')?></button>
 					</div>
@@ -886,6 +892,88 @@ if (moduleIsEnabled('transport')) {
                 data: {
 					'student_id' : studentID,
 					'data': JSON.stringify(arrayData)
+            	},
+                dataType: "html",
+                cache: false,
+                success: function (response) {
+                    fn_printElem(response, true);
+                },
+                complete: function () {
+                	$btn.button('reset');
+                }
+            });
+        }
+	});
+
+	$('#invoiceThermalPrint').on('click', function(e) {
+		var $btn = $(this);
+		$btn.button('loading');
+		var arrayData = [];
+		$("#invoiceSummary tbody input[name='cb_invoice']").each(function() {
+			if($(this).is(':checked')) {
+				var allocationID = $(this).data("allocation-id");
+				var feeTypeID = $(this).data("fee-type-id");
+				var feeAmount = $(this).val();
+				var trans_fd_id = $(this).data("transport-fd-id");
+				var feeType = $(this).data("fee-type");
+	            array = {};
+	            array ["feeAmount"] = feeAmount;
+	            array ["allocationID"] = allocationID;
+	            array ["feeTypeID"] = feeTypeID;
+	            array ["trans_fd_id"] = trans_fd_id;
+	            array ["feeType"] = feeType;
+	            arrayData.push(array);
+        	}
+		});
+        if (arrayData.length === 0) {
+            popupMsg("<?php echo translate('no_row_are_selected') ?>", "error");
+            $btn.button('reset');
+        } else {
+            $.ajax({
+                url: base_url + "thermal_print/print_invoice",
+                type: 'POST',
+                data: {
+                    'student_id': "<?=$basic['id']?>",
+                    'data': JSON.stringify(arrayData)
+                },
+                dataType: "html",
+                cache: false,
+                success: function (response) {
+                    fn_printElem(response, true);
+                },
+                complete: function () {
+                	$btn.button('reset');
+                }
+            });
+        }
+	});
+
+	$('#payReceiptThermalPrint').on('click', function(e) {
+		var $btn = $(this);
+		$btn.button('loading');
+		var arrayData = [];
+		$("#paymentHistory tbody input[name='cb_feePay']").each(function() {
+			if($(this).is(':checked')) {
+				var allocationID = $(this).data("allocation-id");
+				var feeTypeID = $(this).data("fee-type-id");
+				var paymentID = $(this).val();
+	            array = {};
+	            array ["payment_id"] = paymentID;
+	            array ["allocationID"] = allocationID;
+	            array ["feeTypeID"] = feeTypeID;
+	            arrayData.push(array);
+        	}
+		});
+        if (arrayData.length === 0) {
+            alert("No Rows Selected.");
+            $btn.button('reset');
+        } else {
+            $.ajax({
+                url: base_url + "thermal_print/print_receipt",
+                type: 'POST',
+                data: {
+                    'student_id': "<?=$basic['id']?>",
+                    'data': JSON.stringify(arrayData)
             	},
                 dataType: "html",
                 cache: false,

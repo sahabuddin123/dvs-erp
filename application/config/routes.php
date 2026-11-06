@@ -199,6 +199,9 @@ $route['two_fa_resend'] = 'authentication/two_fa_resend';
 $route['whatsapp_messaging'] = 'whatsapp_messaging/index';
 $route['whatsapp_messaging/(:any)'] = 'whatsapp_messaging/$1';
 $route['whatsapp_messaging/(:any)/(:any)'] = 'whatsapp_messaging/$1/$2';
+$route['thermal_print'] = 'thermal_print/index';
+$route['thermal_print/(:any)'] = 'thermal_print/$1';
+$route['thermal_print/(:any)/(:any)'] = 'thermal_print/$1/$2';
 
 $route['authentication'] = 'authentication/index';
 $route['home'] = 'home/index';

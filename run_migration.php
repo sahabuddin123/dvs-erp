@@ -262,6 +262,34 @@ WHERE NOT EXISTS (SELECT 1 FROM `whatsapp_messaging_templates` WHERE `title` = '
 SELECT 0, 'ছুটির নোটিশ / বন্ধের বার্তা', 'event', 'আসসালামু আলাইকুম, সংশ্লিষ্ট সকলের অবগতির জন্য জানানো যাচ্ছে যে, আগামী {date} তারিখে বিশেষ কারণে বিদ্যালয় বন্ধ থাকবে। ধন্যবাদ, {school}।' 
 WHERE NOT EXISTS (SELECT 1 FROM `whatsapp_messaging_templates` WHERE `title` = 'ছুটির নোটিশ / বন্ধের বার্তা');");
 
+// Thermal Print Addon & Tables
+@$conn->query("CREATE TABLE IF NOT EXISTS `thermal_print_settings` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT DEFAULT 0,
+  `is_active` TINYINT(1) DEFAULT 1,
+  `printer_width` VARCHAR(20) DEFAULT '80mm',
+  `show_logo` TINYINT(1) DEFAULT 1,
+  `show_barcode` TINYINT(1) DEFAULT 1,
+  `show_qr` TINYINT(1) DEFAULT 1,
+  `header_title` VARCHAR(255) DEFAULT 'ড্রিম ভ্যালি স্কুল',
+  `header_subtitle` VARCHAR(255) DEFAULT 'ইসলামিক কারিকুলাম উইথ তাহফিজুল কুরআন',
+  `address` TEXT NULL,
+  `contact_info` VARCHAR(255) DEFAULT 'মোবাইল: 01716-122899',
+  `footer_text` TEXT NULL,
+  `auto_print` TINYINT(1) DEFAULT 1,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `branch_id` (`branch_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+@$conn->query("INSERT INTO `thermal_print_settings` (`branch_id`, `is_active`, `printer_width`, `show_logo`, `show_barcode`, `show_qr`, `header_title`, `header_subtitle`, `address`, `contact_info`, `footer_text`, `auto_print`) 
+SELECT 0, 1, '80mm', 1, 1, 1, 'ড্রিম ভ্যালি স্কুল', 'ইসলামিক কারিকুলাম উইথ তাহফিজুল কুরআন', 'খাসেরহাট মেইন রোড, চরবাটা, সুবর্ণচর, নোয়াখালী', 'মোবাইল: 01716-122899', 'ধন্যবাদ! ফি একবার পরিশোধের পর তা ফেরতযোগ্য নয়।', 1 
+WHERE NOT EXISTS (SELECT 1 FROM `thermal_print_settings` WHERE `id` = 1);");
+
+@$conn->query("INSERT INTO `addon` (`name`, `prefix`, `version`, `purchase_code`, `status`, `created_at`) SELECT 'Thermal Print', 'thermal_print', '100', 'DVS-THERMAL-PRINT-ADDON', 1, NOW() WHERE NOT EXISTS (SELECT 1 FROM `addon` WHERE `prefix` = 'thermal_print')");
+@$conn->query("INSERT INTO `permission_modules` (`name`, `prefix`, `system`, `sorted`, `in_module`, `created_at`) SELECT 'Thermal Print', 'thermal_print', 1, 29, 1, NOW() WHERE NOT EXISTS (SELECT 1 FROM `permission_modules` WHERE `prefix` = 'thermal_print')");
+
 output_msg('ok', 'Schema alterations verified successfully.');
 
 // ==========================================
