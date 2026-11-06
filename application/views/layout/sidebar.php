@@ -1320,6 +1320,9 @@
                         </ul>
                     </li>
                     <?php }} ?>
+                    <?php if (moduleIsEnabled('whatsapp_messaging')) {
+                        include "whatsapp_messaging_menu.php";
+                    } ?>
                     <?php
                     if (moduleIsEnabled('student_accounting')) {
                         if(get_permission('fees_type', 'is_view') ||

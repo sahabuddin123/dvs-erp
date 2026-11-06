@@ -1066,3 +1066,76 @@ WHERE NOT EXISTS (SELECT 1 FROM `addon` WHERE `prefix` = 'two_fa');
 INSERT INTO `permission_modules` (`name`, `prefix`, `system`, `sorted`, `in_module`, `created_at`) 
 SELECT 'Two Factor Authentication', 'two_fa', 1, 27, 1, NOW() 
 WHERE NOT EXISTS (SELECT 1 FROM `permission_modules` WHERE `prefix` = 'two_fa');
+
+
+-- ========================================================
+-- WHATSAPP MESSAGING ADDON TABLES & MIGRATION
+-- ========================================================
+
+CREATE TABLE IF NOT EXISTS `whatsapp_messaging_settings` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT DEFAULT 0,
+  `is_active` TINYINT(1) DEFAULT 1,
+  `gateway_type` VARCHAR(50) DEFAULT 'web',
+  `api_url` VARCHAR(255) NULL,
+  `api_key` TEXT NULL,
+  `instance_id` VARCHAR(100) NULL,
+  `country_code` VARCHAR(10) DEFAULT '880',
+  `header_text` VARCHAR(255) DEFAULT 'ড্রিম ভ্যালি স্কুল',
+  `footer_text` VARCHAR(255) DEFAULT 'ধন্যবাদান্তে, স্কুল প্রশাসন',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `branch_id` (`branch_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `whatsapp_messaging_settings` (`branch_id`, `is_active`, `gateway_type`, `country_code`, `header_text`, `footer_text`) 
+SELECT 0, 1, 'web', '880', 'ড্রিম ভ্যালি স্কুল', 'ধন্যবাদান্তে, স্কুল প্রশাসন' 
+WHERE NOT EXISTS (SELECT 1 FROM `whatsapp_messaging_settings` WHERE `id` = 1);
+
+CREATE TABLE IF NOT EXISTS `whatsapp_messaging_templates` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT DEFAULT 0,
+  `title` VARCHAR(255) NOT NULL,
+  `category` VARCHAR(50) DEFAULT 'general',
+  `template_body` TEXT NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `whatsapp_messaging_logs` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT DEFAULT 0,
+  `recipient_name` VARCHAR(150) NULL,
+  `recipient_mobile` VARCHAR(50) NOT NULL,
+  `recipient_role` VARCHAR(50) DEFAULT 'student',
+  `message` TEXT NOT NULL,
+  `gateway_type` VARCHAR(50) DEFAULT 'web',
+  `status` VARCHAR(30) DEFAULT 'sent',
+  `response` TEXT NULL,
+  `sent_by` INT DEFAULT 0,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `recipient_mobile` (`recipient_mobile`),
+  KEY `created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `addon` (`name`, `prefix`, `version`, `purchase_code`, `status`, `created_at`) 
+SELECT 'Whatsapp Messaging', 'whatsapp_messaging', '100', 'DVS-WHATSAPP-MSG-ADDON', 1, NOW() 
+WHERE NOT EXISTS (SELECT 1 FROM `addon` WHERE `prefix` = 'whatsapp_messaging');
+
+INSERT INTO `permission_modules` (`name`, `prefix`, `system`, `sorted`, `in_module`, `created_at`) 
+SELECT 'Whatsapp Messaging', 'whatsapp_messaging', 1, 28, 1, NOW() 
+WHERE NOT EXISTS (SELECT 1 FROM `permission_modules` WHERE `prefix` = 'whatsapp_messaging');
+
+INSERT INTO `whatsapp_messaging_templates` (`branch_id`, `title`, `category`, `template_body`) 
+SELECT 0, 'অনুপস্থিতি নোটিফিকেশন', 'attendance', 'আসসালামু আলাইকুম, সম্মানিত অভিভাবক, আপনার সন্তান {student_name} (শ্রেণি: {class}, শাখা: {section}, রোল: {roll}) আজ {date} তারিখে বিদ্যালয়ে অনুপস্থিত। কোনো সমস্যা থাকলে স্কুল অফিসে যোগাযোগ করুন।' 
+WHERE NOT EXISTS (SELECT 1 FROM `whatsapp_messaging_templates` WHERE `title` = 'অনুপস্থিতি নোটিফিকেশন');
+
+INSERT INTO `whatsapp_messaging_templates` (`branch_id`, `title`, `category`, `template_body`) 
+SELECT 0, 'স্কুল ফি পরিশোধের তাগিদ', 'fees', 'আসসালামু আলাইকুম, সম্মানিত অভিভাবক, আপনার সন্তান {student_name}-এর চলতি মাসের স্কুল বেতন ও ফি বকেয়া রয়েছে। নির্ধারিত সময়ের মধ্যে পরিশোধ করার জন্য বিনীত অনুরোধ করা হলো। ধন্যবাদ, {school}।' 
+WHERE NOT EXISTS (SELECT 1 FROM `whatsapp_messaging_templates` WHERE `title` = 'স্কুল ফি পরিশোধের তাগিদ');
+
+INSERT INTO `whatsapp_messaging_templates` (`branch_id`, `title`, `category`, `template_body`) 
+SELECT 0, 'ছুটির নোটিশ / বন্ধের বার্তা', 'event', 'আসসালামু আলাইকুম, সংশ্লিষ্ট সকলের অবগতির জন্য জানানো যাচ্ছে যে, আগামী {date} তারিখে বিশেষ কারণে বিদ্যালয় বন্ধ থাকবে। ধন্যবাদ, {school}।' 
+WHERE NOT EXISTS (SELECT 1 FROM `whatsapp_messaging_templates` WHERE `title` = 'ছুটির নোটিশ / বন্ধের বার্তা');

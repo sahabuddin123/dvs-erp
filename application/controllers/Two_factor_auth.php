@@ -111,3 +111,4 @@ class Two_factor_auth extends Admin_Controller
         $this->load->view('layout/index', $this->data);
     }
 }
+

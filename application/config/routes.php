@@ -196,6 +196,9 @@ $route['two_factor_auth'] = 'two_factor_auth/index';
 $route['two_factor_auth/(:any)'] = 'two_factor_auth/$1';
 $route['two_fa_verification'] = 'authentication/two_fa_verification';
 $route['two_fa_resend'] = 'authentication/two_fa_resend';
+$route['whatsapp_messaging'] = 'whatsapp_messaging/index';
+$route['whatsapp_messaging/(:any)'] = 'whatsapp_messaging/$1';
+$route['whatsapp_messaging/(:any)/(:any)'] = 'whatsapp_messaging/$1/$2';
 
 $route['authentication'] = 'authentication/index';
 $route['home'] = 'home/index';
