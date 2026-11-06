@@ -109,6 +109,18 @@
 							<input type="text" class="form-control" name="ref_no" value="<?php echo set_value('ref_no'); ?>" />
 						</div>
 					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label">Pay By / Payer Name (পরিশোধকারী)</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="pay_by" placeholder="পরিশোধকারীর নাম / Pay By (Payer Name)" value="<?php echo set_value('pay_by'); ?>" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label">Received By / Receiver Name (গ্রহীতা)</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="received_by" placeholder="গ্রহীতার নাম / Received By (Receiver Name)" value="<?php echo set_value('received_by'); ?>" />
+						</div>
+					</div>
 					<div class="form-group <?php if (form_error('amount')) echo 'has-error'; ?>">
 						<label class="col-md-3 control-label"><?php echo translate('amount'); ?> <span class="required">*</span></label>
 						<div class="col-md-6">
@@ -128,6 +140,7 @@
 						<label  class="col-md-3 control-label"><?php echo translate('pay_via'); ?></label>
 						<div class="col-md-6">
     						<?php
+    							$payvia_list = get_office_accounting_payvia_list();
     							echo form_dropdown("pay_via", $payvia_list, set_value('pay_via'), "class='form-control' data-plugin-selectTwo data-width='100%'
     							data-minimum-results-for-search='Infinity' ");
     						?>
