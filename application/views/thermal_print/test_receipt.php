@@ -38,3 +38,4 @@ $width = (isset($settings->printer_width) && $settings->printer_width == '58mm')
 	<div class="double-divider"></div>
 </body>
 </html>
+

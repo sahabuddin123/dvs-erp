@@ -145,3 +145,4 @@ $branch_id = isset($voucher['branch_id']) ? $voucher['branch_id'] : $this->appli
 	</div>
 </body>
 </html>
+

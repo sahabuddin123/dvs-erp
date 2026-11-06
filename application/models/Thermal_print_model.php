@@ -188,3 +188,4 @@ class Thermal_print_model extends MY_Model
         ];
     }
 }
+

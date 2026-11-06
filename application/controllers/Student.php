@@ -158,6 +158,7 @@ class Student extends Admin_Controller
         $this->data['sub_page'] = 'student/add';
         $this->data['main_menu'] = 'admission';
         $this->data['register_id'] = $this->student_model->regSerNumber($branchID);
+        $this->data['admission_settings'] = $this->get_admission_settings($branchID);
         $this->data['title'] = translate('create_admission');
         $this->data['headerelements'] = array(
             'css' => array(
@@ -275,6 +276,38 @@ class Student extends Admin_Controller
 
             if ($this->form_validation->run() == true) {
                 $post = $this->input->post();
+
+                // Admission Fee & Payment Parameters
+                $adm_fee = isset($post['admission_fee']) ? (float)$post['admission_fee'] : 0.00;
+                $adm_discount = isset($post['admission_discount']) ? (float)$post['admission_discount'] : 0.00;
+                $adm_net = max(0, $adm_fee - $adm_discount);
+                $adm_paid = isset($post['admission_paid']) ? (float)$post['admission_paid'] : 0.00;
+                $adm_due = max(0, $adm_net - $adm_paid);
+                $is_free = !empty($post['is_free_admission']) ? 1 : 0;
+                $adm_status = !empty($post['admission_status']) ? $post['admission_status'] : 'confirmed';
+
+                // Fetch admission settings
+                $adm_settings = $this->get_admission_settings($branchID);
+                $min_paid = (float)$adm_settings['min_paid_amount'];
+                $allow_free = (int)$adm_settings['allow_free_admission'];
+
+                // Validate minimum paid requirement
+                if (!$is_free && $adm_net > 0 && $adm_status == 'confirmed') {
+                    if ($adm_paid < $min_paid) {
+                        $error = array('admission_paid' => 'ভর্তি নিশ্চিত করতে সর্বনিম্ন ৳' . number_format($min_paid, 2) . ' টাকা পরিশোধ করতে হবে অথবা আবেদনটি ড্রাফট (Draft) হিসেবে জমা দিন।');
+                        $array = array('status' => 'fail', 'error' => $error);
+                        echo json_encode($array);
+                        return;
+                    }
+                }
+
+                if ($is_free && $allow_free) {
+                    $adm_discount = $adm_fee;
+                    $adm_net = 0.00;
+                    $adm_paid = 0.00;
+                    $adm_due = 0.00;
+                }
+
                 //save all student information in the database file
                 $studentData = $this->student_model->save($post, $getBranch);
                 $studentID = $studentData['student_id'];
@@ -286,9 +319,38 @@ class Student extends Admin_Controller
                     'roll' => (isset($post['roll']) ? $post['roll'] : 0),
                     'session_id' => $post['year_id'],
                     'branch_id' => $branchID,
+                    'admission_fee' => $adm_fee,
+                    'admission_discount' => $adm_discount,
+                    'admission_paid' => $adm_paid,
+                    'admission_due' => $adm_due,
+                    'admission_pay_via' => !empty($post['admission_pay_via']) ? $post['admission_pay_via'] : 'Cash',
+                    'admission_trx_id' => !empty($post['admission_trx_id']) ? $post['admission_trx_id'] : '',
+                    'admission_pay_date' => !empty($post['admission_pay_date']) ? date("Y-m-d", strtotime($post['admission_pay_date'])) : date("Y-m-d"),
+                    'admission_status' => $adm_status,
+                    'admission_remarks' => !empty($post['admission_remarks']) ? $post['admission_remarks'] : '',
                 );
                 $this->db->insert('enroll', $arrayEnroll);
                 $enrollID = $this->db->insert_id();
+
+                // Save admission payment record in student_admission_payment
+                $arrayAdmPay = array(
+                    'enroll_id' => $enrollID,
+                    'student_id' => $studentID,
+                    'branch_id' => $branchID,
+                    'session_id' => $post['year_id'],
+                    'admission_fee' => $adm_fee,
+                    'discount' => $adm_discount,
+                    'net_amount' => $adm_net,
+                    'paid_amount' => $adm_paid,
+                    'due_amount' => $adm_due,
+                    'pay_via' => !empty($post['admission_pay_via']) ? $post['admission_pay_via'] : 'Cash',
+                    'reference_no' => !empty($post['admission_trx_id']) ? $post['admission_trx_id'] : '',
+                    'payment_date' => !empty($post['admission_pay_date']) ? date("Y-m-d", strtotime($post['admission_pay_date'])) : date("Y-m-d"),
+                    'status' => $adm_status,
+                    'remarks' => !empty($post['admission_remarks']) ? $post['admission_remarks'] : '',
+                    'created_by' => get_loggedin_user_id(),
+                );
+                $this->db->insert('student_admission_payment', $arrayAdmPay);
 
                 // transport data save in the database file 
                 if (!empty($transport_fees_month)) {
@@ -321,7 +383,7 @@ class Student extends Admin_Controller
                 $this->sms_model->send_sms($arrayEnroll, 1);
 
                 set_alert('success', translate('information_has_been_saved_successfully'));
-                $url = base_url('student/add');
+                $url = base_url('student/print_admission_form/' . $enrollID);
                 $array = array('status' => 'success', 'url' => $url);
             } else {
                 $error = $this->form_validation->error_array();
@@ -705,12 +767,155 @@ class Student extends Admin_Controller
             $getStudent = $this->student_model->getSingleStudent($id, false);
         }
         if (empty($getStudent)) {
+            $this->db->select('s.*, e.id as enrollid, e.roll, e.class_id, e.section_id, e.branch_id, e.session_id, c.name as class_name, se.name as section_name');
+            $this->db->from('student as s');
+            $this->db->join('enroll as e', 'e.student_id = s.id', 'left');
+            $this->db->join('class as c', 'e.class_id = c.id', 'left');
+            $this->db->join('section as se', 'e.section_id = se.id', 'left');
+            $this->db->where('s.id', $id);
+            $this->db->or_where('e.id', $id);
+            $this->db->order_by('e.id', 'DESC');
+            $getStudent = $this->db->get()->row_array();
+        }
+        if (empty($getStudent)) {
             access_denied();
         }
         $getParent = !empty($getStudent['parent_id']) ? $this->student_model->get('parent', array('id' => $getStudent['parent_id']), true) : array();
         $this->data['student'] = $getStudent;
         $this->data['parent'] = $getParent;
         $this->load->view('student/profile_print', $this->data);
+    }
+
+    public function print_admission_form($id = '')
+    {
+        if (!get_permission('student', 'is_view') && !get_permission('student', 'is_add')) {
+            access_denied();
+        }
+        if (empty($id)) {
+            access_denied();
+        }
+        $getStudent = $this->student_model->getSingleStudent($id, true);
+        if (empty($getStudent)) {
+            $getStudent = $this->student_model->getSingleStudent($id, false);
+        }
+        if (empty($getStudent)) {
+            $this->db->select('s.*, e.id as enrollid, e.roll, e.class_id, e.section_id, e.branch_id, e.session_id, c.name as class_name, se.name as section_name, e.admission_fee, e.admission_discount, e.admission_paid, e.admission_due, e.admission_pay_via, e.admission_trx_id, e.admission_pay_date, e.admission_status, e.admission_remarks');
+            $this->db->from('student as s');
+            $this->db->join('enroll as e', 'e.student_id = s.id', 'left');
+            $this->db->join('class as c', 'e.class_id = c.id', 'left');
+            $this->db->join('section as se', 'e.section_id = se.id', 'left');
+            $this->db->where('e.id', $id);
+            $this->db->or_where('s.id', $id);
+            $this->db->order_by('e.id', 'DESC');
+            $getStudent = $this->db->get()->row_array();
+        }
+        if (empty($getStudent)) {
+            access_denied();
+        }
+        $getParent = !empty($getStudent['parent_id']) ? $this->student_model->get('parent', array('id' => $getStudent['parent_id']), true) : array();
+        
+        // Fetch admission payment record
+        $enroll_id = !empty($getStudent['enrollid']) ? $getStudent['enrollid'] : 0;
+        $this->db->where('enroll_id', $enroll_id);
+        $this->db->order_by('id', 'DESC');
+        $admission_payment = $this->db->get('student_admission_payment')->row_array();
+
+        if (empty($admission_payment)) {
+            $fee = isset($getStudent['admission_fee']) ? (float)$getStudent['admission_fee'] : 0.00;
+            $disc = isset($getStudent['admission_discount']) ? (float)$getStudent['admission_discount'] : 0.00;
+            $paid = isset($getStudent['admission_paid']) ? (float)$getStudent['admission_paid'] : 0.00;
+            $net = max(0, $fee - $disc);
+            $due = max(0, $net - $paid);
+            $admission_payment = array(
+                'admission_fee' => $fee,
+                'discount' => $disc,
+                'net_amount' => $net,
+                'paid_amount' => $paid,
+                'due_amount' => $due,
+                'pay_via' => !empty($getStudent['admission_pay_via']) ? $getStudent['admission_pay_via'] : 'Cash',
+                'reference_no' => isset($getStudent['admission_trx_id']) ? $getStudent['admission_trx_id'] : '',
+                'payment_date' => !empty($getStudent['admission_pay_date']) ? $getStudent['admission_pay_date'] : $getStudent['admission_date'],
+                'status' => !empty($getStudent['admission_status']) ? $getStudent['admission_status'] : 'confirmed',
+                'remarks' => isset($getStudent['admission_remarks']) ? $getStudent['admission_remarks'] : '',
+            );
+        }
+
+        $branchID = !empty($getStudent['branch_id']) ? $getStudent['branch_id'] : 0;
+        $admission_settings = $this->get_admission_settings($branchID);
+        $custom_fields = get_custom_fields('student', $getStudent['id']);
+
+        $this->data['student'] = $getStudent;
+        $this->data['parent'] = $getParent;
+        $this->data['payment'] = $admission_payment;
+        $this->data['settings'] = $admission_settings;
+        $this->data['custom_fields'] = $custom_fields;
+        $this->load->view('student/print_admission_form', $this->data);
+    }
+
+    public function admission_settings()
+    {
+        if (!is_superadmin_loggedin() && !get_permission('student', 'is_edit')) {
+            access_denied();
+        }
+
+        $branchID = $this->application_model->get_branch_id();
+
+        if ($this->input->post('submit')) {
+            $branch_target = is_superadmin_loggedin() ? (int)$this->input->post('branch_id') : $branchID;
+            $data = array(
+                'branch_id' => $branch_target,
+                'admission_fee' => (float)$this->input->post('admission_fee'),
+                'min_paid_amount' => (float)$this->input->post('min_paid_amount'),
+                'allow_free_admission' => !empty($this->input->post('allow_free_admission')) ? 1 : 0,
+                'default_pay_via' => $this->input->post('default_pay_via'),
+                'terms_conditions' => $this->input->post('terms_conditions'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            );
+
+            $this->db->where('branch_id', $branch_target);
+            $check = $this->db->get('admission_settings')->row();
+            if (!empty($check)) {
+                $this->db->where('id', $check->id);
+                $this->db->update('admission_settings', $data);
+            } else {
+                $data['created_at'] = date('Y-m-d H:i:s');
+                $this->db->insert('admission_settings', $data);
+            }
+
+            set_alert('success', 'ভর্তি ফি ও শর্তাবলী সফলভাবে সংরক্ষিত হয়েছে!');
+            redirect(base_url('student/admission_settings'));
+        }
+
+        $this->data['branch_id'] = $branchID;
+        $this->data['settings'] = $this->get_admission_settings($branchID);
+        $this->data['sub_page'] = 'student/admission_settings';
+        $this->data['main_menu'] = 'admission';
+        $this->data['title'] = 'ভর্তি সেটিংস ও ফি (Admission Settings)';
+        $this->load->view('layout/index', $this->data);
+    }
+
+    public function get_admission_settings($branch_id = 0)
+    {
+        $this->db->where('branch_id', $branch_id);
+        $settings = $this->db->get('admission_settings')->row_array();
+        if (empty($settings)) {
+            $this->db->where('branch_id', 0);
+            $settings = $this->db->get('admission_settings')->row_array();
+        }
+        if (empty($settings)) {
+            $default_terms = "১. বিদ্যালয়ের নির্ধারিত পোশাক (ইউনিফর্ম) পরিধান করে নিয়মিত ও সময়মতো বিদ্যালয়ে উপস্থিত হতে হবে।\n২. ইসলামী তাহযীব ও তামাদ্দুন বজায় রেখে শালীনতা, শৃঙ্খলা ও শিষ্টাচার কঠোরভাবে মেনে চলতে হবে।\n৩. বিদ্যালয়ে মোবাইল ফোন বা অন্য কোনো ইলেকট্রনিক ডিভাইস আনা সম্পূর্ণ নিষিদ্ধ।\n৪. প্রতি মাসের নির্ধারিত ফি ও অন্যান্য পাওনা প্রতি মাসের ১০ তারিখের মধ্যে পরিশোধ করতে হবে।\n৫. ভর্তি ফি ও আনুষঙ্গিক ফি একবার পরিশোধের পর তা কোনো অবস্থাতেই অফেরতযোগ্য।\n৬. বিদ্যালয় কর্তৃপক্ষের যেকোনো সিদ্ধান্ত ও শৃঙ্খলাবিধি মানতে শিক্ষার্থী ও অভিভাবক বাধ্য থাকিবেন।";
+            $settings = array(
+                'id' => 1,
+                'branch_id' => 0,
+                'admission_fee' => 15000.00,
+                'min_paid_amount' => 2000.00,
+                'allow_free_admission' => 1,
+                'default_pay_via' => 'Cash',
+                'fee_type_id' => 0,
+                'terms_conditions' => $default_terms,
+            );
+        }
+        return $settings;
     }
 
     // student document details are create here / ajax

@@ -290,6 +290,76 @@ WHERE NOT EXISTS (SELECT 1 FROM `thermal_print_settings` WHERE `id` = 1);");
 @$conn->query("INSERT INTO `addon` (`name`, `prefix`, `version`, `purchase_code`, `status`, `created_at`) SELECT 'Thermal Print', 'thermal_print', '100', 'DVS-THERMAL-PRINT-ADDON', 1, NOW() WHERE NOT EXISTS (SELECT 1 FROM `addon` WHERE `prefix` = 'thermal_print')");
 @$conn->query("INSERT INTO `permission_modules` (`name`, `prefix`, `system`, `sorted`, `in_module`, `created_at`) SELECT 'Thermal Print', 'thermal_print', 1, 29, 1, NOW() WHERE NOT EXISTS (SELECT 1 FROM `permission_modules` WHERE `prefix` = 'thermal_print')");
 
+// ==========================================
+// ADMISSION FEE & PAYMENT SYSTEM
+// ==========================================
+ensure_column($conn, 'enroll', 'admission_fee', 'DECIMAL(18,2) NOT NULL DEFAULT 0.00 AFTER `branch_id`');
+ensure_column($conn, 'enroll', 'admission_discount', 'DECIMAL(18,2) NOT NULL DEFAULT 0.00 AFTER `admission_fee`');
+ensure_column($conn, 'enroll', 'admission_paid', 'DECIMAL(18,2) NOT NULL DEFAULT 0.00 AFTER `admission_discount`');
+ensure_column($conn, 'enroll', 'admission_due', 'DECIMAL(18,2) NOT NULL DEFAULT 0.00 AFTER `admission_paid`');
+ensure_column($conn, 'enroll', 'admission_pay_via', 'VARCHAR(50) NOT NULL DEFAULT "Cash" AFTER `admission_due`');
+ensure_column($conn, 'enroll', 'admission_trx_id', 'VARCHAR(100) NULL DEFAULT NULL AFTER `admission_pay_via`');
+ensure_column($conn, 'enroll', 'admission_pay_date', 'DATE NULL DEFAULT NULL AFTER `admission_trx_id`');
+ensure_column($conn, 'enroll', 'admission_status', 'VARCHAR(20) NOT NULL DEFAULT "confirmed" AFTER `admission_pay_date`');
+ensure_column($conn, 'enroll', 'admission_remarks', 'TEXT NULL DEFAULT NULL AFTER `admission_status`');
+
+@$conn->query("CREATE TABLE IF NOT EXISTS `admission_settings` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT NOT NULL DEFAULT 0,
+  `admission_fee` DECIMAL(18,2) NOT NULL DEFAULT 15000.00,
+  `min_paid_amount` DECIMAL(18,2) NOT NULL DEFAULT 2000.00,
+  `allow_free_admission` TINYINT(1) NOT NULL DEFAULT 1,
+  `default_pay_via` VARCHAR(50) NOT NULL DEFAULT 'Cash',
+  `fee_type_id` INT NOT NULL DEFAULT 0,
+  `account_id` INT NOT NULL DEFAULT 0,
+  `terms_conditions` LONGTEXT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `branch_id` (`branch_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+@$conn->query("CREATE TABLE IF NOT EXISTS `student_admission_payment` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `enroll_id` INT NOT NULL,
+  `student_id` INT NOT NULL,
+  `branch_id` INT NOT NULL DEFAULT 0,
+  `session_id` INT NOT NULL DEFAULT 0,
+  `admission_fee` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  `discount` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  `net_amount` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  `paid_amount` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  `due_amount` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  `pay_via` VARCHAR(50) NOT NULL DEFAULT 'Cash',
+  `reference_no` VARCHAR(100) NULL DEFAULT NULL,
+  `payment_date` DATE NULL DEFAULT NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'confirmed',
+  `remarks` TEXT NULL DEFAULT NULL,
+  `created_by` INT NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `enroll_id` (`enroll_id`),
+  KEY `student_id` (`student_id`),
+  KEY `branch_id` (`branch_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+$default_terms = "১. বিদ্যালয়ের নির্ধারিত পোশাক (ইউনিফর্ম) পরিধান করে নিয়মিত ও সময়মতো বিদ্যালয়ে উপস্থিত হতে হবে।
+২. ইসলামী তাহযীব ও তামাদ্দুন বজায় রেখে শালীনতা, শৃঙ্খলা ও শিষ্টাচার কঠোরভাবে মেনে চলতে হবে।
+৩. বিদ্যালয়ে মোবাইল ফোন বা অন্য কোনো ইলেকট্রনিক ডিভাইস আনা সম্পূর্ণ নিষিদ্ধ।
+৪. প্রতি মাসের নির্ধারিত ফি ও অন্যান্য পাওনা প্রতি মাসের ১০ তারিখের মধ্যে পরিশোধ করতে হবে।
+৫. ভর্তি ফি ও আনুষঙ্গিক ফি একবার পরিশোধের পর তা কোনো অবস্থাতেই অফেরতযোগ্য।
+৬. বিদ্যালয় কর্তৃপক্ষের যেকোনো সিদ্ধান্ত ও শৃঙ্খলাবিধি মানতে শিক্ষার্থী ও অভিভাবক বাধ্য থাকিবেন।";
+
+$stmt_check = $conn->query("SELECT id FROM `admission_settings` WHERE `id` = 1");
+if (!$stmt_check || $stmt_check->num_rows == 0) {
+    $ins = $conn->prepare("INSERT INTO `admission_settings` (`branch_id`, `admission_fee`, `min_paid_amount`, `allow_free_admission`, `default_pay_via`, `terms_conditions`) VALUES (0, 15000.00, 2000.00, 1, 'Cash', ?)");
+    if ($ins) {
+        $ins->bind_param("s", $default_terms);
+        $ins->execute();
+    }
+}
+
 output_msg('ok', 'Schema alterations verified successfully.');
 
 // ==========================================

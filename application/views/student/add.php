@@ -350,7 +350,7 @@ endif;
 				<div class="row align-items-center">
 					<div class="col-sm-8 title-area">
 						<h3><i class="fas fa-user-graduate"></i> <?=translate('student_admission')?> (শিক্ষার্থী নতুন ভর্তি ফরম)</h3>
-						<p>অনুগ্রহ করে নিচের ৪টি ধাপে শিক্ষার্থীর যাবতীয় সঠিক তথ্য পূরণ করে ভর্তি নিশ্চিত করুন।</p>
+						<p>অনুগ্রহ করে নিচের ৫টি ধাপে শিক্ষার্থীর যাবতীয় সঠিক তথ্য পূরণ করে ভর্তি নিশ্চিত করুন।</p>
 					</div>
 					<div class="col-sm-4 text-right hidden-xs">
 						<span class="badge" style="background: rgba(255,255,255,0.25); font-size: 13px; padding: 7px 14px; font-weight: 600;">
@@ -385,15 +385,22 @@ endif;
 						</div>
 					</li>
 					<li class="dvs-step-item" data-step="4">
-						<div class="dvs-step-badge"><i class="fas fa-check-circle"></i></div>
+						<div class="dvs-step-badge"><i class="fas fa-tasks"></i></div>
 						<div class="dvs-step-label">
-							<span class="step-main">ধাপ ৪: সুবিধা ও সাবমিট</span>
-							<span class="step-sub">Review & Submission</span>
+							<span class="step-main">ধাপ ৪: সুবিধা ও বিবরণ</span>
+							<span class="step-sub">Facilities & Details</span>
+						</div>
+					</li>
+					<li class="dvs-step-item" data-step="5">
+						<div class="dvs-step-badge"><i class="fas fa-money-bill-wave"></i></div>
+						<div class="dvs-step-label">
+							<span class="step-main">ধাপ ৫: ভর্তি ফি ও পেমেন্ট</span>
+							<span class="step-sub">Fee & Payment</span>
 						</div>
 					</li>
 				</ul>
 				<div class="dvs-progress-track">
-					<div class="dvs-progress-fill" id="dvsProgressFill" style="width: 25%;"></div>
+					<div class="dvs-progress-fill" id="dvsProgressFill" style="width: 20%;"></div>
 				</div>
 			</div>
 
@@ -1357,10 +1364,192 @@ endif;
 						<?php echo render_custom_Fields_excluding('student', $branch_id, false, 4, $placed_cf_ids); ?>
 					</div>
 
+					<!-- Step 4 Nav Buttons -->
+					<div class="dvs-nav-buttons mt-lg">
+						<div>
+							<button type="button" class="btn btn-dvs-prev" onclick="dvsPrevStep(4)">
+								<i class="fas fa-arrow-left"></i> পূর্ববর্তী: অভিভাবকের তথ্য
+							</button>
+						</div>
+						<div>
+							<button type="button" class="btn btn-dvs-next" onclick="dvsNextStep(4)">
+								পরবর্তী ধাপ: ভর্তি ফি ও পেমেন্ট <i class="fas fa-arrow-right"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- ========================================== -->
+				<!-- STEP 5: ADMISSION FEE & PAYMENT            -->
+				<!-- ========================================== -->
+				<div class="wizard-step-pane" id="wizard-step-5" style="display: none;">
+					<div class="dvs-step-header">
+						<h4><i class="fas fa-money-bill-wave"></i> ধাপ ৫: ভর্তি ফি ও পেমেন্ট বিবরণ (Admission Fee & Payment)</h4>
+						<p>ভর্তি ফি নির্ধারণ, বিশেষ ছাড়/মওকুফ এবং পেমেন্ট সংক্রান্ত তথ্য পূরণ করে ভর্তি নিশ্চিত করুন।</p>
+					</div>
+
+					<?php
+					$adm_fee_default = isset($admission_settings['admission_fee']) ? (float)$admission_settings['admission_fee'] : 15000.00;
+					$min_paid_default = isset($admission_settings['min_paid_amount']) ? (float)$admission_settings['min_paid_amount'] : 2000.00;
+					$allow_free_adm = isset($admission_settings['allow_free_admission']) ? (int)$admission_settings['allow_free_admission'] : 1;
+					$default_pay_via = isset($admission_settings['default_pay_via']) ? $admission_settings['default_pay_via'] : 'Cash';
+					?>
+
+					<!-- Policy Info Card -->
+					<div class="alert alert-info" style="border-left: 4px solid #007F3D; background: #f0fdf4; color: #166534; padding: 14px 20px; border-radius: 8px; margin-bottom: 22px;">
+						<div style="font-size: 14px; font-weight: 700; margin-bottom: 4px;">
+							<i class="fas fa-info-circle mr-xs"></i> ভর্তি ফি নীতিমালা (Admission Policy):
+						</div>
+						<div style="font-size: 13px; line-height: 1.5;">
+							নির্ধারিত ভর্তি ফি: <strong>৳<?=number_format($adm_fee_default, 2)?></strong> | ভর্তি নিশ্চিত করতে সর্বনিম্ন প্রদেয়: <strong>৳<?=number_format($min_paid_default, 2)?></strong> টাকা।
+							<?php if ($allow_free_adm): ?>
+								<span style="color: #047857; font-weight: 600;"><i class="fas fa-check-circle"></i> (অ্যাডমিন চাইলে বিশেষ বিবেচনায় ১০০% ছাড়ে বিনামূল্যে ভর্তি অনুমোদন করতে পারবেন)</span>
+							<?php else: ?>
+								<span style="color: #b91c1c; font-weight: 600;"><i class="fas fa-lock"></i> (সর্বনিম্ন ফি দেওয়া বাধ্যতামূলক)</span>
+							<?php endif; ?>
+						</div>
+					</div>
+
+					<!-- Payment Fields Grid -->
+					<div class="row">
+						<div class="col-md-3 mb-sm">
+							<div class="form-group">
+								<label class="control-label">নির্ধারিত ভর্তি ফি (Total Fee) ৳ <span class="required">*</span></label>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fas fa-coins"></i></span>
+									<input type="number" step="0.01" min="0" class="form-control" name="admission_fee" id="adm_fee" value="<?=set_value('admission_fee', $adm_fee_default)?>" required style="font-weight: 700; font-size: 15px; color: #007F3D;" />
+								</div>
+								<span class="error"></span>
+							</div>
+						</div>
+
+						<div class="col-md-3 mb-sm">
+							<div class="form-group">
+								<label class="control-label">বিশেষ ছাড় / ডিসকাউন্ট (Discount) ৳</label>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fas fa-tag"></i></span>
+									<input type="number" step="0.01" min="0" class="form-control" name="admission_discount" id="adm_discount" value="<?=set_value('admission_discount', '0.00')?>" style="font-weight: 600; font-size: 14px;" />
+								</div>
+								<span class="error"></span>
+							</div>
+						</div>
+
+						<div class="col-md-3 mb-sm">
+							<div class="form-group">
+								<label class="control-label">চূড়ান্ত প্রদেয় ফি (Net Payable) ৳</label>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fas fa-calculator"></i></span>
+									<input type="text" class="form-control" id="adm_net_payable" value="<?=number_format($adm_fee_default, 2, '.', '')?>" readonly style="font-weight: 700; font-size: 15px; background: #e2e8f0; color: #0f172a;" />
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-3 mb-sm">
+							<div class="form-group">
+								<label class="control-label">পরিশোধিত টাকা (Paid Amount) ৳ <span class="required">*</span></label>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fas fa-hand-holding-usd"></i></span>
+									<input type="number" step="0.01" min="0" class="form-control" name="admission_paid" id="adm_paid" value="<?=set_value('admission_paid', $min_paid_default)?>" required style="font-weight: 700; font-size: 15px; color: #007F3D; background: #f0fdf4;" />
+								</div>
+								<span class="error" id="adm_paid_err"></span>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-3 mb-sm">
+							<div class="form-group">
+								<label class="control-label">অবশিষ্ট বকেয়া (Due Balance) ৳</label>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fas fa-hourglass-half"></i></span>
+									<input type="text" class="form-control" id="adm_due" value="<?=number_format(max(0, $adm_fee_default - $min_paid_default), 2, '.', '')?>" readonly style="font-weight: 700; font-size: 15px; color: #b91c1c; background: #fef2f2;" />
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-3 mb-sm">
+							<div class="form-group">
+								<label class="control-label">পেমেন্ট মাধ্যম (Payment Method) <span class="required">*</span></label>
+								<?php
+									$pay_methods = array(
+										'Cash' => 'Cash (নগদ)',
+										'Bkash' => 'Bkash (বিকাশ)',
+										'Nagad' => 'Nagad (নগদ)',
+										'Bank Transfer' => 'Bank Transfer (ব্যাংক ট্রান্সফার)',
+										'Cheque' => 'Cheque (চেক)',
+										'Card' => 'Card (কার্ড)',
+										'Others' => 'Others (অন্যান্য)'
+									);
+									echo form_dropdown("admission_pay_via", $pay_methods, set_value('admission_pay_via', $default_pay_via), "class='form-control' id='admission_pay_via' data-plugin-selectTwo data-width='100%' required");
+								?>
+								<span class="error"></span>
+							</div>
+						</div>
+
+						<div class="col-md-3 mb-sm">
+							<div class="form-group">
+								<label class="control-label">ট্রানজেকশন / রসিদ নং (Trx ID / Ref)</label>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fas fa-barcode"></i></span>
+									<input type="text" class="form-control" name="admission_trx_id" id="admission_trx_id" placeholder="যেমন: TRX98765 বা রসিদ নং" value="<?=set_value('admission_trx_id')?>" />
+								</div>
+								<span class="error"></span>
+							</div>
+						</div>
+
+						<div class="col-md-3 mb-sm">
+							<div class="form-group">
+								<label class="control-label">পেমেন্টের তারিখ (Payment Date)</label>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="far fa-calendar-alt"></i></span>
+									<input type="text" class="form-control" name="admission_pay_date" id="admission_pay_date" data-plugin-datepicker data-plugin-options='{"format": "yyyy-mm-dd", "autoclose": true}' value="<?=set_value('admission_pay_date', date('Y-m-d'))?>" />
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-6 mb-sm">
+							<div class="form-group">
+								<label class="control-label">ভর্তি অনুমোদন স্ট্যাটাস (Admission Status)</label>
+								<select name="admission_status" id="adm_status" class="form-control" data-plugin-selectTwo data-width="100%">
+									<option value="confirmed" selected>ভর্তি নিশ্চিত (Confirmed - পূর্ণাঙ্গ ভর্তি অনুমোদন)</option>
+									<option value="draft">ড্রাফট (Draft - ফি অসম্পূর্ণ / সাময়িক আবেদন)</option>
+								</select>
+								<span class="help-block text-muted" style="font-size: 12px;">* সর্বনিম্ন ফি না দিলে আবেদনটি স্বয়ংক্রিয়ভাবে ড্রাফট হিসেবে জমা হবে।</span>
+							</div>
+						</div>
+
+						<div class="col-md-6 mb-sm">
+							<div class="form-group">
+								<label class="control-label">পেমেন্ট সংক্রান্ত মন্তব্য / নোট (Remarks)</label>
+								<input type="text" class="form-control" name="admission_remarks" placeholder="ভর্তি ফি বা ছাড় সংক্রান্ত কোনো বিশেষ মন্তব্য থাকলে লিখুন" value="<?=set_value('admission_remarks')?>" />
+							</div>
+						</div>
+					</div>
+
+					<?php if ($allow_free_adm): ?>
+					<div class="row mb-md">
+						<div class="col-md-12">
+							<div class="checkbox-replace" style="background: #f0fdf4; border: 1px dashed #86efac; border-radius: 8px; padding: 12px 18px;">
+								<label class="i-checks">
+									<input type="checkbox" name="is_free_admission" id="chkFreeAdmission" value="1"><i></i> 
+									<strong style="color: #047857; font-size: 14px;">
+										<i class="fas fa-gift"></i> বিশেষ ছাড় / সম্পূর্ণ বিনামূল্যে ভর্তি অনুমোদন (Approve 100% Free Admission)
+									</strong>
+									<span class="text-muted" style="display: block; margin-top: 3px; font-size: 12px;">
+										(এটি টিক দিলে শিক্ষার্থীর জন্য ১০০% ছাড় প্রযোজ্য হবে এবং কোনো ন্যূনতম ফি প্রয়োজন হবে না)
+									</span>
+								</label>
+							</div>
+						</div>
+					</div>
+					<?php endif; ?>
+
 					<!-- Visual Summary Review Card -->
 					<div class="dvs-summary-box mt-md">
 						<div class="dvs-summary-title">
-							<i class="fas fa-clipboard-check"></i> ভর্তির তথ্যাবলী যাচাই ও পর্যালোচনা (Admission Details Review)
+							<i class="fas fa-clipboard-check"></i> ভর্তির তথ্যাবলী ও ফি বিবরণী পর্যালোচনা (Final Admission & Fee Review)
 						</div>
 						<div class="row">
 							<div class="col-md-4">
@@ -1383,8 +1572,8 @@ endif;
 								<table class="dvs-summary-table">
 									<tr><td class="label-col">পিতার নাম:</td><td class="val-col" id="sum_father">-</td></tr>
 									<tr><td class="label-col">মাতার নাম:</td><td class="val-col" id="sum_mother">-</td></tr>
-									<tr><td class="label-col">মূল অভিভাবক:</td><td class="val-col" id="sum_guardian">-</td></tr>
-									<tr><td class="label-col">অভিভাবকের মোবাইল:</td><td class="val-col" id="sum_grd_mobile">-</td></tr>
+									<tr><td class="label-col">ভর্তি ফি ও পরিশোধ:</td><td class="val-col" id="sum_fee_paid" style="color: #007F3D;">-</td></tr>
+									<tr><td class="label-col">বকেয়া ও মাধ্যম:</td><td class="val-col" id="sum_due_method">-</td></tr>
 								</table>
 							</div>
 						</div>
@@ -1393,20 +1582,20 @@ endif;
 					<div class="checkbox-replace mb-lg">
 						<label class="i-checks">
 							<input type="checkbox" id="confirmDataCorrect" checked><i></i> 
-							<strong>আমি নিশ্চিত করছি যে উপরে প্রদত্ত সকল তথ্য সতর্কতার সাথে যাচাই করা হয়েছে এবং তা সম্পূর্ণ নির্ভুল।</strong>
+							<strong>আমি নিশ্চিত করছি যে উপরে প্রদত্ত সকল শিক্ষার্থী তথ্য এবং ভর্তি ফি সংক্রান্ত বিবরণ যাচাই করা হয়েছে এবং তা সম্পূর্ণ নির্ভুল।</strong>
 						</label>
 					</div>
 
-					<!-- Step 4 Nav Buttons -->
+					<!-- Step 5 Nav Buttons -->
 					<div class="dvs-nav-buttons">
 						<div>
-							<button type="button" class="btn btn-dvs-prev" onclick="dvsPrevStep(4)">
-								<i class="fas fa-arrow-left"></i> পূর্ববর্তী: অভিভাবকের তথ্য
+							<button type="button" class="btn btn-dvs-prev" onclick="dvsPrevStep(5)">
+								<i class="fas fa-arrow-left"></i> পূর্ববর্তী: সুবিধা ও বিবরণ
 							</button>
 						</div>
 						<div>
 							<button type="submit" id="btnSubmitAdmission" data-loading-text="<i class='fas fa-spinner fa-spin'></i> সংরক্ষণ হচ্ছে..." class="btn btn-dvs-submit">
-								<i class="fas fa-check-circle"></i> ভর্তি সম্পন্ন করুন ও সংরক্ষণ করুন (Confirm & Save)
+								<i class="fas fa-check-circle"></i> ভর্তি সম্পন্ন করুন ও রসিদ প্রিন্ট করুন (Confirm & Print)
 							</button>
 						</div>
 					</div>
@@ -1421,7 +1610,7 @@ endif;
 <!-- Step Wizard JavaScript Controller -->
 <script type="text/javascript">
 var currentWizardStep = 1;
-var totalWizardSteps = 4;
+var totalWizardSteps = 5;
 
 function dvsUpdateWizardUI(step) {
 	currentWizardStep = step;
@@ -1444,10 +1633,10 @@ function dvsUpdateWizardUI(step) {
 			$(this).find('.dvs-step-badge').html('<i class="fas fa-check"></i>');
 		} else if (itemStep === step) {
 			$(this).addClass('active');
-			var icon = (step === 1) ? 'fa-school' : (step === 2 ? 'fa-user-graduate' : (step === 3 ? 'fa-user-friends' : 'fa-check-circle'));
+			var icon = (step === 1) ? 'fa-school' : (step === 2 ? 'fa-user-graduate' : (step === 3 ? 'fa-user-friends' : (step === 4 ? 'fa-tasks' : 'fa-money-bill-wave')));
 			$(this).find('.dvs-step-badge').html('<i class="fas ' + icon + '"></i>');
 		} else {
-			var icon = (itemStep === 1) ? 'fa-school' : (itemStep === 2 ? 'fa-user-graduate' : (itemStep === 3 ? 'fa-user-friends' : 'fa-check-circle'));
+			var icon = (itemStep === 1) ? 'fa-school' : (itemStep === 2 ? 'fa-user-graduate' : (itemStep === 3 ? 'fa-user-friends' : (itemStep === 4 ? 'fa-tasks' : 'fa-money-bill-wave')));
 			$(this).find('.dvs-step-badge').html('<i class="fas ' + icon + '"></i>');
 		}
 	});
@@ -1456,9 +1645,10 @@ function dvsUpdateWizardUI(step) {
 	var progressPercent = (step / totalWizardSteps) * 100;
 	$('#dvsProgressFill').css('width', progressPercent + '%');
 
-	// Populate Step 4 Summary Review Card
-	if (step === 4) {
+	// Populate Step 5 Summary Review Card & calculate fees
+	if (step === 5) {
 		dvsPopulateSummary();
+		dvsRecalculateFees();
 	}
 
 	// Trigger Select2 & Dropify resize to fix dimensions inside newly visible panes
@@ -1474,6 +1664,33 @@ function dvsUpdateWizardUI(step) {
 	$('html, body').animate({
 		scrollTop: $('.dvs-wizard-wrapper').offset().top - 80
 	}, 350);
+}
+
+function dvsRecalculateFees() {
+	var isFree = $('#chkFreeAdmission').is(':checked');
+	var fee = parseFloat($('#adm_fee').val()) || 0;
+	var discount = parseFloat($('#adm_discount').val()) || 0;
+
+	if (isFree) {
+		$('#adm_discount').val(fee.toFixed(2));
+		$('#adm_net_payable').val('0.00');
+		$('#adm_paid').val('0.00');
+		$('#adm_due').val('0.00');
+		$('#sum_fee_paid').text('৳' + fee.toFixed(2) + ' (১০০% ছাড় / ফ্রি)');
+		$('#sum_due_method').text('বকেয়া: ৳0.00 | মাধ্যম: ফ্রি ভর্তি');
+		return;
+	}
+
+	var netPayable = Math.max(0, fee - discount);
+	$('#adm_net_payable').val(netPayable.toFixed(2));
+
+	var paid = parseFloat($('#adm_paid').val()) || 0;
+	var due = Math.max(0, netPayable - paid);
+	$('#adm_due').val(due.toFixed(2));
+
+	var method = $('#admission_pay_via option:selected').text() || 'Cash';
+	$('#sum_fee_paid').text('মোট: ৳' + fee.toFixed(2) + ' | জমা: ৳' + paid.toFixed(2));
+	$('#sum_due_method').text('বকেয়া: ৳' + due.toFixed(2) + ' | ' + method);
 }
 
 function dvsValidateStep(step) {
@@ -1519,6 +1736,31 @@ function dvsValidateStep(step) {
 		}
 	}
 
+	// Step 5 Fee & Payment validation
+	if (step === 5) {
+		var isFree = $('#chkFreeAdmission').is(':checked');
+		var fee = parseFloat($('#adm_fee').val()) || 0;
+		var discount = parseFloat($('#adm_discount').val()) || 0;
+		var net = Math.max(0, fee - discount);
+		var paid = parseFloat($('#adm_paid').val()) || 0;
+		var minRequired = <?php echo (float)(isset($admission_settings['min_paid_amount']) ? $admission_settings['min_paid_amount'] : 2000.00); ?>;
+		var admStatus = $('#adm_status').val();
+
+		if (!isFree && net > 0 && admStatus === 'confirmed') {
+			if (paid < minRequired) {
+				var proceedDraft = confirm("ভর্তি নিশ্চিত করার জন্য সর্বনিম্ন ফি হলো ৳" + minRequired.toFixed(2) + " টাকা। আপনি জমা দিয়েছেন ৳" + paid.toFixed(2) + " টাকা।\n\nআপনি কি আবেদনটি 'ড্রাফট (Draft)' হিসেবে সংরক্ষণ করতে চান?");
+				if (proceedDraft) {
+					$('#adm_status').val('draft').trigger('change');
+				} else {
+					isValid = false;
+					$('#adm_paid').addClass('field-invalid-highlight').focus();
+					$('#adm_paid_err').text('ভর্তি নিশ্চিত করতে সর্বনিম্ন ৳' + minRequired.toFixed(2) + ' টাকা দেওয়া আবশ্যক।');
+					if (!$firstInvalid) $firstInvalid = $('#adm_paid');
+				}
+			}
+		}
+	}
+
 	if (!isValid && $firstInvalid) {
 		$('html, body').animate({
 			scrollTop: $firstInvalid.offset().top - 120
@@ -1527,7 +1769,7 @@ function dvsValidateStep(step) {
 		if (typeof swal === 'function') {
 			swal({
 				title: "তথ্য অসম্পূর্ণ!",
-				text: "অনুগ্রহ করে এই ধাপের লাল চিহ্নিত বাধ্যতামূলক ফিল্ডগুলো পূরণ করুন।",
+				text: "অনুগ্রহ করে এই ধাপের লাল চিহ্নিত বাধ্যতামূলক ফিল্ডগুলো সঠিকভাবে পূরণ করুন।",
 				type: "warning",
 				button: "ঠিক আছে"
 			});
@@ -1622,8 +1864,9 @@ function dvsPopulateSummary() {
 	var motherMobile = $('#mother_mobileno').val();
 	$('#sum_father').text(fatherName + (fatherMobile ? ' (' + fatherMobile + ')' : ''));
 	$('#sum_mother').text(motherName + (motherMobile ? ' (' + motherMobile + ')' : ''));
-	$('#sum_guardian').text(grdName);
-	$('#sum_grd_mobile').text(grdMobile);
+
+	// Fee Summary
+	dvsRecalculateFees();
 }
 
 $(document).ready(function() {
@@ -1643,6 +1886,15 @@ $(document).ready(function() {
 	$(document).on('input change', '.field-invalid-highlight', function() {
 		$(this).removeClass('field-invalid-highlight');
 		$(this).closest('.form-group').find('.error').text('');
+	});
+
+	// Realtime fee updates
+	$(document).on('input change', '#adm_fee, #adm_discount, #adm_paid, #admission_pay_via', function() {
+		dvsRecalculateFees();
+	});
+
+	$(document).on('change', '#chkFreeAdmission', function() {
+		dvsRecalculateFees();
 	});
 
 	// Checkbox confirmation before submission

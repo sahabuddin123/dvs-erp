@@ -1176,3 +1176,64 @@ WHERE NOT EXISTS (SELECT 1 FROM `addon` WHERE `prefix` = 'thermal_print');
 INSERT INTO `permission_modules` (`name`, `prefix`, `system`, `sorted`, `in_module`, `created_at`) 
 SELECT 'Thermal Print', 'thermal_print', 1, 29, 1, NOW() 
 WHERE NOT EXISTS (SELECT 1 FROM `permission_modules` WHERE `prefix` = 'thermal_print');
+
+
+-- ========================================================
+-- ADMISSION FEE & PAYMENT SYSTEM MIGRATION
+-- ========================================================
+
+CREATE TABLE IF NOT EXISTS `admission_settings` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT NOT NULL DEFAULT 0,
+  `admission_fee` DECIMAL(18,2) NOT NULL DEFAULT 15000.00,
+  `min_paid_amount` DECIMAL(18,2) NOT NULL DEFAULT 2000.00,
+  `allow_free_admission` TINYINT(1) NOT NULL DEFAULT 1,
+  `default_pay_via` VARCHAR(50) NOT NULL DEFAULT 'Cash',
+  `fee_type_id` INT NOT NULL DEFAULT 0,
+  `account_id` INT NOT NULL DEFAULT 0,
+  `terms_conditions` LONGTEXT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `branch_id` (`branch_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `student_admission_payment` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `enroll_id` INT NOT NULL,
+  `student_id` INT NOT NULL,
+  `branch_id` INT NOT NULL DEFAULT 0,
+  `session_id` INT NOT NULL DEFAULT 0,
+  `admission_fee` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  `discount` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  `net_amount` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  `paid_amount` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  `due_amount` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  `pay_via` VARCHAR(50) NOT NULL DEFAULT 'Cash',
+  `reference_no` VARCHAR(100) NULL DEFAULT NULL,
+  `payment_date` DATE NULL DEFAULT NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'confirmed',
+  `remarks` TEXT NULL DEFAULT NULL,
+  `created_by` INT NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `enroll_id` (`enroll_id`),
+  KEY `student_id` (`student_id`),
+  KEY `branch_id` (`branch_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `admission_settings` (`id`, `branch_id`, `admission_fee`, `min_paid_amount`, `allow_free_admission`, `default_pay_via`, `terms_conditions`) 
+SELECT 1, 0, 15000.00, 2000.00, 1, 'Cash', '১. বিদ্যালয়ের নির্ধারিত পোশাক (ইউনিফর্ম) পরিধান করে নিয়মিত ও সময়মতো বিদ্যালয়ে উপস্থিত হতে হবে।\n২. ইসলামী তাহযীব ও তামাদ্দুন বজায় রেখে শালীনতা, শৃঙ্খলা ও শিষ্টাচার কঠোরভাবে মেনে চলতে হবে।\n৩. বিদ্যালয়ে মোবাইল ফোন বা অন্য কোনো ইলেকট্রনিক ডিভাইস আনা সম্পূর্ণ নিষিদ্ধ।\n৪. প্রতি মাসের নির্ধারিত ফি ও অন্যান্য পাওনা প্রতি মাসের ১০ তারিখের মধ্যে পরিশোধ করতে হবে।\n৫. ভর্তি ফি ও আনুষঙ্গিক ফি একবার পরিশোধের পর তা কোনো অবস্থাতেই অফেরতযোগ্য।\n৬. বিদ্যালয় কর্তৃপক্ষের যেকোনো সিদ্ধান্ত ও শৃঙ্খলাবিধি মানতে শিক্ষার্থী ও অভিভাবক বাধ্য থাকিবেন।' 
+WHERE NOT EXISTS (SELECT 1 FROM `admission_settings` WHERE `id` = 1);
+
+INSERT INTO `languages` (`word`, `english`, `bengali`) SELECT 'admission_settings', 'Admission Settings', 'ভর্তি সেটিংস' WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'admission_settings');
+UPDATE `languages` SET `bengali` = 'ভর্তি সেটিংস' WHERE `word` = 'admission_settings';
+INSERT INTO `languages` (`word`, `english`, `bengali`) SELECT 'admission_fee', 'Admission Fee', 'ভর্তি ফি' WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'admission_fee');
+UPDATE `languages` SET `bengali` = 'ভর্তি ফি' WHERE `word` = 'admission_fee';
+INSERT INTO `languages` (`word`, `english`, `bengali`) SELECT 'min_paid_amount', 'Minimum Paid Amount', 'সর্বনিম্ন প্রদেয় ফি' WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'min_paid_amount');
+UPDATE `languages` SET `bengali` = 'সর্বনিম্ন প্রদেয় ফি' WHERE `word` = 'min_paid_amount';
+INSERT INTO `languages` (`word`, `english`, `bengali`) SELECT 'allow_free_admission', 'Allow Free Admission', 'বিনামূল্যে ভর্তি অনুমোদন' WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'allow_free_admission');
+UPDATE `languages` SET `bengali` = 'বিনামূল্যে ভর্তি অনুমোদন' WHERE `word` = 'allow_free_admission';
+INSERT INTO `languages` (`word`, `english`, `bengali`) SELECT 'print_admission_form', 'Print Admission Form', 'ভর্তি ফরম প্রিন্ট' WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'print_admission_form');
+UPDATE `languages` SET `bengali` = 'ভর্তি ফরম প্রিন্ট' WHERE `word` = 'print_admission_form';

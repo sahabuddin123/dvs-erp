@@ -240,3 +240,4 @@ $(document).ready(function() {
 	$('#footer_text').on('input', function() { $('#pv_footer').text($(this).val()); });
 });
 </script>
+

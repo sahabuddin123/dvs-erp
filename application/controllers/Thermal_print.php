@@ -148,3 +148,4 @@ class Thermal_print extends Admin_Controller
         $this->load->view('thermal_print/test_receipt', $this->data);
     }
 }
+

@@ -210,3 +210,4 @@ $receipt_no = !empty($items) ? 'REC-' . date('Ymd', strtotime($payment_date)) . 
 	</div>
 </body>
 </html>
+
