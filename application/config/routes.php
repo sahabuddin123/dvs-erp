@@ -187,6 +187,9 @@ $route['sections'] = 'sections/index';
 $route['biometric'] = 'biometric/index';
 $route['biometric/(:any)'] = 'biometric/$1';
 $route['biometric/(:any)/(:any)'] = 'biometric/$1/$2';
+$route['behaviour_records'] = 'behaviour_records/index';
+$route['behaviour_records/(:any)'] = 'behaviour_records/$1';
+$route['behaviour_records/(:any)/(:any)'] = 'behaviour_records/$1/$2';
 
 $route['authentication'] = 'authentication/index';
 $route['home'] = 'home/index';

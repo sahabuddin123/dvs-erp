@@ -17,6 +17,7 @@
 								<th width="50"><?=translate('sl')?></th>
 								<th><?=translate('name')?></th>
 								<th><?=translate('version')?></th>
+								<th><?=translate('status')?> / অন-অফ</th>
 								<th><?=translate('installed')?></th>
 								<th><?=translate('last_upgrade')?></th>
 								<th><?=translate('action')?></th>
@@ -29,8 +30,14 @@
 							?>
 							<tr>
 								<td><?php echo $count++; ?></td>
-								<td><?php echo $row->name;?></td>
+								<td><strong><?php echo $row->name;?></strong></td>
 								<td><?php echo wordwrap($row->version, 1, '.', true);?></td>
+								<td>
+									<div class="material-switch" style="display: inline-block;">
+										<input class="addon-toggle-switch" id="addon_switch_<?=$row->id?>" data-id="<?=$row->id?>" type="checkbox" <?=(isset($row->status) && $row->status == 0) ? '' : 'checked'?> />
+										<label for="addon_switch_<?=$row->id?>" class="label-success"></label>
+									</div>
+								</td>
 								<td><?php echo empty($row->created_at) ? '-' : _d($row->created_at);?></td>
 								<td><?php echo empty($row->created_at) ? '-' : _d($row->created_at);?></td>
 								<td><a href="<?=base_url('addons/update/'.$row->prefix)?>" class="btn btn-default btn-circle"><i class="fas fa-undo"></i> Update Check</a> </td>
@@ -111,6 +118,38 @@
 		    },
             error: function () {
                 btn.button('reset');
+            }
+        });
+    });
+
+    $(document).on('change', '.addon-toggle-switch', function() {
+        var id = $(this).data('id');
+        var status = $(this).is(':checked') ? 1 : 0;
+        $.ajax({
+            url: base_url + 'addons/toggle_status',
+            type: 'POST',
+            data: { id: id, status: status },
+            dataType: 'json',
+            success: function(res) {
+                if (res.status == 'success') {
+                    if (typeof swal !== 'undefined') {
+                        swal({
+                            title: "Updated!",
+                            text: res.message,
+                            type: "success",
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        alert(res.message);
+                    }
+                } else {
+                    if (typeof swal !== 'undefined') {
+                        swal("Error!", res.message, "error");
+                    } else {
+                        alert(res.message);
+                    }
+                }
             }
         });
     });

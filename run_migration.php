@@ -117,6 +117,42 @@ $create_transport = "CREATE TABLE IF NOT EXISTS `transport_fee_fine` (
   KEY `session_id` (`session_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 @$conn->query($create_transport);
+
+// Behaviour Records Addon & Tables
+ensure_column($conn, 'addon', 'status', 'TINYINT(1) NOT NULL DEFAULT 1 AFTER `version`');
+@$conn->query("CREATE TABLE IF NOT EXISTS `behaviour_incidents` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT DEFAULT 0,
+  `title` VARCHAR(255) NOT NULL,
+  `point` INT NOT NULL DEFAULT 1,
+  `type` ENUM('positive', 'negative') NOT NULL DEFAULT 'positive',
+  `description` TEXT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+@$conn->query("CREATE TABLE IF NOT EXISTS `student_behaviour_records` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT DEFAULT 0,
+  `session_id` INT DEFAULT 0,
+  `student_id` INT NOT NULL,
+  `enroll_id` INT NOT NULL,
+  `incident_id` INT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `point` INT NOT NULL DEFAULT 1,
+  `type` ENUM('positive', 'negative') NOT NULL DEFAULT 'positive',
+  `date` DATE NOT NULL,
+  `comment` TEXT NULL,
+  `assigned_by` INT DEFAULT 0,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `student_id` (`student_id`),
+  KEY `enroll_id` (`enroll_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+@$conn->query("INSERT INTO `addon` (`name`, `prefix`, `version`, `purchase_code`, `status`, `created_at`) SELECT 'Behaviour Records', 'behaviour_records', '100', 'DVS-BEHAVIOUR-ADDON', 1, NOW() WHERE NOT EXISTS (SELECT 1 FROM `addon` WHERE `prefix` = 'behaviour_records')");
+@$conn->query("INSERT INTO `permission_modules` (`name`, `prefix`, `system`, `sorted`, `in_module`, `created_at`) SELECT 'Behaviour Records', 'behaviour_records', 1, 26, 1, NOW() WHERE NOT EXISTS (SELECT 1 FROM `permission_modules` WHERE `prefix` = 'behaviour_records')");
+
 output_msg('ok', 'Schema alterations verified successfully.');
 
 // ==========================================

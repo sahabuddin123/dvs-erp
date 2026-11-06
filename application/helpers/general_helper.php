@@ -412,6 +412,11 @@ function dvs_language_fallback($word, $lang = 'bengali')
 function moduleIsEnabled($prefix)
 {
     $ci = &get_instance();
+    // Global addon status check: if addon is turned off from Addons Manager, it is disabled
+    $addon = $ci->db->select('status')->where('prefix', $prefix)->get('addon')->row();
+    if ($addon && isset($addon->status) && $addon->status == 0) {
+        return 0;
+    }
     $role_id = $ci->session->userdata('loggedin_role_id');
     $branchID = $ci->session->userdata('loggedin_branch');
     if ($role_id == 1) {

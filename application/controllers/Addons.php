@@ -437,4 +437,28 @@ class Addons extends MY_Controller
             exit;
         }
     }
+
+    public function toggle_status()
+    {
+        if (!is_superadmin_loggedin()) {
+            echo json_encode(['status' => 'fail', 'message' => 'Unauthorized']);
+            exit();
+        }
+        $id = $this->input->post('id');
+        $status = $this->input->post('status') ? 1 : 0;
+        $addon = $this->db->where('id', $id)->get('addon')->row();
+        if ($addon) {
+            $this->db->where('id', $id)->update('addon', ['status' => $status]);
+            // Also sync with permission_modules and modules_manage
+            $module = $this->db->where('prefix', $addon->prefix)->get('permission_modules')->row();
+            if ($module) {
+                // Update for all branches
+                $this->db->where('modules_id', $module->id)->update('modules_manage', ['isEnabled' => $status]);
+            }
+            echo json_encode(['status' => 'success', 'message' => translate('information_has_been_updated_successfully')]);
+        } else {
+            echo json_encode(['status' => 'fail', 'message' => translate('addon_not_found')]);
+        }
+        exit();
+    }
 }

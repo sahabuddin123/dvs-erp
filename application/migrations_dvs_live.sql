@@ -931,3 +931,82 @@ INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'ব�
 UPDATE `payment_types` SET `name` = 'Others' WHERE `name` = 'Other';
 INSERT INTO `payment_types` (`name`, `branch_id`) SELECT 'Bkash', 0 WHERE NOT EXISTS (SELECT 1 FROM `payment_types` WHERE LOWER(TRIM(`name`)) = 'bkash');
 INSERT INTO `payment_types` (`name`, `branch_id`) SELECT 'Nagad', 0 WHERE NOT EXISTS (SELECT 1 FROM `payment_types` WHERE LOWER(TRIM(`name`)) = 'nagad');
+
+-- ==============================================================================
+-- ১০. Behaviour Records (আচরণ মূল্যায়ন) মডিউল ও অ্যাডঅন
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS `behaviour_incidents` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT DEFAULT 0,
+  `title` VARCHAR(255) NOT NULL,
+  `point` INT NOT NULL DEFAULT 1,
+  `type` ENUM('positive', 'negative') NOT NULL DEFAULT 'positive',
+  `description` TEXT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `student_behaviour_records` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT DEFAULT 0,
+  `session_id` INT DEFAULT 0,
+  `student_id` INT NOT NULL,
+  `enroll_id` INT NOT NULL,
+  `incident_id` INT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `point` INT NOT NULL DEFAULT 1,
+  `type` ENUM('positive', 'negative') NOT NULL DEFAULT 'positive',
+  `date` DATE NOT NULL,
+  `comment` TEXT NULL,
+  `assigned_by` INT DEFAULT 0,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `student_id` (`student_id`),
+  KEY `enroll_id` (`enroll_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Add status column to addon table if not exists
+ALTER TABLE `addon` ADD COLUMN IF NOT EXISTS `status` TINYINT(1) NOT NULL DEFAULT 1 AFTER `version`;
+
+-- Register in addon table
+INSERT INTO `addon` (`name`, `prefix`, `version`, `purchase_code`, `status`, `created_at`) 
+SELECT 'Behaviour Records', 'behaviour_records', '100', 'DVS-BEHAVIOUR-ADDON', 1, NOW() 
+WHERE NOT EXISTS (SELECT 1 FROM `addon` WHERE `prefix` = 'behaviour_records');
+
+-- Register in permission_modules table
+INSERT INTO `permission_modules` (`name`, `prefix`, `system`, `sorted`, `in_module`, `created_at`) 
+SELECT 'Behaviour Records', 'behaviour_records', 1, 26, 1, NOW() 
+WHERE NOT EXISTS (SELECT 1 FROM `permission_modules` WHERE `prefix` = 'behaviour_records');
+
+-- Seed default initial incidents
+INSERT INTO `behaviour_incidents` (`branch_id`, `title`, `point`, `type`, `description`) 
+SELECT 0, 'উত্তম চরিত্র ও নম্র আচরণ', 5, 'positive', 'সব সময় শিক্ষক ও সহপাঠীদের সাথে ভদ্র আচরণ করে' 
+WHERE NOT EXISTS (SELECT 1 FROM `behaviour_incidents` WHERE `title` = 'উত্তম চরিত্র ও নম্র আচরণ');
+
+INSERT INTO `behaviour_incidents` (`branch_id`, `title`, `point`, `type`, `description`) 
+SELECT 0, 'শ্রেণিকক্ষে সক্রিয় অংশগ্রহণ ও পাঠে মনোযোগ', 5, 'positive', 'পড়াশোনায় গভীর মনোযোগ ও সুন্দর উত্তর প্রদান' 
+WHERE NOT EXISTS (SELECT 1 FROM `behaviour_incidents` WHERE `title` = 'শ্রেণিকক্ষে সক্রিয় অংশগ্রহণ ও পাঠে মনোযোগ');
+
+INSERT INTO `behaviour_incidents` (`branch_id`, `title`, `point`, `type`, `description`) 
+SELECT 0, 'সহপাঠীকে সহায়তা ও নেতৃত্বসুলভ গুণাবলী', 5, 'positive', 'অন্যদের সাহায্য ও ক্লাসে টিমওয়ার্কে নেতৃত্ব দেওয়া' 
+WHERE NOT EXISTS (SELECT 1 FROM `behaviour_incidents` WHERE `title` = 'সহপাঠীকে সহায়তা ও নেতৃত্বসুলভ গুণাবলী');
+
+INSERT INTO `behaviour_incidents` (`branch_id`, `title`, `point`, `type`, `description`) 
+SELECT 0, 'হিফজ / কুরআন তিলাওয়াতে বিশেষ অগ্রগতি', 10, 'positive', 'কুরআন তিলাওয়াত ও মুখস্থকরণে ধারাবাহিক সাফল্য' 
+WHERE NOT EXISTS (SELECT 1 FROM `behaviour_incidents` WHERE `title` = 'হিফজ / কুরআন তিলাওয়াতে বিশেষ অগ্রগতি');
+
+INSERT INTO `behaviour_incidents` (`branch_id`, `title`, `point`, `type`, `description`) 
+SELECT 0, 'দেরিতে ক্লাসে উপস্থিতি', 2, 'negative', 'যথাসময়ে ক্লাসে উপস্থিত না হওয়া' 
+WHERE NOT EXISTS (SELECT 1 FROM `behaviour_incidents` WHERE `title` = 'দেরিতে ক্লাসে উপস্থিতি');
+
+INSERT INTO `behaviour_incidents` (`branch_id`, `title`, `point`, `type`, `description`) 
+SELECT 0, 'হোমওয়ার্ক বা ডায়েরি কাজ অসমাপ্ত', 3, 'negative', 'নির্ধারিত বাড়ির কাজ যথাসময়ে সম্পন্ন না করা' 
+WHERE NOT EXISTS (SELECT 1 FROM `behaviour_incidents` WHERE `title` = 'হোমওয়ার্ক বা ডায়েরি কাজ অসমাপ্ত');
+
+INSERT INTO `behaviour_incidents` (`branch_id`, `title`, `point`, `type`, `description`) 
+SELECT 0, 'ইউনিফর্ম ও পরিচ্ছন্নতা বিধি অমান্য', 3, 'negative', 'সঠিক স্কুলের পোশাক বা পরিচ্ছন্নতা বজায় না রাখা' 
+WHERE NOT EXISTS (SELECT 1 FROM `behaviour_incidents` WHERE `title` = 'ইউনিফর্ম ও পরিচ্ছন্নতা বিধি অমান্য');
+
+INSERT INTO `behaviour_incidents` (`branch_id`, `title`, `point`, `type`, `description`) 
+SELECT 0, 'শ্রেণিকক্ষের শৃঙ্খলা ভঙ্গ', 5, 'negative', 'ক্লাসে গোলমাল বা অবাধ্যতা প্রদর্শন' 
+WHERE NOT EXISTS (SELECT 1 FROM `behaviour_incidents` WHERE `title` = 'শ্রেণিকক্ষের শৃঙ্খলা ভঙ্গ');

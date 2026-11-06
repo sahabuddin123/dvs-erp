@@ -1190,6 +1190,9 @@
                     <?php if (moduleIsEnabled('lesson_plan')) {
                         include "lesson_plan_menu.php";
                     } ?>
+                    <?php if (moduleIsEnabled('behaviour_records')) {
+                        include "behaviour_records_menu.php";
+                    } ?>
                     <?php
                     if (moduleIsEnabled('library')) {
                         if(get_permission('book', 'is_view') ||

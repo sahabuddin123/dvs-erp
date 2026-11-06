@@ -1486,6 +1486,89 @@ if (empty($empty_table)) {
                     </div>
 				</div>
 			</div>
+
+<?php if (moduleIsEnabled('behaviour_records')) { 
+	$this->load->model('behaviour_records_model');
+	$stu_score = $this->behaviour_records_model->getStudentScore($student['id']);
+	$stu_records = $this->behaviour_records_model->getRecords('', '', '', $student['id']);
+?>
+			<!-- student behaviour records -->
+			<div class="panel panel-accordion">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#behaviour">
+							<i class="fas fa-traffic-light"></i> Behaviour Records (আচরণ ও চরিত্র মূল্যায়ন)
+							<span class="badge" style="background: <?=$stu_score['net'] >= 0 ? '#16a34a' : '#dc2626'?>; margin-left: 8px;">
+								Score: <?=$stu_score['net'] >= 0 ? '+' : ''?><?=$stu_score['net']?>
+							</span>
+						</a>
+					</h4>
+				</div>
+				<div id="behaviour" class="accordion-body collapse">
+					<div class="panel-body">
+						<div class="row mb-md">
+							<div class="col-sm-4 text-center">
+								<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px;">
+									<span class="text-muted" style="font-size: 12px;">ইতিবাচক পয়েন্ট (+)</span>
+									<h3 style="margin: 5px 0; color: #16a34a; font-weight: bold;">+<?=$stu_score['positive']?></h3>
+								</div>
+							</div>
+							<div class="col-sm-4 text-center">
+								<div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 10px;">
+									<span class="text-muted" style="font-size: 12px;">নেতিবাচক পয়েন্ট (-)</span>
+									<h3 style="margin: 5px 0; color: #dc2626; font-weight: bold;">-<?=$stu_score['negative']?></h3>
+								</div>
+							</div>
+							<div class="col-sm-4 text-center">
+								<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px;">
+									<span class="text-muted" style="font-size: 12px;">সর্বমোট স্কোর (Net)</span>
+									<h3 style="margin: 5px 0; color: <?=$stu_score['net'] >= 0 ? '#16a34a' : '#dc2626'?>; font-weight: bold;"><?=$stu_score['net'] >= 0 ? '+' : ''?><?=$stu_score['net']?></h3>
+								</div>
+							</div>
+						</div>
+						<div class="table-responsive">
+							<table class="table table-bordered table-hover table-condensed mb-none">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Incident / আচরণ</th>
+										<th>Point / পয়েন্ট</th>
+										<th>Date / তারিখ</th>
+										<th>Comment / মন্তব্য</th>
+										<th>Assigned By</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php if (!empty($stu_records)): 
+										$b_count = 1;
+										foreach ($stu_records as $brec):
+									?>
+									<tr>
+										<td><?=$b_count++?></td>
+										<td><strong><?=html_escape($brec['title'])?></strong></td>
+										<td>
+											<?php if ($brec['type'] == 'positive'): ?>
+												<span class="label label-success"><i class="fas fa-arrow-up"></i> +<?=$brec['point']?></span>
+											<?php else: ?>
+												<span class="label label-danger"><i class="fas fa-arrow-down"></i> -<?=$brec['point']?></span>
+											<?php endif; ?>
+										</td>
+										<td><?=_d($brec['date'])?></td>
+										<td><?=html_escape($brec['comment'] ?: '-')?></td>
+										<td><?=html_escape($brec['staff_name'] ?: 'Admin')?></td>
+									</tr>
+									<?php endforeach; else: ?>
+									<tr>
+										<td colspan="6" class="text-center text-muted"><?=translate('no_information_available')?></td>
+									</tr>
+									<?php endif; ?>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+<?php } ?>
 		</div>
 	</div>
 </div>
