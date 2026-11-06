@@ -56,6 +56,18 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label class="col-md-3 control-label">Pay By (পরিশোধকারী)</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="pay_by" placeholder="পরিশোধকারীর নাম / Pay By" value="<?=isset($deposit['pay_by']) ? html_escape($deposit['pay_by']) : ''?>" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label">Received By (গ্রহীতা)</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="received_by" placeholder="গ্রহীতার নাম / Received By" value="<?=isset($deposit['received_by']) ? html_escape($deposit['received_by']) : ''?>" />
+						</div>
+					</div>
+					<div class="form-group">
 						<label class="col-md-3 control-label"><?php echo translate('amount'); ?> <span class="required">*</span></label>
 						<div class="col-md-6">
 							<input type="text" class="form-control" name="amount" value="<?=$deposit['amount'] ?>" disabled />
@@ -74,7 +86,7 @@
 						<label  class="col-md-3 control-label"><?php echo translate('pay_via'); ?></label>
 						<div class="col-md-6">
     						<?php
-    							$payvia_list = $this->app_lib->getSelectList('payment_types');
+    							$payvia_list = get_office_accounting_payvia_list();
     							echo form_dropdown("pay_via", $payvia_list, $deposit['pay_via'], "class='form-control' data-plugin-selectTwo data-width='100%'
     							data-minimum-results-for-search='Infinity' ");
     						?>

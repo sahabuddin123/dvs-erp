@@ -697,11 +697,17 @@ class Student extends Admin_Controller
         if (!get_permission('student', 'is_view')) {
             access_denied();
         }
+        if (empty($id)) {
+            access_denied();
+        }
         $getStudent = $this->student_model->getSingleStudent($id, true);
+        if (empty($getStudent)) {
+            $getStudent = $this->student_model->getSingleStudent($id, false);
+        }
         if (empty($getStudent)) {
             access_denied();
         }
-        $getParent = $this->student_model->get('parent', array('id' => $getStudent['parent_id']), true);
+        $getParent = !empty($getStudent['parent_id']) ? $this->student_model->get('parent', array('id' => $getStudent['parent_id']), true) : array();
         $this->data['student'] = $getStudent;
         $this->data['parent'] = $getParent;
         $this->load->view('student/profile_print', $this->data);

@@ -92,6 +92,12 @@ ensure_column($conn, 'front_cms_setting', 'address_en', 'TEXT NULL DEFAULT NULL'
 ensure_column($conn, 'front_cms_setting', 'footer_about_text_en', 'TEXT NULL DEFAULT NULL');
 ensure_column($conn, 'front_cms_setting', 'copyright_text_en', 'TEXT NULL DEFAULT NULL');
 
+ensure_column($conn, 'transactions', 'pay_by', 'VARCHAR(255) NULL DEFAULT NULL AFTER `pay_via`');
+ensure_column($conn, 'transactions', 'received_by', 'VARCHAR(255) NULL DEFAULT NULL AFTER `pay_by`');
+@$conn->query("UPDATE `payment_types` SET `name` = 'Others' WHERE `name` = 'Other'");
+@$conn->query("INSERT INTO `payment_types` (`name`, `branch_id`) SELECT 'Bkash', 0 WHERE NOT EXISTS (SELECT 1 FROM `payment_types` WHERE LOWER(TRIM(`name`)) = 'bkash')");
+@$conn->query("INSERT INTO `payment_types` (`name`, `branch_id`) SELECT 'Nagad', 0 WHERE NOT EXISTS (SELECT 1 FROM `payment_types` WHERE LOWER(TRIM(`name`)) = 'nagad')");
+
 @$conn->query("ALTER TABLE `front_cms_setting` MODIFY `footer_about_text` TEXT NULL");
 @$conn->query("ALTER TABLE `front_cms_setting` MODIFY `copyright_text` TEXT NULL");
 @$conn->query("ALTER TABLE `front_cms_setting` MODIFY `address` TEXT NULL");

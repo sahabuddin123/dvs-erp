@@ -924,3 +924,10 @@ INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'প�
 INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'ক্যান্টিন / দোকান ভাড়া বাবদ আয়', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'ক্যান্টিন / দোকান ভাড়া বাবদ আয়' AND `branch_id` = 1);
 INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'স্পন্সরশিপ ও বিজ্ঞাপন বাবদ আয়', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'স্পন্সরশিপ ও বিজ্ঞাপন বাবদ আয়' AND `branch_id` = 1);
 INSERT INTO `voucher_head` (`name`, `type`, `system`, `branch_id`) SELECT 'বিবিধ ও অন্যান্য আয়', 'income', 0, 1 WHERE NOT EXISTS (SELECT 1 FROM `voucher_head` WHERE `name` = 'বিবিধ ও অন্যান্য আয়' AND `branch_id` = 1);
+
+-- ==============================================================================
+-- ৯. অফিস একাউন্টিং ট্রানজেকশন কলাম ও পেমেন্ট মেথড আপডেট
+-- ==============================================================================
+UPDATE `payment_types` SET `name` = 'Others' WHERE `name` = 'Other';
+INSERT INTO `payment_types` (`name`, `branch_id`) SELECT 'Bkash', 0 WHERE NOT EXISTS (SELECT 1 FROM `payment_types` WHERE LOWER(TRIM(`name`)) = 'bkash');
+INSERT INTO `payment_types` (`name`, `branch_id`) SELECT 'Nagad', 0 WHERE NOT EXISTS (SELECT 1 FROM `payment_types` WHERE LOWER(TRIM(`name`)) = 'nagad');

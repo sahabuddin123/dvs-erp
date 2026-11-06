@@ -121,7 +121,7 @@ if (!empty($student['birthday'])) {
 					<?php endif; ?>
 				</div>
 				<div>
-					<a href="<?=base_url('student/print_profile/' . $student['id'])?>" target="_blank" class="btn btn-default btn-sm btn-block" style="font-weight: 600; background: #fff; color: #007F3D; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"><i class="fas fa-print"></i> <?=translate('print')?> / <?=translate('download')?></a>
+					<a href="<?=base_url('student/print_profile/' . (!empty($student['enrollid']) ? $student['enrollid'] : $student['id']))?>" target="_blank" class="btn btn-default btn-sm btn-block" style="font-weight: 600; background: #fff; color: #007F3D; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"><i class="fas fa-print"></i> <?=translate('print')?> / <?=translate('download')?></a>
 					<?php if (!empty($student['parent_id'])): ?>
 					<a href="<?=base_url('parents/profile/' . $student['parent_id'])?>" target="_blank" class="btn btn-primary btn-sm btn-block" style="font-weight: 600; margin-top: 6px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.3);"><i class="fas fa-user-friends"></i> অভিভাবকের প্রোফাইল</a>
 					<?php endif; ?>

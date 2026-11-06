@@ -1205,3 +1205,37 @@ if (!function_exists('redis_remember')) {
         return $cache ? $cache->remember($key, $ttl, $callback) : call_user_func($callback);
     }
 }
+
+if (!function_exists('get_office_accounting_payvia_list')) {
+    function get_office_accounting_payvia_list()
+    {
+        $ci = &get_instance();
+        // Desired exact order: Cash, Bkash, Nagad, Bank Transfer, Cheque, Card, Others
+        $ordered_names = array('Cash', 'Bkash', 'Nagad', 'Bank Transfer', 'Cheque', 'Card', 'Others');
+        
+        $types = $ci->db->get('payment_types')->result_array();
+        $map = array();
+        foreach ($types as $t) {
+            $map[strtolower(trim($t['name']))] = $t;
+        }
+
+        $list = array('' => translate('select'));
+        foreach ($ordered_names as $name) {
+            $key = strtolower(trim($name));
+            if ($key == 'others' && !isset($map['others']) && isset($map['other'])) {
+                $list[$map['other']['id']] = 'Others';
+                continue;
+            }
+            if (isset($map[$key])) {
+                $list[$map[$key]['id']] = $name;
+            } else {
+                // If missing in DB, insert it
+                $ci->db->insert('payment_types', array('name' => $name, 'branch_id' => 0));
+                $new_id = $ci->db->insert_id();
+                $list[$new_id] = $name;
+                $map[$key] = array('id' => $new_id, 'name' => $name);
+            }
+        }
+        return $list;
+    }
+}

@@ -1435,6 +1435,13 @@ html.fixed .visible-xl-inline-block {
 
 .header .logo img {
 	color: transparent;
+	max-height: 42px;
+	max-width: 175px;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+	display: inline-block;
+	vertical-align: middle;
 }
 
 .header .separator {

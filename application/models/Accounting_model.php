@@ -84,6 +84,12 @@ class Accounting_model extends MY_Model
             'description' => $description,
             'branch_id' => $branchID,
         );
+        if (isset($data['pay_by'])) {
+            $insertTransaction['pay_by'] = $data['pay_by'];
+        }
+        if (isset($data['received_by'])) {
+            $insertTransaction['received_by'] = $data['received_by'];
+        }
 
         $this->db->insert('transactions', $insertTransaction);
         $insert_id = $this->db->insert_id();
@@ -107,6 +113,12 @@ class Accounting_model extends MY_Model
             'pay_via' => $payVia,
             'description' => $description,
         );
+        if (isset($data['pay_by'])) {
+            $insertTransaction['pay_by'] = $data['pay_by'];
+        }
+        if (isset($data['received_by'])) {
+            $insertTransaction['received_by'] = $data['received_by'];
+        }
 
         if (isset($data['voucher_old_id']) && !empty($data['voucher_old_id'])) {
             if (!is_superadmin_loggedin()) {
