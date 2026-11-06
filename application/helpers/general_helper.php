@@ -1026,11 +1026,16 @@ function getEnrollToStudentID($enroll_id = '')
 
 function version_combine()
 {
-    $css_file = FCPATH . 'assets/css/ramom.css';
-    if (file_exists($css_file)) {
-        return filemtime($css_file);
+    $custom_css = FCPATH . 'assets/css/custom-style.css';
+    $ramom_css = FCPATH . 'assets/css/ramom.css';
+    $time = 0;
+    if (file_exists($custom_css)) {
+        $time = max($time, filemtime($custom_css));
     }
-    return md5(APP_VERSION); 
+    if (file_exists($ramom_css)) {
+        $time = max($time, filemtime($ramom_css));
+    }
+    return $time > 0 ? $time : md5(APP_VERSION); 
 }
 
 function img_reload()

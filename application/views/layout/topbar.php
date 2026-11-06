@@ -1,7 +1,7 @@
 <header class="header">
-	<div class="logo-env">
-		<a href="<?php echo base_url('dashboard');?>" class="logo">
-			<img src="<?=$this->application_model->getBranchImage(get_loggedin_branch_id(), 'logo-small')?>" style="max-height: 40px; max-width: 175px; width: auto; height: auto; object-fit: contain; vertical-align: middle;">
+	<div class="logo-env" style="overflow: hidden; max-width: 230px;">
+		<a href="<?php echo base_url('dashboard');?>" class="logo" style="text-align: left; padding-left: 12px; margin-top: 12px;">
+			<img src="<?=$this->application_model->getBranchImage(get_loggedin_branch_id(), 'logo-small')?>" style="max-height: 35px !important; max-width: 170px !important; width: auto !important; height: auto !important; object-fit: contain !important; vertical-align: middle;" alt="Logo">
 		</a>
 
 		<div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
