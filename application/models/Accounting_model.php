@@ -138,6 +138,21 @@ class Accounting_model extends MY_Model
         }
     }
 
+    public function getVoucher($id)
+    {
+        $this->db->select('transactions.*, accounts.name as ac_name, voucher_head.name as v_head, payment_types.name as via_name, branch.name as branch_name, branch.address as branch_address, branch.mobileno as branch_mobile, branch.email as branch_email');
+        $this->db->from('transactions');
+        $this->db->join('accounts', 'accounts.id = transactions.account_id', 'left');
+        $this->db->join('voucher_head', 'voucher_head.id = transactions.voucher_head_id', 'left');
+        $this->db->join('payment_types', 'payment_types.id = transactions.pay_via', 'left');
+        $this->db->join('branch', 'branch.id = transactions.branch_id', 'left');
+        $this->db->where('transactions.id', $id);
+        if (!is_superadmin_loggedin()) {
+            $this->db->where('transactions.branch_id', get_loggedin_branch_id());
+        }
+        return $this->db->get()->row_array();
+    }
+
     // get voucher list function
     public function getVoucherListDT($type = '')
     {

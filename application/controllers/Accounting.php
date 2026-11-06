@@ -243,6 +243,7 @@ class Accounting extends Admin_Controller
                         if (!empty($val->attachments)) {
                             $action .= '<a href="'.base_url('accounting/deposit_download/?id=' . $val->id).'" class="btn btn-circle btn-default icon" data-toggle="tooltip" data-original-title="'. translate('download') . " " .  translate('attachments').'"><i class="fas fa-download"></i></a>';
                         }
+                        $action .= '<a href="'.base_url('accounting/voucher_print/' . $val->id).'" target="_blank" class="btn btn-circle btn-default icon" data-toggle="tooltip" data-original-title="ভাউচার প্রিন্ট (A5)"><i class="fas fa-print"></i></a>';
                         if (get_permission('deposit', 'is_edit')){
                             $action .= '<a href="'.base_url('accounting/voucher_deposit_edit/' . $val->id).'" class="btn btn-circle btn-default icon" data-toggle="tooltip" data-original-title="'.translate('edit').'"><i class="fas fa-pen-nib"></i></a>';
                         }
@@ -313,6 +314,7 @@ if (is_superadmin_loggedin()){
                         if (!empty($val->attachments)) {
                             $action .= '<a href="'.base_url('accounting/expense_download/?id=' . $val->id).'" class="btn btn-circle btn-default icon" data-toggle="tooltip" data-original-title="'. translate('download') . " " .  translate('attachments').'"><i class="fas fa-download"></i></a>';
                         }
+                        $action .= '<a href="'.base_url('accounting/voucher_print/' . $val->id).'" target="_blank" class="btn btn-circle btn-default icon" data-toggle="tooltip" data-original-title="ভাউচার প্রিন্ট (A5)"><i class="fas fa-print"></i></a>';
                         if (get_permission('expense', 'is_edit')){
                             $action .= '<a href="'.base_url('accounting/voucher_expense_edit/' . $val->id).'" class="btn btn-circle btn-default icon" data-toggle="tooltip" data-original-title="'.translate('edit').'"><i class="fas fa-pen-nib"></i></a>';
                         }
@@ -379,13 +381,30 @@ if (is_superadmin_loggedin()){
                     $this->db->update('transactions', array('attachments' => $file_name));
                 }
                 set_alert('success', translate('information_has_been_saved_successfully'));
-                $array  = array('status' => 'success',  'error' => '');
+                $url = base_url('accounting/voucher_print/' . $insert_id);
+                $array  = array('status' => 'success', 'url' => $url, 'print_url' => $url, 'voucher_id' => $insert_id, 'error' => '');
             } else {
                 $error = $this->form_validation->error_array();
                 $array = array('status' => 'fail', 'error' => $error);
             }
             echo json_encode($array);
         }
+    }
+
+    public function voucher_print($id = '')
+    {
+        if (!get_permission('deposit', 'is_view') && !get_permission('expense', 'is_view') && !get_permission('all_transactions', 'is_view')) {
+            access_denied();
+        }
+        if (empty($id)) {
+            access_denied();
+        }
+        $voucher = $this->accounting_model->getVoucher($id);
+        if (empty($voucher)) {
+            access_denied();
+        }
+        $this->data['voucher'] = $voucher;
+        $this->load->view('accounting/voucher_print_a5', $this->data);
     }
 
     public function all_transactions()

@@ -8,6 +8,9 @@
 			<li class="active">
 				<a href="#create" data-toggle="tab"><i class="far fa-edit"></i> <?php echo translate('edit') . " " . translate('expense'); ?></a>
 			</li>
+			<li>
+				<a href="<?=base_url('accounting/voucher_print/' . $expense['id'])?>" target="_blank" style="color: #007F3D; font-weight: 600;"><i class="fas fa-print"></i> ভাউচার প্রিন্ট (A5 Voucher)</a>
+			</li>
 		</ul>
 		<div class="tab-content">
 			<div class="tab-pane active" id="create">

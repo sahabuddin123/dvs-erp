@@ -340,13 +340,13 @@ class Student_model extends MY_Model
         return $this->db->get();
     }
 
-    public function getSingleStudent($id = '', $enroll = false)
+    public function getSingleStudent($id = '', $enroll = false, $auto_404 = true)
     {
         $session_id = get_session_id();
         $this->db->select('s.*,l.username,l.active,e.class_id,e.section_id,e.id as enrollid,e.roll,e.branch_id,e.session_id,c.name as class_name,se.name as section_name,sc.name as category_name');
         $this->db->from('enroll as e');
         $this->db->join('student as s', 'e.student_id = s.id', 'left');
-        $this->db->join('login_credential as l', 'l.user_id = s.id and l.role = 7', 'inner');
+        $this->db->join('login_credential as l', 'l.user_id = s.id and l.role = 7', 'left');
         $this->db->join('class as c', 'e.class_id = c.id', 'left');
         $this->db->join('section as se', 'e.section_id = se.id', 'left');
         $this->db->join('student_category as sc', 's.category_id=sc.id', 'left');
@@ -365,15 +365,15 @@ class Student_model extends MY_Model
             $this->db->select('s.*,l.username,l.active,e.class_id,e.section_id,e.id as enrollid,e.roll,e.branch_id,e.session_id,c.name as class_name,se.name as section_name,sc.name as category_name');
             $this->db->from('enroll as e');
             $this->db->join('student as s', 'e.student_id = s.id', 'left');
-            $this->db->join('login_credential as l', 'l.user_id = s.id and l.role = 7', 'inner');
+            $this->db->join('login_credential as l', 'l.user_id = s.id and l.role = 7', 'left');
             $this->db->join('class as c', 'e.class_id = c.id', 'left');
             $this->db->join('section as se', 'e.section_id = se.id', 'left');
             $this->db->join('student_category as sc', 's.category_id=sc.id', 'left');
-            if ($enroll == true) {
-                $this->db->where('s.id', $id);
-            } else {
-                $this->db->where('e.id', $id);
-            }
+            $this->db->group_start();
+            $this->db->where('e.id', $id);
+            $this->db->or_where('e.student_id', $id);
+            $this->db->or_where('s.id', $id);
+            $this->db->group_end();
             $this->db->where('e.session_id', $session_id);
             if (!is_superadmin_loggedin()) {
                 $this->db->where('e.branch_id', get_loggedin_branch_id());
@@ -382,16 +382,17 @@ class Student_model extends MY_Model
         }
 
         if ($query->num_rows() == 0) {
-            // Fallback 2: search without session filter across all sessions (order by latest enrollment)
+            // Fallback 2: search across all sessions (order by latest enrollment)
             $this->db->select('s.*,l.username,l.active,e.class_id,e.section_id,e.id as enrollid,e.roll,e.branch_id,e.session_id,c.name as class_name,se.name as section_name,sc.name as category_name');
             $this->db->from('enroll as e');
             $this->db->join('student as s', 'e.student_id = s.id', 'left');
-            $this->db->join('login_credential as l', 'l.user_id = s.id and l.role = 7', 'inner');
+            $this->db->join('login_credential as l', 'l.user_id = s.id and l.role = 7', 'left');
             $this->db->join('class as c', 'e.class_id = c.id', 'left');
             $this->db->join('section as se', 'e.section_id = se.id', 'left');
             $this->db->join('student_category as sc', 's.category_id=sc.id', 'left');
             $this->db->group_start();
             $this->db->where('e.id', $id);
+            $this->db->or_where('e.student_id', $id);
             $this->db->or_where('s.id', $id);
             $this->db->group_end();
             if (!is_superadmin_loggedin()) {
@@ -403,7 +404,28 @@ class Student_model extends MY_Model
         }
 
         if ($query->num_rows() == 0) {
-            show_404();
+            // Fallback 3: Query starting from student table directly (handles student without enroll or branch mismatch)
+            $this->db->select('s.*,l.username,l.active,e.class_id,e.section_id,e.id as enrollid,e.roll,e.branch_id,e.session_id,c.name as class_name,se.name as section_name,sc.name as category_name');
+            $this->db->from('student as s');
+            $this->db->join('enroll as e', 'e.student_id = s.id', 'left');
+            $this->db->join('login_credential as l', 'l.user_id = s.id and l.role = 7', 'left');
+            $this->db->join('class as c', 'e.class_id = c.id', 'left');
+            $this->db->join('section as se', 'e.section_id = se.id', 'left');
+            $this->db->join('student_category as sc', 's.category_id=sc.id', 'left');
+            $this->db->group_start();
+            $this->db->where('s.id', $id);
+            $this->db->or_where('e.id', $id);
+            $this->db->group_end();
+            $this->db->order_by('e.id', 'DESC');
+            $this->db->limit(1);
+            $query = $this->db->get();
+        }
+
+        if ($query->num_rows() == 0) {
+            if ($auto_404) {
+                show_404();
+            }
+            return array();
         }
         return $query->row_array();
     }

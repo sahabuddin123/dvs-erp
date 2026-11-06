@@ -1256,3 +1256,136 @@ if (!function_exists('get_office_accounting_payvia_list')) {
         return $list;
     }
 }
+
+if (!function_exists('dvs_number_to_words_bangla')) {
+    function dvs_number_to_words_bangla($number) {
+        $words = array(
+            0 => 'শূন্য', 1 => 'এক', 2 => 'দুই', 3 => 'তিন', 4 => 'চার', 5 => 'পাঁচ',
+            6 => 'ছয়', 7 => 'সাত', 8 => 'আট', 9 => 'নয়', 10 => 'দশ',
+            11 => 'এগারো', 12 => 'বারো', 13 => 'তেরো', 14 => 'চৌদ্দ', 15 => 'পনেরো',
+            16 => 'ষোলো', 17 => 'সতেরো', 18 => 'আঠারো', 19 => 'উনিশ', 20 => 'বিশ',
+            21 => 'একুশ', 22 => 'বাইশ', 23 => 'তেইশ', 24 => 'চব্বিশ', 25 => 'পঁচিশ',
+            26 => 'ছাব্বিশ', 27 => 'সাতাশ', 28 => 'আঠাশ', 29 => 'উনত্রিশ', 30 => 'ত্রিশ',
+            31 => 'একত্রিশ', 32 => 'বত্রিশ', 33 => 'তেত্রিশ', 34 => 'চৌত্রিশ', 35 => 'পঁয়ত্রিশ',
+            36 => 'ছত্রিশ', 37 => 'সাঁইত্রিশ', 38 => 'আটত্রিশ', 39 => 'উনচল্লিশ', 40 => 'চল্লিশ',
+            41 => 'একচল্লিশ', 42 => 'বিয়াল্লিশ', 43 => 'তেতাল্লিশ', 44 => 'চুয়াল্লিশ', 45 => 'পঁয়তাল্লিশ',
+            46 => 'ছেচল্লিশ', 47 => 'সাতচল্লিশ', 48 => 'আটচল্লিশ', 49 => 'উনপঞ্চাশ', 50 => 'পঞ্চাশ',
+            51 => 'একান্ন', 52 => 'বায়ান্ন', 53 => 'তিপ্পান্ন', 54 => 'চুয়ান্ন', 55 => 'পঞ্চান্ন',
+            56 => 'ছাপ্পান্ন', 57 => 'সাতান্ন', 58 => 'আটান্ন', 59 => 'উনষাট', 60 => 'ষাট',
+            61 => 'একষট্টি', 62 => 'বাষট্টি', 63 => 'তেষট্টি', 64 => 'চৌষট্টি', 65 => 'পঁয়ষট্টি',
+            66 => 'ছেষট্টি', 67 => 'সাতষট্টি', 68 => 'আটষট্টি', 69 => 'উনসত্তর', 70 => 'সত্তর',
+            71 => 'একাত্তর', 72 => 'বাহাত্তর', 73 => 'তিয়াত্তর', 74 => 'চুয়াত্তর', 75 => 'পঁচাত্তর',
+            76 => 'ছিয়াত্তর', 77 => 'সাতাত্তর', 78 => 'আটাত্তর', 79 => 'উনআশি', 80 => 'আশি',
+            81 => 'একাশি', 82 => 'বিরাশি', 83 => 'তিরাশি', 84 => 'চুরাশি', 85 => 'পঁচাশি',
+            86 => 'ছিয়াশি', 87 => 'সাতাশি', 88 => 'আটাশি', 89 => 'উননব্বই', 90 => 'নব্বই',
+            91 => 'একানব্বই', 92 => 'বিরানব্বই', 93 => 'তিরানব্বই', 94 => 'চুরানব্বই', 95 => 'পঁচানব্বই',
+            96 => 'ছিয়ানব্বই', 97 => 'সাতানব্বই', 98 => 'আটানব্বই', 99 => 'নিরানব্বই'
+        );
+        $number = (float)$number;
+        $integer = (int)floor($number);
+        $fraction = (int)round(($number - $integer) * 100);
+
+        if ($integer == 0 && $fraction == 0) {
+            return 'শূন্য টাকা মাত্র';
+        }
+
+        $crore = (int)floor($integer / 10000000);
+        $integer %= 10000000;
+        $lakh = (int)floor($integer / 100000);
+        $integer %= 100000;
+        $thousand = (int)floor($integer / 1000);
+        $integer %= 1000;
+        $hundred = (int)floor($integer / 100);
+        $remainder = $integer % 100;
+
+        $result = '';
+        if ($crore > 0) {
+            $result .= dvs_number_to_words_bangla($crore) . ' কোটি ';
+        }
+        if ($lakh > 0) {
+            $result .= (isset($words[$lakh]) ? $words[$lakh] : $lakh) . ' লাখ ';
+        }
+        if ($thousand > 0) {
+            $result .= (isset($words[$thousand]) ? $words[$thousand] : $thousand) . ' হাজার ';
+        }
+        if ($hundred > 0) {
+            $result .= (isset($words[$hundred]) ? $words[$hundred] : $hundred) . ' শত ';
+        }
+        if ($remainder > 0) {
+            $result .= (isset($words[$remainder]) ? $words[$remainder] : $remainder) . ' ';
+        }
+
+        $result = trim($result) . ' টাকা';
+        if ($fraction > 0) {
+            $result .= ' ও ' . (isset($words[$fraction]) ? $words[$fraction] : $fraction) . ' পয়সা';
+        }
+        return $result . ' মাত্র';
+    }
+}
+
+if (!function_exists('dvs_number_to_words_english')) {
+    function dvs_number_to_words_english($num) {
+        $ones = array(
+            0 => "Zero", 1 => "One", 2 => "Two", 3 => "Three", 4 => "Four", 5 => "Five",
+            6 => "Six", 7 => "Seven", 8 => "Eight", 9 => "Nine", 10 => "Ten",
+            11 => "Eleven", 12 => "Twelve", 13 => "Thirteen", 14 => "Fourteen", 15 => "Fifteen",
+            16 => "Sixteen", 17 => "Seventeen", 18 => "Eighteen", 19 => "Nineteen"
+        );
+        $tens = array(
+            2 => "Twenty", 3 => "Thirty", 4 => "Forty", 5 => "Fifty",
+            6 => "Sixty", 7 => "Seventy", 8 => "Eighty", 9 => "Ninety"
+        );
+
+        $num = (float)$num;
+        $integer = (int)floor($num);
+        $fraction = (int)round(($num - $integer) * 100);
+
+        if ($integer == 0) {
+            $out = "Zero Taka";
+        } else {
+            $out = "";
+            $crore = (int)floor($integer / 10000000);
+            $integer %= 10000000;
+            $lakh = (int)floor($integer / 100000);
+            $integer %= 100000;
+            $thousand = (int)floor($integer / 1000);
+            $integer %= 1000;
+            $hundred = (int)floor($integer / 100);
+            $remainder = $integer % 100;
+
+            if ($crore > 0) {
+                $out .= dvs_number_to_words_english($crore) . " Crore ";
+            }
+            if ($lakh > 0) {
+                if ($lakh < 20) {
+                    $out .= $ones[$lakh] . " Lakh ";
+                } else {
+                    $out .= $tens[(int)($lakh / 10)] . " " . ($lakh % 10 ? $ones[$lakh % 10] : "") . " Lakh ";
+                }
+            }
+            if ($thousand > 0) {
+                if ($thousand < 20) {
+                    $out .= $ones[$thousand] . " Thousand ";
+                } else {
+                    $out .= $tens[(int)($thousand / 10)] . " " . ($thousand % 10 ? $ones[$thousand % 10] : "") . " Thousand ";
+                }
+            }
+            if ($hundred > 0) {
+                $out .= $ones[$hundred] . " Hundred ";
+            }
+            if ($remainder > 0) {
+                if ($remainder < 20) {
+                    $out .= $ones[$remainder] . " ";
+                } else {
+                    $out .= $tens[(int)($remainder / 10)] . " " . ($remainder % 10 ? $ones[$remainder % 10] : "") . " ";
+                }
+            }
+            $out = trim(preg_replace('/\s+/', ' ', $out)) . " Taka";
+        }
+
+        if ($fraction > 0) {
+            $out .= " and " . $fraction . "/100 Paisa";
+        }
+        return $out . " Only";
+    }
+}

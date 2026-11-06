@@ -762,23 +762,28 @@ class Student extends Admin_Controller
         if (empty($id)) {
             access_denied();
         }
-        $getStudent = $this->student_model->getSingleStudent($id, true);
+        $getStudent = $this->student_model->getSingleStudent($id, true, false);
         if (empty($getStudent)) {
-            $getStudent = $this->student_model->getSingleStudent($id, false);
+            $getStudent = $this->student_model->getSingleStudent($id, false, false);
         }
         if (empty($getStudent)) {
-            $this->db->select('s.*, e.id as enrollid, e.roll, e.class_id, e.section_id, e.branch_id, e.session_id, c.name as class_name, se.name as section_name');
+            $this->db->select('s.*, e.id as enrollid, e.roll, e.class_id, e.section_id, e.branch_id, e.session_id, c.name as class_name, se.name as section_name, sc.name as category_name');
             $this->db->from('student as s');
             $this->db->join('enroll as e', 'e.student_id = s.id', 'left');
             $this->db->join('class as c', 'e.class_id = c.id', 'left');
             $this->db->join('section as se', 'e.section_id = se.id', 'left');
+            $this->db->join('student_category as sc', 's.category_id = sc.id', 'left');
+            $this->db->group_start();
             $this->db->where('s.id', $id);
             $this->db->or_where('e.id', $id);
+            $this->db->group_end();
             $this->db->order_by('e.id', 'DESC');
+            $this->db->limit(1);
             $getStudent = $this->db->get()->row_array();
         }
         if (empty($getStudent)) {
-            access_denied();
+            set_alert('error', translate('no_information_found'));
+            redirect(base_url('student/view'));
         }
         $getParent = !empty($getStudent['parent_id']) ? $this->student_model->get('parent', array('id' => $getStudent['parent_id']), true) : array();
         $this->data['student'] = $getStudent;
@@ -794,9 +799,9 @@ class Student extends Admin_Controller
         if (empty($id)) {
             access_denied();
         }
-        $getStudent = $this->student_model->getSingleStudent($id, true);
+        $getStudent = $this->student_model->getSingleStudent($id, true, false);
         if (empty($getStudent)) {
-            $getStudent = $this->student_model->getSingleStudent($id, false);
+            $getStudent = $this->student_model->getSingleStudent($id, false, false);
         }
         if (empty($getStudent)) {
             $this->db->select('s.*, e.id as enrollid, e.roll, e.class_id, e.section_id, e.branch_id, e.session_id, c.name as class_name, se.name as section_name, e.admission_fee, e.admission_discount, e.admission_paid, e.admission_due, e.admission_pay_via, e.admission_trx_id, e.admission_pay_date, e.admission_status, e.admission_remarks');
@@ -804,13 +809,17 @@ class Student extends Admin_Controller
             $this->db->join('enroll as e', 'e.student_id = s.id', 'left');
             $this->db->join('class as c', 'e.class_id = c.id', 'left');
             $this->db->join('section as se', 'e.section_id = se.id', 'left');
+            $this->db->group_start();
             $this->db->where('e.id', $id);
             $this->db->or_where('s.id', $id);
+            $this->db->group_end();
             $this->db->order_by('e.id', 'DESC');
+            $this->db->limit(1);
             $getStudent = $this->db->get()->row_array();
         }
         if (empty($getStudent)) {
-            access_denied();
+            set_alert('error', translate('no_information_found'));
+            redirect(base_url('student/view'));
         }
         $getParent = !empty($getStudent['parent_id']) ? $this->student_model->get('parent', array('id' => $getStudent['parent_id']), true) : array();
         
