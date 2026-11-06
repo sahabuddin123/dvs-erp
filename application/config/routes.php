@@ -75,6 +75,8 @@ if (is_dir($routes_path)) {
 }
 
 $route['(:any)/authentication'] = 'authentication/index/$1';
+$route['(:any)/two_fa_verification'] = 'authentication/two_fa_verification/$1';
+$route['(:any)/two_fa_resend'] = 'authentication/two_fa_resend/$1';
 $route['(:any)/forgot'] = 'authentication/forgot/$1';
 $route['teachers'] = 'home/teachers';
 $route['(:any)/teachers'] = 'home/teachers';
@@ -190,6 +192,10 @@ $route['biometric/(:any)/(:any)'] = 'biometric/$1/$2';
 $route['behaviour_records'] = 'behaviour_records/index';
 $route['behaviour_records/(:any)'] = 'behaviour_records/$1';
 $route['behaviour_records/(:any)/(:any)'] = 'behaviour_records/$1/$2';
+$route['two_factor_auth'] = 'two_factor_auth/index';
+$route['two_factor_auth/(:any)'] = 'two_factor_auth/$1';
+$route['two_fa_verification'] = 'authentication/two_fa_verification';
+$route['two_fa_resend'] = 'authentication/two_fa_resend';
 
 $route['authentication'] = 'authentication/index';
 $route['home'] = 'home/index';

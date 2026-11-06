@@ -405,6 +405,13 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'schedule' => 'সময়সূচি',
         'transitions' => 'ট্রানজিশন / লেনদেন',
         'statement' => 'বিবরণী',
+        'two_factor_authentication' => 'দ্বি-স্তর বিশিষ্ট নিরাপত্তা (2FA)',
+        'two_fa' => 'দ্বি-স্তর বিশিষ্ট নিরাপত্তা (2FA)',
+        'security_code' => 'সিকিউরিটি কোড',
+        'verification_code' => 'যাচাইকরণ কোড',
+        'resend_code' => 'পুনরায় কোড পাঠান',
+        'enter_verification_code' => 'যাচাইকরণ কোড লিখুন',
+        'verify_and_login' => 'যাচাই করুন এবং প্রবেশ করুন',
     );
     return isset($bn_dict[$word]) ? $bn_dict[$word] : null;
 }

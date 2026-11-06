@@ -180,3 +180,4 @@ class Behaviour_records_model extends MY_Model
         return $result;
     }
 }
+

@@ -1010,3 +1010,59 @@ WHERE NOT EXISTS (SELECT 1 FROM `behaviour_incidents` WHERE `title` = 'ইউন
 INSERT INTO `behaviour_incidents` (`branch_id`, `title`, `point`, `type`, `description`) 
 SELECT 0, 'শ্রেণিকক্ষের শৃঙ্খলা ভঙ্গ', 5, 'negative', 'ক্লাসে গোলমাল বা অবাধ্যতা প্রদর্শন' 
 WHERE NOT EXISTS (SELECT 1 FROM `behaviour_incidents` WHERE `title` = 'শ্রেণিকক্ষের শৃঙ্খলা ভঙ্গ');
+
+
+-- ========================================================
+-- TWO FACTOR AUTHENTICATION (2FA) ADDON TABLES & MIGRATION
+-- ========================================================
+
+CREATE TABLE IF NOT EXISTS `two_fa_settings` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT DEFAULT 0,
+  `is_active` TINYINT(1) DEFAULT 1,
+  `auth_method` VARCHAR(20) DEFAULT 'email',
+  `roles_enforced` TEXT NULL,
+  `otp_expire` INT DEFAULT 10,
+  `master_bypass_pin` VARCHAR(50) DEFAULT '998877',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `branch_id` (`branch_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `two_fa_settings` (`branch_id`, `is_active`, `auth_method`, `roles_enforced`, `otp_expire`, `master_bypass_pin`) 
+SELECT 0, 1, 'email', '["1","2"]', 10, '998877' 
+WHERE NOT EXISTS (SELECT 1 FROM `two_fa_settings` WHERE `id` = 1);
+
+CREATE TABLE IF NOT EXISTS `two_fa_codes` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `email` VARCHAR(150) NULL,
+  `mobile` VARCHAR(50) NULL,
+  `code` VARCHAR(20) NOT NULL,
+  `auth_method` VARCHAR(20) DEFAULT 'email',
+  `expires_at` DATETIME NOT NULL,
+  `is_used` TINYINT(1) DEFAULT 0,
+  `ip_address` VARCHAR(50) NULL,
+  `user_agent` VARCHAR(255) NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `two_fa_user_config` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL UNIQUE,
+  `is_enabled` TINYINT(1) DEFAULT 1,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `addon` (`name`, `prefix`, `version`, `purchase_code`, `status`, `created_at`) 
+SELECT 'Two Factor Authentication', 'two_fa', '100', 'DVS-2FA-SECURITY-ADDON', 1, NOW() 
+WHERE NOT EXISTS (SELECT 1 FROM `addon` WHERE `prefix` = 'two_fa');
+
+INSERT INTO `permission_modules` (`name`, `prefix`, `system`, `sorted`, `in_module`, `created_at`) 
+SELECT 'Two Factor Authentication', 'two_fa', 1, 27, 1, NOW() 
+WHERE NOT EXISTS (SELECT 1 FROM `permission_modules` WHERE `prefix` = 'two_fa');

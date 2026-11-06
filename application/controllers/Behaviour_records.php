@@ -148,3 +148,4 @@ class Behaviour_records extends Admin_Controller
         echo $html;
     }
 }
+

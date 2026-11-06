@@ -252,8 +252,132 @@ class Authentication extends Authentication_Controller
         $this->session->unset_userdata('set_session_id');
         $this->session->unset_userdata('loggedin_branch');
         $this->session->unset_userdata('loggedin');
+        $this->session->unset_userdata('2FA');
+        $this->session->unset_userdata('2FA_CODE_ID');
+        $this->session->unset_userdata('2FA_USER_ID');
+        $this->session->unset_userdata('2FA_EMAIL');
+        $this->session->unset_userdata('2FA_MOBILE');
+        $this->session->unset_userdata('2FA_EXPIRES_AT');
+        $this->session->unset_userdata('2FA_METHOD');
+        $this->session->unset_userdata('2FA_SENT_CODE');
         $this->session->sess_destroy();
         redirect($webURL, 'refresh');
+    }
+
+    /* Two-Factor Authentication OTP Verification */
+    public function two_fa_verification($url_alias = '')
+    {
+        if (is_loggedin()) {
+            redirect(base_url('dashboard'));
+        }
+
+        // If 2FA session is missing, redirect to login
+        if (!$this->session->has_userdata('2FA')) {
+            redirect(base_url($this->authentication_model->getSegment(1) . 'authentication'));
+        }
+
+        $sessionData = $this->session->userdata('2FA');
+        $this->data['branch_id'] = $this->authentication_model->urlaliasToBranch($url_alias);
+        $schoolDeatls = $this->authentication_model->getSchoolDeatls($url_alias);
+        if (!empty($schoolDeatls) && is_object($schoolDeatls)) {
+            $this->data['global_config']['institute_name'] = $schoolDeatls->school_name;
+            $this->data['global_config']['address'] = $schoolDeatls->address;
+            $this->data['global_config']['facebook_url'] = $schoolDeatls->facebook_url;
+            $this->data['global_config']['twitter_url'] = $schoolDeatls->twitter_url;
+            $this->data['global_config']['linkedin_url'] = $schoolDeatls->linkedin_url;
+            $this->data['global_config']['youtube_url'] = $schoolDeatls->youtube_url;
+        }
+
+        $this->data['email'] = $this->session->userdata('2FA_EMAIL');
+        $this->data['mobile'] = $this->session->userdata('2FA_MOBILE');
+        $this->data['auth_method'] = $this->session->userdata('2FA_METHOD');
+        $this->data['expires_at'] = $this->session->userdata('2FA_EXPIRES_AT');
+        $this->data['sent_code'] = $this->session->userdata('2FA_SENT_CODE');
+        $this->data['user_name'] = $sessionData['name'];
+        $this->data['url_alias'] = $url_alias;
+
+        if ($_POST) {
+            $code = trim((string)$this->input->post('code'));
+            if (empty($code)) {
+                $digit1 = $this->input->post('digit1');
+                if ($digit1 !== null) {
+                    $code = trim($this->input->post('digit1') . $this->input->post('digit2') . $this->input->post('digit3') . $this->input->post('digit4') . $this->input->post('digit5') . $this->input->post('digit6'));
+                }
+            }
+
+            if (empty($code)) {
+                set_alert('error', 'অনুগ্রহ করে ৬-সংখ্যার সিকিউরিটি কোডটি লিখুন (Please enter the 6-digit security code)');
+            } else {
+                $this->load->model('two_fa_model');
+                $verify = $this->two_fa_model->verify_code($sessionData['loggedin_id'], $code);
+                if ($verify['success']) {
+                    // Clean up 2FA temporary session
+                    $this->session->unset_userdata('2FA');
+                    $this->session->unset_userdata('2FA_CODE_ID');
+                    $this->session->unset_userdata('2FA_USER_ID');
+                    $this->session->unset_userdata('2FA_EMAIL');
+                    $this->session->unset_userdata('2FA_MOBILE');
+                    $this->session->unset_userdata('2FA_EXPIRES_AT');
+                    $this->session->unset_userdata('2FA_METHOD');
+                    $this->session->unset_userdata('2FA_SENT_CODE');
+
+                    // Set full authenticated session
+                    $this->authentication_model->sessionSet($sessionData);
+
+                    if ($this->session->has_userdata('redirect_url')) {
+                        redirect($this->session->userdata('redirect_url'));
+                    } else {
+                        redirect(base_url('dashboard'));
+                    }
+                } else {
+                    set_alert('error', $verify['message']);
+                }
+            }
+        }
+
+        $this->load->view('authentication/two_factor_verify', $this->data);
+    }
+
+    /* Resend 2FA OTP Code */
+    public function two_fa_resend($url_alias = '')
+    {
+        if (!$this->session->has_userdata('2FA')) {
+            if ($this->input->is_ajax_request()) {
+                echo json_encode(['status' => 'fail', 'message' => 'Session expired. Please login again.']);
+                exit();
+            }
+            redirect(base_url('authentication'));
+        }
+
+        $sessionData = $this->session->userdata('2FA');
+        $last_sent = (int)$this->session->userdata('2FA_LAST_SENT');
+        $now = time();
+        if (($now - $last_sent) < 60) {
+            $wait_seconds = 60 - ($now - $last_sent);
+            $msg = "অনুগ্রহ করে আরও {$wait_seconds} সেকেন্ড অপেক্ষা করে আবার চেষ্টা করুন (Please wait {$wait_seconds}s).";
+            if ($this->input->is_ajax_request()) {
+                echo json_encode(['status' => 'fail', 'message' => $msg]);
+                exit();
+            }
+            set_alert('error', $msg);
+            redirect(base_url($this->authentication_model->getSegment(1) . 'two_fa_verification'));
+        }
+
+        $this->load->model('two_fa_model');
+        $login_credential = (object)[
+            'id' => $sessionData['loggedin_id'],
+            'user_id' => $sessionData['loggedin_userid'],
+            'role' => $sessionData['loggedin_role_id']
+        ];
+        $this->two_fa_model->manage_2fa($sessionData, $login_credential, $sessionData['loggedin_email']);
+
+        $success_msg = "নতুন সিকিউরিটি কোড সফলভাবে পাঠানো হয়েছে! (New security code sent successfully!)";
+        if ($this->input->is_ajax_request()) {
+            echo json_encode(['status' => 'success', 'message' => $success_msg]);
+            exit();
+        }
+        set_alert('success', $success_msg);
+        redirect(base_url($this->authentication_model->getSegment(1) . 'two_fa_verification'));
     }
 
 }
