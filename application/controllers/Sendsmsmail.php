@@ -480,8 +480,10 @@ class Sendsmsmail extends Admin_Controller
                 ->where('sections_allocation.class_id', $classID)
                 ->get()->result_array();
             if (count($result)) {
+                $cur_lang = (function_exists('get_current_lang') && get_current_lang() == 'en') ? 'english' : 'bengali';
                 foreach ($result as $row) {
-                    $html .= '<option value="' . $row['section_id'] . '">' . $row['name'] . '</option>';
+                    $sec_display = function_exists('dvs_clean_bilingual') ? dvs_clean_bilingual($row['name'], $cur_lang) : $row['name'];
+                    $html .= '<option value="' . $row['section_id'] . '">' . $sec_display . '</option>';
                 }
             }
         }

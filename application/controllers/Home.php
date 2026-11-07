@@ -1945,7 +1945,8 @@ class Home extends Frontend_Controller
 
                 foreach ($result as $row) {
 
-                    $html .= '<option value="' . $row['section_id'] . '">' . $row['name'] . '</option>';
+                    $sec_title = (function_exists('dvs_clean_bilingual') ? dvs_clean_bilingual($row['name'], (function_exists('get_current_lang') && get_current_lang() == 'en') ? 'english' : 'bengali') : $row['name']);
+                    $html .= '<option value="' . $row['section_id'] . '">' . $sec_title . '</option>';
 
                 }
 

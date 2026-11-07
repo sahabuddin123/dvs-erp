@@ -284,7 +284,10 @@
 												<div class="info">
 													<span>
 														<?php 
-														echo translate('class') . ' : ' . $student['class_name'] . ' (' . $student['section_name']  . ')'; 
+														$cur_lang = (get_current_lang() == 'en') ? 'english' : 'bengali';
+														$clean_class = dvs_clean_bilingual($student['class_name'], $cur_lang);
+														$clean_sec = dvs_clean_bilingual($student['section_name'], $cur_lang);
+														echo translate('class') . ' : ' . $clean_class . ' (' . $clean_sec  . ')'; 
 														?>
 													</span>
 												</div>

@@ -13,7 +13,7 @@
 		<div class="tab-content">
 			<div id="list" class="tab-pane active">
 				<div class="mb-md">
-					<div class="export_title">Expense List</div>
+					<div class="export_title"><?=translate('expense') . " " . translate('list')?></div>
 					<table class="table table-bordered table-hover" id="voucherExpense" cellpadding="0" cellspacing="0" width="100%">
 						<thead>
 							<tr>

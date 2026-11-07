@@ -1,28 +1,57 @@
 <!DOCTYPE html>
-<html lang="bn">
+<?php
+$current_lang = $this->session->userdata('set_lang');
+if (empty($current_lang)) {
+    $current_lang = get_global_setting('translation');
+}
+if (empty($current_lang)) {
+    $current_lang = 'bengali';
+}
+$is_bn = ($current_lang === 'bengali');
+$is_expense = ($voucher['type'] == 'expense');
+
+$v_type_bn = $is_expense ? 'খরচ ভাউচার (ডেবিট)' : 'জমা ভাউচার (ক্রেডিট)';
+$v_type_en = $is_expense ? 'DEBIT VOUCHER' : 'CREDIT VOUCHER';
+$v_type_title = $is_bn ? $v_type_bn : $v_type_en;
+
+$v_code = 'DVS-' . ($is_expense ? 'EXP' : 'DEP') . '-' . str_pad($voucher['id'], 5, '0', STR_PAD_LEFT);
+$theme_color = $is_expense ? '#b91c1c' : '#007F3D';
+$theme_bg = $is_expense ? '#fef2f2' : '#f0fdf4';
+$theme_border = $is_expense ? '#fca5a5' : '#86efac';
+
+$payer = !empty($voucher['pay_by']) ? dvs_clean_bilingual($voucher['pay_by'], $is_bn ? 'bengali' : 'english') : ($is_expense ? ($is_bn ? 'ড্রিম ভ্যালি স্কুল (অফিস ফান্ড)' : 'Dream Valley School (Office Fund)') : 'N/A');
+$receiver = !empty($voucher['received_by']) ? dvs_clean_bilingual($voucher['received_by'], $is_bn ? 'bengali' : 'english') : ($is_expense ? 'N/A' : ($is_bn ? 'ড্রিম ভ্যালি স্কুল (হিসাব শাখা)' : 'Dream Valley School (Accounts)'));
+$pay_method = !empty($voucher['via_name']) ? dvs_clean_bilingual($voucher['via_name'], $is_bn ? 'bengali' : 'english') : (!empty($voucher['pay_via']) ? dvs_clean_bilingual($voucher['pay_via'], $is_bn ? 'bengali' : 'english') : ($is_bn ? 'ক্যাশ / নগদ' : 'Cash'));
+$voucher_head_title = !empty($voucher['v_head']) ? dvs_clean_bilingual($voucher['v_head'], $is_bn ? 'bengali' : 'english') : ($is_expense ? ($is_bn ? 'অফিস খরচ' : 'Office Expense') : ($is_bn ? 'অফিস জমা' : 'Office Deposit'));
+?>
+<html lang="<?=$is_bn ? 'bn' : 'en'?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php
-    $is_expense = ($voucher['type'] == 'expense');
-    $v_type_bn = $is_expense ? 'খরচ ভাউচার (ডেবিট)' : 'জমা ভাউচার (ক্রেডিট)';
-    $v_type_en = $is_expense ? 'DEBIT VOUCHER' : 'CREDIT VOUCHER';
-    $v_code = 'DVS-' . ($is_expense ? 'EXP' : 'DEP') . '-' . str_pad($voucher['id'], 5, '0', STR_PAD_LEFT);
-    $theme_color = $is_expense ? '#b91c1c' : '#007F3D';
-    $theme_bg = $is_expense ? '#fef2f2' : '#f0fdf4';
-    $theme_border = $is_expense ? '#fca5a5' : '#86efac';
-    ?>
-    <title><?=$v_type_en?> #<?=$v_code?> - ড্রিম ভ্যালি স্কুল</title>
+    <title><?=$v_type_title?> #<?=$v_code?> - <?=$is_bn ? 'ড্রিম ভ্যালি স্কুল' : 'Dream Valley School'?></title>
     <link rel="stylesheet" href="<?=base_url('assets/vendor/bootstrap/css/bootstrap.css')?>">
     <link rel="stylesheet" href="<?=base_url('assets/vendor/font-awesome/css/all.min.css')?>">
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
         }
+        <?php if ($is_bn): ?>
+        @font-face {
+            font-family: 'DVSNumerals';
+            src: local('Noto Sans Bengali'), local('Hind Siliguri');
+            unicode-range: U+0030-0039, U+09E6-09EF;
+        }
+        body, table, th, td, h1, h2, h3, p, span, div, strong {
+            font-family: 'DVSNumerals', 'Hind Siliguri', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+        }
+        <?php else: ?>
+        body, table, th, td, h1, h2, h3, p, span, div, strong {
+            font-family: 'Signika', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+        }
+        <?php endif; ?>
         body {
             background-color: #f1f5f9;
-            font-family: 'Hind Siliguri', 'Helvetica Neue', Helvetica, Arial, sans-serif;
             color: #1e293b;
             margin: 0;
             padding: 20px 0;
@@ -99,35 +128,27 @@
             max-width: 110px;
             object-fit: contain;
         }
-        .v-school-title-bn {
+        .v-school-title {
             font-size: 21px;
             font-weight: 700;
             color: #007F3D;
-            margin: 0 0 1px;
+            margin: 0 0 2px;
             line-height: 1.2;
         }
-        .v-school-title-en {
-            font-size: 14.5px;
-            font-weight: 700;
-            color: #0f172a;
-            margin: 0 0 2px;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
         .v-school-tagline {
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 600;
             color: #047857;
-            margin: 0 0 2px;
+            margin: 0 0 3px;
         }
         .v-school-contact {
             font-size: 10px;
             color: #475569;
             margin: 0;
-            line-height: 1.3;
+            line-height: 1.35;
         }
 
-        /* Voucher Badge & Metadata */
+        /* Voucher Badge */
         .v-type-badge-container {
             text-align: center;
             margin: 6px 0 10px;
@@ -151,7 +172,7 @@
             margin-bottom: 10px;
         }
         .v-info-table td {
-            padding: 3.5px 8px;
+            padding: 4px 8px;
             font-size: 11.5px;
             border: 1px solid #cbd5e1;
             vertical-align: middle;
@@ -232,16 +253,12 @@
         .v-sign-line {
             border-top: 1px dashed #475569;
             width: 80%;
-            margin: 0 auto 3px;
+            margin: 0 auto 5px;
         }
         .v-sign-title {
             font-size: 11px;
             font-weight: 700;
             color: #0f172a;
-        }
-        .v-sign-sub {
-            font-size: 9.5px;
-            color: #64748b;
         }
 
         /* Print Specific Styling */
@@ -249,8 +266,6 @@
             body {
                 background: #fff !important;
                 padding: 0 !important;
-                margin: 0 !important;
-                font-size: 11px !important;
             }
             .no-print-bar {
                 display: none !important;
@@ -292,9 +307,8 @@
     <div class="no-print-bar">
         <div>
             <span style="font-weight: 700; color: <?=$theme_color?>; font-size: 14.5px;">
-                <i class="fas fa-file-invoice-dollar mr-xs"></i> <?=$v_type_bn?> #<?=$v_code?>
+                <i class="fas fa-file-invoice-dollar mr-xs"></i> <?=$v_type_title?> #<?=$v_code?>
             </span>
-            <span class="text-muted" style="margin-left: 8px; font-size: 12px;">(A5 Single Voucher Format)</span>
         </div>
         <div>
             <button type="button" class="btn-action-print" onclick="window.print();">
@@ -302,11 +316,11 @@
             </button>
             <?php if ($is_expense): ?>
                 <a href="<?=base_url('accounting/voucher_expense')?>" class="btn-action-sec">
-                    <i class="fas fa-list-ul"></i> <?=translate('expense') . ' ' . translate('list')?>
+                    <i class="fas fa-list-ul"></i> <?=translate('new_expense')?>
                 </a>
             <?php else: ?>
                 <a href="<?=base_url('accounting/voucher_deposit')?>" class="btn-action-sec">
-                    <i class="fas fa-list-ul"></i> <?=translate('deposit') . ' ' . translate('list')?>
+                    <i class="fas fa-list-ul"></i> <?=translate('new_deposit')?>
                 </a>
             <?php endif; ?>
         </div>
@@ -323,59 +337,61 @@
                     <img src="<?=$logo_url?>" alt="Logo" class="v-logo-img" onerror="this.style.display='none';">
                 </td>
                 <td style="width: 64%; vertical-align: middle; text-align: center;">
-                    <h1 class="v-school-title-bn">ড্রিম ভ্যালি স্কুল</h1>
-                    <h2 class="v-school-title-en">DREAM VALLEY SCHOOL</h2>
-                    <p class="v-school-tagline">ইসলামিক কারিকুলাম উইথ তাহফিজুল কুরআন (Islamic Curriculum with Tahfeezul Quran)</p>
-                    <p class="v-school-contact">
-                        খাসেরহাট মেইন রোড, চরবাটা, সুবর্ণচর, নোয়াখালী | মোবাইল: 01716-122899, 01712-886988<br>
-                        ওয়েবসাইট: dreamvalleyschool.com | ইমেইল: dreamvalleyschoolbd@gmail.com
-                    </p>
+                    <?php if ($is_bn): ?>
+                        <h1 class="v-school-title">ড্রিম ভ্যালি স্কুল</h1>
+                        <p class="v-school-tagline">ইসলামিক কারিকুলাম উইথ তাহফিজুল কুরআন</p>
+                        <p class="v-school-contact">
+                            খাসেরহাট মেইন রোড, চরবাটা, সুবর্ণচর, নোয়াখালী | মোবাইল: ০১৭১৬-১২২৮৯৯, ০১৭১২-৮৮৬৯৮৮<br>
+                            ওয়েবসাইট: dreamvalleyschool.com | ইমেইল: info@dreamvalleyschool.com
+                        </p>
+                    <?php else: ?>
+                        <h1 class="v-school-title">DREAM VALLEY SCHOOL</h1>
+                        <p class="v-school-tagline">Islamic Curriculum with Tahfeezul Quran</p>
+                        <p class="v-school-contact">
+                            Khaserhat Main Road, Charbata, Subarnachar, Noakhali | Mobile: +88 01716 122 899<br>
+                            Website: dreamvalleyschool.com | Email: info@dreamvalleyschool.com
+                        </p>
+                    <?php endif; ?>
                 </td>
                 <td style="width: 18%; vertical-align: middle; text-align: right;">
                     <div style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 6px; background: #f8fafc; display: inline-block; text-align: right;">
-                        <span style="font-size: 10px; color: #64748b; display: block;">ভাউচার নং (Voucher No)</span>
+                        <span style="font-size: 10px; color: #64748b; display: block;"><?=translate('voucher_no')?></span>
                         <strong style="font-size: 12.5px; color: <?=$theme_color?>;"><?=$v_code?></strong>
                     </div>
                 </td>
             </tr>
         </table>
 
-        <!-- Voucher Badge & Meta Info -->
+        <!-- Voucher Badge -->
         <div class="v-type-badge-container">
-            <span class="v-type-badge"><?=$v_type_en?> (<?=$v_type_bn?>)</span>
+            <span class="v-type-badge"><?=$v_type_title?></span>
         </div>
-
-        <?php
-        $payer = !empty($voucher['pay_by']) ? $voucher['pay_by'] : ($is_expense ? 'ড্রিম ভ্যালি স্কুল (অফিস ফান্ড)' : 'N/A');
-        $receiver = !empty($voucher['received_by']) ? $voucher['received_by'] : ($is_expense ? 'N/A' : 'ড্রিম ভ্যালি স্কুল (হিসাব শাখা)');
-        $pay_method = !empty($voucher['via_name']) ? $voucher['via_name'] : (!empty($voucher['pay_via']) ? $voucher['pay_via'] : 'Cash');
-        ?>
 
         <!-- Voucher Metadata Grid -->
         <table class="v-info-table">
             <tr>
-                <td class="lbl">ভাউচার নং (Vch No):</td>
+                <td class="lbl"><?=translate('voucher_no')?>:</td>
                 <td class="val" style="color: <?=$theme_color?>;"><?=$v_code?></td>
-                <td class="lbl">তারিখ (Date):</td>
+                <td class="lbl"><?=translate('date')?>:</td>
                 <td class="val"><?=date('d M, Y', strtotime($voucher['date']))?></td>
             </tr>
             <tr>
-                <td class="lbl">অ্যাকাউন্ট / ফান্ড:</td>
-                <td class="val"><?=html_escape(!empty($voucher['ac_name']) ? $voucher['ac_name'] : 'School Cash')?></td>
-                <td class="lbl">ভাউচার খাত (Head):</td>
-                <td class="val"><?=html_escape(!empty($voucher['v_head']) ? $voucher['v_head'] : 'General')?></td>
+                <td class="lbl"><?=translate('account_fund')?>:</td>
+                <td class="val"><?=html_escape(!empty($voucher['ac_name']) ? dvs_clean_bilingual($voucher['ac_name'], $is_bn ? 'bengali' : 'english') : ($is_bn ? 'অফিস ক্যাশ' : 'School Cash'))?></td>
+                <td class="lbl"><?=translate('voucher_head')?>:</td>
+                <td class="val"><?=html_escape($voucher_head_title)?></td>
             </tr>
             <tr>
-                <td class="lbl">পরিশোধকারী (Pay By):</td>
+                <td class="lbl"><?=translate('pay_by')?>:</td>
                 <td class="val"><?=html_escape($payer)?></td>
-                <td class="lbl">গ্রহীতা (Received By):</td>
+                <td class="lbl"><?=translate('received_by')?>:</td>
                 <td class="val"><?=html_escape($receiver)?></td>
             </tr>
             <tr>
-                <td class="lbl">পেমেন্ট মাধ্যম (Pay Via):</td>
+                <td class="lbl"><?=translate('pay_via')?>:</td>
                 <td class="val" style="color: #007F3D;"><strong><?=html_escape($pay_method)?></strong></td>
-                <td class="lbl">রেফারেন্স নং (Ref No):</td>
-                <td class="val"><?=!empty($voucher['ref']) ? html_escape($voucher['ref']) : 'N/A'?></td>
+                <td class="lbl"><?=translate('ref_no')?>:</td>
+                <td class="val"><?=!empty($voucher['ref']) ? html_escape($voucher['ref']) : ($is_bn ? 'প্রযোজ্য নয়' : 'N/A')?></td>
             </tr>
         </table>
 
@@ -383,20 +399,20 @@
         <table class="v-particulars-table">
             <thead>
                 <tr>
-                    <th style="width: 8%;">ক্র. (SL)</th>
-                    <th>বিবরণ ও উদ্দেশ্য (Particulars / Description)</th>
-                    <th style="width: 25%;">টাকার পরিমাণ (Amount ৳)</th>
+                    <th style="width: 8%;"><?=translate('sl')?></th>
+                    <th><?=translate('particulars_description')?></th>
+                    <th style="width: 25%;"><?=translate('amount_bdt')?></th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td style="text-align: center; vertical-align: top; font-weight: bold;">০১</td>
+                    <td style="text-align: center; vertical-align: top; font-weight: bold;"><?=$is_bn ? '০১' : '01'?></td>
                     <td style="vertical-align: top;">
                         <strong style="color: #0f172a; font-size: 12px; display: block; margin-bottom: 2px;">
-                            <?=html_escape(!empty($voucher['v_head']) ? $voucher['v_head'] : ($is_expense ? 'অফিস খরচ' : 'অফিস জমা'))?>
+                            <?=html_escape($voucher_head_title)?>
                         </strong>
                         <div style="color: #334155; line-height: 1.45;">
-                            <?=!empty($voucher['description']) ? nl2br(html_escape($voucher['description'])) : 'কোনো অতিরিক্ত মন্তব্য প্রদান করা হয়নি।'?>
+                            <?=!empty($voucher['description']) ? nl2br(html_escape($voucher['description'])) : ($is_bn ? 'কোনো অতিরিক্ত মন্তব্য নেই।' : 'No additional description.')?>
                         </div>
                     </td>
                     <td class="amount-cell" style="vertical-align: middle;">
@@ -405,7 +421,7 @@
                 </tr>
                 <tr class="total-row">
                     <td colspan="2" style="text-align: right; padding-right: 12px;">
-                        সর্বমোট টাকা (Total Payable / Receivable):
+                        <?=translate('total_payable_receivable')?>:
                     </td>
                     <td class="amount-cell" style="color: <?=$theme_color?>;">
                         ৳<?=number_format($voucher['amount'], 2)?>
@@ -416,41 +432,39 @@
 
         <!-- Amount In Words -->
         <div class="v-words-box">
-            <strong>কথায় (In Words):</strong> 
-            <?=dvs_number_to_words_bangla($voucher['amount'])?> 
-            <span style="color: #64748b; font-size: 10px;">(<?=dvs_number_to_words_english($voucher['amount'])?>)</span>
+            <strong><?=translate('in_words')?>:</strong> 
+            <?php if ($is_bn): ?>
+                <?=dvs_number_to_words_bangla($voucher['amount'])?>
+            <?php else: ?>
+                <?=dvs_number_to_words_english($voucher['amount'])?>
+            <?php endif; ?>
         </div>
 
         <!-- 4 Official Signature Blocks -->
         <div class="v-sign-row">
             <div class="v-sign-col">
                 <div class="v-sign-line"></div>
-                <div class="v-sign-title">প্রস্তুতকারী</div>
-                <div class="v-sign-sub">Prepared By</div>
+                <div class="v-sign-title"><?=translate('prepared_by')?></div>
             </div>
             <div class="v-sign-col">
                 <div class="v-sign-line"></div>
-                <div class="v-sign-title">হিসাবরক্ষক / নিরীক্ষক</div>
-                <div class="v-sign-sub">Checked By</div>
+                <div class="v-sign-title"><?=translate('checked_by')?></div>
             </div>
             <div class="v-sign-col">
                 <div class="v-sign-line"></div>
-                <div class="v-sign-title">গ্রহীতা / প্রাপকের স্বাক্ষর</div>
-                <div class="v-sign-sub">Received By (Payee)</div>
+                <div class="v-sign-title"><?=translate('received_by_signature')?></div>
             </div>
             <div class="v-sign-col">
                 <div class="v-sign-line"></div>
-                <div class="v-sign-title">অনুমোদনকারী / অধ্যক্ষ</div>
-                <div class="v-sign-sub">Approved By (Principal)</div>
+                <div class="v-sign-title"><?=translate('approved_by')?></div>
             </div>
         </div>
 
         <div style="text-align: center; margin-top: 15px; border-top: 1px dotted #cbd5e1; padding-top: 4px; font-size: 9.5px; color: #94a3b8;">
-            ড্রিম ভ্যালি স্কুল ইআরপি - অফিসিয়াল হিসাব শাখা কর্তৃক কম্পিউটার জেনারেটেড A5 ভাউচার কপি।
+            <?=translate('computer_generated_voucher_note')?>
         </div>
 
     </div>
 
 </body>
 </html>
-

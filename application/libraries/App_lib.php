@@ -198,8 +198,9 @@ class App_lib
             } else {
                 $array = [];
             }
+            $cur_lang = (function_exists('get_current_lang') && get_current_lang() == 'en') ? 'english' : 'bengali';
             foreach ($result as $row) {
-                $array[$row['id']] = $row['name'];
+                $array[$row['id']] = function_exists('dvs_clean_bilingual') ? dvs_clean_bilingual($row['name'], $cur_lang) : $row['name'];
             }
         }
         return $array;

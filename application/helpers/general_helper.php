@@ -72,6 +72,7 @@ function dvs_clean_bilingual($text, $lang = 'bengali')
     if ($text === '') {
         return '';
     }
+    $lang = ($lang === 'en' || $lang === 'english') ? 'english' : 'bengali';
     $has_bn = (bool)preg_match('/[\x{0980}-\x{09FF}]/u', $text);
     $has_en = (bool)preg_match('/[a-zA-Z]/', $text);
 
@@ -80,47 +81,64 @@ function dvs_clean_bilingual($text, $lang = 'bengali')
         return $text;
     }
 
-    // Handle slash separated: "English / বাংলা" or "বাংলা / English"
+    // 1. Check outer parenthesis pattern: "Text (Text)" e.g. "Pre-Play (প্রি-প্লে)", "ভর্তি সেটিংস ও ফি (Admission Settings)"
+    if (preg_match('/^([^\(]+)\((.+)\)$/u', $text, $m)) {
+        $part1 = trim($m[1]);
+        $part2 = trim($m[2]);
+        $p1_has_bn = (bool)preg_match('/[\x{0980}-\x{09FF}]/u', $part1);
+        $p2_has_bn = (bool)preg_match('/[\x{0980}-\x{09FF}]/u', $part2);
+        $p1_has_en = (bool)preg_match('/[a-zA-Z]/', $part1);
+        $p2_has_en = (bool)preg_match('/[a-zA-Z]/', $part2);
+
+        if ($lang === 'bengali') {
+            if ($p1_has_bn && !$p1_has_en) return $part1;
+            if ($p2_has_bn && !$p2_has_en) return $part2;
+            if ($p1_has_bn) return $part1;
+            if ($p2_has_bn) return $part2;
+        } else {
+            if ($p1_has_en && !$p1_has_bn) return $part1;
+            if ($p2_has_en && !$p2_has_bn) return $part2;
+            if ($p1_has_en) return $part1;
+            if ($p2_has_en) return $part2;
+        }
+    }
+
+    // 2. Check slash pattern: "English / বাংলা" or "বাংলা / English"
     if (strpos($text, '/') !== false) {
         $parts = explode('/', $text);
         if ($lang === 'bengali') {
+            $bn_parts = [];
             foreach ($parts as $p) {
                 $p = trim($p);
                 if (preg_match('/[\x{0980}-\x{09FF}]/u', $p)) {
-                    return $p;
+                    $bn_parts[] = $p;
                 }
             }
+            if (!empty($bn_parts)) return implode(' / ', $bn_parts);
         } else {
+            $en_parts = [];
             foreach ($parts as $p) {
                 $p = trim($p);
                 if (preg_match('/[a-zA-Z]/', $p) && !preg_match('/[\x{0980}-\x{09FF}]/u', $p)) {
-                    return $p;
+                    $en_parts[] = $p;
                 }
             }
+            if (!empty($en_parts)) return implode(' / ', $en_parts);
         }
     }
 
-    // Handle parenthesis: "Title (বাংলা)" or "বাংলা (Title)"
-    if (preg_match('/^([^\(]+)\(([^\)]+)\)$/u', $text, $matches)) {
-        $part1 = trim($matches[1]);
-        $part2 = trim($matches[2]);
-        if ($lang === 'bengali') {
-            return preg_match('/[\x{0980}-\x{09FF}]/u', $part1) ? $part1 : $part2;
-        } else {
-            return (!preg_match('/[\x{0980}-\x{09FF}]/u', $part1) && preg_match('/[a-zA-Z]/', $part1)) ? $part1 : $part2;
-        }
+    // 3. Fallback: script character filter
+    if ($lang === 'bengali') {
+        $cleaned = preg_replace('/[a-zA-Z]+/u', '', $text);
+        $cleaned = preg_replace('/\s*[\(\)\/]\s*/u', ' ', $cleaned);
+        $cleaned = trim($cleaned, " /()-:;,");
+        return !empty($cleaned) ? $cleaned : $text;
+    } else {
+        $cleaned = preg_replace('/[\x{0980}-\x{09FF}]+/u', '', $text);
+        $cleaned = preg_replace('/\s*[\(\)\/]\s*/u', ' ', $cleaned);
+        $cleaned = trim($cleaned, " /()-:;,");
+        return !empty($cleaned) ? $cleaned : $text;
     }
-
-    // Fallback: if English is wanted but contains Bengali, strip out Bengali characters
-    if ($lang === 'english' && $has_bn) {
-        $stripped = trim(preg_replace('/[\x{0980}-\x{09FF}]+/u', '', $text));
-        $stripped = trim($stripped, " /()-");
-        if (!empty($stripped)) {
-            return $stripped;
-        }
-    }
-
-    return $text;
 }
 
 function dvs_is_bad_translation($val, $word, $lang = 'bengali')
@@ -237,9 +255,37 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'voucher_head' => 'Voucher Head',
         'pay_by' => 'Pay By',
         'received_by' => 'Received By',
-        'payer_name' => 'Pay By / Payer Name',
-        'receiver_name' => 'Received By / Receiver Name',
+        'payer_name' => 'Payer Name',
+        'receiver_name' => 'Receiver Name',
         'print_voucher' => 'Print Voucher',
+        'debit_voucher' => 'Debit Voucher',
+        'credit_voucher' => 'Credit Voucher',
+        'voucher_no' => 'Voucher No',
+        'account_fund' => 'Account / Fund',
+        'particulars_description' => 'Particulars / Description',
+        'amount_bdt' => 'Amount (৳)',
+        'total_payable_receivable' => 'Total Amount',
+        'in_words' => 'In Words',
+        'prepared_by' => 'Prepared By',
+        'checked_by' => 'Checked By',
+        'received_by_signature' => 'Received By',
+        'approved_by' => 'Approved By',
+        'computer_generated_voucher_note' => 'Dream Valley School ERP - Official computer-generated voucher copy.',
+
+        // Admission Settings
+        'admission_settings' => 'Admission Settings',
+        'admission_settings_fee' => 'Admission Fee & Settings',
+        'default_admission_fee' => 'Default Admission Fee',
+        'default_admission_fee_help' => 'This initial fee will be displayed in Step 5 of the student admission form.',
+        'minimum_paid_required' => 'Minimum Paid Required',
+        'minimum_paid_required_help' => 'Minimum payment required to confirm admission. Less than this will keep the application in draft status.',
+        'allow_100_percent_free_admission' => 'Allow Free Admission',
+        'allow_free_admission_help_yes' => 'Admin can grant free admission under special consideration',
+        'allow_free_admission_help_no' => 'Minimum fee payment is mandatory',
+        'allow_free_admission_help_note' => 'When enabled, the admission form will have an option for free admission under special consideration.',
+        'default_payment_method' => 'Default Payment Method',
+        'terms_conditions_undertaking' => 'Terms, Conditions & Undertaking',
+        'terms_conditions_help' => 'These terms and undertaking will be automatically printed at the bottom of the student admission form and fee receipts.',
 
         // Behaviour Records
         'behaviour_records' => 'Behaviour Records',
@@ -515,9 +561,37 @@ function dvs_language_fallback($word, $lang = 'bengali')
         // Accounting & Behaviour
         'pay_by' => 'পরিশোধকারী',
         'received_by' => 'গ্রহীতা',
-        'payer_name' => 'পরিশোধকারী',
-        'receiver_name' => 'গ্রহীতা',
+        'payer_name' => 'পরিশোধকারীর নাম',
+        'receiver_name' => 'গ্রহীতার নাম',
         'print_voucher' => 'ভাউচার প্রিন্ট করুন',
+        'debit_voucher' => 'খরচ ভাউচার (ডেবিট)',
+        'credit_voucher' => 'জমা ভাউচার (ক্রেডিট)',
+        'voucher_no' => 'ভাউচার নং',
+        'account_fund' => 'অ্যাকাউন্ট',
+        'particulars_description' => 'বিবরণ ও উদ্দেশ্য',
+        'amount_bdt' => 'টাকার পরিমাণ (৳)',
+        'total_payable_receivable' => 'সর্বমোট টাকা',
+        'in_words' => 'কথায়',
+        'prepared_by' => 'প্রস্তুতকারী',
+        'checked_by' => 'হিসাবরক্ষক',
+        'received_by_signature' => 'গ্রহীতার স্বাক্ষর',
+        'approved_by' => 'অনুমোদনকারী',
+        'computer_generated_voucher_note' => 'ড্রিম ভ্যালি স্কুল ইআরপি - অফিসিয়াল হিসাব শাখা কর্তৃক কম্পিউটার জেনারেটেড ভাউচার কপি।',
+
+        // Admission Settings
+        'admission_settings' => 'ভর্তি সেটিংস',
+        'admission_settings_fee' => 'ভর্তি ফি ও শর্তাবলী কনফিগারেশন',
+        'default_admission_fee' => 'নির্ধারিত ভর্তি ফি',
+        'default_admission_fee_help' => 'নতুন শিক্ষার্থী ভর্তির সময় ফরমের ৫নং ধাপে এই ফি-টি প্রারম্ভিক ভর্তি ফি হিসেবে প্রদর্শিত হবে।',
+        'minimum_paid_required' => 'ভর্তি নিশ্চিতের জন্য সর্বনিম্ন ফি',
+        'minimum_paid_required_help' => 'শিক্ষার্থী ভর্তি নিশ্চিত করতে অন্তত এই পরিমাণ টাকা দিতে হবে। এর চেয়ে কম দিলে আবেদন ড্রাফট হিসেবে থাকবে।',
+        'allow_100_percent_free_admission' => 'বিনামূল্যে ভর্তি অনুমোদন',
+        'allow_free_admission_help_yes' => 'অ্যাডমিন বিশেষ বিবেচনায় বিনামূল্যে ভর্তি করাতে পারবেন',
+        'allow_free_admission_help_no' => 'সর্বনিম্ন ফি প্রদান বাধ্যতামূলক',
+        'allow_free_admission_help_note' => 'এটি চালু থাকলে ভর্তি ফরমে বিশেষ বিবেচনায় বিনামূল্যে ভর্তি অপশন থাকবে যা নির্বাচন করলে ০ টাকাতেও ভর্তি নিশ্চিত করা যাবে।',
+        'default_payment_method' => 'ডিফল্ট পেমেন্ট মাধ্যম',
+        'terms_conditions_undertaking' => 'ভর্তির শর্তাবলী ও অঙ্গীকারনামা',
+        'terms_conditions_help' => 'এই শর্তাবলী ও অঙ্গীকারনামাটি শিক্ষার্থীর চূড়ান্ত ভর্তি ফরম ও ফি রসিদের নিচে স্বয়ংক্রিয়ভাবে মুদ্রিত হবে।',
         'behaviour_records' => 'শিক্ষার্থীর আচরণ মূল্যায়ন',
         'assign_behaviour' => 'আচরণ রেকর্ড',
         'incidents' => 'আচরণের ধারা',
@@ -1158,7 +1232,15 @@ function get_type_name_by_id($table, $type_id = '', $field = 'name')
 {
     $CI = &get_instance();
     $get = $CI->db->select($field)->from($table)->where('id', $type_id)->limit(1)->get()->row_array();
-    return $get[$field];
+    if (empty($get) || !isset($get[$field])) {
+        return '';
+    }
+    $val = $get[$field];
+    if (in_array($table, ['class', 'section', 'branch', 'roles'])) {
+        $cur_lang = (get_current_lang() == 'en') ? 'english' : 'bengali';
+        return dvs_clean_bilingual($val, $cur_lang);
+    }
+    return $val;
 }
 
 // set session alert / flashdata
@@ -1688,20 +1770,32 @@ if (!function_exists('get_office_accounting_payvia_list')) {
             $map[strtolower(trim($t['name']))] = $t;
         }
 
+        $is_bn = (function_exists('get_current_lang') && get_current_lang() === 'bn');
+        $bn_names = array(
+            'Cash' => 'ক্যাশ / নগদ',
+            'Bkash' => 'বিকাশ',
+            'Nagad' => 'নগদ',
+            'Bank Transfer' => 'ব্যাংক ট্রান্সফার',
+            'Cheque' => 'চেক',
+            'Card' => 'কার্ড',
+            'Others' => 'অন্যান্য'
+        );
+
         $list = array('' => translate('select'));
         foreach ($ordered_names as $name) {
             $key = strtolower(trim($name));
+            $disp = ($is_bn && isset($bn_names[$name])) ? $bn_names[$name] : $name;
             if ($key == 'others' && !isset($map['others']) && isset($map['other'])) {
-                $list[$map['other']['id']] = 'Others';
+                $list[$map['other']['id']] = $disp;
                 continue;
             }
             if (isset($map[$key])) {
-                $list[$map[$key]['id']] = $name;
+                $list[$map[$key]['id']] = $disp;
             } else {
                 // If missing in DB, insert it
                 $ci->db->insert('payment_types', array('name' => $name, 'branch_id' => 0));
                 $new_id = $ci->db->insert_id();
-                $list[$new_id] = $name;
+                $list[$new_id] = $disp;
                 $map[$key] = array('id' => $new_id, 'name' => $name);
             }
         }

@@ -206,8 +206,10 @@ class Ajax extends MY_Controller
                 if ($mode == true && !is_array($getClassTeacher)) {
                     $html .= '<option value="all">' . translate('all_sections') . '</option>';
                 }
+                $cur_lang = (function_exists('get_current_lang') && get_current_lang() == 'en') ? 'english' : 'bengali';
                 foreach ($result as $row) {
-                    $html .= '<option value="' . $row['section_id'] . '">' . $row['section_name'] . '</option>';
+                    $sec_display = function_exists('dvs_clean_bilingual') ? dvs_clean_bilingual($row['section_name'], $cur_lang) : $row['section_name'];
+                    $html .= '<option value="' . $row['section_id'] . '">' . $sec_display . '</option>';
                 }
             } else {
                 $html .= '<option value="">' . translate('no_selection_available') . '</option>';
