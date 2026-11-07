@@ -28,7 +28,7 @@
 					?>
 				</div>
 				<div class="col-md-2 mb-sm" style="margin-top: 25px;">
-					<button type="submit" class="btn btn-default btn-block"><i class="fas fa-search"></i> View Report</button>
+					<button type="submit" class="btn btn-default btn-block"><i class="fas fa-search"></i> <?=translate('view_report')?></button>
 				</div>
 			</div>
 		</form>
@@ -38,7 +38,7 @@
 <?php if (!empty($class_id)): ?>
 <section class="panel">
 	<header class="panel-heading">
-		<h4 class="panel-title"><i class="fas fa-chart-line"></i> Behaviour Score Summary Report (শিক্ষার্থী আচরণ মূল্যায়ন সারসংক্ষেপ)</h4>
+		<h4 class="panel-title"><i class="fas fa-chart-line"></i> <?=translate('behaviour_summary_report')?></h4>
 	</header>
 	<div class="panel-body">
 		<div class="table-responsive">
@@ -48,13 +48,13 @@
 						<th width="40"><?=translate('sl')?></th>
 						<th><?=translate('roll')?></th>
 						<th><?=translate('student')?></th>
-						<th>Reg No</th>
-						<th>Class & Section</th>
-						<th>Total Incidents</th>
-						<th>Positive Points (+)</th>
-						<th>Negative Points (-)</th>
-						<th>Net Score (সর্বমোট পয়েন্ট)</th>
-						<th>Conduct Status (মূল্যায়ন)</th>
+						<th><?=translate('register_no')?></th>
+						<th><?=translate('class')?> & <?=translate('section')?></th>
+						<th><?=translate('total_incidents')?></th>
+						<th><?=translate('positive_points')?></th>
+						<th><?=translate('negative_points')?></th>
+						<th><?=translate('net_score')?></th>
+						<th><?=translate('conduct_status')?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -80,15 +80,15 @@
 						</td>
 						<td>
 							<?php if ($net >= 20): ?>
-								<span class="label label-success" style="font-weight: bold;"><i class="fas fa-star"></i> চমৎকার (Excellent)</span>
+								<span class="label label-success" style="font-weight: bold;"><i class="fas fa-star"></i> <?=translate('excellent')?></span>
 							<?php elseif ($net >= 10): ?>
-								<span class="label label-info" style="font-weight: bold;"><i class="fas fa-thumbs-up"></i> খুব ভালো (Very Good)</span>
+								<span class="label label-info" style="font-weight: bold;"><i class="fas fa-thumbs-up"></i> <?=translate('very_good')?></span>
 							<?php elseif ($net >= 0): ?>
-								<span class="label label-primary" style="font-weight: bold;"><i class="fas fa-check"></i> স্বাভাবিক (Good)</span>
+								<span class="label label-primary" style="font-weight: bold;"><i class="fas fa-check"></i> <?=translate('good')?></span>
 							<?php elseif ($net >= -5): ?>
-								<span class="label label-warning" style="font-weight: bold;"><i class="fas fa-exclamation-triangle"></i> সতর্কীকরণ (Needs Attention)</span>
+								<span class="label label-warning" style="font-weight: bold;"><i class="fas fa-exclamation-triangle"></i> <?=translate('needs_attention')?></span>
 							<?php else: ?>
-								<span class="label label-danger" style="font-weight: bold;"><i class="fas fa-exclamation-circle"></i> অভিভাবক তলব (Critical)</span>
+								<span class="label label-danger" style="font-weight: bold;"><i class="fas fa-exclamation-circle"></i> <?=translate('critical')?></span>
 							<?php endif; ?>
 						</td>
 					</tr>

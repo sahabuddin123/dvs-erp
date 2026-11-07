@@ -13204,3 +13204,85 @@ ul.stu-disabled li:last-child {
 	padding-right: 10px;
 	font-weight: 600;
 }
+
+/* ============================================================
+   BENGALI TYPOGRAPHY & NUMERAL STYLING
+   Default Bengali Font: Hind Siliguri
+   Bengali Numerals (0-9 & ০-৯): Noto Sans Bengali
+   ============================================================ */
+@font-face {
+	font-family: 'NotoSansBnDigits';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: local('Noto Sans Bengali'), local('NotoSansBengali-Regular'),
+	     url('https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsolLudA.ttf') format('truetype');
+	unicode-range: U+0030-0039, U+09E6-09EF;
+}
+@font-face {
+	font-family: 'NotoSansBnDigits';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: local('Noto Sans Bengali SemiBold'), local('NotoSansBengali-SemiBold'),
+	     url('https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsldMudA.ttf') format('truetype');
+	unicode-range: U+0030-0039, U+09E6-09EF;
+}
+@font-face {
+	font-family: 'NotoSansBnDigits';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: local('Noto Sans Bengali Bold'), local('NotoSansBengali-Bold'),
+	     url('https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6Kmsm5MudA.ttf') format('truetype');
+	unicode-range: U+0030-0039, U+09E6-09EF;
+}
+
+html[lang="bn"],
+html.lang-bn,
+body.lang-bn,
+html[lang="bn"] body,
+html.lang-bn body {
+	font-family: 'NotoSansBnDigits', 'Hind Siliguri', sans-serif !important;
+}
+
+html[lang="bn"] h1, html[lang="bn"] h2, html[lang="bn"] h3, html[lang="bn"] h4, html[lang="bn"] h5, html[lang="bn"] h6,
+html.lang-bn h1, html.lang-bn h2, html.lang-bn h3, html.lang-bn h4, html.lang-bn h5, html.lang-bn h6,
+html[lang="bn"] p, html[lang="bn"] span, html[lang="bn"] a, html[lang="bn"] li, html[lang="bn"] td, html[lang="bn"] th,
+html.lang-bn p, html.lang-bn span, html.lang-bn a, html.lang-bn li, html.lang-bn td, html.lang-bn th,
+html[lang="bn"] label, html[lang="bn"] button, html[lang="bn"] input, html[lang="bn"] textarea, html[lang="bn"] select,
+html.lang-bn label, html.lang-bn button, html.lang-bn input, html.lang-bn textarea, html.lang-bn select,
+html[lang="bn"] .table, html[lang="bn"] .select2-container, html[lang="bn"] .select2-results,
+html.lang-bn .table, html.lang-bn .select2-container, html.lang-bn .select2-results {
+	font-family: 'NotoSansBnDigits', 'Hind Siliguri', sans-serif !important;
+}
+
+html[lang="bn"] input[type="number"],
+html.lang-bn input[type="number"],
+html[lang="bn"] .num,
+html.lang-bn .num,
+html[lang="bn"] .number,
+html.lang-bn .number,
+html[lang="bn"] .badge,
+html.lang-bn .badge,
+html[lang="bn"] .datepicker,
+html.lang-bn .datepicker {
+	font-family: 'Noto Sans Bengali', 'NotoSansBnDigits', 'Hind Siliguri', sans-serif !important;
+}
+
+/* Ensure FontAwesome and Line Icons are never overridden by Bengali font */
+html[lang="bn"] i[class*="fa"],
+html.lang-bn i[class*="fa"],
+html[lang="bn"] span[class*="fa"],
+html.lang-bn span[class*="fa"],
+html[lang="bn"] .fa, html.lang-bn .fa,
+html[lang="bn"] .fas, html.lang-bn .fas,
+html[lang="bn"] .far, html.lang-bn .far,
+html[lang="bn"] .fab, html.lang-bn .fab,
+html[lang="bn"] .icons, html.lang-bn .icons,
+html[lang="bn"] [class*="icon-"], html.lang-bn [class*="icon-"],
+html[lang="bn"] [class^="icon-"], html.lang-bn [class^="icon-"],
+html[lang="bn"] ul.nav-main li.nav-parent > a:after,
+html.lang-bn ul.nav-main li.nav-parent > a:after {
+	font-family: 'Font Awesome 5 Free', 'FontAwesome', 'simple-line-icons' !important;
+}

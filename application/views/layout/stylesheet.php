@@ -1,5 +1,7 @@
 <!-- Web Fonts  -->
-<link href="<?php echo is_secure('fonts.googleapis.com/css?family=Signika:wght@300..700&display=swap');?>" rel="stylesheet"> 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Signika:wght@300;400;600;700&display=swap" rel="stylesheet"> 
 <link rel="stylesheet" href="<?php echo base_url('assets/vendor/bootstrap/css/bootstrap.css');?>">
 <?php if ($this->app_lib->isRTLenabled()) { ?>
 <link rel="stylesheet" href="<?php echo base_url('assets/css/bootstrap.rtl.min.css');?>">

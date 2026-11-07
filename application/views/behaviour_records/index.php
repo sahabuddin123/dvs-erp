@@ -41,10 +41,10 @@
 			<div class="tabs-custom">
 				<ul class="nav nav-tabs">
 					<li class="active">
-						<a href="#list" data-toggle="tab"><i class="fas fa-list-ul"></i> Behaviour Records List (আচরণ রেকর্ডসমূহ)</a>
+						<a href="#list" data-toggle="tab"><i class="fas fa-list-ul"></i> <?=translate('behaviour_records_list')?></a>
 					</li>
 					<li>
-						<a href="#create" data-toggle="tab"><i class="fas fa-plus-circle"></i> Assign Behaviour (নতুন আচরণ যোগ)</a>
+						<a href="#create" data-toggle="tab"><i class="fas fa-plus-circle"></i> <?=translate('assign_behaviour')?></a>
 					</li>
 				</ul>
 				<div class="tab-content">
@@ -57,11 +57,11 @@
 										<th><?=translate('student')?></th>
 										<th><?=translate('class')?></th>
 										<th><?=translate('roll')?></th>
-										<th>Incident / আচরণ</th>
-										<th>Points / পয়েন্ট</th>
+										<th><?=translate('incident')?></th>
+										<th><?=translate('point')?></th>
 										<th><?=translate('date')?></th>
-										<th>Comment / মন্তব্য</th>
-										<th>Assigned By</th>
+										<th><?=translate('comment')?></th>
+										<th><?=translate('assigned_by')?></th>
 										<th><?=translate('action')?></th>
 									</tr>
 								</thead>
@@ -75,16 +75,16 @@
 										<td><?=$count++?></td>
 										<td>
 											<strong><?=html_escape($row['first_name'] . ' ' . $row['last_name'])?></strong><br>
-											<small class="text-muted">Reg: <?=$row['register_no']?></small>
+											<small class="text-muted"><?=translate('register_no')?>: <?=$row['register_no']?></small>
 										</td>
 										<td><?=$row['class_name'] . ' (' . $row['section_name'] . ')'?></td>
 										<td><?=$row['roll'] ?: 'N/A'?></td>
 										<td><strong><?=html_escape($row['title'])?></strong></td>
 										<td>
 											<?php if ($row['type'] == 'positive'): ?>
-												<span class="label label-success" style="font-size: 12px; font-weight: bold;"><i class="fas fa-arrow-up"></i> +<?=$row['point']?> (ইতিবাচক)</span>
+												<span class="label label-success" style="font-size: 12px; font-weight: bold;"><i class="fas fa-arrow-up"></i> +<?=$row['point']?> (<?=translate('positive')?>)</span>
 											<?php else: ?>
-												<span class="label label-danger" style="font-size: 12px; font-weight: bold;"><i class="fas fa-arrow-down"></i> -<?=$row['point']?> (নেতিবাচক)</span>
+												<span class="label label-danger" style="font-size: 12px; font-weight: bold;"><i class="fas fa-arrow-down"></i> -<?=$row['point']?> (<?=translate('negative')?>)</span>
 											<?php endif; ?>
 										</td>
 										<td><?=_d($row['date'])?></td>
@@ -141,10 +141,10 @@
 							</div>
 
 							<div class="form-group">
-								<label class="col-md-3 control-label">Predefined Incident (সংরক্ষিত খাত)</label>
+								<label class="col-md-3 control-label"><?=translate('predefined_incident')?></label>
 								<div class="col-md-6">
 									<select name="incident_id" id="incident_select" class="form-control" data-plugin-selectTwo data-width="100%">
-										<option value="">Custom Incident (ম্যানুয়ালি লিখুন)</option>
+										<option value=""><?=translate('custom_incident')?></option>
 										<?php foreach ($incidents as $inc): ?>
 										<option value="<?=$inc['id']?>" data-title="<?=html_escape($inc['title'])?>" data-point="<?=$inc['point']?>" data-type="<?=$inc['type']?>">
 											<?=html_escape($inc['title'])?> (<?=$inc['type'] == 'positive' ? '+' : '-'?><?=$inc['point']?> pts)
@@ -155,25 +155,25 @@
 							</div>
 
 							<div class="form-group">
-								<label class="col-md-3 control-label">Incident Title (আচরণের বিবরণ) <span class="required">*</span></label>
+								<label class="col-md-3 control-label"><?=translate('incident_title')?> <span class="required">*</span></label>
 								<div class="col-md-6">
-									<input type="text" class="form-control" name="title" id="incident_title" placeholder="যেমন: সহপাঠীকে সাহায্য করেছে / শ্রেণিতে নিয়মিত শৃঙ্খলা ভঙ্গ" required />
+									<input type="text" class="form-control" name="title" id="incident_title" placeholder="<?=translate('incident_title')?>..." required />
 									<span class="error"></span>
 								</div>
 							</div>
 
 							<div class="form-group">
-								<label class="col-md-3 control-label">Type (আচরণের ধরন) <span class="required">*</span></label>
+								<label class="col-md-3 control-label"><?=translate('type')?> <span class="required">*</span></label>
 								<div class="col-md-6">
 									<select name="type" id="incident_type" class="form-control" data-plugin-selectTwo data-width="100%" required>
-										<option value="positive">Positive / ইতিবাচক (+)</option>
-										<option value="negative">Negative / নেতিবাচক (-)</option>
+										<option value="positive"><?=translate('positive')?></option>
+										<option value="negative"><?=translate('negative')?></option>
 									</select>
 								</div>
 							</div>
 
 							<div class="form-group">
-								<label class="col-md-3 control-label">Point / পয়েন্ট <span class="required">*</span></label>
+								<label class="col-md-3 control-label"><?=translate('point')?> <span class="required">*</span></label>
 								<div class="col-md-6">
 									<input type="number" class="form-control" name="point" id="incident_point" value="1" min="1" max="100" required />
 									<span class="error"></span>
@@ -189,9 +189,9 @@
 							</div>
 
 							<div class="form-group">
-								<label class="col-md-3 control-label">Comment / বিস্তারিত মন্তব্য</label>
+								<label class="col-md-3 control-label"><?=translate('comment')?></label>
 								<div class="col-md-6">
-									<textarea class="form-control" name="comment" rows="3" placeholder="আচরণের কারণ বা অতিরিক্ত মন্তব্য..."></textarea>
+									<textarea class="form-control" name="comment" rows="3" placeholder="<?=translate('comment')?>..."></textarea>
 								</div>
 							</div>
 

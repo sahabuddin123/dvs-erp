@@ -25,7 +25,7 @@ class Behaviour_records extends Admin_Controller
         $this->data['records'] = $this->behaviour_records_model->getRecords($branchID, $classID, $sectionID);
         $this->data['incidents'] = $this->behaviour_records_model->getIncidents($branchID);
 
-        $this->data['title'] = 'Behaviour Records (শিক্ষার্থীর আচরণ মূল্যায়ন)';
+        $this->data['title'] = translate('behaviour_records');
         $this->data['sub_page'] = 'behaviour_records/index';
         $this->data['main_menu'] = 'behaviour_records';
         $this->load->view('layout/index', $this->data);
@@ -36,7 +36,7 @@ class Behaviour_records extends Admin_Controller
         if ($_POST) {
             $this->form_validation->set_rules('student_id', translate('student'), 'trim|required');
             $this->form_validation->set_rules('title', translate('title'), 'trim|required');
-            $this->form_validation->set_rules('point', 'Point / পয়েন্ট', 'trim|required|numeric');
+            $this->form_validation->set_rules('point', translate('point'), 'trim|required|numeric');
             $this->form_validation->set_rules('date', translate('date'), 'trim|required');
 
             if ($this->form_validation->run() !== false) {
@@ -67,7 +67,7 @@ class Behaviour_records extends Admin_Controller
         $branchID = $this->application_model->get_branch_id();
         $this->data['branch_id'] = $branchID;
         $this->data['incidents'] = $this->behaviour_records_model->getIncidents($branchID);
-        $this->data['title'] = 'Behaviour Incidents / আচরন রেকর্ড তালিকা';
+        $this->data['title'] = translate('behaviour_incidents');
         $this->data['sub_page'] = 'behaviour_records/incidents';
         $this->data['main_menu'] = 'behaviour_records';
         $this->load->view('layout/index', $this->data);
@@ -77,7 +77,7 @@ class Behaviour_records extends Admin_Controller
     {
         if ($_POST) {
             $this->form_validation->set_rules('title', translate('title'), 'trim|required');
-            $this->form_validation->set_rules('point', 'Point / পয়েন্ট', 'trim|required|numeric');
+            $this->form_validation->set_rules('point', translate('point'), 'trim|required|numeric');
             $this->form_validation->set_rules('type', translate('type'), 'trim|required');
 
             if ($this->form_validation->run() !== false) {
@@ -118,7 +118,7 @@ class Behaviour_records extends Admin_Controller
             $this->data['report'] = $this->behaviour_records_model->getReport($branchID, $classID, $sectionID);
         }
 
-        $this->data['title'] = 'Behaviour Report / আচরণ রিপোর্ট';
+        $this->data['title'] = translate('behaviour_report');
         $this->data['sub_page'] = 'behaviour_records/reports';
         $this->data['main_menu'] = 'behaviour_records';
         $this->load->view('layout/index', $this->data);

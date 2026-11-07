@@ -1,11 +1,15 @@
+<?php 
+$current_app_lang = get_current_lang(); 
+$app_lang_class = ($current_app_lang == 'bn') ? 'lang-bn' : 'lang-en';
+?>
 <!doctype html>
-<html class="fixed sidebar-left-sm <?php echo ($theme_config['dark_skin'] == 'true' ? 'dark' : 'sidebar-light');?>">
+<html lang="<?php echo $current_app_lang; ?>" class="<?php echo $app_lang_class; ?> fixed sidebar-left-sm <?php echo ($theme_config['dark_skin'] == 'true' ? 'dark' : 'sidebar-light');?>">
 <!-- html header -->
 <?php $this->load->view('layout/header.php');?>
 
 <!-- <body class="loading-overlay-showing" data-loading-overlay> -->
 <?php if ($global_config['preloader_backend'] == 1) { ?>
-<body class="loading-overlay-showing" data-loading-overlay>
+<body class="<?php echo $app_lang_class; ?> loading-overlay-showing" data-loading-overlay>
 	<!-- page preloader -->
 	<div class="loading-overlay dark">
 		<div class="ring-loader">
@@ -13,7 +17,7 @@
 		</div>
 	</div>
 <?php } else { ?>
-<body>
+<body class="<?php echo $app_lang_class; ?>">
 <?php } ?>
 	<section class="body">
 		<!-- top navbar-->
