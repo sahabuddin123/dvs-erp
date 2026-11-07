@@ -271,6 +271,25 @@ class Authentication extends Authentication_Controller
             redirect(base_url('dashboard'));
         }
 
+        // If 2FA has been disabled globally in Addons or Settings, immediately bypass to dashboard
+        $this->load->model('two_fa_model');
+        $branch_id = 0;
+        if ($this->session->has_userdata('2FA')) {
+            $sess = $this->session->userdata('2FA');
+            $branch_id = !empty($sess['loggedin_branch']) ? (int)$sess['loggedin_branch'] : 0;
+        }
+        $tfa_settings = $this->two_fa_model->get_settings($branch_id);
+        if (empty($tfa_settings->is_active) || $tfa_settings->is_active == 0 || !moduleIsEnabled('two_fa')) {
+            if ($this->session->has_userdata('2FA')) {
+                $sessionData = $this->session->userdata('2FA');
+                $this->session->unset_userdata('2FA');
+                $this->authentication_model->sessionSet($sessionData);
+                redirect(base_url('dashboard'));
+            } else {
+                redirect(base_url('dashboard'));
+            }
+        }
+
         // If 2FA session is missing, redirect to login
         if (!$this->session->has_userdata('2FA')) {
             redirect(base_url($this->authentication_model->getSegment(1) . 'authentication'));

@@ -158,7 +158,7 @@ ensure_column($conn, 'addon', 'status', 'TINYINT(1) NOT NULL DEFAULT 1 AFTER `ve
 @$conn->query("CREATE TABLE IF NOT EXISTS `two_fa_settings` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `branch_id` INT DEFAULT 0,
-  `is_active` TINYINT(1) DEFAULT 1,
+  `is_active` TINYINT(1) DEFAULT 0,
   `auth_method` VARCHAR(20) DEFAULT 'email',
   `roles_enforced` TEXT NULL,
   `otp_expire` INT DEFAULT 10,
@@ -169,7 +169,8 @@ ensure_column($conn, 'addon', 'status', 'TINYINT(1) NOT NULL DEFAULT 1 AFTER `ve
   KEY `branch_id` (`branch_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-@$conn->query("INSERT INTO `two_fa_settings` (`branch_id`, `is_active`, `auth_method`, `roles_enforced`, `otp_expire`, `master_bypass_pin`) SELECT 0, 1, 'email', '[\"1\",\"2\"]', 10, '998877' WHERE NOT EXISTS (SELECT 1 FROM `two_fa_settings` WHERE `id` = 1)");
+@$conn->query("INSERT INTO `two_fa_settings` (`branch_id`, `is_active`, `auth_method`, `roles_enforced`, `otp_expire`, `master_bypass_pin`) SELECT 0, 0, 'email', '[\"1\",\"2\"]', 10, '998877' WHERE NOT EXISTS (SELECT 1 FROM `two_fa_settings` WHERE `id` = 1)");
+@$conn->query("UPDATE `two_fa_settings` SET `is_active` = 0");
 
 @$conn->query("CREATE TABLE IF NOT EXISTS `two_fa_codes` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -191,12 +192,13 @@ ensure_column($conn, 'addon', 'status', 'TINYINT(1) NOT NULL DEFAULT 1 AFTER `ve
 @$conn->query("CREATE TABLE IF NOT EXISTS `two_fa_user_config` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL UNIQUE,
-  `is_enabled` TINYINT(1) DEFAULT 1,
+  `is_enabled` TINYINT(1) DEFAULT 0,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-@$conn->query("INSERT INTO `addon` (`name`, `prefix`, `version`, `purchase_code`, `status`, `created_at`) SELECT 'Two Factor Authentication', 'two_fa', '100', 'DVS-2FA-SECURITY-ADDON', 1, NOW() WHERE NOT EXISTS (SELECT 1 FROM `addon` WHERE `prefix` = 'two_fa')");
+@$conn->query("INSERT INTO `addon` (`name`, `prefix`, `version`, `purchase_code`, `status`, `created_at`) SELECT 'Two Factor Authentication', 'two_fa', '100', 'DVS-2FA-SECURITY-ADDON', 0, NOW() WHERE NOT EXISTS (SELECT 1 FROM `addon` WHERE `prefix` = 'two_fa')");
+@$conn->query("UPDATE `addon` SET `status` = 0 WHERE `prefix` = 'two_fa'");
 @$conn->query("INSERT INTO `permission_modules` (`name`, `prefix`, `system`, `sorted`, `in_module`, `created_at`) SELECT 'Two Factor Authentication', 'two_fa', 1, 27, 1, NOW() WHERE NOT EXISTS (SELECT 1 FROM `permission_modules` WHERE `prefix` = 'two_fa')");
 
 // Whatsapp Messaging Addon & Tables
