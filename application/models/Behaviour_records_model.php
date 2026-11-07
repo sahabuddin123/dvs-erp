@@ -66,7 +66,7 @@ class Behaviour_records_model extends MY_Model
         if (!empty($class_id)) {
             $this->db->where('e.class_id', $class_id);
         }
-        if (!empty($section_id)) {
+        if (!empty($section_id) && $section_id !== 'all') {
             $this->db->where('e.section_id', $section_id);
         }
         if (!empty($student_id)) {
@@ -166,7 +166,7 @@ class Behaviour_records_model extends MY_Model
         if (!empty($class_id)) {
             $this->db->where('e.class_id', $class_id);
         }
-        if (!empty($section_id)) {
+        if (!empty($section_id) && $section_id !== 'all') {
             $this->db->where('e.section_id', $section_id);
         }
         $this->db->where('e.session_id', $session_id);

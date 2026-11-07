@@ -17,9 +17,11 @@
 					<?php
 						$sections = array('' => translate('all_select'));
 						if (!empty($class_id)) {
-							$sec_list = $this->app_lib->getSections($class_id);
-							foreach ($sec_list as $s) {
-								$sections[$s['section_id']] = $s['name'];
+							$sec_list = $this->app_lib->getSections($class_id, false);
+							foreach ($sec_list as $s_id => $s_name) {
+								if ($s_id !== '' && $s_id !== 'all') {
+									$sections[$s_id] = $s_name;
+								}
 							}
 						}
 						echo form_dropdown("section_id", $sections, $section_id, "class='form-control' id='filter_section_id' data-plugin-selectTwo data-width='100%'");
@@ -212,6 +214,24 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
+	// Auto populate sections on class change for filter form
+	$('#filter_class_id').on('change', function() {
+		var classID = $(this).val();
+		$('#filter_section_id').html('<option value=""><?=translate('loading')?>...</option>');
+		if (classID) {
+			$.ajax({
+				url: base_url + 'ajax/getSectionByClass',
+				type: 'POST',
+				data: { class_id: classID },
+				success: function(response) {
+					$('#filter_section_id').html(response).trigger('change');
+				}
+			});
+		} else {
+			$('#filter_section_id').html('<option value=""><?=translate('all_select')?></option>').trigger('change');
+		}
+	});
+
 	// Auto populate sections on class change for assign form
 	$('#assign_class_id').on('change', function() {
 		var classID = $(this).val();
