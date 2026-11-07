@@ -52,6 +52,9 @@ class Behaviour_records_model extends MY_Model
 
     public function getRecords($branch_id = '', $class_id = '', $section_id = '', $student_id = '')
     {
+        if (!$this->db->table_exists('student_behaviour_records')) {
+            return array();
+        }
         $this->db->select('sbr.*, s.first_name, s.last_name, s.register_no, c.name as class_name, se.name as section_name, e.roll, staff.name as staff_name');
         $this->db->from('student_behaviour_records as sbr');
         $this->db->join('enroll as e', 'e.id = sbr.enroll_id', 'left');
@@ -136,10 +139,18 @@ class Behaviour_records_model extends MY_Model
 
     public function getStudentScore($student_id)
     {
-        $pos = $this->db->select_sum('point')->where(array('student_id' => $student_id, 'type' => 'positive'))->get('student_behaviour_records')->row()->point;
-        $neg = $this->db->select_sum('point')->where(array('student_id' => $student_id, 'type' => 'negative'))->get('student_behaviour_records')->row()->point;
-        $pos = (int)$pos;
-        $neg = (int)$neg;
+        $pos = 0;
+        $neg = 0;
+        if ($this->db->table_exists('student_behaviour_records')) {
+            $pos_q = $this->db->select_sum('point')->where(array('student_id' => $student_id, 'type' => 'positive'))->get('student_behaviour_records');
+            if ($pos_q && $pos_row = $pos_q->row()) {
+                $pos = (int)($pos_row->point ?? 0);
+            }
+            $neg_q = $this->db->select_sum('point')->where(array('student_id' => $student_id, 'type' => 'negative'))->get('student_behaviour_records');
+            if ($neg_q && $neg_row = $neg_q->row()) {
+                $neg = (int)($neg_row->point ?? 0);
+            }
+        }
         return array(
             'positive' => $pos,
             'negative' => $neg,

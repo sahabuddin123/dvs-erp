@@ -1253,8 +1253,12 @@ if (empty($empty_table)) {
 													<td valign="top" >GRAND TOTAL IN WORDS :</td>
 													<td valign="top" colspan="<?=$colspan?>">
 														<?php
-														$f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
-														echo ucwords($f->format($grand_obtain_marks));
+														if (class_exists('NumberFormatter')) {
+															$f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
+															echo ucwords($f->format($grand_obtain_marks));
+														} else {
+															echo $grand_obtain_marks;
+														}
 														?>
 													</td>
 												</tr>
@@ -1489,18 +1493,23 @@ if (empty($empty_table)) {
 			</div>
 
 <?php if (moduleIsEnabled('behaviour_records')) { 
-	$this->load->model('behaviour_records_model');
-	$stu_score = $this->behaviour_records_model->getStudentScore($student['id']);
-	$stu_records = $this->behaviour_records_model->getRecords('', '', '', $student['id']);
+	$CI = &get_instance();
+	if (!isset($CI->behaviour_records_model)) {
+		$CI->load->model('behaviour_records_model');
+	}
+	$b_model = $CI->behaviour_records_model;
+	$stu_score = $b_model ? $b_model->getStudentScore($student['id']) : array('positive' => 0, 'negative' => 0, 'net' => 0);
+	$stu_records = $b_model ? $b_model->getRecords('', '', '', $student['id']) : array();
+	$is_bn_profile = (function_exists('get_current_lang') && get_current_lang() === 'bn');
 ?>
 			<!-- student behaviour records -->
 			<div class="panel panel-accordion">
 				<div class="panel-heading">
 					<h4 class="panel-title">
 						<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#behaviour">
-							<i class="fas fa-traffic-light"></i> Behaviour Records (আচরণ ও চরিত্র মূল্যায়ন)
+							<i class="fas fa-traffic-light"></i> <?=$is_bn_profile ? 'আচরণ ও চরিত্র মূল্যায়ন' : 'Behaviour Records'?>
 							<span class="badge" style="background: <?=$stu_score['net'] >= 0 ? '#16a34a' : '#dc2626'?>; margin-left: 8px;">
-								Score: <?=$stu_score['net'] >= 0 ? '+' : ''?><?=$stu_score['net']?>
+								<?=$is_bn_profile ? 'স্কোর: ' : 'Score: '?><?=$stu_score['net'] >= 0 ? '+' : ''?><?=$stu_score['net']?>
 							</span>
 						</a>
 					</h4>
@@ -1510,19 +1519,19 @@ if (empty($empty_table)) {
 						<div class="row mb-md">
 							<div class="col-sm-4 text-center">
 								<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px;">
-									<span class="text-muted" style="font-size: 12px;">ইতিবাচক পয়েন্ট (+)</span>
+									<span class="text-muted" style="font-size: 12px;"><?=$is_bn_profile ? 'ইতিবাচক পয়েন্ট' : 'Positive Points'?></span>
 									<h3 style="margin: 5px 0; color: #16a34a; font-weight: bold;">+<?=$stu_score['positive']?></h3>
 								</div>
 							</div>
 							<div class="col-sm-4 text-center">
 								<div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 10px;">
-									<span class="text-muted" style="font-size: 12px;">নেতিবাচক পয়েন্ট (-)</span>
+									<span class="text-muted" style="font-size: 12px;"><?=$is_bn_profile ? 'নেতিবাচক পয়েন্ট' : 'Negative Points'?></span>
 									<h3 style="margin: 5px 0; color: #dc2626; font-weight: bold;">-<?=$stu_score['negative']?></h3>
 								</div>
 							</div>
 							<div class="col-sm-4 text-center">
 								<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px;">
-									<span class="text-muted" style="font-size: 12px;">সর্বমোট স্কোর (Net)</span>
+									<span class="text-muted" style="font-size: 12px;"><?=$is_bn_profile ? 'সর্বমোট স্কোর' : 'Net Score'?></span>
 									<h3 style="margin: 5px 0; color: <?=$stu_score['net'] >= 0 ? '#16a34a' : '#dc2626'?>; font-weight: bold;"><?=$stu_score['net'] >= 0 ? '+' : ''?><?=$stu_score['net']?></h3>
 								</div>
 							</div>
@@ -1532,11 +1541,11 @@ if (empty($empty_table)) {
 								<thead>
 									<tr>
 										<th>#</th>
-										<th>Incident / আচরণ</th>
-										<th>Point / পয়েন্ট</th>
-										<th>Date / তারিখ</th>
-										<th>Comment / মন্তব্য</th>
-										<th>Assigned By</th>
+										<th><?=$is_bn_profile ? 'আচরণের বিবরণ' : 'Incident'?></th>
+										<th><?=$is_bn_profile ? 'পয়েন্ট' : 'Point'?></th>
+										<th><?=$is_bn_profile ? 'তারিখ' : 'Date'?></th>
+										<th><?=$is_bn_profile ? 'মন্তব্য' : 'Comment'?></th>
+										<th><?=$is_bn_profile ? 'অনুমোদনকারী' : 'Assigned By'?></th>
 									</tr>
 								</thead>
 								<tbody>

@@ -677,6 +677,9 @@ class Student extends Admin_Controller
         }
         $this->load->model('fees_model');
         $this->load->model('exam_model');
+        if (moduleIsEnabled('behaviour_records')) {
+            $this->load->model('behaviour_records_model');
+        }
         $getStudent = $this->student_model->getSingleStudent($id, true);
         if (isset($_POST['update'])) {
             $this->session->set_flashdata('profile_tab', 1);
