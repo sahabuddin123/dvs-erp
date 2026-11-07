@@ -10,7 +10,7 @@
             <nav id="menu" class="nav-main" role="navigation">
                 <ul class="nav nav-main">
                     <!-- dashboard -->
-                    <?php if (is_superadmin_loggedin()) { ?>
+                    <?php if (is_superadmin_loggedin() && is_multiple_branches()) { ?>
                     <li class="nav-parent <?php if ($main_menu == 'dashboard') echo 'nav-active nav-expanded';?>">
                         <a>
                             <i class="icons icon-grid"></i><span><?=translate('dashboard')?></span>

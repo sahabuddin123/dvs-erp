@@ -474,7 +474,7 @@ $student_full_name = trim($student['first_name'] . ' ' . $student['last_name']);
 $photo_url = get_image_url('student', $student['photo']);
 
 // Branch info
-$branch_name = !empty($branch['name']) ? $branch['name'] : 'ড্রিম ভ্যালি স্কুল (মূল শাখা)';
+$branch_name = !empty($branch['name']) ? $branch['name'] : 'ড্রিম ভ্যালি স্কুল';
 $branch_address = !empty($branch['address']) ? $branch['address'] : (!empty($global_config['address']) ? $global_config['address'] : 'খাসেরহাট মেইন রোড, মাস্টার পাড়া, চরবাটা, সুবর্ণচর, নোয়াখালী');
 $branch_phone = !empty($branch['mobileno']) ? $branch['mobileno'] : (!empty($global_config['mobileno']) ? $global_config['mobileno'] : '+88 01716 122 899');
 $branch_email = !empty($branch['email']) ? $branch['email'] : (!empty($global_config['email']) ? $global_config['email'] : 'info@dreamvalleyschool.com');

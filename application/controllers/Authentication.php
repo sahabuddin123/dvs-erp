@@ -127,7 +127,13 @@ class Authentication extends Authentication_Controller
                         
                         // is logged in
                         if ($this->session->has_userdata('redirect_url')) {
-                            redirect($this->session->userdata('redirect_url'));
+                            $redirect_url = $this->session->userdata('redirect_url');
+                            $this->session->unset_userdata('redirect_url');
+                            if (!empty($redirect_url) && strpos($redirect_url, 'authentication') === false && strpos($redirect_url, 'two_fa') === false) {
+                                redirect($redirect_url);
+                            } else {
+                                redirect(base_url('dashboard'));
+                            }
                         } else {
                             redirect(base_url('dashboard'));
                         }
@@ -344,7 +350,13 @@ class Authentication extends Authentication_Controller
                     $this->authentication_model->sessionSet($sessionData);
 
                     if ($this->session->has_userdata('redirect_url')) {
-                        redirect($this->session->userdata('redirect_url'));
+                        $redirect_url = $this->session->userdata('redirect_url');
+                        $this->session->unset_userdata('redirect_url');
+                        if (!empty($redirect_url) && strpos($redirect_url, 'authentication') === false && strpos($redirect_url, 'two_fa') === false) {
+                            redirect($redirect_url);
+                        } else {
+                            redirect(base_url('dashboard'));
+                        }
                     } else {
                         redirect(base_url('dashboard'));
                     }

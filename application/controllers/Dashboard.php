@@ -41,7 +41,10 @@ class Dashboard extends Admin_Controller
             $this->data['sub_page'] = 'userrole/dashboard';
         } else {
             if (is_superadmin_loggedin()) {
-                if ($this->input->get('school_id')) {
+                if (is_single_branch()) {
+                    $schoolID = get_single_branch_id();
+                    $this->data['title'] = translate('dashboard');
+                } elseif ($this->input->get('school_id')) {
                     $schoolID = $this->input->get('school_id');
                     $this->data['title'] = get_type_name_by_id('branch', $schoolID) . " " . translate('branch_dashboard');
                 } else {
@@ -50,7 +53,7 @@ class Dashboard extends Admin_Controller
                 }
             } else {
                 $schoolID = get_loggedin_branch_id();
-                $this->data['title'] = get_type_name_by_id('branch', $schoolID) . " " . translate('branch_dashboard');
+                $this->data['title'] = is_single_branch() ? translate('dashboard') : (get_type_name_by_id('branch', $schoolID) . " " . translate('branch_dashboard'));
             }
             $getSQLMode = $this->application_model->getSQLMode();
             $this->data['school_id'] = $schoolID;

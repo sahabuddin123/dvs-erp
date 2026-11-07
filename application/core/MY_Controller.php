@@ -169,7 +169,10 @@ class Admin_Controller extends MY_Controller
     {
         parent::__construct();
         if (!is_loggedin()) {
-            $this->session->set_userdata('redirect_url', current_url());
+            $curr = current_url();
+            if (strpos($curr, 'authentication') === false && strpos($curr, 'two_fa') === false) {
+                $this->session->set_userdata('redirect_url', $curr);
+            }
             redirect(base_url('authentication'), 'refresh');
         }
         if (is_single_branch()) {

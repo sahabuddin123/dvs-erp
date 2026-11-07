@@ -82,19 +82,22 @@ $is_bn = ($current_lang === 'bengali');
             background-color: #f0fdf4 !important;
         }
         .tfa-hint-badge {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
             border-radius: 8px;
             padding: 10px 14px;
             margin-bottom: 20px;
             font-size: 13px;
-            color: #475569;
+            color: #f1f5f9 !important;
             text-align: center;
             line-height: 1.5;
         }
+        .tfa-hint-badge strong {
+            color: #4ade80 !important;
+        }
         .tfa-timer {
             font-size: 13px;
-            color: #e11d48;
+            color: #f87171 !important;
             font-weight: 600;
             margin: 12px 0;
             text-align: center;
@@ -162,8 +165,8 @@ $is_bn = ($current_lang === 'bengali');
                                 <div class="tfa-shield-icon">
                                     <i class="fas fa-shield-alt"></i>
                                 </div>
-                                <h3 style="font-weight: 700; color: #1e293b; margin-top: 5px; margin-bottom: 4px;"><?php echo translate('two_factor_authentication'); ?></h3>
-                                <p style="color: #64748b; font-size: 13px; margin-bottom: 0;"><?php echo translate('two_factor_auth_desc'); ?></p>
+                                <h3 style="font-weight: 700; color: #ffffff !important; margin-top: 5px; margin-bottom: 4px;"><?php echo translate('two_factor_authentication'); ?></h3>
+                                <p style="color: #cbd5e1 !important; font-size: 13px; margin-bottom: 0;"><?php echo translate('two_factor_auth_desc'); ?></p>
                             </div>
 
                             <div class="tfa-hint-badge">
@@ -189,7 +192,7 @@ $is_bn = ($current_lang === 'bengali');
 
                             <?php echo form_open($this->uri->uri_string()); ?>
                                 <div class="form-group text-center">
-                                    <label style="font-weight: 600; color: #334155; margin-bottom: 8px;">
+                                    <label style="font-weight: 600; color: #f1f5f9 !important; margin-bottom: 8px;">
                                         <?php echo translate('enter_otp_code'); ?>:
                                     </label>
                                     <input type="text" 
@@ -216,16 +219,16 @@ $is_bn = ($current_lang === 'bengali');
                                 </div>
 
                                 <div class="resend-box">
-                                    <a href="<?=base_url($this->authentication_model->getSegment(1) . 'two_fa_resend')?>" id="btn_resend_code" style="color: #007F3D; font-weight: 600; font-size: 13px; text-decoration: none;">
+                                    <a href="<?=base_url($this->authentication_model->getSegment(1) . 'two_fa_resend')?>" id="btn_resend_code" style="color: #4ade80 !important; font-weight: 600; font-size: 13px; text-decoration: none;">
                                         <i class="fas fa-redo"></i> <?php echo translate('resend_code'); ?>
                                     </a>
-                                    <div id="resend_cooldown" style="display:none; font-size: 12px; color: #64748b; margin-top: 4px;">
+                                    <div id="resend_cooldown" style="display:none; font-size: 12px; color: #94a3b8; margin-top: 4px;">
                                         <?php echo translate('resend_cooldown_wait'); ?>: <span id="resend_timer">60</span> <?php echo translate('seconds'); ?>
                                     </div>
                                 </div>
 
-                                <div style="margin-top: 20px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 14px;">
-                                    <a href="<?=base_url($this->authentication_model->getSegment(1) . 'authentication/logout')?>" style="color: #94a3b8; font-size: 13px; text-decoration: none;">
+                                <div style="margin-top: 20px; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.12); padding-top: 14px;">
+                                    <a href="<?=base_url($this->authentication_model->getSegment(1) . 'authentication/logout')?>" style="color: #94a3b8 !important; font-size: 13px; text-decoration: none;">
                                         <i class="fas fa-arrow-left"></i> <?php echo translate('back_to_login'); ?>
                                     </a>
                                 </div>
