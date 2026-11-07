@@ -27,9 +27,9 @@ $width = (isset($settings->printer_width) && $settings->printer_width == '58mm')
 	</div>
 	<div class="dashed-divider"></div>
 	<table style="width: 100%; font-size: 11px;">
-		<tr><td>রোল সাইজ (Roll Width):</td><td style="text-align: right;"><strong><?=$width?></strong></td></tr>
-		<tr><td>তারিখ ও সময়:</td><td style="text-align: right;"><?=date('d/m/Y h:i A')?></td></tr>
-		<tr><td>টেস্ট স্ট্যাটাস:</td><td style="text-align: right; color: green;">SUCCESS (সফল)</td></tr>
+		<tr><td><?=translate('printer_paper_size')?>:</td><td style="text-align: right;"><strong><?=$width?></strong></td></tr>
+		<tr><td><?=translate('date_time')?>:</td><td style="text-align: right;"><?=date('d/m/Y h:i A')?></td></tr>
+		<tr><td><?=translate('status')?>:</td><td style="text-align: right; color: green; font-weight: bold;"><?=strtoupper(translate('active'))?></td></tr>
 	</table>
 	<div class="dashed-divider"></div>
 	<div class="text-center" style="font-size: 10px; margin-top: 10px;">

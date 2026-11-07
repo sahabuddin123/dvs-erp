@@ -27,36 +27,103 @@ function translate($word = '')
     if ($query && $query->num_rows() > 0) {
         $row = $query->row();
         $val = ($row && isset($row->$set_lang) && $row->$set_lang !== null) ? trim((string)$row->$set_lang) : '';
+        $fallback = dvs_language_fallback($word, $set_lang);
+
         if ($val !== '') {
-            $fallback = dvs_language_fallback($word, $set_lang);
-            if ($fallback !== null && dvs_is_bad_translation($val, $word)) {
-                return $fallback;
+            if (dvs_is_bad_translation($val, $word, $set_lang)) {
+                return ($fallback !== null) ? $fallback : dvs_clean_bilingual($val, $set_lang);
             }
-            return $val;
+            return dvs_clean_bilingual($val, $set_lang);
         } else {
-            $fallback = dvs_language_fallback($word, $set_lang);
             if ($fallback !== null) {
                 return $fallback;
             }
-            return ($row && !empty($row->english)) ? $row->english : ucwords(str_replace('_', ' ', $word));
+            if ($set_lang === 'english' && !empty($row->english)) {
+                return dvs_clean_bilingual($row->english, 'english');
+            }
+            return ucwords(str_replace('_', ' ', $word));
         }
     } else {
-        $fallback = dvs_language_fallback($word, $set_lang);
-        $english_label = ucwords(str_replace('_', ' ', $word));
-        $arrayData = array(
-            'word' => $word,
-            'english' => $english_label,
-            'bengali' => ($fallback !== null) ? $fallback : $english_label,
-        );
-        $CI->db->insert('languages', $arrayData);
-        if ($set_lang == 'bengali' && $fallback !== null) {
-            return $fallback;
+        $fallback_en = dvs_language_fallback($word, 'english');
+        $fallback_bn = dvs_language_fallback($word, 'bengali');
+        $english_label = ($fallback_en !== null) ? $fallback_en : ucwords(str_replace('_', ' ', $word));
+        $bengali_label = ($fallback_bn !== null) ? $fallback_bn : $english_label;
+
+        // Non-blocking insert that tolerates strict mode / missing language columns
+        try {
+            $arrayData = array(
+                'word' => $word,
+                'english' => $english_label,
+                'bengali' => $bengali_label,
+            );
+            @$CI->db->insert('languages', $arrayData);
+        } catch (Exception $e) {}
+
+        if ($set_lang === 'bengali') {
+            return $bengali_label;
         }
         return $english_label;
     }
 }
 
-function dvs_is_bad_translation($val, $word)
+function dvs_clean_bilingual($text, $lang = 'bengali')
+{
+    $text = trim((string)$text);
+    if ($text === '') {
+        return '';
+    }
+    $has_bn = (bool)preg_match('/[\x{0980}-\x{09FF}]/u', $text);
+    $has_en = (bool)preg_match('/[a-zA-Z]/', $text);
+
+    // If text does not mix scripts, return as is
+    if (!$has_bn || !$has_en) {
+        return $text;
+    }
+
+    // Handle slash separated: "English / বাংলা" or "বাংলা / English"
+    if (strpos($text, '/') !== false) {
+        $parts = explode('/', $text);
+        if ($lang === 'bengali') {
+            foreach ($parts as $p) {
+                $p = trim($p);
+                if (preg_match('/[\x{0980}-\x{09FF}]/u', $p)) {
+                    return $p;
+                }
+            }
+        } else {
+            foreach ($parts as $p) {
+                $p = trim($p);
+                if (preg_match('/[a-zA-Z]/', $p) && !preg_match('/[\x{0980}-\x{09FF}]/u', $p)) {
+                    return $p;
+                }
+            }
+        }
+    }
+
+    // Handle parenthesis: "Title (বাংলা)" or "বাংলা (Title)"
+    if (preg_match('/^([^\(]+)\(([^\)]+)\)$/u', $text, $matches)) {
+        $part1 = trim($matches[1]);
+        $part2 = trim($matches[2]);
+        if ($lang === 'bengali') {
+            return preg_match('/[\x{0980}-\x{09FF}]/u', $part1) ? $part1 : $part2;
+        } else {
+            return (!preg_match('/[\x{0980}-\x{09FF}]/u', $part1) && preg_match('/[a-zA-Z]/', $part1)) ? $part1 : $part2;
+        }
+    }
+
+    // Fallback: if English is wanted but contains Bengali, strip out Bengali characters
+    if ($lang === 'english' && $has_bn) {
+        $stripped = trim(preg_replace('/[\x{0980}-\x{09FF}]+/u', '', $text));
+        $stripped = trim($stripped, " /()-");
+        if (!empty($stripped)) {
+            return $stripped;
+        }
+    }
+
+    return $text;
+}
+
+function dvs_is_bad_translation($val, $word, $lang = 'bengali')
 {
     $val = trim((string)$val);
     if ($val === '') {
@@ -65,6 +132,20 @@ function dvs_is_bad_translation($val, $word)
     if (strpos($val, '??') !== false) {
         return true;
     }
+
+    $has_bn = (bool)preg_match('/[\x{0980}-\x{09FF}]/u', $val);
+    $has_en = (bool)preg_match('/[a-zA-Z]/', $val);
+
+    // If both scripts are present with slash or parenthesis, it's a legacy bilingual string
+    if ($has_bn && $has_en && (strpos($val, '/') !== false || strpos($val, '(') !== false)) {
+        return true;
+    }
+
+    // If English is selected but string has Bengali characters
+    if ($lang === 'english' && $has_bn) {
+        return true;
+    }
+
     $bad_samples = array(
         'ছাঁকনি',
         'স্থাপন',
@@ -108,7 +189,7 @@ function dvs_is_bad_translation($val, $word)
     if ($word === 'student' && $val === 'ছাত্র') {
         return true;
     }
-    if (strcasecmp($val, $word) === 0 || strcasecmp($val, str_replace('_', ' ', $word)) === 0) {
+    if ($lang === 'bengali' && (strcasecmp($val, $word) === 0 || strcasecmp($val, str_replace('_', ' ', $word)) === 0)) {
         return true;
     }
     return false;
@@ -116,48 +197,349 @@ function dvs_is_bad_translation($val, $word)
 
 function dvs_language_fallback($word, $lang = 'bengali')
 {
-    if ($lang !== 'bengali') {
-        return null;
-    }
+    static $en_dict = array(
+        // Core & Navigation
+        'dashboard' => 'Dashboard',
+        'branch' => 'Branch',
+        'all_branches' => 'All Branches',
+        'status' => 'Status',
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+        'enabled' => 'Enabled',
+        'disabled' => 'Disabled',
+        'keep_enabled' => 'Keep Enabled',
+        'disable_now' => 'Disable',
+        'save' => 'Save',
+        'filter' => 'Filter',
+        'reset' => 'Reset',
+        'action' => 'Action',
+        'type' => 'Type',
+        'date' => 'Date',
+        'method' => 'Method',
+        'user' => 'User',
+        'role' => 'Role',
+        'class' => 'Class',
+        'section' => 'Section',
+        'all_select' => 'All',
+        'select' => 'Select',
+        'select_class_first' => 'Select Class First',
+        'settings' => 'Settings',
+        'reports' => 'Reports',
+        'templates' => 'Templates',
+        'information_has_been_updated_successfully' => 'Information has been updated successfully',
+
+        // Accounting
+        'office_accounting' => 'Office Accounting',
+        'account' => 'Account',
+        'new_deposit' => 'New Deposit',
+        'new_expense' => 'New Expense',
+        'all_transactions' => 'All Transactions',
+        'voucher_head' => 'Voucher Head',
+        'pay_by' => 'Pay By',
+        'received_by' => 'Received By',
+        'payer_name' => 'Pay By / Payer Name',
+        'receiver_name' => 'Received By / Receiver Name',
+        'print_voucher' => 'Print Voucher',
+
+        // Behaviour Records
+        'behaviour_records' => 'Behaviour Records',
+        'assign_behaviour' => 'Assign Behaviour',
+        'incidents' => 'Incidents',
+        'incident' => 'Incident',
+        'incident_title' => 'Incident Title',
+        'point' => 'Point',
+        'points' => 'Points',
+        'positive' => 'Positive',
+        'negative' => 'Negative',
+        'predefined_incident' => 'Predefined Incident',
+        'custom_incident' => 'Custom Incident',
+        'comment_details' => 'Detailed Comment',
+        'student_name' => 'Student Name',
+        'view_report' => 'View Report',
+
+        // Thermal Print
+        'thermal_print' => 'Thermal Print',
+        'thermal_print_settings' => 'Thermal Print Settings',
+        'thermal_print_configuration' => 'Thermal Print Configuration',
+        'printer_paper_size' => 'Printer Paper Size',
+        'standard_pos' => '3-Inch Standard POS (80mm)',
+        'mini_pos' => '2-Inch Mini POS (58mm)',
+        'printer_paper_size_help' => 'Select paper roll width for your thermal printer (80mm standard recommended).',
+        'receipt_options' => 'Receipt Options',
+        'show_school_logo' => 'Show School Logo',
+        'show_barcode_invoice_code' => 'Show Barcode / Invoice Code',
+        'auto_trigger_print_dialog' => 'Auto-trigger Print Dialog',
+        'header_title' => 'Header Title',
+        'header_subtitle' => 'Subtitle',
+        'school_address' => 'School Address',
+        'contact_info' => 'Contact / Phone',
+        'footer_message_terms' => 'Footer Message / Terms',
+        'test_print' => 'Test Print',
+        'thermal_receipt_live_preview' => 'Thermal Receipt Preview',
+        'receipt_voucher' => 'Payment Receipt',
+        'receipt_no' => 'Receipt No',
+
+        // WhatsApp Messaging
+        'whatsapp_messaging' => 'WhatsApp Messaging',
+        'compose_whatsapp_message' => 'Compose WhatsApp Message',
+        'send_message' => 'Send Message',
+        'recipient_type' => 'Recipient Type',
+        'recipient' => 'Recipient',
+        'recipients' => 'Recipients',
+        'recipient_name' => 'Recipient Name',
+        'custom_numbers' => 'Custom Numbers',
+        'staff_role' => 'Staff Role',
+        'mobile_no' => 'Mobile No',
+        'mobile_numbers' => 'Mobile Numbers',
+        'mobile_numbers_help' => 'Enter comma separated phone numbers (e.g. 01716122899, 01800000000)',
+        'message_template' => 'Message Template',
+        'select_message_template' => '-- Select Message Template --',
+        'insert_tags' => 'Insert Tags',
+        'tag_click_help' => 'Click any tag to append it into your message; tags are replaced automatically upon dispatch.',
+        'message_body' => 'Message Body',
+        'message_body_placeholder' => 'Write your WhatsApp message here...',
+        'character_count' => 'Character Count',
+        'start_whatsapp_dispatch' => 'Start WhatsApp Dispatch',
+        'whatsapp_live_preview' => 'WhatsApp Live Preview',
+        'whatsapp_preview_placeholder' => 'Your message preview will appear here...',
+        'whatsapp_templates' => 'WhatsApp Message Templates',
+        'whatsapp_templates_list' => 'WhatsApp Templates List',
+        'add_new_template' => 'Add New Template',
+        'edit_template' => 'Edit Template',
+        'template_description' => 'Template Description',
+        'whatsapp_reports' => 'WhatsApp Message Reports',
+        'whatsapp_dispatch_logs' => 'WhatsApp Dispatch Logs',
+        'all_roles' => '-- All Roles --',
+        'gateway_medium' => 'Gateway Medium',
+        'sent' => 'Sent',
+        'failed' => 'Failed',
+        'ready' => 'Ready',
+        'whatsapp_settings' => 'WhatsApp Settings',
+        'gateway_type' => 'Gateway Type',
+        'web_whatsapp_desc' => 'Web WhatsApp / Click to Chat (Free via Browser / App)',
+        'custom_api_desc' => 'Custom WhatsApp API Gateway (Automated API)',
+        'gateway_help_text' => 'Using "Web WhatsApp" mode is 100% free with no 3rd-party subscription, opening WhatsApp Web or App directly.',
+        'country_code' => 'Country Code',
+        'country_code_help' => 'Default country dial code (880 for Bangladesh). Local numbers are auto-formatted.',
+        'message_header_text' => 'Message Header Text',
+        'message_footer_text' => 'Message Footer Text',
+        'whatsapp_queue' => 'WhatsApp Dispatch Queue',
+        'send_via_whatsapp' => 'Send via WhatsApp',
+        'queue_instructions' => 'Recipients are queued below. Clicking "Send via WhatsApp" opens WhatsApp with prefilled message.',
+        'message_preview' => 'Message Preview',
+        'view_message_reports' => 'View Message Reports',
+        'api_endpoint_url' => 'API Endpoint URL',
+        'api_key_token' => 'API Key / Token',
+        'instance_id' => 'Instance ID',
+        'customer_user' => 'Valued User',
+        'please_enter_message_text' => 'Please enter message text',
+
+        // Two Factor Authentication
+        'two_factor_auth' => 'Two-Factor Authentication',
+        'two_factor_authentication' => 'Two-Factor Authentication',
+        'two_factor_auth_desc' => 'Two-Factor Security Verification',
+        'enter_otp_code' => 'Enter 6-digit Security Code',
+        'verify_and_login' => 'Verify & Login',
+        'resend_code' => 'Resend Code',
+        'back_to_login' => 'Back to Login',
+        'time_remaining' => 'Time Remaining',
+        'code_expired' => 'Code Expired',
+        'resend_cooldown_wait' => 'Please wait before resending',
+        'seconds' => 'seconds',
+        'security_code_sent_email' => 'A 6-digit security code has been sent to your registered email %s.',
+        'security_code_sent_sms' => 'A 6-digit security code has been sent to your mobile %s.',
+        'security_code_sent_both' => 'A security code has been sent to your email %s and mobile %s.',
+        'please_enter_6_digit_security_code' => 'Please enter the 6-digit security code',
+        'new_security_code_sent' => 'New security code sent successfully!',
+        'please_wait_resend_cooldown' => 'Please wait %s more seconds and try again.',
+        'master_bypass_pin' => 'Master Bypass PIN',
+        'master_bypass_pin_help' => 'Emergency bypass PIN for Super Admin if mail or SMS gateway is offline.',
+        'otp_expiry_time' => 'OTP Expiry Time',
+        'minutes' => 'Minutes',
+        'otp_expiry_help' => 'Validity period for sent security codes (default: 10 minutes).',
+        'enforced_roles' => 'Enforced User Roles',
+        'select_all' => 'Select All',
+        'deselect_all' => 'Deselect All',
+        'enforced_roles_help' => 'Selected roles will be required to verify 2FA security OTP during login.',
+        'verification_method' => 'Verification Method',
+        'email_otp' => 'Email OTP',
+        'sms_otp' => 'SMS OTP',
+        'both_email_sms' => 'Both Email & SMS',
+        'verified' => 'Verified',
+        'expired' => 'Expired',
+        'pending' => 'Pending',
+        'sent_to' => 'Sent To',
+        'security_code' => 'Security Code',
+        'ip_address' => 'IP Address',
+        'user_agent' => 'Browser / User Agent',
+        'date_time' => 'Date & Time',
+        'activity_logs' => 'Activity Logs',
+        'account_security_profile' => 'Account Security Profile',
+        'my_account_security' => 'My Account Security',
+        'tfa_security_status' => '2FA Security Status',
+        'how_it_works' => 'How it works?',
+        'how_it_works_2fa_desc' => 'When you log in with your username and password, a 6-digit OTP code is sent to your registered email or phone. Entering that code allows you to securely access your account.',
+        'two_fa_account_desc' => 'Keep two-factor verification enabled to prevent unauthorized access to your account.',
+        'no_information_available' => 'No information available',
+    );
+
     static $bn_dict = array(
-        'behaviour_records' => 'শিক্ষার্থীর আচরণ মূল্যায়ন',
-        'behaviour_records_list' => 'আচরণ রেকর্ডসমূহ',
-        'assign_behaviour' => 'নতুন আচরণ যোগ',
-        'behaviour_report' => 'আচরণ রিপোর্ট',
-        'behaviour_incidents' => 'আচরণের খাত তালিকা',
-        'add_behaviour_incident' => 'নতুন আচরণের খাত যোগ',
-        'incident' => 'আচরণের খাত',
-        'incidents' => 'আচরণের খাতসমূহ',
-        'incident_title' => 'আচরণের বিবরণ',
-        'predefined_incident' => 'সংরক্ষিত খাত',
-        'custom_incident' => 'ম্যানুয়ালি লিখুন',
-        'point' => 'পয়েন্ট',
-        'comment' => 'মন্তব্য',
-        'positive' => 'ইতিবাচক (+)',
-        'negative' => 'নেতিবাচক (-)',
-        'positive_points' => 'ইতিবাচক পয়েন্ট (+)',
-        'negative_points' => 'নেতিবাচক পয়েন্ট (-)',
-        'net_score' => 'সর্বমোট পয়েন্ট',
-        'conduct_status' => 'আচরণ মূল্যায়ন',
-        'total_incidents' => 'মোট ঘটনা',
+        // Thermal Print
         'thermal_print' => 'থার্মাল প্রিন্ট',
-        'view_report' => 'রিপোর্ট দেখুন',
-        'behaviour_summary_report' => 'শিক্ষার্থী আচরণ মূল্যায়ন সারসংক্ষেপ',
-        'excellent' => 'চমৎকার',
-        'very_good' => 'খুব ভালো',
-        'good' => 'স্বাভাবিক',
-        'needs_attention' => 'সতর্কীকরণ',
-        'critical' => 'অভিভাবক তলব',
+        'thermal_print_settings' => 'থার্মাল প্রিন্ট সেটিংস ও কনফিগারেশন',
+        'thermal_print_configuration' => 'থার্মাল প্রিন্ট কনফিগারেশন সেটিংস',
+        'printer_paper_size' => 'প্রিন্টার পেপার সাইজ',
+        'standard_pos' => '৩-ইঞ্চি Standard POS',
+        'mini_pos' => '২-ইঞ্চি Mini POS',
+        'printer_paper_size_help' => 'আপনার থার্মাল প্রিন্টারের রোল অনুযায়ী সাইজ নির্বাচন করুন (সাধারণত 80mm সবচেয়ে জনপ্রিয়)।',
+        'receipt_options' => 'রসিদ অপশনসমূহ',
+        'show_school_logo' => 'স্কুল লোগো প্রদর্শন করুন',
+        'show_barcode_invoice_code' => 'বারকোড ও ইনভয়েস কোড যুক্ত করুন',
+        'auto_trigger_print_dialog' => 'স্বয়ংক্রিয় প্রিন্ট ডায়লগ ওপেন করুন',
+        'header_title' => 'হেডার শিরোনাম',
+        'header_subtitle' => 'উপ-শিরোনাম',
+        'school_address' => 'স্কুল ঠিকানা',
+        'contact_info' => 'যোগাযোগ ও মোবাইল',
+        'footer_message_terms' => 'ফুটার বার্তা ও শর্তাবলী',
+        'test_print' => 'টেস্ট প্রিন্ট দিন',
+        'thermal_receipt_live_preview' => 'থার্মাল রসিদ প্রিভিউ',
+        'receipt_voucher' => 'ফি আদায়ের রসিদ',
+        'receipt_no' => 'রসিদ নং',
+
+        // WhatsApp Messaging
         'whatsapp_messaging' => 'হোয়াটসঅ্যাপ মেসেজিং',
+        'compose_whatsapp_message' => 'WhatsApp বার্তা তৈরি করুন',
         'send_message' => 'বার্তা পাঠান',
-        'two_factor_auth' => 'দ্বি-স্তর বিশিষ্ট নিরাপত্তা (2FA)',
+        'recipient_type' => 'প্রাপকের ধরন',
+        'recipient' => 'প্রাপক',
+        'recipients' => 'প্রাপকবৃন্দ',
+        'recipient_name' => 'প্রাপকের নাম',
+        'custom_numbers' => 'সরাসরি নম্বর',
+        'staff_role' => 'কর্মচারী রোল',
+        'mobile_no' => 'মোবাইল নম্বর',
+        'mobile_numbers' => 'মোবাইল নম্বরসমূহ',
+        'mobile_numbers_help' => 'কমা দিয়ে পৃথক করে একাধিক নম্বর লিখুন, যেমন: 01716122899, 01800000000',
+        'message_template' => 'মেসেজ টেমপ্লেট',
+        'select_message_template' => '-- টেমপ্লেট থেকে মেসেজ নির্বাচন করুন --',
+        'insert_tags' => 'ট্যাগ যুক্ত করুন',
+        'tag_click_help' => 'যেকোনো ট্যাগে ক্লিক করলে তা মেসেজে যুক্ত হবে এবং স্বয়ংক্রিয়ভাবে সংশ্লিষ্ট তথ্য দিয়ে প্রতিস্থাপিত হবে।',
+        'message_body' => 'মেসেজের বিবরণ',
+        'message_body_placeholder' => 'আপনার WhatsApp বার্তা এখানে লিখুন...',
+        'character_count' => 'অক্ষর সংখ্যা',
+        'start_whatsapp_dispatch' => 'WhatsApp বার্তা প্রেরণ প্রক্রিয়া শুরু করুন',
+        'whatsapp_live_preview' => 'WhatsApp মেসেজ লাইভ প্রিভিউ',
+        'whatsapp_preview_placeholder' => 'আপনার বার্তার নমুনা এখানে প্রদর্শিত হবে...',
+        'whatsapp_templates' => 'WhatsApp মেসেজ টেমপ্লেট',
+        'whatsapp_templates_list' => 'WhatsApp মেসেজ টেমপ্লেট তালিকা',
+        'add_new_template' => 'নতুন টেমপ্লেট যুক্ত করুন',
+        'edit_template' => 'টেমপ্লেট সংশোধন',
+        'template_description' => 'টেমপ্লেট বিবরণ',
+        'whatsapp_reports' => 'WhatsApp মেসেজ লগ ও রিপোর্ট',
+        'whatsapp_dispatch_logs' => 'WhatsApp বার্তা প্রেরণ লগ ও রিপোর্ট',
+        'all_roles' => '-- সকল রোল --',
+        'gateway_medium' => 'মাধ্যম',
+        'sent' => 'পাঠানো হয়েছে',
+        'failed' => 'ব্যর্থ',
+        'ready' => 'প্রস্তুত',
+        'whatsapp_settings' => 'WhatsApp কনফিগারেশন ও গেটওয়ে সেটিংস',
+        'gateway_type' => 'প্রেরণ মাধ্যম',
+        'web_whatsapp_desc' => 'ওয়েব হোয়াটসঅ্যাপ (ব্রাউজার ও অ্যাপ)',
+        'custom_api_desc' => 'কাস্টম হোয়াটসঅ্যাপ গেটওয়ে API',
+        'gateway_help_text' => 'ডিফল্টভাবে "Web WhatsApp" মোড ব্যবহার করলে কোনো থার্ড-পার্টি সাবস্ক্রিপশন ছাড়াই সরাসরি WhatsApp Web / Mobile App দিয়ে ফ্রিতে বার্তা পাঠানো যায়।',
+        'country_code' => 'কান্ট্রি কোড',
+        'country_code_help' => 'বাংলাদেশের জন্য 880। স্থানীয় নম্বরসমূহ স্বয়ংক্রিয়ভাবে আন্তর্জাতিক ফরম্যাটে রূপান্তরিত হবে।',
+        'message_header_text' => 'মেসেজ হেডার টেক্সট',
+        'message_footer_text' => 'মেসেজ ফুটার টেক্সট',
+        'whatsapp_queue' => 'WhatsApp বার্তা প্রেরণ কিউ',
+        'send_via_whatsapp' => 'WhatsApp-এ পাঠান',
+        'queue_instructions' => 'নিচে প্রাপকদের জন্য বার্তা প্রস্তুত রয়েছে। "WhatsApp-এ পাঠান" বাটনে ক্লিক করলে স্বয়ংক্রিয়ভাবে WhatsApp Web বা মোবাইল অ্যাপে প্রাপকের নম্বর ও সাজানো মেসেজসহ ওপেন হবে।',
+        'message_preview' => 'বার্তা প্রিভিউ',
+        'view_message_reports' => 'মেসেজ রিপোর্ট দেখুন',
+        'api_endpoint_url' => 'API এন্ডপয়েন্ট URL',
+        'api_key_token' => 'API Key ও টোকেন',
+        'instance_id' => 'ইনস্ট্যান্স আইডি',
+        'customer_user' => 'সম্মানিত গ্রাহক',
+        'please_enter_message_text' => 'অনুগ্রহ করে মেসেজের বিবরণ লিখুন',
+        'reset' => 'রিসেট',
+        'filter_search' => 'ফিল্টার ও অনুসন্ধান',
+
+        // Two Factor Authentication
+        'two_factor_auth' => 'দ্বি-স্তর বিশিষ্ট নিরাপত্তা',
+        'two_factor_authentication' => 'দ্বি-স্তর বিশিষ্ট নিরাপত্তা',
+        'two_factor_auth_desc' => 'দ্বি-স্তর বিশিষ্ট নিরাপত্তা যাচাইকরণ',
+        'enter_otp_code' => '৬-সংখ্যার সিকিউরিটি কোডটি লিখুন',
+        'verify_and_login' => 'যাচাই করুন এবং প্রবেশ করুন',
+        'resend_code' => 'পুনরায় কোড পাঠান',
+        'back_to_login' => 'লগইন পেজে ফিরে যান',
+        'time_remaining' => 'মেয়াদ বাকি',
+        'code_expired' => 'মেয়াদ শেষ',
+        'resend_cooldown_wait' => 'পুনরায় কোড পাঠাতে অপেক্ষা করুন',
+        'seconds' => 'সেকেন্ড',
+        'security_code_sent_email' => 'আপনার নিবন্ধিত ইমেইল %s-এ ৬-সংখ্যার সিকিউরিটি কোড পাঠানো হয়েছে।',
+        'security_code_sent_sms' => 'আপনার মোবাইল নম্বর %s-এ ৬-সংখ্যার সিকিউরিটি কোড পাঠানো হয়েছে।',
+        'security_code_sent_both' => 'আপনার ইমেইল %s ও মোবাইল %s-এ সিকিউরিটি কোড পাঠানো হয়েছে।',
+        'please_enter_6_digit_security_code' => 'অনুগ্রহ করে ৬-সংখ্যার সিকিউরিটি কোডটি লিখুন',
+        'new_security_code_sent' => 'নতুন সিকিউরিটি কোড সফলভাবে পাঠানো হয়েছে!',
+        'please_wait_resend_cooldown' => 'অনুগ্রহ করে আরও %s সেকেন্ড অপেক্ষা করে আবার চেষ্টা করুন।',
+        'enforced_roles' => 'প্রযোজ্য ইউজার রোল',
+        'select_all' => 'সব নির্বাচন করুন',
+        'deselect_all' => 'সব বাতিল করুন',
+        'enforced_roles_help' => 'যেসব রোল সিলেক্ট করা থাকবে, তাদের লগইনের সময় অবশ্যই ২-স্টেপ সিকিউরিটি ওটিপি কোড যাচাই করতে হবে।',
+        'otp_expiry_time' => 'ওটিপি কোডের মেয়াদ',
+        'minutes' => 'মিনিট',
+        'otp_expiry_help' => 'প্রেরিত সিকিউরিটি কোডটি কত মিনিট পর্যন্ত বৈধ থাকবে (ডিফল্ট: ১০ মিনিট)।',
+        'master_bypass_pin' => 'মাস্টার বাইপাস পিন',
+        'master_bypass_pin_help' => 'জরুরি অবস্থায় (যেমন স্কুল মেইল বা এসএমএস গেটওয়ে সাময়িক অফলাইনে থাকলে) সুপার এডমিন এই পিন দিয়ে সরাসরি লগইন করতে পারবেন। এটি অত্যন্ত সুরক্ষিত রাখুন।',
+        'verification_method' => 'যাচাইকরণ মাধ্যম',
+        'email_otp' => 'ইমেইল ওটিপি',
+        'sms_otp' => 'এসএমএস ওটিপি',
+        'both_email_sms' => 'উভয় মাধ্যম',
+        'verified' => 'যাচাইকৃত',
+        'expired' => 'মেয়াদোত্তীর্ণ',
+        'pending' => 'অপেক্ষমাণ',
+        'sent_to' => 'প্রেরিত ঠিকানা ও নম্বর',
+        'security_code' => 'সিকিউরিটি কোড',
+        'ip_address' => 'আইপি অ্যাড্রেস',
+        'user_agent' => 'ব্রাউজার ও ইউজার এজেন্ট',
+        'date_time' => 'তারিখ ও সময়',
         'activity_logs' => 'অ্যাক্টিভিটি লগ',
+        'account_security_profile' => 'অ্যাকাউন্ট সিকিউরিটি প্রোফাইল',
+        'my_account_security' => 'আমার অ্যাকাউন্ট নিরাপত্তা',
+        'tfa_security_status' => '2FA নিরাপত্তা স্ট্যাটাস',
+        'keep_enabled' => 'সক্রিয় রাখুন',
+        'disable_now' => 'নিষ্ক্রিয় করুন',
+        'how_it_works' => 'কিভাবে কাজ করে?',
+        'how_it_works_2fa_desc' => 'যখন আপনি আপনার ইউজারনেম এবং পাসওয়ার্ড দিয়ে লগইন করবেন, তখন আপনার নিবন্ধিত ইমেইল বা মোবাইলে একটি ৬-সংখ্যার ওটিপি কোড পাঠানো হবে। সেই কোডটি প্রবেশ করালে আপনি নিরাপদে অ্যাকাউন্টে প্রবেশ করতে পারবেন।',
+        'two_fa_account_desc' => 'আপনার অ্যাকাউন্টের অননুমোদিত অ্যাক্সেস রোধে দ্বি-স্তর বিশিষ্ট যাচাইকরণ ব্যবস্থা সক্রিয় রাখুন।',
+
+        // Accounting & Behaviour
+        'pay_by' => 'পরিশোধকারী',
+        'received_by' => 'গ্রহীতা',
+        'payer_name' => 'পরিশোধকারী',
+        'receiver_name' => 'গ্রহীতা',
+        'print_voucher' => 'ভাউচার প্রিন্ট করুন',
+        'behaviour_records' => 'শিক্ষার্থীর আচরণ মূল্যায়ন',
+        'assign_behaviour' => 'আচরণ রেকর্ড',
+        'incidents' => 'আচরণের ধারা',
+        'incident' => 'আচরণ',
+        'incident_title' => 'আচরণের বিবরণ',
+        'point' => 'পয়েন্ট',
+        'points' => 'পয়েন্ট',
+        'positive' => 'ইতিবাচক',
+        'negative' => 'নেতিবাচক',
+        'predefined_incident' => 'সংরক্ষিত ধারা',
+        'custom_incident' => 'ম্যানুয়ালি লিখুন',
+        'comment_details' => 'বিস্তারিত মন্তব্য',
+        'student_name' => 'শিক্ষার্থীর নাম',
+        'view_report' => 'রিপোর্ট দেখুন',
+
+        // Core system
         'dashboard' => 'ড্যাশবোর্ড',
         'branch' => 'শাখা',
         'all_branches' => 'সকল শাখা',
-        'inventory' => 'ইনভেন্টরি / মালামাল',
+        'inventory' => 'ইনভেন্টরি',
         'frontend' => 'ওয়েবসাইট সিএমএস',
-        'reception' => 'রিসেপশন ও ফ্রন্ট ডেস্ক',
+        'reception' => 'ফ্রন্ট ডেস্ক ও রিসেপশন',
         'admission' => 'ভর্তি কার্যক্রম',
         'student_details' => 'শিক্ষার্থী তথ্য ও তালিকা',
         'parents' => 'অভিভাবক বৃন্দ',
@@ -165,16 +547,16 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'card_management' => 'আইডি ও প্রবেশপত্র কার্ড',
         'certificate' => 'সার্টিফিকেট ও সনদ',
         'certificates' => 'সার্টিফিকেট সমূহ',
-        'human_resource' => 'মানব সম্পদ (HR)',
-        'hrm' => 'মানব সম্পদ (HRM)',
+        'human_resource' => 'মানব সম্পদ',
+        'hrm' => 'মানব সম্পদ',
         'academic' => 'একাডেমিক ব্যবস্থাপনা',
-        'live_class_rooms' => 'অনলাইন / লাইভ ক্লাস',
+        'live_class_rooms' => 'অনলাইন ও লাইভ ক্লাস',
         'live_class' => 'লাইভ ক্লাস',
         'live_class_reports' => 'লাইভ ক্লাস রিপোর্ট',
-        'attachments_book' => 'ডাউনলোড সেন্টার / ফাইল',
+        'attachments_book' => 'ডাউনলোড সেন্টার ও ফাইল',
         'attachment_type' => 'ফাইলের ধরন',
         'upload_content' => 'ফাইল আপলোড',
-        'homework' => 'বাড়ির কাজ (Homework)',
+        'homework' => 'বাড়ির কাজ',
         'evaluation_report' => 'মূল্যায়ন প্রতিবেদন',
         'supervision' => 'হোস্টেল ও পরিবহন',
         'attendance' => 'হাজিরা ও উপস্থিতি',
@@ -185,7 +567,7 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'devices' => 'ডিভাইস সমূহ',
         'logs' => 'হাজিরা লগ',
         'user_mapping' => 'ইউজার ম্যাপিং',
-        'lesson_plan' => 'পাঠ পরিকল্পনা (Lesson Plan)',
+        'lesson_plan' => 'পাঠ পরিকল্পনা',
         'library' => 'লাইব্রেরি',
         'events' => 'ইভেন্টস ও নোটিশ',
         'event_type' => 'ইভেন্টের ধরন',
@@ -200,7 +582,7 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'report' => 'রিপোর্ট ও পরিসংখ্যান',
         'reports' => 'রিপোর্ট সমূহ',
         'repots' => 'রিপোর্ট সমূহ',
-        'alumni' => 'প্রাক্তন শিক্ষার্থী (Alumni)',
+        'alumni' => 'প্রাক্তন শিক্ষার্থী',
         'manage_alumni' => 'অ্যালামনাই ব্যবস্থাপনা',
         'alumni_event' => 'অ্যালামনাই ইভেন্ট',
         'addon_manager' => 'অ্যাড-অন ম্যানেজার',
@@ -211,7 +593,7 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'session_settings' => 'শিক্ষাবর্ষ সেটিংস',
         'role_permission' => 'রোল ও পারমিশন',
         'translations' => 'ভাষা ও অনুবাদ',
-        'cron_job' => 'স্বয়ংক্রিয় শিডিউলার (Cron)',
+        'cron_job' => 'স্বয়ংক্রিয় শিডিউলার',
         'custom_field' => 'কাস্টম ফিল্ড',
         'database_backup' => 'ডাটাবেজ ব্যাকআপ',
         'system_update' => 'সিস্টেম আপডেট',
@@ -224,7 +606,7 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'features' => 'বৈশিষ্ট্যসমূহ',
         'testimonial' => 'প্রশংসাপত্র ও মতামত',
         'service' => 'সেবাসমূহ',
-        'faq' => 'সাধারণ জিজ্ঞাসা (FAQ)',
+        'faq' => 'সাধারণ জিজ্ঞাসা',
         'gallery_category' => 'গ্যালারি ক্যাটাগরি',
         'gallery' => 'ছবি গ্যালারি',
         'news' => 'সংবাদ ও বিজ্ঞপ্তি',
@@ -233,22 +615,22 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'call_log' => 'কল লগ',
         'visitor_log' => 'দর্শনার্থী রেজিস্টার',
         'complaint' => 'অভিযোগ বক্স',
-        'product' => 'পণ্য / মালামাল',
-        'store' => 'স্টোর / গুদাম',
+        'product' => 'পণ্য ও মালামাল',
+        'store' => 'স্টোর ও গুদাম',
         'supplier' => 'সরবরাহকারী',
         'unit' => 'পরিমাপের একক',
         'purchase' => 'মালামাল ক্রয়',
         'sales' => 'মালামাল বিক্রয়',
         'issue' => 'মালামাল ইস্যু',
         'issues' => 'ইস্যু সমূহ',
-        'stock' => 'স্টক / মজুদ',
+        'stock' => 'স্টক ও মজুদ',
         'my_issued_book' => 'আমার ইস্যুকৃত বই',
-        'id_card' => 'আইডি কার্ড (ID Card)',
-        'admit_card' => 'প্রবেশপত্র (Admit Card)',
+        'id_card' => 'আইডি কার্ড',
+        'admit_card' => 'প্রবেশপত্র',
         'templete' => 'কার্ড টেমপ্লেট',
         'template' => 'টেমপ্লেট',
         'class' => 'শ্রেণি',
-        'section' => 'শাখা / সেকশন',
+        'section' => 'শাখা',
         'subject' => 'বিষয় সমূহ',
         'class_assign' => 'শ্রেণি শিক্ষক বরাদ্দ',
         'assign_class_teacher' => 'শ্রেণি শিক্ষক নিয়োগ',
@@ -261,14 +643,14 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'online_admission' => 'অনলাইন ভর্তি',
         'multi_class' => 'মাল্টি ক্লাস',
         'multiple_import' => 'একত্রে শিক্ষার্থী ইমপোর্ট',
-        'category' => 'ক্যাটাগরি / বিভাগ',
+        'category' => 'ক্যাটাগরি',
         'student_list' => 'শিক্ষার্থী তালিকা',
         'deactivate_reason' => 'স্থগিতের কারণ',
-        'login_credential' => 'লগইন তথ্য (ক্রেডেনশিয়াল)',
+        'login_credential' => 'লগইন তথ্য',
         'disable_authentication' => 'লগইন নিষ্ক্রিয়করণ',
         'student' => 'শিক্ষার্থী',
         'previous_school_details' => 'পূর্ববর্তী স্কুলের বিবরণ',
-        'sibling_report' => 'সহোদর / ভাই-বোন রিপোর্ট',
+        'sibling_report' => 'সহোদর ভাই-বোন রিপোর্ট',
         'class_&_section_report' => 'শ্রেণি ও শাখা ভিত্তিক রিপোর্ট',
         'admission_report' => 'ভর্তি রিপোর্ট',
         'student_admission' => 'শিক্ষার্থী ভর্তি',
@@ -284,7 +666,7 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'add_department' => 'বিভাগ যোগ করুন',
         'designation' => 'পদবী',
         'add_designation' => 'পদবী যোগ করুন',
-        'payroll' => 'বেতন-ভাতা (Payroll)',
+        'payroll' => 'বেতন-ভাতা',
         'payroll_summary' => 'বেতন সারসংক্ষেপ',
         'salary_template' => 'বেতন স্কেল টেমপ্লেট',
         'salary_assign' => 'বেতন নির্ধারণ',
@@ -309,15 +691,15 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'fees_setup' => 'ফি সেটআপ',
         'fees_progress' => 'ফি পরিশোধ অগ্রগতি',
         'account' => 'ব্যাংক ও ক্যাশ একাউন্ট',
-        'new_deposit' => 'নতুন জমা / আয়',
-        'new_expense' => 'নতুন খরচ / ব্যয়',
+        'new_deposit' => 'নতুন জমা',
+        'new_expense' => 'নতুন খরচ',
         'all_transactions' => 'সকল লেনদেন বিবরণী',
         'voucher' => 'ভাউচার',
         'balance' => 'অবশিষ্ট ব্যালেন্স',
         'opening_balance' => 'প্রারম্ভিক ব্যালেন্স',
         'receipts_report' => 'আদায় ও প্রাপ্তি রিপোর্ট',
-        'expense' => 'ব্যয় / খরচ',
-        'hostel' => 'হোস্টেল / ছাত্রাবাস',
+        'expense' => 'ব্যয় ও খরচ',
+        'hostel' => 'হোস্টেল',
         'hostel_master' => 'হোস্টেল ব্যবস্থাপনা',
         'hostel_room' => 'হোস্টেল রুম',
         'hostel_category' => 'হোস্টেল ক্যাটাগরি',
@@ -328,26 +710,26 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'assign_vehicle' => 'যানবাহন বরাদ্দ',
         'transport_route' => 'পরিবহন রুট',
         'transport_details' => 'পরিবহন বিবরণ',
-        'stoppage' => 'স্টপেজ / বিরতি',
+        'stoppage' => 'স্টপেজ',
         'pickup_point' => 'পিকআপ পয়েন্ট',
         'vehicle_no' => 'যানবাহন নং',
         'exam' => 'পরীক্ষা',
         'examination' => 'পরীক্ষা ব্যবস্থাপনা',
-        'exam_term' => 'পরীক্ষার মেয়াদ / টার্ম',
+        'exam_term' => 'পরীক্ষার মেয়াদ',
         'exam_setup' => 'পরীক্ষা সেটআপ',
         'exam_result' => 'পরীক্ষার ফলাফল',
         'exam_master' => 'পরীক্ষা মাস্টার',
         'exam_hall' => 'পরীক্ষা হল',
-        'marksheet' => 'মার্কশীট / নম্বরপত্র',
+        'marksheet' => 'মার্কশীট ও নম্বরপত্র',
         'tabulation_sheet' => 'টেবুলেশন শীট',
         'sheet' => 'শীট',
-        'generate_position' => 'মেধাক্রম / পজিশন নির্ধারণ',
+        'generate_position' => 'মেধাক্রম নির্ধারণ',
         'position' => 'মেধাক্রম',
         'online_exam' => 'অনলাইন পরীক্ষা',
         'question_bank' => 'প্রশ্ন ব্যাংক',
         'question_group' => 'প্রশ্ন গ্রুপ',
-        'lesson' => 'পাঠ / অধ্যায়',
-        'topic' => 'টপিক / বিষয়বস্তু',
+        'lesson' => 'পাঠ ও অধ্যায়',
+        'topic' => 'টপিক ও বিষয়বস্তু',
         'manage_lesson' => 'পাঠ ব্যবস্থাপনা',
         'manage_topic' => 'টপিক ব্যবস্থাপনা',
         'manage_syllabus' => 'সিলেবাস ব্যবস্থাপনা',
@@ -355,7 +737,7 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'overview_reports' => 'সার্বিক প্রতিবেদন',
         'daily_reports' => 'দৈনিক রিপোর্ট',
         'progress' => 'অগ্রগতি',
-        'period' => 'পিরিয়ড / সময়',
+        'period' => 'পিরিয়ড',
         'total_topics' => 'মোট টপিক',
         'total_lessons' => 'মোট পাঠ',
         'completion_date' => 'সমাপ্তির তারিখ',
@@ -387,8 +769,8 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'select_topic_first' => 'প্রথমে টপিক নির্বাচন করুন',
         'select_class_and_section_first' => 'প্রথমে শ্রেণি ও শাখা নির্বাচন করুন',
         'quick_view' => 'দ্রুত দেখুন',
-        'action' => 'পদক্ষেপ / অ্যাকশন',
-        'type' => 'প্রকার / ধরন',
+        'action' => 'অ্যাকশন',
+        'type' => 'ধরন',
         'age' => 'বয়স',
         'date_of_birth' => 'জন্ম তারিখ',
         'birthday' => 'জন্ম তারিখ',
@@ -408,10 +790,10 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'occupation' => 'পেশা',
         'education' => 'শিক্ষাগত যোগ্যতা',
         'qualification' => 'শিক্ষাগত যোগ্যতা',
-        'city' => 'শহর / জেলা',
-        'state' => 'বিভাগ / রাজ্য',
+        'city' => 'শহর ও জেলা',
+        'state' => 'বিভাগ',
         'remarks' => 'মন্তব্য',
-        'status' => 'অবস্থা',
+        'status' => 'স্ট্যাটাস',
         'active' => 'সক্রিয়',
         'inactive' => 'নিষ্ক্রিয়',
         'close' => 'বন্ধ করুন',
@@ -435,16 +817,18 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'bulk_delete' => 'একত্রে মুছুন',
         'distribution' => 'বিতরণ',
         'schedule' => 'সময়সূচি',
-        'transitions' => 'ট্রানজিশন / লেনদেন',
+        'transitions' => 'লেনদেন',
         'statement' => 'বিবরণী',
-        'two_factor_authentication' => 'দ্বি-স্তর বিশিষ্ট নিরাপত্তা (2FA)',
-        'two_fa' => 'দ্বি-স্তর বিশিষ্ট নিরাপত্তা (2FA)',
         'security_code' => 'সিকিউরিটি কোড',
         'verification_code' => 'যাচাইকরণ কোড',
-        'resend_code' => 'পুনরায় কোড পাঠান',
         'enter_verification_code' => 'যাচাইকরণ কোড লিখুন',
-        'verify_and_login' => 'যাচাই করুন এবং প্রবেশ করুন',
+        'no_information_available' => 'কোনো তথ্য পাওয়া যায়নি',
     );
+
+    if ($lang === 'english') {
+        return isset($en_dict[$word]) ? $en_dict[$word] : ucwords(str_replace('_', ' ', $word));
+    }
+
     return isset($bn_dict[$word]) ? $bn_dict[$word] : null;
 }
 

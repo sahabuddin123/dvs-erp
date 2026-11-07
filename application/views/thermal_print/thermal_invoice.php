@@ -98,7 +98,7 @@ $invoice_no = 'INV-' . date('Ymd') . '-' . $basic['id'];
 
 		<!-- Title -->
 		<div class="text-center text-bold" style="font-size: 11px; letter-spacing: 0.5px;">
-			** ফি চালান ও ইনভয়েস / FEES INVOICE **
+			** <?=translate('fees_invoice')?> **
 		</div>
 
 		<div class="dashed-divider"></div>
@@ -106,18 +106,18 @@ $invoice_no = 'INV-' . date('Ymd') . '-' . $basic['id'];
 		<!-- Student & Meta Info -->
 		<table style="width: 100%; font-size: 10.5px;">
 			<tr>
-				<td class="text-left"><strong>ইনভয়েস নং:</strong> <?=$invoice_no?></td>
-				<td class="text-right"><strong>তারিখ:</strong> <?=_d(date('Y-m-d'))?></td>
+				<td class="text-left"><strong><?=translate('invoice_no')?>:</strong> <?=$invoice_no?></td>
+				<td class="text-right"><strong><?=translate('date')?>:</strong> <?=_d(date('Y-m-d'))?></td>
 			</tr>
 			<tr>
-				<td class="text-left"><strong>আইডি নং:</strong> <?=html_escape($basic['register_no'])?></td>
-				<td class="text-right"><strong>রোল:</strong> <?=html_escape($basic['roll'])?></td>
+				<td class="text-left"><strong><?=translate('register_no')?>:</strong> <?=html_escape($basic['register_no'])?></td>
+				<td class="text-right"><strong><?=translate('roll')?>:</strong> <?=html_escape($basic['roll'])?></td>
 			</tr>
 			<tr>
-				<td colspan="2" class="text-left"><strong>শিক্ষার্থী:</strong> <?=html_escape($basic['first_name'] . ' ' . $basic['last_name'])?></td>
+				<td colspan="2" class="text-left"><strong><?=translate('student')?>:</strong> <?=html_escape($basic['first_name'] . ' ' . $basic['last_name'])?></td>
 			</tr>
 			<tr>
-				<td colspan="2" class="text-left"><strong>শ্রেণি:</strong> <?=html_escape($basic['class_name'])?> (<?=html_escape($basic['section_name'])?>)</td>
+				<td colspan="2" class="text-left"><strong><?=translate('class')?>:</strong> <?=html_escape($basic['class_name'])?> (<?=html_escape($basic['section_name'])?>)</td>
 			</tr>
 		</table>
 
@@ -125,9 +125,9 @@ $invoice_no = 'INV-' . date('Ymd') . '-' . $basic['id'];
 		<table class="receipt-table">
 			<thead>
 				<tr>
-					<th width="48%">ফি শিরোনাম</th>
-					<th width="24%" class="text-right">নির্ধারিত</th>
-					<th width="28%" class="text-right">বকেয়া</th>
+					<th width="48%"><?=translate('fee_description')?></th>
+					<th width="24%" class="text-right"><?=translate('total')?></th>
+					<th width="28%" class="text-right"><?=translate('due')?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -146,23 +146,23 @@ $invoice_no = 'INV-' . date('Ymd') . '-' . $basic['id'];
 		<!-- Summary & Totals -->
 		<table style="width: 100%; font-size: 11px;">
 			<tr>
-				<td class="text-left">মোট ফি (Total Amount):</td>
+				<td class="text-left"><?=translate('total_amount')?>:</td>
 				<td class="text-right"><?=currencyFormat($total_amount)?></td>
 			</tr>
 			<?php if ($total_discount > 0): ?>
 			<tr>
-				<td class="text-left">মোট ছাড় (Discount):</td>
+				<td class="text-left"><?=translate('discount')?>:</td>
 				<td class="text-right"><?=currencyFormat($total_discount)?></td>
 			</tr>
 			<?php endif; ?>
 			<?php if ($total_paid > 0): ?>
 			<tr>
-				<td class="text-left">জমা হয়েছে (Paid):</td>
+				<td class="text-left"><?=translate('paid')?>:</td>
 				<td class="text-right"><?=currencyFormat($total_paid)?></td>
 			</tr>
 			<?php endif; ?>
 			<tr style="font-size: 12.5px;" class="text-bold">
-				<td class="text-left">মোট বকেয়া (Due Balance):</td>
+				<td class="text-left"><?=translate('due_balance')?>:</td>
 				<td class="text-right"><?=currencyFormat($total_balance)?></td>
 			</tr>
 		</table>

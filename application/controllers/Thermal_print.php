@@ -69,7 +69,7 @@ class Thermal_print extends Admin_Controller
 
         $this->data['settings'] = $this->thermal_print_model->get_settings($branch_id);
         $this->data['branch_id'] = $branch_id;
-        $this->data['title'] = 'Thermal Print সেটিংস ও কনফিগারেশন';
+        $this->data['title'] = translate('thermal_print_settings');
         $this->data['sub_page'] = 'thermal_print/index';
         $this->data['main_menu'] = 'thermal_print';
         $this->load->view('layout/index', $this->data);

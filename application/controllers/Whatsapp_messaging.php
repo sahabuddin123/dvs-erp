@@ -43,7 +43,7 @@ class Whatsapp_messaging extends Admin_Controller
             $custom_numbers = $this->input->post('custom_numbers');
 
             if (empty($raw_message)) {
-                set_alert('error', 'অনুগ্রহ করে মেসেজের বিবরণ লিখুন (Please enter message text)');
+                set_alert('error', translate('please_enter_message_text'));
                 redirect(base_url('whatsapp_messaging/send'));
             }
 
@@ -55,7 +55,7 @@ class Whatsapp_messaging extends Admin_Controller
                     $num = trim($num);
                     if (!empty($num)) {
                         $recipients[] = [
-                            'name'         => 'সম্মানিত গ্রাহক / User',
+                            'name'         => translate('customer_user'),
                             'student_name' => '',
                             'roll'         => '',
                             'class'        => '',
@@ -161,7 +161,7 @@ class Whatsapp_messaging extends Admin_Controller
             } else {
                 // Pass dispatch list to Queue view
                 $this->data['dispatch_list'] = $dispatch_list;
-                $this->data['title'] = 'WhatsApp বার্তা প্রেরণ কিউ (Queue)';
+                $this->data['title'] = translate('whatsapp_queue');
                 $this->data['sub_page'] = 'whatsapp_messaging/queue';
                 $this->data['main_menu'] = 'whatsapp_messaging';
                 $this->load->view('layout/index', $this->data);
@@ -172,7 +172,7 @@ class Whatsapp_messaging extends Admin_Controller
         $this->data['settings'] = $settings;
         $this->data['templates'] = $this->whatsapp_messaging_model->get_templates($branchID);
         $this->data['branch_id'] = $branchID;
-        $this->data['title'] = 'WhatsApp বার্তা পাঠান (Send Message)';
+        $this->data['title'] = translate('send_message');
         $this->data['sub_page'] = 'whatsapp_messaging/send';
         $this->data['main_menu'] = 'whatsapp_messaging';
         $this->load->view('layout/index', $this->data);
@@ -205,7 +205,7 @@ class Whatsapp_messaging extends Admin_Controller
         }
 
         $this->data['templates'] = $this->whatsapp_messaging_model->get_templates($branchID);
-        $this->data['title'] = 'WhatsApp মেসেজ টেমপ্লেট (Templates)';
+        $this->data['title'] = translate('whatsapp_templates');
         $this->data['sub_page'] = 'whatsapp_messaging/templates';
         $this->data['main_menu'] = 'whatsapp_messaging';
         $this->load->view('layout/index', $this->data);
@@ -234,7 +234,7 @@ class Whatsapp_messaging extends Admin_Controller
 
         $this->data['logs'] = $this->whatsapp_messaging_model->get_logs($filters, 250);
         $this->data['filters'] = $filters;
-        $this->data['title'] = 'WhatsApp মেসেজ লগ ও রিপোর্ট (Reports)';
+        $this->data['title'] = translate('whatsapp_reports');
         $this->data['sub_page'] = 'whatsapp_messaging/reports';
         $this->data['main_menu'] = 'whatsapp_messaging';
         $this->load->view('layout/index', $this->data);
@@ -280,7 +280,7 @@ class Whatsapp_messaging extends Admin_Controller
         }
 
         $this->data['settings'] = $this->whatsapp_messaging_model->get_settings($branchID);
-        $this->data['title'] = 'WhatsApp কনফিগারেশন ও গেটওয়ে সেটিংস';
+        $this->data['title'] = translate('whatsapp_settings');
         $this->data['sub_page'] = 'whatsapp_messaging/settings';
         $this->data['main_menu'] = 'whatsapp_messaging';
         $this->load->view('layout/index', $this->data);

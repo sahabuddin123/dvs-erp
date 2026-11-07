@@ -3,17 +3,17 @@
 		<section class="panel">
 			<header class="panel-heading" style="display: flex; justify-content: space-between; align-items: center;">
 				<h4 class="panel-title">
-					<i class="fab fa-whatsapp" style="color: #25D366;"></i> WhatsApp বার্তা প্রেরণ কিউ (Dispatcher Queue)
+					<i class="fab fa-whatsapp" style="color: #25D366;"></i> <?=translate('whatsapp_queue')?>
 				</h4>
 				<div>
-					<a href="<?=base_url('whatsapp_messaging/send')?>" class="btn btn-default btn-xs"><i class="fas fa-arrow-left"></i> নতুন বার্তা তৈরি করুন</a>
-					<a href="<?=base_url('whatsapp_messaging/reports')?>" class="btn btn-default btn-xs"><i class="fas fa-list"></i> মেসেজ রিপোর্ট দেখুন</a>
+					<a href="<?=base_url('whatsapp_messaging/send')?>" class="btn btn-default btn-xs"><i class="fas fa-arrow-left"></i> <?=translate('compose_whatsapp_message')?></a>
+					<a href="<?=base_url('whatsapp_messaging/reports')?>" class="btn btn-default btn-xs"><i class="fas fa-list"></i> <?=translate('view_message_reports')?></a>
 				</div>
 			</header>
 			<div class="panel-body">
 				<div class="alert alert-info">
 					<i class="fab fa-whatsapp fa-lg" style="color: #25D366; margin-right: 6px;"></i>
-					<strong>নির্দেশনা:</strong> নিচে প্রাপকদের জন্য বার্তা প্রস্তুত রয়েছে। <strong>"WhatsApp-এ পাঠান"</strong> বাটনে ক্লিক করলে স্বয়ংক্রিয়ভাবে WhatsApp Web বা মোবাইল অ্যাপে প্রাপকের নম্বর ও সাজানো মেসেজসহ ওপেন হবে।
+					<?=translate('queue_instructions')?>
 				</div>
 
 				<div class="table-responsive">
@@ -21,11 +21,11 @@
 						<thead>
 							<tr style="background: #f8fafc;">
 								<th width="50">#</th>
-								<th>প্রাপকের নাম</th>
-								<th>ভূমিকা / রোল</th>
-								<th>মোবাইল নম্বর</th>
-								<th>বার্তা প্রিভিউ</th>
-								<th width="200" class="text-center">অ্যাকশন</th>
+								<th><?=translate('recipient_name')?></th>
+								<th><?=translate('role')?></th>
+								<th><?=translate('mobile_no')?></th>
+								<th><?=translate('message_preview')?></th>
+								<th width="200" class="text-center"><?=translate('action')?></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -48,16 +48,16 @@
 									   class="btn btn-sm btn-success btn-send-wa" 
 									   data-log-id="<?=$row['log_id']?>"
 									   style="background: #25D366; border-color: #25D366; font-weight: 600;">
-										<i class="fab fa-whatsapp"></i> WhatsApp-এ পাঠান
+										<i class="fab fa-whatsapp"></i> <?=translate('send_via_whatsapp')?>
 									</a>
 									<span class="label label-success status-badge" id="status_<?=$row['log_id']?>" style="display: none; margin-top: 5px;">
-										<i class="fas fa-check-double"></i> পাঠানো হয়েছে
+										<i class="fas fa-check-double"></i> <?=translate('sent')?>
 									</span>
 								</td>
 							</tr>
 							<?php endforeach; else: ?>
 							<tr>
-								<td colspan="6" class="text-center text-muted">কিউতে কোনো মেসেজ পাওয়া যায়নি।</td>
+								<td colspan="6" class="text-center text-muted"><?=translate('no_information_available')?></td>
 							</tr>
 							<?php endif; ?>
 						</tbody>

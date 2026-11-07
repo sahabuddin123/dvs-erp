@@ -105,7 +105,7 @@ $receipt_no = !empty($items) ? 'REC-' . date('Ymd', strtotime($payment_date)) . 
 
 		<!-- Receipt Meta Title -->
 		<div class="text-center text-bold" style="font-size: 11px; letter-spacing: 0.5px;">
-			** ফি আদায়ের রসিদ / PAYMENT RECEIPT **
+			** <?=translate('receipt_voucher')?> **
 		</div>
 
 		<div class="dashed-divider"></div>
@@ -113,18 +113,18 @@ $receipt_no = !empty($items) ? 'REC-' . date('Ymd', strtotime($payment_date)) . 
 		<!-- Student & Meta Info -->
 		<table style="width: 100%; font-size: 10.5px;">
 			<tr>
-				<td class="text-left"><strong>রসিদ নং:</strong> <?=$receipt_no?></td>
-				<td class="text-right"><strong>তারিখ:</strong> <?=_d($payment_date)?></td>
+				<td class="text-left"><strong><?=translate('receipt_no')?>:</strong> <?=$receipt_no?></td>
+				<td class="text-right"><strong><?=translate('date')?>:</strong> <?=_d($payment_date)?></td>
 			</tr>
 			<tr>
-				<td class="text-left"><strong>আইডি নং:</strong> <?=html_escape($basic['register_no'])?></td>
-				<td class="text-right"><strong>রোল:</strong> <?=html_escape($basic['roll'])?></td>
+				<td class="text-left"><strong><?=translate('register_no')?>:</strong> <?=html_escape($basic['register_no'])?></td>
+				<td class="text-right"><strong><?=translate('roll')?>:</strong> <?=html_escape($basic['roll'])?></td>
 			</tr>
 			<tr>
-				<td colspan="2" class="text-left"><strong>শিক্ষার্থী:</strong> <?=html_escape($basic['first_name'] . ' ' . $basic['last_name'])?></td>
+				<td colspan="2" class="text-left"><strong><?=translate('student')?>:</strong> <?=html_escape($basic['first_name'] . ' ' . $basic['last_name'])?></td>
 			</tr>
 			<tr>
-				<td colspan="2" class="text-left"><strong>শ্রেণি:</strong> <?=html_escape($basic['class_name'])?> (<?=html_escape($basic['section_name'])?>)</td>
+				<td colspan="2" class="text-left"><strong><?=translate('class')?>:</strong> <?=html_escape($basic['class_name'])?> (<?=html_escape($basic['section_name'])?>)</td>
 			</tr>
 		</table>
 
@@ -132,9 +132,9 @@ $receipt_no = !empty($items) ? 'REC-' . date('Ymd', strtotime($payment_date)) . 
 		<table class="receipt-table">
 			<thead>
 				<tr>
-					<th width="48%">ফি বিবরণী</th>
-					<th width="24%" class="text-right">ছাড়</th>
-					<th width="28%" class="text-right">আদায়</th>
+					<th width="48%"><?=translate('fee_description')?></th>
+					<th width="24%" class="text-right"><?=translate('discount')?></th>
+					<th width="28%" class="text-right"><?=translate('amount')?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -154,22 +154,22 @@ $receipt_no = !empty($items) ? 'REC-' . date('Ymd', strtotime($payment_date)) . 
 		<table style="width: 100%; font-size: 11px;">
 			<?php if ($total_discount > 0): ?>
 			<tr>
-				<td class="text-left">মোট ছাড় (Discount):</td>
+				<td class="text-left"><?=translate('discount')?>:</td>
 				<td class="text-right"><?=currencyFormat($total_discount)?></td>
 			</tr>
 			<?php endif; ?>
 			<?php if ($total_fine > 0): ?>
 			<tr>
-				<td class="text-left">জরিমানা (Fine):</td>
+				<td class="text-left"><?=translate('fine')?>:</td>
 				<td class="text-right"><?=currencyFormat($total_fine)?></td>
 			</tr>
 			<?php endif; ?>
 			<tr style="font-size: 12.5px;" class="text-bold">
-				<td class="text-left">মোট পরিশোধ (Total Paid):</td>
+				<td class="text-left"><?=translate('total_paid')?>:</td>
 				<td class="text-right"><?=currencyFormat($total_paid + $total_fine)?></td>
 			</tr>
 			<tr>
-				<td class="text-left">পরিশোধের মাধ্যম:</td>
+				<td class="text-left"><?=translate('pay_via')?>:</td>
 				<td class="text-right text-bold"><?=html_escape($pay_via)?></td>
 			</tr>
 		</table>

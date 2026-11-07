@@ -325,7 +325,7 @@ class Authentication extends Authentication_Controller
             }
 
             if (empty($code)) {
-                set_alert('error', 'অনুগ্রহ করে ৬-সংখ্যার সিকিউরিটি কোডটি লিখুন (Please enter the 6-digit security code)');
+                set_alert('error', translate('please_enter_6_digit_security_code'));
             } else {
                 $this->load->model('two_fa_model');
                 $verify = $this->two_fa_model->verify_code($sessionData['loggedin_id'], $code);
@@ -373,7 +373,7 @@ class Authentication extends Authentication_Controller
         $now = time();
         if (($now - $last_sent) < 60) {
             $wait_seconds = 60 - ($now - $last_sent);
-            $msg = "অনুগ্রহ করে আরও {$wait_seconds} সেকেন্ড অপেক্ষা করে আবার চেষ্টা করুন (Please wait {$wait_seconds}s).";
+            $msg = sprintf(translate('please_wait_resend_cooldown'), $wait_seconds);
             if ($this->input->is_ajax_request()) {
                 echo json_encode(['status' => 'fail', 'message' => $msg]);
                 exit();
@@ -390,7 +390,7 @@ class Authentication extends Authentication_Controller
         ];
         $this->two_fa_model->manage_2fa($sessionData, $login_credential, $sessionData['loggedin_email']);
 
-        $success_msg = "নতুন সিকিউরিটি কোড সফলভাবে পাঠানো হয়েছে! (New security code sent successfully!)";
+        $success_msg = translate('new_security_code_sent');
         if ($this->input->is_ajax_request()) {
             echo json_encode(['status' => 'success', 'message' => $success_msg]);
             exit();

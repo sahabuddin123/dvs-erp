@@ -110,15 +110,15 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-3 control-label">Pay By / Payer Name (পরিশোধকারী)</label>
+						<label class="col-md-3 control-label"><?php echo translate('pay_by'); ?></label>
 						<div class="col-md-6">
-							<input type="text" class="form-control" name="pay_by" placeholder="পরিশোধকারীর নাম / Pay By (Payer Name)" value="<?php echo set_value('pay_by'); ?>" />
+							<input type="text" class="form-control" name="pay_by" placeholder="<?php echo translate('payer_name'); ?>" value="<?php echo set_value('pay_by'); ?>" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-3 control-label">Received By / Receiver Name (গ্রহীতা)</label>
+						<label class="col-md-3 control-label"><?php echo translate('received_by'); ?></label>
 						<div class="col-md-6">
-							<input type="text" class="form-control" name="received_by" placeholder="গ্রহীতার নাম / Received By (Receiver Name)" value="<?php echo set_value('received_by'); ?>" />
+							<input type="text" class="form-control" name="received_by" placeholder="<?php echo translate('receiver_name'); ?>" value="<?php echo set_value('received_by'); ?>" />
 						</div>
 					</div>
 					<div class="form-group <?php if (form_error('amount')) echo 'has-error'; ?>">

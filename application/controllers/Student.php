@@ -948,7 +948,7 @@ class Student extends Admin_Controller
         $this->data['settings'] = $this->get_admission_settings($branchID);
         $this->data['sub_page'] = 'student/admission_settings';
         $this->data['main_menu'] = 'admission';
-        $this->data['title'] = 'ভর্তি সেটিংস ও ফি (Admission Settings)';
+        $this->data['title'] = translate('admission_settings');
         $this->load->view('layout/index', $this->data);
     }
 

@@ -1,6 +1,7 @@
 <?php
 $width = (isset($settings->printer_width) && $settings->printer_width == '58mm') ? '58mm' : '80mm';
-$type_label = (isset($voucher['type']) && $voucher['type'] == 'expense') ? 'ব্যয় ভাউচার / EXPENSE VOUCHER' : 'জমা ভাউচার / DEPOSIT VOUCHER';
+$is_expense = (isset($voucher['type']) && $voucher['type'] == 'expense');
+$type_label = $is_expense ? translate('new_expense') : translate('new_deposit');
 $branch_id = isset($voucher['branch_id']) ? $voucher['branch_id'] : $this->application_model->get_branch_id();
 ?>
 <!DOCTYPE html>
@@ -78,28 +79,28 @@ $branch_id = isset($voucher['branch_id']) ? $voucher['branch_id'] : $this->appli
 
 		<table style="width: 100%; font-size: 10.5px;">
 			<tr>
-				<td class="text-left"><strong>ভাউচার নং:</strong> #<?=(isset($voucher['voucher_no']) ? $voucher['voucher_no'] : $voucher['id'])?></td>
-				<td class="text-right"><strong>তারিখ:</strong> <?=_d($voucher['date'])?></td>
+				<td class="text-left"><strong><?=translate('voucher_no')?>:</strong> #<?=(isset($voucher['voucher_no']) ? $voucher['voucher_no'] : $voucher['id'])?></td>
+				<td class="text-right"><strong><?=translate('date')?>:</strong> <?=_d($voucher['date'])?></td>
 			</tr>
 			<tr>
-				<td colspan="2" class="text-left"><strong>খাত (Head):</strong> <?=get_type_name_by_id('voucher_head', $voucher['voucher_head_id'])?></td>
+				<td colspan="2" class="text-left"><strong><?=translate('voucher_head')?>:</strong> <?=get_type_name_by_id('voucher_head', $voucher['voucher_head_id'])?></td>
 			</tr>
 			<tr>
-				<td colspan="2" class="text-left"><strong>অ্যাকাউন্ট:</strong> <?=get_type_name_by_id('accounts', $voucher['account_id'])?></td>
+				<td colspan="2" class="text-left"><strong><?=translate('account')?>:</strong> <?=get_type_name_by_id('accounts', $voucher['account_id'])?></td>
 			</tr>
 			<?php if (!empty($voucher['pay_by'])): ?>
 			<tr>
-				<td colspan="2" class="text-left"><strong>পরিশোধকারী:</strong> <?=html_escape($voucher['pay_by'])?></td>
+				<td colspan="2" class="text-left"><strong><?=translate('pay_by')?>:</strong> <?=html_escape($voucher['pay_by'])?></td>
 			</tr>
 			<?php endif; ?>
 			<?php if (!empty($voucher['received_by'])): ?>
 			<tr>
-				<td colspan="2" class="text-left"><strong>গ্রহীতা:</strong> <?=html_escape($voucher['received_by'])?></td>
+				<td colspan="2" class="text-left"><strong><?=translate('received_by')?>:</strong> <?=html_escape($voucher['received_by'])?></td>
 			</tr>
 			<?php endif; ?>
 			<?php if (!empty($voucher['ref'])): ?>
 			<tr>
-				<td colspan="2" class="text-left"><strong>রেফারেন্স:</strong> <?=html_escape($voucher['ref'])?></td>
+				<td colspan="2" class="text-left"><strong><?=translate('ref')?>:</strong> <?=html_escape($voucher['ref'])?></td>
 			</tr>
 			<?php endif; ?>
 		</table>
@@ -108,11 +109,11 @@ $branch_id = isset($voucher['branch_id']) ? $voucher['branch_id'] : $this->appli
 
 		<table style="width: 100%; font-size: 11.5px;">
 			<tr class="text-bold" style="font-size: 13px;">
-				<td class="text-left">মোট পরিমাণ (Amount):</td>
+				<td class="text-left"><?=translate('amount')?>:</td>
 				<td class="text-right"><?=currencyFormat($voucher['amount'])?></td>
 			</tr>
 			<tr>
-				<td class="text-left">পরিশোধের মাধ্যম:</td>
+				<td class="text-left"><?=translate('pay_via')?>:</td>
 				<td class="text-right text-bold"><?=html_escape($voucher['pay_via'])?></td>
 			</tr>
 		</table>

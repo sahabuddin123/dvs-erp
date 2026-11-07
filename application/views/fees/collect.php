@@ -296,7 +296,7 @@ if ($extINTL == true) {
 					<div class="text-right mr-lg hidden-print">
 						<button id="invoicePrint" class="btn btn-default ml-sm" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-print"></i> <?=translate('print')?></button>
 						<?php if (moduleIsEnabled('thermal_print')): ?>
-							<button id="invoiceThermalPrint" type="button" class="btn btn-primary ml-xs" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-receipt"></i> থার্মাল চালান (Thermal Invoice)</button>
+							<button id="invoiceThermalPrint" type="button" class="btn btn-primary ml-xs" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-receipt"></i> <?=translate('thermal_invoice')?></button>
 						<?php endif; ?>
 					</div>
 				</div>
@@ -504,7 +504,7 @@ if (moduleIsEnabled('transport')) {
 					</div>
 					<div class="text-right mr-lg hidden-print">
 						<?php if (moduleIsEnabled('thermal_print')): ?>
-							<button id="payReceiptThermalPrint" type="button" class="btn btn-primary mr-xs" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-receipt"></i> থার্মাল রসিদ (Thermal Receipt)</button>
+							<button id="payReceiptThermalPrint" type="button" class="btn btn-primary mr-xs" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-receipt"></i> <?=translate('thermal_receipt')?></button>
 						<?php endif; ?>
 						<button id="payReceiptPrint" class="btn btn-default mr-xs" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-print"></i> Selected Pay Receipt</button>
 						<button id="paymentPrint" class="btn btn-default" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing"><i class="fas fa-print"></i> <?=translate('print')?></button>

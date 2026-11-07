@@ -335,7 +335,7 @@
                         <?php } if (is_superadmin_loggedin() || get_permission('student', 'is_edit')) { ?>
                             <li class="<?php if ($sub_page == 'student/admission_settings') echo 'nav-active';?>">
                                 <a href="<?=base_url('student/admission_settings')?>">
-                                    <span><i class="fas fa-caret-right" aria-hidden="true"></i>ভর্তি সেটিংস ও ফি (Settings)</span>
+                                    <span><i class="fas fa-caret-right" aria-hidden="true"></i><?=translate('admission_settings')?></span>
                                 </a>
                             </li>
                         <?php } ?>

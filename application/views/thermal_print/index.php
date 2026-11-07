@@ -3,98 +3,98 @@
 	<div class="col-md-7">
 		<section class="panel">
 			<header class="panel-heading">
-				<h4 class="panel-title"><i class="fas fa-print" style="color: #6366f1;"></i> Thermal Print কনফিগারেশন সেটিংস</h4>
+				<h4 class="panel-title"><i class="fas fa-print" style="color: #6366f1;"></i> <?=translate('thermal_print_configuration')?></h4>
 			</header>
 			<?php echo form_open('thermal_print/settings', ['class' => 'form-horizontal form-bordered validate']); ?>
 				<div class="panel-body">
 					<!-- Status -->
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?=translate('status')?> / স্ট্যাটাস <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?=translate('status')?> <span class="required">*</span></label>
 						<div class="col-md-9">
 							<div class="radio-custom radio-success radio-inline">
 								<input type="radio" id="thermal_status_1" name="is_active" value="1" <?=(isset($settings->is_active) && $settings->is_active == 1) ? 'checked' : ''?>>
-								<label for="thermal_status_1"><i class="fas fa-check-circle text-success"></i> <?=translate('active')?> (চালু)</label>
+								<label for="thermal_status_1"><i class="fas fa-check-circle text-success"></i> <?=translate('active')?></label>
 							</div>
 							<div class="radio-custom radio-danger radio-inline">
 								<input type="radio" id="thermal_status_0" name="is_active" value="0" <?=(isset($settings->is_active) && $settings->is_active == 0) ? 'checked' : ''?>>
-								<label for="thermal_status_0"><i class="fas fa-times-circle text-danger"></i> <?=translate('inactive')?> (বন্ধ)</label>
+								<label for="thermal_status_0"><i class="fas fa-times-circle text-danger"></i> <?=translate('inactive')?></label>
 							</div>
 						</div>
 					</div>
 
 					<!-- Printer Roll Width -->
 					<div class="form-group">
-						<label class="col-md-3 control-label">প্রিন্টার পেপার সাইজ <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?=translate('printer_paper_size')?> <span class="required">*</span></label>
 						<div class="col-md-9">
 							<?php $p_width = isset($settings->printer_width) ? $settings->printer_width : '80mm'; ?>
 							<div class="radio-custom radio-inline">
 								<input type="radio" id="width_80" name="printer_width" value="80mm" <?=($p_width == '80mm') ? 'checked' : ''?>>
-								<label for="width_80"><strong>80mm (৩-ইঞ্চি Standard POS)</strong></label>
+								<label for="width_80"><strong>80mm (<?=translate('standard_pos')?>)</strong></label>
 							</div>
 							<div class="radio-custom radio-inline">
 								<input type="radio" id="width_58" name="printer_width" value="58mm" <?=($p_width == '58mm') ? 'checked' : ''?>>
-								<label for="width_58"><strong>58mm (২-ইঞ্চি Mini POS)</strong></label>
+								<label for="width_58"><strong>58mm (<?=translate('mini_pos')?>)</strong></label>
 							</div>
-							<span class="help-block"><small>আপনার থার্মাল প্রিন্টারের রোল অনুযায়ী সাইজ নির্বাচন করুন (সাধারণত 80mm সবচেয়ে জনপ্রিয়)।</small></span>
+							<span class="help-block"><small><?=translate('printer_paper_size_help')?></small></span>
 						</div>
 					</div>
 
 					<!-- Options: Logo, Barcode, Auto-print -->
 					<div class="form-group">
-						<label class="col-md-3 control-label">রসিদ অপশনসমূহ</label>
+						<label class="col-md-3 control-label"><?=translate('receipt_options')?></label>
 						<div class="col-md-9">
 							<div class="checkbox-custom checkbox-primary" style="margin-bottom: 6px;">
 								<input type="checkbox" name="show_logo" id="show_logo" value="1" <?=(isset($settings->show_logo) && $settings->show_logo == 1) ? 'checked' : ''?>>
-								<label for="show_logo">স্কুল লোগো প্রদর্শন করুন (Show School Logo)</label>
+								<label for="show_logo"><?=translate('show_school_logo')?></label>
 							</div>
 							<div class="checkbox-custom checkbox-primary" style="margin-bottom: 6px;">
 								<input type="checkbox" name="show_barcode" id="show_barcode" value="1" <?=(isset($settings->show_barcode) && $settings->show_barcode == 1) ? 'checked' : ''?>>
-								<label for="show_barcode">বারকোড / ইনভয়েস কোড যুক্ত করুন (Show Barcode / Code)</label>
+								<label for="show_barcode"><?=translate('show_barcode_invoice_code')?></label>
 							</div>
 							<div class="checkbox-custom checkbox-primary">
 								<input type="checkbox" name="auto_print" id="auto_print" value="1" <?=(isset($settings->auto_print) && $settings->auto_print == 1) ? 'checked' : ''?>>
-								<label for="auto_print">স্বয়ংক্রিয় প্রিন্ট ডায়লগ ওপেন করুন (Auto-trigger Print Dialog)</label>
+								<label for="auto_print"><?=translate('auto_trigger_print_dialog')?></label>
 							</div>
 						</div>
 					</div>
 
 					<!-- Header Title -->
 					<div class="form-group">
-						<label class="col-md-3 control-label">হেডার শিরোনাম (Title) <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?=translate('header_title')?> <span class="required">*</span></label>
 						<div class="col-md-9">
-							<input type="text" class="form-control" name="header_title" id="header_title" value="<?=(isset($settings->header_title) ? html_escape($settings->header_title) : 'ড্রিম ভ্যালি স্কুল')?>" required />
+							<input type="text" class="form-control" name="header_title" id="header_title" value="<?=(isset($settings->header_title) ? html_escape($settings->header_title) : 'Dream Valley School')?>" required />
 						</div>
 					</div>
 
 					<!-- Header Subtitle -->
 					<div class="form-group">
-						<label class="col-md-3 control-label">উপ-শিরোনাম (Subtitle)</label>
+						<label class="col-md-3 control-label"><?=translate('header_subtitle')?></label>
 						<div class="col-md-9">
-							<input type="text" class="form-control" name="header_subtitle" id="header_subtitle" value="<?=(isset($settings->header_subtitle) ? html_escape($settings->header_subtitle) : '')?>" placeholder="যেমন: ইসলামিক কারিকুলাম উইথ তাহফিজুল কুরআন" />
+							<input type="text" class="form-control" name="header_subtitle" id="header_subtitle" value="<?=(isset($settings->header_subtitle) ? html_escape($settings->header_subtitle) : '')?>" placeholder="<?=translate('header_subtitle')?>..." />
 						</div>
 					</div>
 
 					<!-- Address -->
 					<div class="form-group">
-						<label class="col-md-3 control-label">স্কুল ঠিকানা</label>
+						<label class="col-md-3 control-label"><?=translate('school_address')?></label>
 						<div class="col-md-9">
-							<input type="text" class="form-control" name="address" id="address" value="<?=(isset($settings->address) ? html_escape($settings->address) : '')?>" placeholder="খাসেরহাট মেইন রোড, চরবাটা, সুবর্ণচর, নোয়াখালী" />
+							<input type="text" class="form-control" name="address" id="address" value="<?=(isset($settings->address) ? html_escape($settings->address) : '')?>" placeholder="<?=translate('school_address')?>..." />
 						</div>
 					</div>
 
 					<!-- Contact Info -->
 					<div class="form-group">
-						<label class="col-md-3 control-label">যোগাযোগ / মোবাইল</label>
+						<label class="col-md-3 control-label"><?=translate('contact_info')?></label>
 						<div class="col-md-9">
-							<input type="text" class="form-control" name="contact_info" id="contact_info" value="<?=(isset($settings->contact_info) ? html_escape($settings->contact_info) : '')?>" placeholder="মোবাইল: 01716-122899" />
+							<input type="text" class="form-control" name="contact_info" id="contact_info" value="<?=(isset($settings->contact_info) ? html_escape($settings->contact_info) : '')?>" placeholder="<?=translate('contact_info')?>..." />
 						</div>
 					</div>
 
 					<!-- Footer Text -->
 					<div class="form-group">
-						<label class="col-md-3 control-label">ফুটার বার্তা / শর্তাবলী</label>
+						<label class="col-md-3 control-label"><?=translate('footer_message_terms')?></label>
 						<div class="col-md-9">
-							<textarea class="form-control" name="footer_text" id="footer_text" rows="3"><?=(isset($settings->footer_text) ? html_escape($settings->footer_text) : 'ধন্যবাদ! ফি একবার পরিশোধের পর তা ফেরতযোগ্য নয়।')?></textarea>
+							<textarea class="form-control" name="footer_text" id="footer_text" rows="3"><?=(isset($settings->footer_text) ? html_escape($settings->footer_text) : '')?></textarea>
 						</div>
 					</div>
 				</div>
@@ -102,8 +102,8 @@
 				<footer class="panel-footer">
 					<div class="row">
 						<div class="col-md-offset-3 col-md-9">
-							<button type="submit" class="btn btn-default"><i class="fas fa-save"></i> <?=translate('save')?> / সংরক্ষণ করুন</button>
-							<a href="<?=base_url('thermal_print/test_print')?>" target="_blank" class="btn btn-info ml-sm"><i class="fas fa-print"></i> টেস্ট প্রিন্ট দিন (Test Print)</a>
+							<button type="submit" class="btn btn-default"><i class="fas fa-save"></i> <?=translate('save')?></button>
+							<a href="<?=base_url('thermal_print/test_print')?>" target="_blank" class="btn btn-info ml-sm"><i class="fas fa-print"></i> <?=translate('test_print')?></a>
 						</div>
 					</div>
 				</footer>
@@ -115,7 +115,7 @@
 	<div class="col-md-5">
 		<section class="panel">
 			<header class="panel-heading">
-				<h4 class="panel-title"><i class="fas fa-receipt"></i> থার্মাল রসিদ প্রিভিউ (Live POS Preview)</h4>
+				<h4 class="panel-title"><i class="fas fa-receipt"></i> <?=translate('thermal_receipt_live_preview')?></h4>
 			</header>
 			<div class="panel-body" style="background: #f1f5f9; padding: 20px; display: flex; justify-content: center;">
 				<!-- Simulated Paper Roll -->
@@ -133,25 +133,25 @@
 
 					<div style="border-top: 2px solid #000; margin: 6px 0;"></div>
 					<div style="text-align: center; font-weight: 700; font-size: 11px;">
-						** ফি আদায়ের রসিদ / RECEIPT **
+						** <?=translate('receipt_voucher')?> **
 					</div>
 					<div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
 
 					<!-- Student Demo Info -->
 					<table style="width: 100%; font-size: 10.5px; border-collapse: collapse;">
 						<tr>
-							<td><strong>রসিদ নং:</strong> REC-2026-0012</td>
-							<td style="text-align: right;"><strong>তারিখ:</strong> <?=date('d M Y')?></td>
+							<td><strong><?=translate('receipt_no')?>:</strong> REC-2026-0012</td>
+							<td style="text-align: right;"><strong><?=translate('date')?>:</strong> <?=date('d M Y')?></td>
 						</tr>
 						<tr>
-							<td><strong>আইডি নং:</strong> SCH-00001</td>
-							<td style="text-align: right;"><strong>রোল:</strong> ০১</td>
+							<td><strong><?=translate('register_no')?>:</strong> SCH-00001</td>
+							<td style="text-align: right;"><strong><?=translate('roll')?>:</strong> 01</td>
 						</tr>
 						<tr>
-							<td colspan="2"><strong>শিক্ষার্থী:</strong> আবু বকর ছিদ্দিক</td>
+							<td colspan="2"><strong><?=translate('student')?>:</strong> <?=get_current_lang() == 'bn' ? 'আবু বকর ছিদ্দিক' : 'Abu Bakar Siddique'?></td>
 						</tr>
 						<tr>
-							<td colspan="2"><strong>শ্রেণি:</strong> প্লে (গোলাপ শাখা)</td>
+							<td colspan="2"><strong><?=translate('class')?>:</strong> <?=get_current_lang() == 'bn' ? 'প্লে (গোলাপ শাখা)' : 'Play (Rose)'?></td>
 						</tr>
 					</table>
 
@@ -159,19 +159,19 @@
 					<table style="width: 100%; border-collapse: collapse; margin-top: 6px;">
 						<thead>
 							<tr style="border-top: 1px dashed #000; border-bottom: 1px dashed #000;">
-								<th style="text-align: left; padding: 4px 0; font-size: 10.5px;">ফি বিবরণ</th>
-								<th style="text-align: right; padding: 4px 0; font-size: 10.5px;">ছাড়</th>
-								<th style="text-align: right; padding: 4px 0; font-size: 10.5px;">আদায়</th>
+								<th style="text-align: left; padding: 4px 0; font-size: 10.5px;"><?=translate('fees_type')?></th>
+								<th style="text-align: right; padding: 4px 0; font-size: 10.5px;"><?=translate('discount')?></th>
+								<th style="text-align: right; padding: 4px 0; font-size: 10.5px;"><?=translate('paid')?></th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr>
-								<td style="padding: 3px 0;">মাসিক বেতন (নভেম্বর)</td>
+								<td style="padding: 3px 0;"><?=get_current_lang() == 'bn' ? 'মাসিক বেতন (নভেম্বর)' : 'Monthly Tuition (Nov)'?></td>
 								<td style="text-align: right; padding: 3px 0;">0.00</td>
 								<td style="text-align: right; padding: 3px 0; font-weight: 700;">1,500.00</td>
 							</tr>
 							<tr>
-								<td style="padding: 3px 0;">পরীক্ষা ফি</td>
+								<td style="padding: 3px 0;"><?=get_current_lang() == 'bn' ? 'পরীক্ষা ফি' : 'Exam Fee'?></td>
 								<td style="text-align: right; padding: 3px 0;">0.00</td>
 								<td style="text-align: right; padding: 3px 0; font-weight: 700;">500.00</td>
 							</tr>
@@ -183,15 +183,15 @@
 					<!-- Totals -->
 					<table style="width: 100%; font-size: 11px;">
 						<tr>
-							<td>মোট ফি:</td>
+							<td><?=translate('total')?> <?=translate('fee')?>:</td>
 							<td style="text-align: right;">৳ 2,000.00</td>
 						</tr>
 						<tr style="font-weight: 700; font-size: 12.5px;">
-							<td>মোট পরিশোধ:</td>
+							<td><?=translate('total_paid')?>:</td>
 							<td style="text-align: right;">৳ 2,000.00</td>
 						</tr>
 						<tr>
-							<td>পরিশোধ মাধ্যম:</td>
+							<td><?=translate('payment_method')?>:</td>
 							<td style="text-align: right; font-weight: 700;">Cash</td>
 						</tr>
 					</table>
@@ -201,8 +201,8 @@
 					<!-- Signatures -->
 					<table style="width: 100%; margin-top: 15px; font-size: 9px; text-align: center;">
 						<tr>
-							<td style="width: 50%;">----------------<br/>অভিভাবক</td>
-							<td style="width: 50%;">----------------<br/>ক্যাশিয়ার</td>
+							<td style="width: 50%;">----------------<br/><?=translate('guardian')?></td>
+							<td style="width: 50%;">----------------<br/><?=translate('cashier')?></td>
 						</tr>
 					</table>
 

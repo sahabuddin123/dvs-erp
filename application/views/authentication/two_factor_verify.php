@@ -1,5 +1,15 @@
+<?php
+$current_lang = $this->session->userdata('set_lang');
+if (empty($current_lang)) {
+    $current_lang = get_global_setting('translation');
+}
+if (empty($current_lang)) {
+    $current_lang = 'bengali';
+}
+$is_bn = ($current_lang === 'bengali');
+?>
 <!doctype html>
-<html lang="bn">
+<html lang="<?=$is_bn ? 'bn' : 'en'?>">
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -12,6 +22,7 @@
     
     <!-- Web Fonts  -->
 	<link href="<?php echo is_secure('fonts.googleapis.com/css?family=Signika:300,400,600,700');?>" rel="stylesheet"> 
+	<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="<?php echo base_url('assets/vendor/bootstrap/css/bootstrap.css');?>">
 	<link rel="stylesheet" href="<?php echo base_url('assets/vendor/font-awesome/css/all.min.css'); ?>">
 	<script src="<?php echo base_url('assets/vendor/jquery/jquery.js');?>"></script>
@@ -25,6 +36,20 @@
 		var base_url = '<?php echo base_url() ?>';
 	</script>
     <style>
+        <?php if ($is_bn): ?>
+        @font-face {
+            font-family: 'DVSNumerals';
+            src: local('Noto Sans Bengali'), local('Hind Siliguri');
+            unicode-range: U+0030-0039, U+09E6-09EF;
+        }
+        body, h1, h2, h3, h4, h5, h6, p, span, label, input, button, a {
+            font-family: 'DVSNumerals', 'Hind Siliguri', 'Signika', sans-serif !important;
+        }
+        <?php else: ?>
+        body, h1, h2, h3, h4, h5, h6, p, span, label, input, button, a {
+            font-family: 'Signika', sans-serif !important;
+        }
+        <?php endif; ?>
         .tfa-shield-icon {
             display: inline-flex;
             align-items: center;
@@ -137,8 +162,8 @@
                                 <div class="tfa-shield-icon">
                                     <i class="fas fa-shield-alt"></i>
                                 </div>
-                                <h3 style="font-weight: 700; color: #1e293b; margin-top: 5px; margin-bottom: 4px;">Two-Factor Authentication</h3>
-                                <p style="color: #64748b; font-size: 13px; margin-bottom: 0;">দ্বি-স্তর বিশিষ্ট নিরাপত্তা যাচাইকরণ</p>
+                                <h3 style="font-weight: 700; color: #1e293b; margin-top: 5px; margin-bottom: 4px;"><?php echo translate('two_factor_authentication'); ?></h3>
+                                <p style="color: #64748b; font-size: 13px; margin-bottom: 0;"><?php echo translate('two_factor_auth_desc'); ?></p>
                             </div>
 
                             <div class="tfa-hint-badge">
@@ -154,18 +179,18 @@
                                 }
                                 ?>
                                 <?php if ($auth_method == 'sms' && !empty($masked_mobile)): ?>
-                                    <i class="fas fa-comment-dots text-success"></i> আপনার মোবাইল নম্বর <strong><?=$masked_mobile?></strong>-এ ৬-সংখ্যার সিকিউরিটি কোড পাঠানো হয়েছে।
+                                    <i class="fas fa-comment-dots text-success"></i> <?php echo sprintf(translate('security_code_sent_sms'), '<strong>' . html_escape($masked_mobile) . '</strong>'); ?>
                                 <?php elseif ($auth_method == 'both' && !empty($masked_email) && !empty($masked_mobile)): ?>
-                                    <i class="fas fa-paper-plane text-success"></i> আপনার ইমেইল <strong><?=$masked_email?></strong> ও মোবাইল <strong><?=$masked_mobile?></strong>-এ সিকিউরিটি কোড পাঠানো হয়েছে।
+                                    <i class="fas fa-paper-plane text-success"></i> <?php echo sprintf(translate('security_code_sent_both'), '<strong>' . html_escape($masked_email) . '</strong>', '<strong>' . html_escape($masked_mobile) . '</strong>'); ?>
                                 <?php else: ?>
-                                    <i class="fas fa-envelope text-success"></i> আপনার নিবন্ধিত ইমেইল <strong><?=(!empty($masked_email) ? $masked_email : 'অ্যাকাউন্টে')?></strong> ৬-সংখ্যার সিকিউরিটি কোড পাঠানো হয়েছে।
+                                    <i class="fas fa-envelope text-success"></i> <?php echo sprintf(translate('security_code_sent_email'), '<strong>' . html_escape(!empty($masked_email) ? $masked_email : translate('email')) . '</strong>'); ?>
                                 <?php endif; ?>
                             </div>
 
                             <?php echo form_open($this->uri->uri_string()); ?>
                                 <div class="form-group text-center">
                                     <label style="font-weight: 600; color: #334155; margin-bottom: 8px;">
-                                        ৬-সংখ্যার ওটিপি (OTP) কোডটি লিখুন:
+                                        <?php echo translate('enter_otp_code'); ?>:
                                     </label>
                                     <input type="text" 
                                            name="code" 
@@ -181,27 +206,27 @@
                                 </div>
 
                                 <div class="tfa-timer">
-                                    <i class="far fa-clock"></i> মেয়াদ বাকি: <span id="countdown_timer">--:--</span>
+                                    <i class="far fa-clock"></i> <?php echo translate('time_remaining'); ?>: <span id="countdown_timer">--:--</span>
                                 </div>
 
                                 <div class="form-group" style="margin-top: 15px;">
                                     <button type="submit" id="btn_verify_submit" class="btn btn-block btn-verify-login">
-                                        <i class="fas fa-check-circle"></i> যাচাই করুন এবং প্রবেশ করুন (Verify & Login)
+                                        <i class="fas fa-check-circle"></i> <?php echo translate('verify_and_login'); ?>
                                     </button>
                                 </div>
 
                                 <div class="resend-box">
                                     <a href="<?=base_url($this->authentication_model->getSegment(1) . 'two_fa_resend')?>" id="btn_resend_code" style="color: #007F3D; font-weight: 600; font-size: 13px; text-decoration: none;">
-                                        <i class="fas fa-redo"></i> কোড পাননি? পুনরায় কোড পাঠান (Resend Code)
+                                        <i class="fas fa-redo"></i> <?php echo translate('resend_code'); ?>
                                     </a>
                                     <div id="resend_cooldown" style="display:none; font-size: 12px; color: #64748b; margin-top: 4px;">
-                                        পুনরায় কোড পাঠাতে অপেক্ষা করুন: <span id="resend_timer">60</span> সেকেন্ড
+                                        <?php echo translate('resend_cooldown_wait'); ?>: <span id="resend_timer">60</span> <?php echo translate('seconds'); ?>
                                     </div>
                                 </div>
 
                                 <div style="margin-top: 20px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 14px;">
                                     <a href="<?=base_url($this->authentication_model->getSegment(1) . 'authentication/logout')?>" style="color: #94a3b8; font-size: 13px; text-decoration: none;">
-                                        <i class="fas fa-arrow-left"></i> লগইন পেজে ফিরে যান (Back to Login)
+                                        <i class="fas fa-arrow-left"></i> <?php echo translate('back_to_login'); ?>
                                     </a>
                                 </div>
                             <?php echo form_close();?>
@@ -259,7 +284,7 @@
                     var now = Math.floor(Date.now() / 1000);
                     var diff = expireTimestamp - now;
                     if (diff <= 0) {
-                        $('#countdown_timer').html('<span style="color: #dc2626;">মেয়াদ শেষ (Expired)</span>');
+                        $('#countdown_timer').html('<span style="color: #dc2626;"><?php echo translate('code_expired'); ?></span>');
                         return;
                     }
                     var minutes = Math.floor(diff / 60);

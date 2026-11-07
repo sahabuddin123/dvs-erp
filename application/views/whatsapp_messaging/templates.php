@@ -3,7 +3,7 @@
 	<div class="col-md-7">
 		<section class="panel">
 			<header class="panel-heading">
-				<h4 class="panel-title"><i class="fas fa-file-alt"></i> WhatsApp মেসেজ টেমপ্লেট তালিকা</h4>
+				<h4 class="panel-title"><i class="fas fa-file-alt"></i> <?=translate('whatsapp_templates_list')?></h4>
 			</header>
 			<div class="panel-body">
 				<div class="table-responsive">
@@ -11,10 +11,10 @@
 						<thead>
 							<tr>
 								<th>#</th>
-								<th>শিরোনাম (Title)</th>
-								<th>ক্যাটাগরি</th>
-								<th>টেমপ্লেট বিবরণ</th>
-								<th>অ্যাকশন</th>
+								<th><?=translate('title')?></th>
+								<th><?=translate('category')?></th>
+								<th><?=translate('template_description')?></th>
+								<th><?=translate('action')?></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -35,17 +35,18 @@
 											data-id="<?=$tpl['id']?>" 
 											data-title="<?=html_escape($tpl['title'])?>" 
 											data-category="<?=html_escape($tpl['category'])?>" 
-											data-body="<?=html_escape($tpl['template_body'])?>">
+											data-body="<?=html_escape($tpl['template_body'])?>"
+											data-toggle="tooltip" title="<?=translate('edit')?>">
 										<i class="fas fa-edit"></i>
 									</button>
-									<a href="<?=base_url('whatsapp_messaging/template_delete/'.$tpl['id'])?>" class="btn btn-danger btn-circle btn-sm" onclick="return confirm('আপনি কি নিশ্চিত এই টেমপ্লেটটি মুছে ফেলতে চান?');">
+									<a href="<?=base_url('whatsapp_messaging/template_delete/'.$tpl['id'])?>" class="btn btn-danger btn-circle btn-sm" onclick="return confirm('<?=translate('are_you_sure')?>');" data-toggle="tooltip" title="<?=translate('delete')?>">
 										<i class="fas fa-trash"></i>
 									</a>
 								</td>
 							</tr>
 							<?php endforeach; else: ?>
 							<tr>
-								<td colspan="5" class="text-center text-muted">কোনো টেমপ্লেট তৈরি করা হয়নি।</td>
+								<td colspan="5" class="text-center text-muted"><?=translate('no_information_available')?></td>
 							</tr>
 							<?php endif; ?>
 						</tbody>
@@ -59,34 +60,34 @@
 	<div class="col-md-5">
 		<section class="panel">
 			<header class="panel-heading">
-				<h4 class="panel-title" id="form_title"><i class="fas fa-plus-circle"></i> নতুন টেমপ্লেট যুক্ত করুন</h4>
+				<h4 class="panel-title" id="form_title"><i class="fas fa-plus-circle"></i> <?=translate('add_new_template')?></h4>
 			</header>
 			<?php echo form_open('whatsapp_messaging/templates', ['class' => 'form-horizontal form-bordered validate']); ?>
 				<input type="hidden" name="id" id="tpl_id" value="">
 				<div class="panel-body">
 					<div class="form-group">
-						<label class="col-md-3 control-label">শিরোনাম <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?=translate('title')?> <span class="required">*</span></label>
 						<div class="col-md-9">
-							<input type="text" class="form-control" name="title" id="tpl_title" placeholder="যেমন: ফি পরিশোধের তাগিদ" required />
+							<input type="text" class="form-control" name="title" id="tpl_title" placeholder="<?=translate('title')?>..." required />
 						</div>
 					</div>
 
 					<div class="form-group">
-						<label class="col-md-3 control-label">ক্যাটাগরি</label>
+						<label class="col-md-3 control-label"><?=translate('category')?></label>
 						<div class="col-md-9">
 							<select class="form-control" name="category" id="tpl_category" data-plugin-selectTwo data-width="100%">
-								<option value="general">সাধারণ (General)</option>
-								<option value="attendance">উপস্থিতি (Attendance)</option>
-								<option value="fees">ফি ও একাউন্টিং (Fees)</option>
-								<option value="exam">পরীক্ষা ও রেজাল্ট (Exam)</option>
-								<option value="homework">হোমওয়ার্ক (Homework)</option>
-								<option value="event">ছুটি ও ইভেন্ট (Event / Holiday)</option>
+								<option value="general"><?=translate('general')?></option>
+								<option value="attendance"><?=translate('attendance')?></option>
+								<option value="fees"><?=translate('fees')?></option>
+								<option value="exam"><?=translate('exam')?></option>
+								<option value="homework"><?=translate('homework')?></option>
+								<option value="event"><?=translate('events')?></option>
 							</select>
 						</div>
 					</div>
 
 					<div class="form-group">
-						<label class="col-md-3 control-label">সহায়ক ট্যাগ</label>
+						<label class="col-md-3 control-label"><?=translate('insert_tags')?></label>
 						<div class="col-md-9">
 							<div class="tag-buttons" style="margin-bottom: 6px;">
 								<button type="button" class="btn btn-default btn-xs insert-tpl-tag" data-tag="{name}"><code>{name}</code></button>
@@ -101,9 +102,9 @@
 					</div>
 
 					<div class="form-group">
-						<label class="col-md-3 control-label">মেসেজ বডি <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?=translate('message_body')?> <span class="required">*</span></label>
 						<div class="col-md-9">
-							<textarea class="form-control" name="template_body" id="tpl_body" rows="6" placeholder="মেসেজের ড্রাফট লিখুন..." required></textarea>
+							<textarea class="form-control" name="template_body" id="tpl_body" rows="6" placeholder="<?=translate('message_body_placeholder')?>" required></textarea>
 						</div>
 					</div>
 				</div>
@@ -111,8 +112,8 @@
 				<footer class="panel-footer">
 					<div class="row">
 						<div class="col-md-offset-3 col-md-9">
-							<button type="submit" class="btn btn-default"><i class="fas fa-save"></i> সংরক্ষণ করুন</button>
-							<button type="button" class="btn btn-light" id="btn_cancel_edit" style="display: none;">বাতিল</button>
+							<button type="submit" class="btn btn-default"><i class="fas fa-save"></i> <?=translate('save')?></button>
+							<button type="button" class="btn btn-light" id="btn_cancel_edit" style="display: none;"><?=translate('cancel')?></button>
 						</div>
 					</div>
 				</footer>
@@ -145,7 +146,7 @@ $(document).ready(function() {
 		$('#tpl_category').val(category).trigger('change');
 		$('#tpl_body').val(body);
 
-		$('#form_title').html('<i class="fas fa-edit"></i> টেমপ্লেট সম্পাদনা করুন');
+		$('#form_title').html('<i class="fas fa-edit"></i> <?=translate('edit_template')?>');
 		$('#btn_cancel_edit').show();
 	});
 
@@ -154,7 +155,7 @@ $(document).ready(function() {
 		$('#tpl_title').val('');
 		$('#tpl_category').val('general').trigger('change');
 		$('#tpl_body').val('');
-		$('#form_title').html('<i class="fas fa-plus-circle"></i> নতুন টেমপ্লেট যুক্ত করুন');
+		$('#form_title').html('<i class="fas fa-plus-circle"></i> <?=translate('add_new_template')?>');
 		$(this).hide();
 	});
 });

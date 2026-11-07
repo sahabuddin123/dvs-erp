@@ -298,15 +298,15 @@
         </div>
         <div>
             <button type="button" class="btn-action-print" onclick="window.print();">
-                <i class="fas fa-print mr-xs"></i> ভাউচারটি প্রিন্ট করুন (Print A5)
+                <i class="fas fa-print mr-xs"></i> <?=translate('print_voucher')?>
             </button>
             <?php if ($is_expense): ?>
                 <a href="<?=base_url('accounting/voucher_expense')?>" class="btn-action-sec">
-                    <i class="fas fa-list-ul"></i> খরচ তালিকা (Expense List)
+                    <i class="fas fa-list-ul"></i> <?=translate('expense') . ' ' . translate('list')?>
                 </a>
             <?php else: ?>
                 <a href="<?=base_url('accounting/voucher_deposit')?>" class="btn-action-sec">
-                    <i class="fas fa-list-ul"></i> জমা তালিকা (Deposit List)
+                    <i class="fas fa-list-ul"></i> <?=translate('deposit') . ' ' . translate('list')?>
                 </a>
             <?php endif; ?>
         </div>

@@ -18,9 +18,18 @@
 						$sections = array('' => translate('all_select'));
 						if (!empty($class_id)) {
 							$sec_list = $this->app_lib->getSections($class_id, false);
-							foreach ($sec_list as $s_id => $s_name) {
-								if ($s_id !== '' && $s_id !== 'all') {
-									$sections[$s_id] = $s_name;
+							if (is_array($sec_list)) {
+								foreach ($sec_list as $s_id => $s_val) {
+									if (is_array($s_val)) {
+										$actual_id = isset($s_val['section_id']) ? $s_val['section_id'] : $s_id;
+										$actual_name = isset($s_val['name']) ? $s_val['name'] : (isset($s_val['section_name']) ? $s_val['section_name'] : '');
+									} else {
+										$actual_id = $s_id;
+										$actual_name = $s_val;
+									}
+									if ($actual_id !== '' && $actual_id !== 'all') {
+										$sections[$actual_id] = $actual_name;
+									}
 								}
 							}
 						}
