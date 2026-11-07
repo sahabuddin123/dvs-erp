@@ -103,6 +103,10 @@ ensure_column($conn, 'transactions', 'received_by', 'VARCHAR(255) NULL DEFAULT N
 @$conn->query("ALTER TABLE `front_cms_setting` MODIFY `copyright_text` TEXT NULL");
 @$conn->query("ALTER TABLE `front_cms_setting` MODIFY `address` TEXT NULL");
 
+// Update email_config with official webmail SMTP settings
+@$conn->query("INSERT INTO `email_config` (`email`, `protocol`, `smtp_host`, `smtp_user`, `smtp_pass`, `smtp_port`, `smtp_encryption`, `smtp_auth`, `branch_id`) SELECT 'info@dreamvalleyschool.com', 'smtp', 'mail.dreamvalleyschool.com', 'info@dreamvalleyschool.com', 'Dvs@101#', '465', 'ssl', 'true', 1 WHERE NOT EXISTS (SELECT 1 FROM `email_config` WHERE `branch_id` = 1)");
+@$conn->query("UPDATE `email_config` SET `email` = 'info@dreamvalleyschool.com', `protocol` = 'smtp', `smtp_host` = 'mail.dreamvalleyschool.com', `smtp_user` = 'info@dreamvalleyschool.com', `smtp_pass` = 'Dvs@101#', `smtp_port` = '465', `smtp_encryption` = 'ssl', `smtp_auth` = 'true'");
+
 $create_transport = "CREATE TABLE IF NOT EXISTS `transport_fee_fine` (
   `id` int NOT NULL AUTO_INCREMENT,
   `branch_id` int DEFAULT NULL,

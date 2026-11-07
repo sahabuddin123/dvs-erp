@@ -1270,3 +1270,20 @@ INSERT INTO `languages` (`word`, `english`, `bengali`) SELECT 'allow_free_admiss
 UPDATE `languages` SET `bengali` = 'বিনামূল্যে ভর্তি অনুমোদন' WHERE `word` = 'allow_free_admission';
 INSERT INTO `languages` (`word`, `english`, `bengali`) SELECT 'print_admission_form', 'Print Admission Form', 'ভর্তি ফরম প্রিন্ট' WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'print_admission_form');
 UPDATE `languages` SET `bengali` = 'ভর্তি ফরম প্রিন্ট' WHERE `word` = 'print_admission_form';
+
+-- ==============================================================================
+-- ইমেইল / এসএমটিপি কনফিগারেশন আপডেট (Official Webmail SMTP Setup)
+-- ==============================================================================
+INSERT INTO `email_config` (`email`, `protocol`, `smtp_host`, `smtp_user`, `smtp_pass`, `smtp_port`, `smtp_encryption`, `smtp_auth`, `branch_id`)
+SELECT 'info@dreamvalleyschool.com', 'smtp', 'mail.dreamvalleyschool.com', 'info@dreamvalleyschool.com', 'Dvs@101#', '465', 'ssl', 'true', 1
+WHERE NOT EXISTS (SELECT 1 FROM `email_config` WHERE `branch_id` = 1);
+
+UPDATE `email_config` SET 
+  `email` = 'info@dreamvalleyschool.com',
+  `protocol` = 'smtp',
+  `smtp_host` = 'mail.dreamvalleyschool.com',
+  `smtp_user` = 'info@dreamvalleyschool.com',
+  `smtp_pass` = 'Dvs@101#',
+  `smtp_port` = '465',
+  `smtp_encryption` = 'ssl',
+  `smtp_auth` = 'true';
