@@ -33,7 +33,7 @@ class Thermal_print extends Admin_Controller
 
         $branch_id = $this->application_model->get_branch_id();
 
-        if ($_POST) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $is_active = $this->input->post('is_active') ? 1 : 0;
             $printer_width = $this->input->post('printer_width') ?: '80mm';
             $show_logo = $this->input->post('show_logo') ? 1 : 0;

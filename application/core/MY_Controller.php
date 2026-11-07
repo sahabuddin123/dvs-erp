@@ -173,7 +173,7 @@ class Admin_Controller extends MY_Controller
             redirect(base_url('authentication'), 'refresh');
         }
         if (is_single_branch()) {
-            if (empty($_POST['branch_id'])) {
+            if (!empty($_POST) && empty($_POST['branch_id'])) {
                 $_POST['branch_id'] = (string)get_single_branch_id();
             }
             if (empty($this->data['branch_id'])) {
