@@ -69,20 +69,24 @@ class Event_model extends MY_Model
                 "2" => "class",
                 "3" => "section",
             );
-            $audition = $auditions[$record->audition];
+            $aud_key = !empty($record->audition) ? (string)$record->audition : '1';
+            $audition = isset($auditions[$aud_key]) ? $auditions[$aud_key] : 'everybody';
             $aud = translate($audition);
-            if($record->audition != 1){
-                if ($record->audition == 2) {
-                    $selecteds = json_decode($record->selected_list); 
-                    foreach ($selecteds as $selected) {
-                        $aud .= "<small class='text-muted bs-block'> - " . get_type_name_by_id('class', $selected) . '</small>' ;
+            if ($aud_key != '1' && !empty($record->selected_list)) {
+                $selecteds = json_decode($record->selected_list); 
+                if (!empty($selecteds) && is_array($selecteds)) {
+                    if ($aud_key == '2') {
+                        foreach ($selecteds as $selected) {
+                            $aud .= "<small class='text-muted bs-block'> - " . get_type_name_by_id('class', $selected) . '</small>' ;
+                        }
                     }
-                }
-                if ($record->audition == 3) {
-                    $selecteds = json_decode($record->selected_list); 
-                    foreach ($selecteds as $selected) {
-                        $selected = explode('-', $selected);
-                        $aud .= "<small class='text-muted bs-block'> - " . get_type_name_by_id('class', $selected[0]) . " (" . get_type_name_by_id('section', $selected[1])  . ')</small>' ;
+                    if ($aud_key == '3') {
+                        foreach ($selecteds as $selected) {
+                            $selected = explode('-', $selected);
+                            if (isset($selected[0]) && isset($selected[1])) {
+                                $aud .= "<small class='text-muted bs-block'> - " . get_type_name_by_id('class', $selected[0]) . " (" . get_type_name_by_id('section', $selected[1])  . ')</small>' ;
+                            }
+                        }
                     }
                 }
             }

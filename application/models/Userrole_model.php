@@ -385,12 +385,16 @@ class Userrole_model extends MY_Model
                 "2" => "class",
                 "3" => "section",
             );
-            $audition = $auditions[$record->audition];
+            $aud_key = !empty($record->audition) ? (string)$record->audition : '1';
+            $audition = isset($auditions[$aud_key]) ? $auditions[$aud_key] : 'everybody';
             $aud = translate($audition);
-            if($record->audition != 1){
+            if ($aud_key != '1' && !empty($record->selected_list)) {
                 $selecteds = json_decode($record->selected_list); 
-                foreach ($selecteds as $selected) {
-                    $aud .= "<small class='text-muted bs-block'> - " . $this->db->get_where($audition , array('id' => $selected))->row()->name . '</small>' ;
+                if (!empty($selecteds) && is_array($selecteds)) {
+                    foreach ($selecteds as $selected) {
+                        $aud_name = get_type_name_by_id($audition, $selected);
+                        $aud .= "<small class='text-muted bs-block'> - " . (!empty($aud_name) ? $aud_name : $selected) . '</small>' ;
+                    }
                 }
             }
             $actions = '<button class="btn btn-circle icon btn-default icon" data-loading-text="<i class=\'fas fa-spinner fa-spin\'></i>" onclick="viewEvent(' . "'" . $record->id . "'" . ', this)"><i class="far fa-eye"></i></button>';

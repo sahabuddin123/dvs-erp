@@ -405,19 +405,24 @@ class Alumni extends Admin_Controller
             $html .= "<td>" . _d($ev['to_date']) . "</td>";
             $html .= "</tr><tr>";
             $html .= "<td>" . translate('audience') . "</td>";
-            $audience = $auditions[$ev['audience']];
+            $aud_key = !empty($ev['audience']) ? (string)$ev['audience'] : '1';
+            $audience = isset($auditions[$aud_key]) ? $auditions[$aud_key] : 'everybody';
             $html .= "<td>" . translate($audience);
-            if ($ev['audience'] != 1) {
-                $selecteds = json_decode($ev['selected_list']);
-                if ($ev['audience'] == 2) {
-                    foreach ($selecteds as $selected) {
-                        $html .= "<br> <small> - " .  get_type_name_by_id('class', $selected) . '</small>';
+            if ($aud_key != '1' && !empty($ev['selected_list'])) {
+                $selecteds = json_decode($ev['selected_list'], true);
+                if (!empty($selecteds) && is_array($selecteds)) {
+                    if ($aud_key == '2') {
+                        foreach ($selecteds as $selected) {
+                            $html .= "<br> <small> - " .  get_type_name_by_id('class', $selected) . '</small>';
+                        }
                     }
-                }
-                if ($ev['audience'] == 3) {
-                    foreach ($selecteds as $selected) {
-                        $selected = explode('-', $selected);
-                        $html .= "<br> <small> - " .  get_type_name_by_id('class', $selected[0]) . " (" . get_type_name_by_id('section', $selected[1])  .  ')</small>';
+                    if ($aud_key == '3') {
+                        foreach ($selecteds as $selected) {
+                            $selected = explode('-', $selected);
+                            if (isset($selected[0]) && isset($selected[1])) {
+                                $html .= "<br> <small> - " .  get_type_name_by_id('class', $selected[0]) . " (" . get_type_name_by_id('section', $selected[1])  .  ')</small>';
+                            }
+                        }
                     }
                 }
             }

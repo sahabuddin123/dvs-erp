@@ -389,14 +389,27 @@ class Event extends Admin_Controller
         }
         $this->db->where('id', $id);
         $ev = $this->db->get('event')->row_array();
-        $type = $ev['type'] == 'holiday' ? translate('holiday') : get_type_name_by_id('event_types', $ev['type']);
+        if (empty($ev)) {
+            echo "<tbody><tr><td colspan='2' class='text-center'>" . translate('no_information_available') . "</td></tr></tbody>";
+            return;
+        }
+
+        if ($ev['type'] == 'holiday') {
+            $type = translate('holiday');
+        } elseif (is_numeric($ev['type'])) {
+            $type_name = get_type_name_by_id('event_types', $ev['type']);
+            $type = !empty($type_name) ? $type_name : $ev['type'];
+        } else {
+            $type = !empty($ev['type']) ? $ev['type'] : 'N/A';
+        }
+
         $remark = (empty($ev['remark']) ? 'N/A' : $ev['remark']);
         $html = "<tbody><tr>";
         $html .= "<td>" . translate('title') . "</td>";
-        $html .= "<td>" . $ev['title'] . "</td>";
+        $html .= "<td>" . html_escape($ev['title']) . "</td>";
         $html .= "</tr><tr>";
         $html .= "<td>" . translate('type') . "</td>";
-        $html .= "<td>" . $type . "</td>";
+        $html .= "<td>" . html_escape($type) . "</td>";
         $html .= "</tr><tr>";
         $html .= "<td>" . translate('date_of_start') . "</td>";
         $html .= "<td>" . _d($ev['start_date']) . "</td>";
@@ -405,19 +418,24 @@ class Event extends Admin_Controller
         $html .= "<td>" . _d($ev['end_date']) . "</td>";
         $html .= "</tr><tr>";
         $html .= "<td>" . translate('audience') . "</td>";
-        $audition = $auditions[$ev['audition']];
+        $aud_key = !empty($ev['audition']) ? (string)$ev['audition'] : '1';
+        $audition = isset($auditions[$aud_key]) ? $auditions[$aud_key] : 'everybody';
         $html .= "<td>" . translate($audition);
-        if ($ev['audition'] != 1) {
-            $selecteds = json_decode($ev['selected_list']);
-            if ($ev['audition'] == 2) {
-                foreach ($selecteds as $selected) {
-                    $html .= "<br> <small> - " .  get_type_name_by_id('class', $selected) . '</small>';
+        if ($aud_key != '1' && !empty($ev['selected_list'])) {
+            $selecteds = json_decode($ev['selected_list'], true);
+            if (!empty($selecteds) && is_array($selecteds)) {
+                if ($aud_key == '2') {
+                    foreach ($selecteds as $selected) {
+                        $html .= "<br> <small> - " .  get_type_name_by_id('class', $selected) . '</small>';
+                    }
                 }
-            }
-            if ($ev['audition'] == 3) {
-                foreach ($selecteds as $selected) {
-                    $selected = explode('-', $selected);
-                    $html .= "<br> <small> - " .  get_type_name_by_id('class', $selected[0]) . " (" . get_type_name_by_id('section', $selected[1])  .  ')</small>';
+                if ($aud_key == '3') {
+                    foreach ($selecteds as $selected) {
+                        $selected = explode('-', $selected);
+                        if (isset($selected[0]) && isset($selected[1])) {
+                            $html .= "<br> <small> - " .  get_type_name_by_id('class', $selected[0]) . " (" . get_type_name_by_id('section', $selected[1])  .  ')</small>';
+                        }
+                    }
                 }
             }
         }
