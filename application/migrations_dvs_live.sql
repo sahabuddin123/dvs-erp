@@ -1227,6 +1227,37 @@ INSERT INTO `admission_settings` (`id`, `branch_id`, `admission_fee`, `min_paid_
 SELECT 1, 0, 15000.00, 2000.00, 1, 'Cash', '১. বিদ্যালয়ের নির্ধারিত পোশাক (ইউনিফর্ম) পরিধান করে নিয়মিত ও সময়মতো বিদ্যালয়ে উপস্থিত হতে হবে।\n২. ইসলামী তাহযীব ও তামাদ্দুন বজায় রেখে শালীনতা, শৃঙ্খলা ও শিষ্টাচার কঠোরভাবে মেনে চলতে হবে।\n৩. বিদ্যালয়ে মোবাইল ফোন বা অন্য কোনো ইলেকট্রনিক ডিভাইস আনা সম্পূর্ণ নিষিদ্ধ।\n৪. প্রতি মাসের নির্ধারিত ফি ও অন্যান্য পাওনা প্রতি মাসের ১০ তারিখের মধ্যে পরিশোধ করতে হবে।\n৫. ভর্তি ফি ও আনুষঙ্গিক ফি একবার পরিশোধের পর তা কোনো অবস্থাতেই অফেরতযোগ্য।\n৬. বিদ্যালয় কর্তৃপক্ষের যেকোনো সিদ্ধান্ত ও শৃঙ্খলাবিধি মানতে শিক্ষার্থী ও অভিভাবক বাধ্য থাকিবেন।' 
 WHERE NOT EXISTS (SELECT 1 FROM `admission_settings` WHERE `id` = 1);
 
+ALTER TABLE `languages` 
+  MODIFY `arabic` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `french` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `hindi` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `indonesian` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `italian` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `japanese` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `korean` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `dutch` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `portuguese` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `thai` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `turkish` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `urdu` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `chinese` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `afrikaans` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `german` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `greek` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `spanish` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `nepali` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `russian` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `danish` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `armenian` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `georgian` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `marathi` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `malay` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `punjabi` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `tamil` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `telugu` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `swedish` VARCHAR(255) NULL DEFAULT '',
+  MODIFY `filipino` VARCHAR(255) NULL DEFAULT '';
+
 INSERT INTO `languages` (`word`, `english`, `bengali`) SELECT 'admission_settings', 'Admission Settings', 'ভর্তি সেটিংস' WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'admission_settings');
 UPDATE `languages` SET `bengali` = 'ভর্তি সেটিংস' WHERE `word` = 'admission_settings';
 INSERT INTO `languages` (`word`, `english`, `bengali`) SELECT 'admission_fee', 'Admission Fee', 'ভর্তি ফি' WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'admission_fee');
