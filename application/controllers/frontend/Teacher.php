@@ -295,3 +295,4 @@ class Teacher extends Admin_Controller
         return $prev_image;
     }
 }
+
