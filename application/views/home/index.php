@@ -5,21 +5,21 @@ $app_title = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'a
 $default_address = !empty($global_config['address']) ? $global_config['address'] : (!empty($branch['address']) ? $branch['address'] : '');
 $app_address = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'address', $default_address) : $default_address;
 $app_tagline = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'site_tagline') : '';
-$v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_frontend_visitor_stats') ? get_frontend_visitor_stats() : ['total' => 672, 'month' => 54, 'today' => 13]);
+$v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_frontend_visitor_stats') ? get_frontend_visitor_stats() : ['total' => 0, 'month' => 0, 'today' => 0]);
+$branchID_active = !empty($branchID) ? $branchID : 1;
 ?>
 
 <!-- Hero Section -->
 <section class="hero-section">
-    <video autoplay muted loop playsinline>
-        <source src="<?php echo base_url('assets/frontend/dvs/videos/school.mp4'); ?>" type="video/mp4">
-    </video>
     <div class="hero-overlay">
         <h1>
             <?php echo html_escape($app_title); ?>
         </h1>
+        <?php if (!empty($app_address)): ?>
         <p class="subtitle" style="font-size: 1.25rem; font-weight: 500; margin-bottom: 12px;">
             <?php echo html_escape($app_address); ?>
         </p>
+        <?php endif; ?>
         <?php if (!empty($app_tagline)): ?>
         <p class="subtitle" style="font-size: 1.15rem; font-style: italic; line-height: 1.6; margin-bottom: 25px;">
             <?php echo $app_tagline; ?>
@@ -81,27 +81,24 @@ $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_front
                                 if (!empty($slide_img)) {
                                     if (file_exists(FCPATH . 'uploads/frontend/slider/' . $slide_img)) {
                                         $img_url = base_url('uploads/frontend/slider/' . $slide_img);
+                                    } elseif (file_exists(FCPATH . 'uploads/frontend/home_page/' . $slide_img)) {
+                                        $img_url = base_url('uploads/frontend/home_page/' . $slide_img);
                                     } elseif (file_exists(FCPATH . 'uploads/frontend/images/' . $slide_img)) {
                                         $img_url = base_url('uploads/frontend/images/' . $slide_img);
-                                    } elseif (file_exists(FCPATH . 'assets/frontend/dvs/storage/sliders/' . $slide_img)) {
-                                        $img_url = base_url('assets/frontend/dvs/storage/sliders/' . $slide_img);
-                                    }
-                                }
-                                if (empty($img_url)) {
-                                    if (file_exists(FCPATH . 'uploads/frontend/slider/home-slider-1592582779.jpg')) {
-                                        $img_url = base_url('uploads/frontend/slider/home-slider-1592582779.jpg');
-                                    } elseif (file_exists(FCPATH . 'uploads/frontend/slider/IXFXmvexlCc59dZtrb9u5AURZ1Ge4DAOFNijkMzB.jpg')) {
-                                        $img_url = base_url('uploads/frontend/slider/IXFXmvexlCc59dZtrb9u5AURZ1Ge4DAOFNijkMzB.jpg');
-                                    } else {
-                                        $img_url = base_url('uploads/frontend/slider/home-slider-1592582805.jpg');
                                     }
                                 }
                                 $slide_title = get_lang_field($slide, 'title');
                         ?>
-                            <div class="item position-relative">
-                                <img src="<?php echo $img_url; ?>" alt="<?php echo strip_tags($slide_title); ?>" style="width: 100%; height: 460px; object-fit: cover;">
+                            <div class="item position-relative" style="background: #1e293b; height: 460px;">
+                                <?php if (!empty($img_url)) { ?>
+                                    <img src="<?php echo $img_url; ?>" alt="<?php echo strip_tags($slide_title); ?>" style="width: 100%; height: 460px; object-fit: cover;">
+                                <?php } else { ?>
+                                    <div class="d-flex align-items-center justify-content-center h-100 text-white text-center p-4" style="background: linear-gradient(135deg, var(--primary-color) 0%, #1e293b 100%);">
+                                        <h2 class="fw-bold"><?php echo strip_tags($slide_title, '<span><strong><b>'); ?></h2>
+                                    </div>
+                                <?php } ?>
                                 <?php if (!empty($slide_title)) { ?>
-                                <div class="slider-caption" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 10px 15px 28px 15px; text-align: center; font-weight: 600; font-size: 1.05rem;">
+                                <div class="slider-caption" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.65); color: #fff; padding: 12px 15px 28px 15px; text-align: center; font-weight: 600; font-size: 1.05rem;">
                                     <?php echo strip_tags($slide_title, '<span><strong><b><small><em>'); ?>
                                 </div>
                                 <?php } ?>
@@ -109,15 +106,12 @@ $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_front
                         <?php 
                             }
                         } else { ?>
-                            <div class="item position-relative">
-                                <?php 
-                                $default_slide_img = file_exists(FCPATH . 'uploads/frontend/slider/home-slider-1592582779.jpg') 
-                                    ? base_url('uploads/frontend/slider/home-slider-1592582779.jpg') 
-                                    : base_url('uploads/frontend/slider/home-slider-1592582805.jpg');
-                                ?>
-                                <img src="<?php echo $default_slide_img; ?>" alt="<?php echo html_escape($app_title); ?>" style="width: 100%; height: 460px; object-fit: cover;">
-                                <div class="slider-caption" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 10px 15px 28px 15px; text-align: center; font-weight: 600; font-size: 1.05rem;">
-                                    <?php echo html_escape($app_title); ?>
+                            <div class="item position-relative" style="background: linear-gradient(135deg, var(--primary-color) 0%, #1e293b 100%); height: 460px;">
+                                <div class="d-flex align-items-center justify-content-center h-100 text-white text-center p-4">
+                                    <div>
+                                        <h2 class="fw-bold mb-2"><?php echo html_escape($app_title); ?></h2>
+                                        <p class="text-white-50"><?php echo html_escape($app_address); ?></p>
+                                    </div>
                                 </div>
                             </div>
                         <?php } ?>
@@ -136,7 +130,10 @@ $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_front
                         </div>
                         <div class="notice-list">
                             <?php 
-                            $board_notices = $this->db->where('show_web', 1)->order_by('id', 'desc')->limit(5)->get('front_cms_news_list')->result_array();
+                            $board_notices = $this->db->where('branch_id', $branchID_active)->where('show_web', 1)->order_by('id', 'desc')->limit(5)->get('front_cms_news_list')->result_array();
+                            if (empty($board_notices)) {
+                                $board_notices = $this->db->where('show_web', 1)->order_by('id', 'desc')->limit(5)->get('front_cms_news_list')->result_array();
+                            }
                             if (!empty($board_notices)) {
                                 foreach ($board_notices as $bn) { 
                                     $notice_date = !empty($bn['date']) ? $bn['date'] : $bn['created_at'];
@@ -152,7 +149,9 @@ $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_front
                                     </a>
                                 </div>
                             <?php }
-                            } ?>
+                            } else { ?>
+                                <p class="text-muted small py-3 mb-0"><?php echo ($current_lang == 'en') ? 'No notices published yet.' : 'বর্তমানে কোনো নোটিশ নেই।'; ?></p>
+                            <?php } ?>
                         </div>
                     </div>
                     <div class="mt-3">
@@ -166,16 +165,11 @@ $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_front
     </div>
 </section>
 
-<!-- Leadership Messages (নেতৃত্বের বার্তা) -->
+<!-- Leadership Messages (নেতৃত্বের বার্তা - Only if real founders are added by admin) -->
 <?php
-// Fetch leaders dynamically from founder table
-$branchID_active = !empty($branchID) ? $branchID : 1;
 $db_leaders = [];
 if ($this->db->table_exists('founder')) {
-    $db_leaders = $this->db->where('branch_id', $branchID_active)->where('active', 1)->order_by('position', 'asc')->order_by('id', 'asc')->get('founder')->result_array();
-    if (empty($db_leaders)) {
-        $db_leaders = $this->db->where('active', 1)->order_by('position', 'asc')->order_by('id', 'asc')->get('founder')->result_array();
-    }
+    $db_leaders = $this->db->where('branch_id', $branchID_active)->where('active', 1)->order_by('position', 'asc')->get('founder')->result_array();
 }
 if (!empty($db_leaders)) {
 ?>
@@ -189,19 +183,16 @@ if (!empty($db_leaders)) {
             <?php 
                 $count = count($db_leaders);
                 foreach ($db_leaders as $index => $leader) { 
-                    // Determine image path
                     $img_file = !empty($leader['image']) ? $leader['image'] : '';
-                    if (!empty($img_file) && file_exists(FCPATH . 'uploads/frontend/founder/' . $img_file)) {
-                        $img_src = base_url('uploads/frontend/founder/' . $img_file);
-                    } elseif (!empty($img_file) && file_exists(FCPATH . 'assets/frontend/dvs/storage/founders/' . $img_file)) {
-                        $img_src = base_url('assets/frontend/dvs/storage/founders/' . $img_file);
-                    } elseif (!empty($img_file) && file_exists(FCPATH . 'uploads/frontend/testimonial/' . $img_file)) {
-                        $img_src = base_url('uploads/frontend/testimonial/' . $img_file);
-                    } else {
-                        $img_src = base_url('assets/frontend/dvs/storage/founders/4AsJWZzPctGqP8vDTvzbXDSJc7i15wPQNsPGGf6E.jpg');
+                    $img_src = base_url('uploads/app_image/default.png');
+                    if (!empty($img_file)) {
+                        if (file_exists(FCPATH . 'uploads/frontend/founder/' . $img_file)) {
+                            $img_src = base_url('uploads/frontend/founder/' . $img_file);
+                        } elseif (file_exists(FCPATH . 'uploads/frontend/testimonial/' . $img_file)) {
+                            $img_src = base_url('uploads/frontend/testimonial/' . $img_file);
+                        }
                     }
 
-                    // If last odd card, center it in row
                     $col_class = ($count % 2 != 0 && $index == ($count - 1)) ? "col-lg-6 col-md-8 mx-auto" : "col-lg-6 col-md-6";
                     
                     $leader_name = function_exists('get_lang_field') ? get_lang_field($leader, 'name') : (!empty($leader['name_bn']) ? $leader['name_bn'] : $leader['name_en']);
@@ -213,15 +204,16 @@ if (!empty($db_leaders)) {
                 <div class="<?php echo $col_class; ?>">
                     <div class="card border-0 shadow-sm h-100 bg-white" style="border-radius: 8px; border-left: 4px solid var(--primary-color) !important;">
                         <div class="card-body p-3 d-flex align-items-center gap-3">
-                            <div style="flex-shrink: 0; width: 135px; height: 160px; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
-                                <img src="<?php echo $img_src; ?>" alt="<?php echo html_escape($leader_name); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div class="flex-shrink-0">
+                                <img src="<?php echo $img_src; ?>" alt="<?php echo html_escape($leader_name); ?>" 
+                                    style="width: 100px; height: 110px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                             </div>
                             <div class="flex-grow-1">
-                                <h5 class="mb-1 fw-bold" style="color: var(--primary-color); font-size: 1.25rem;">
+                                <h4 class="mb-1" style="color: #b91c1c; font-weight: 700; font-size: 1.15rem;">
                                     <?php echo html_escape($leader_name); ?>
-                                </h5>
+                                </h4>
                                 <div class="mb-3">
-                                    <span class="badge rounded-pill text-white" style="background-color: var(--primary-color); font-weight: 500; font-size: 11px; padding: 4px 12px;">
+                                    <span class="badge" style="background-color: #ef4444; color: #fff; font-size: 0.78rem; font-weight: 500; border-radius: 4px; padding: 4px 8px;">
                                         <?php echo html_escape($leader_desig); ?>
                                     </span>
                                 </div>
@@ -242,13 +234,41 @@ if (!empty($db_leaders)) {
 </section>
 <?php } ?>
 
-<!-- Welcome Section -->
-<section class="welcome-section">
+<!-- Welcome Section (From Admin Panel Home Page Settings > Welcome Message) -->
+<?php if (!empty($wellcome) && (!isset($wellcome['active']) || $wellcome['active'] == 1)) { ?>
+<section class="welcome-section py-5">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6 mb-4">
+            <?php 
+            $wellcome_elements = !empty($wellcome['elements']) ? json_decode($wellcome['elements'], true) : [];
+            $wellcome_img = !empty($wellcome_elements['image']) ? $wellcome_elements['image'] : '';
+            $wellcome_img_url = '';
+
+            if (!empty($wellcome_img)) {
+                if (file_exists(FCPATH . 'uploads/frontend/home_page/' . $wellcome_img)) {
+                    $wellcome_img_url = base_url('uploads/frontend/home_page/' . $wellcome_img);
+                } elseif (file_exists(FCPATH . 'uploads/frontend/images/' . $wellcome_img)) {
+                    $wellcome_img_url = base_url('uploads/frontend/images/' . $wellcome_img);
+                }
+            }
+            if (empty($wellcome_img_url)) {
+                foreach (['jpg', 'png', 'jpeg', 'webp'] as $test_ext) {
+                    if (file_exists(FCPATH . 'uploads/frontend/home_page/wellcome' . $branchID_active . '.' . $test_ext)) {
+                        $wellcome_img_url = base_url('uploads/frontend/home_page/wellcome' . $branchID_active . '.' . $test_ext);
+                        break;
+                    }
+                }
+            }
+            $col_width = !empty($wellcome_img_url) ? 'col-lg-6' : 'col-lg-12';
+            ?>
+            <div class="<?php echo $col_width; ?> mb-4">
                 <div class="section-title">
-                    <h2><i class="fas fa-hands-praying"></i> <?php echo html_escape(get_lang_field($wellcome, 'title', ($current_lang == 'en' ? 'Welcome to ' . $app_title : $app_title . ' এ স্বাগতম'))); ?></h2>
+                    <h2><i class="fas fa-hands-praying"></i> <?php echo html_escape(get_lang_field($wellcome, 'title', ($current_lang == 'en' ? 'Welcome' : 'স্বাগতম'))); ?></h2>
+                    <?php 
+                    $welcome_sub = get_lang_field($wellcome, 'subtitle');
+                    if (!empty($welcome_sub)): ?>
+                        <p class="text-muted fw-semibold" style="font-size: 1.1rem;"><?php echo html_escape($welcome_sub); ?></p>
+                    <?php endif; ?>
                 </div>
                 <div class="text-justify pr-4 lh-lg text-muted" style="font-size: 1.02rem;">
                     <?php 
@@ -263,79 +283,28 @@ if (!empty($db_leaders)) {
                     </a>
                 </div>
             </div>
+            <?php if (!empty($wellcome_img_url)): ?>
             <div class="col-lg-6 mb-4 text-center">
-                <?php 
-                $wellcome_elements = !empty($wellcome['elements']) ? json_decode($wellcome['elements'], true) : [];
-                $wellcome_img = !empty($wellcome_elements['image']) ? $wellcome_elements['image'] : '';
-                $wellcome_img_url = '';
-
-                // 1. Direct path or alternate extension in uploads/frontend/home_page/
-                if (!empty($wellcome_img)) {
-                    if (file_exists(FCPATH . 'uploads/frontend/home_page/' . $wellcome_img)) {
-                        $wellcome_img_url = base_url('uploads/frontend/home_page/' . $wellcome_img);
-                    } else {
-                        $fn_raw = pathinfo($wellcome_img, PATHINFO_FILENAME);
-                        foreach (['jpg', 'png', 'jpeg', 'webp'] as $test_ext) {
-                            if (file_exists(FCPATH . 'uploads/frontend/home_page/' . $fn_raw . '.' . $test_ext)) {
-                                $wellcome_img_url = base_url('uploads/frontend/home_page/' . $fn_raw . '.' . $test_ext);
-                                break;
-                            }
-                        }
-                    }
-
-                    // 2. Settings folder path if not found in home_page/
-                    if (empty($wellcome_img_url) && file_exists(FCPATH . 'assets/frontend/dvs/storage/uploads/settings/' . $wellcome_img)) {
-                        $wellcome_img_url = base_url('assets/frontend/dvs/storage/uploads/settings/' . $wellcome_img);
-                    }
-                }
-
-                // 3. Branch-specific fallback in home_page/
-                if (empty($wellcome_img_url)) {
-                    $branch_active_id = !empty($branchID) ? $branchID : 1;
-                    foreach (['jpg', 'png', 'jpeg', 'webp'] as $test_ext) {
-                        if (file_exists(FCPATH . 'uploads/frontend/home_page/wellcome' . $branch_active_id . '.' . $test_ext)) {
-                            $wellcome_img_url = base_url('uploads/frontend/home_page/wellcome' . $branch_active_id . '.' . $test_ext);
-                            break;
-                        }
-                    }
-                }
-
-                // 4. Default fallback: wellcome1.jpg / wellcome1.png
-                if (empty($wellcome_img_url)) {
-                    if (file_exists(FCPATH . 'uploads/frontend/home_page/wellcome1.jpg')) {
-                        $wellcome_img_url = base_url('uploads/frontend/home_page/wellcome1.jpg');
-                    } elseif (file_exists(FCPATH . 'uploads/frontend/home_page/wellcome1.png')) {
-                        $wellcome_img_url = base_url('uploads/frontend/home_page/wellcome1.png');
-                    } else {
-                        $wellcome_img_url = base_url('assets/frontend/dvs/storage/uploads/settings/welcome_image_1781274557.jpg');
-                    }
-                }
-                ?>
                 <img src="<?php echo $wellcome_img_url; ?>" alt="Welcome" class="img-fluid shadow-sm" style="border-radius: 8px; max-height: 480px; width: 100%; object-fit: cover;">
             </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
+<?php } ?>
 
+<!-- Our Teachers Section (Controlled by Home Page Settings > Teachers tab active flag) -->
 <?php
-// Our Teachers Section (আমাদের শিক্ষকবৃন্দ)
-$teachers_display = !empty($teachers_list) ? $teachers_list : [];
-if (empty($teachers_display) && $this->db->table_exists('teacher')) {
-    $branch_active_id = !empty($branchID) ? $branchID : 1;
-    $teachers_display = $this->db->where('branch_id', $branch_active_id)->where('active', 1)->where('show_on_homepage', 1)->order_by('position', 'asc')->get('teacher')->result_array();
-    if (empty($teachers_display)) {
-        $teachers_display = $this->db->where('active', 1)->where('show_on_homepage', 1)->order_by('position', 'asc')->get('teacher')->result_array();
-    }
-}
-if (!empty($teachers_display)) {
+$teachers_is_active = !empty($teachers) && isset($teachers['active']) && $teachers['active'] == 1;
+if ($teachers_is_active && !empty($teachers_list)) {
+    $teachers_title = !empty($teachers['title']) ? $teachers['title'] : (($current_lang == 'en') ? 'Our Teachers' : 'আমাদের শিক্ষকবৃন্দ');
 ?>
-<!-- Our Teachers Section (আমাদের শিক্ষকবৃন্দ) -->
 <section class="teachers-section py-5" id="teachers-section" style="background-color: #f8fafc;">
     <div class="container">
         <div class="teachers-section-title mb-4">
             <h2 style="color: #007F3D; font-weight: 700; font-size: 2.2rem; display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
                 <i class="fas fa-comments" style="color: #007F3D; font-size: 2rem;"></i>
-                <span>Our Teachers</span>
+                <span><?php echo html_escape($teachers_title); ?></span>
             </h2>
             <div style="margin-left: 50px;">
                 <div style="width: 50px; height: 3px; background-color: #007F3D; border-radius: 2px;"></div>
@@ -345,22 +314,21 @@ if (!empty($teachers_display)) {
 
         <div class="row justify-content-center g-4">
             <?php 
-            foreach ($teachers_display as $t_item) {
+            foreach ($teachers_list as $t_item) {
                 $t_name = ($current_lang == 'en') ? (!empty($t_item['name_en']) ? $t_item['name_en'] : $t_item['name']) : (!empty($t_item['name_bn']) ? $t_item['name_bn'] : $t_item['name']);
                 $t_designation = ($current_lang == 'en') ? (!empty($t_item['designation_en']) ? $t_item['designation_en'] : $t_item['designation']) : (!empty($t_item['designation_bn']) ? $t_item['designation_bn'] : $t_item['designation']);
                 $t_title = ($current_lang == 'en') ? (!empty($t_item['title_en']) ? $t_item['title_en'] : $t_item['title']) : (!empty($t_item['title_bn']) ? $t_item['title_bn'] : $t_item['title']);
                 $t_subject = ($current_lang == 'en') ? (!empty($t_item['subject_en']) ? $t_item['subject_en'] : $t_item['subject']) : (!empty($t_item['subject_bn']) ? $t_item['subject_bn'] : $t_item['subject']);
-                $t_message = ($current_lang == 'en') ? (!empty($t_item['message_en']) ? $t_item['message_en'] : $t_item['message']) : (!empty($t_item['message_bn']) ? $t_item['message_bn'] : $t_item['message']);
+                $t_message = ($current_lang == 'en') ? (!empty($t_item['message_en']) ? $t_item['message_en'] : (!empty($t_item['message']) ? $t_item['message'] : '')) : (!empty($t_item['message_bn']) ? $t_item['message_bn'] : (!empty($t_item['message']) ? $t_item['message'] : ''));
 
                 $t_img = !empty($t_item['image']) ? $t_item['image'] : '';
-                if (!empty($t_img) && file_exists(FCPATH . 'uploads/frontend/teacher/' . $t_img)) {
-                    $t_img_url = base_url('uploads/frontend/teacher/' . $t_img);
-                } elseif (!empty($t_img) && file_exists(FCPATH . 'uploads/frontend/founder/' . $t_img)) {
-                    $t_img_url = base_url('uploads/frontend/founder/' . $t_img);
-                } elseif (!empty($t_img) && file_exists(FCPATH . 'assets/frontend/dvs/storage/founders/' . $t_img)) {
-                    $t_img_url = base_url('assets/frontend/dvs/storage/founders/' . $t_img);
+                $t_img_url = base_url('uploads/app_image/default.png');
+                if (!empty($t_item['is_staff'])) {
+                    $t_img_url = !empty($t_img) ? get_image_url('staff', $t_img) : base_url('uploads/app_image/default.png');
                 } else {
-                    $t_img_url = base_url('assets/frontend/dvs/storage/founders/4AsJWZzPctGqP8vDTvzbXDSJc7i15wPQNsPGGf6E.jpg');
+                    if (!empty($t_img) && file_exists(FCPATH . 'uploads/frontend/teacher/' . $t_img)) {
+                        $t_img_url = base_url('uploads/frontend/teacher/' . $t_img);
+                    }
                 }
             ?>
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
@@ -512,8 +480,8 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 <?php } ?>
 
+<!-- Latest Events Section (Only if real events exist for this branch) -->
 <?php if (!empty($events)) { ?>
-<!-- Latest Events Section (সর্বশেষ ইভেন্ট) -->
 <section class="news-section">
     <div class="container">
         <div class="section-title">
@@ -523,21 +491,15 @@ document.addEventListener('DOMContentLoaded', function(){
 
         <div class="news-slider row" id="newsCardsContainer">
             <?php 
-            if (!empty($events)) {
-                foreach ($events as $event) {
-                    $ev_title = get_lang_field($event, 'title');
-                    $ev_type = get_lang_field($event, 'type', ($current_lang == 'en' ? 'Event' : 'ইভেন্ট'));
-                    $ev_date = !empty($event['start_date']) ? date('F d, Y', strtotime($event['start_date'])) : '';
-                    $ev_img = !empty($event['image']) ? $event['image'] : '';
-                    if (!empty($ev_img) && file_exists(FCPATH . 'uploads/frontend/events/' . $ev_img)) {
-                        $ev_img_url = base_url('uploads/frontend/events/' . $ev_img);
-                    } elseif (!empty($ev_img) && file_exists(FCPATH . 'assets/frontend/dvs/storage/events/' . $ev_img)) {
-                        $ev_img_url = base_url('assets/frontend/dvs/storage/events/' . $ev_img);
-                    } elseif (file_exists(FCPATH . 'uploads/frontend/events/defualt.png')) {
-                        $ev_img_url = base_url('uploads/frontend/events/defualt.png');
-                    } else {
-                        $ev_img_url = base_url('assets/images/profile_bg.jpg');
-                    }
+            foreach ($events as $event) {
+                $ev_title = get_lang_field($event, 'title');
+                $ev_type = get_lang_field($event, 'type', ($current_lang == 'en' ? 'Event' : 'ইভেন্ট'));
+                $ev_date = !empty($event['start_date']) ? date('F d, Y', strtotime($event['start_date'])) : '';
+                $ev_img = !empty($event['image']) ? $event['image'] : '';
+                $ev_img_url = base_url('uploads/app_image/default.png');
+                if (!empty($ev_img) && file_exists(FCPATH . 'uploads/frontend/events/' . $ev_img)) {
+                    $ev_img_url = base_url('uploads/frontend/events/' . $ev_img);
+                }
             ?>
                 <div class="col-md-6 col-lg-4 mb-4 news-item">
                     <div class="news-card h-100 shadow-sm border-0" style="border-radius: 8px; overflow: hidden; background: #fff;">
@@ -555,10 +517,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         </div>
                     </div>
                 </div>
-            <?php 
-                }
-            } 
-            ?>
+            <?php } ?>
         </div>
 
         <div class="text-center mt-4">
@@ -571,8 +530,8 @@ document.addEventListener('DOMContentLoaded', function(){
 </section>
 <?php } ?>
 
+<!-- Video Gallery Section (Only if real videos exist for this branch) -->
 <?php if (!empty($video_list)) { ?>
-<!-- Video Gallery Section (ভিডিও গ্যালারী) -->
 <section class="video-gallery-section py-5 bg-white" id="video-gallery-section">
     <div class="container">
         <div class="section-title">
@@ -582,21 +541,15 @@ document.addEventListener('DOMContentLoaded', function(){
 
         <div class="row g-4">
             <?php 
-            if (!empty($video_list)) {
-                foreach ($video_list as $vid) {
-                    $vid_title = get_lang_field($vid, 'title');
-                    $vid_elem = !empty($vid['elements']) ? json_decode($vid['elements'], true) : [];
-                    $vid_url = !empty($vid_elem['video_url']) ? $vid_elem['video_url'] : '';
-                    $vid_thumb = !empty($vid['thumb_image']) ? $vid['thumb_image'] : '';
-                    if (!empty($vid_thumb) && file_exists(FCPATH . 'uploads/frontend/gallery/' . $vid_thumb)) {
-                        $thumb_url = base_url('uploads/frontend/gallery/' . $vid_thumb);
-                    } elseif (!empty($vid_thumb) && file_exists(FCPATH . 'assets/frontend/dvs/storage/uploads/videos/' . $vid_thumb)) {
-                        $thumb_url = base_url('assets/frontend/dvs/storage/uploads/videos/' . $vid_thumb);
-                    } elseif (file_exists(FCPATH . 'uploads/frontend/gallery/defualt.png')) {
-                        $thumb_url = base_url('uploads/frontend/gallery/defualt.png');
-                    } else {
-                        $thumb_url = base_url('assets/images/profile_bg.jpg');
-                    }
+            foreach ($video_list as $vid) {
+                $vid_title = get_lang_field($vid, 'title');
+                $vid_elem = !empty($vid['elements']) ? json_decode($vid['elements'], true) : [];
+                $vid_url = !empty($vid_elem['video_url']) ? $vid_elem['video_url'] : '';
+                $vid_thumb = !empty($vid['thumb_image']) ? $vid['thumb_image'] : '';
+                $thumb_url = base_url('uploads/app_image/default.png');
+                if (!empty($vid_thumb) && file_exists(FCPATH . 'uploads/frontend/gallery/' . $vid_thumb)) {
+                    $thumb_url = base_url('uploads/frontend/gallery/' . $vid_thumb);
+                }
             ?>
                 <div class="col-sm-6 col-md-4 col-lg-4">
                     <div class="card video-card shadow-sm h-100 border-0" style="border-radius: 8px; overflow: hidden;">
@@ -611,10 +564,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         </div>
                     </div>
                 </div>
-            <?php 
-                }
-            } 
-            ?>
+            <?php } ?>
         </div>
     </div>
 </section>
@@ -692,8 +642,8 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 <?php } ?>
 
+<!-- Photo Gallery Section (Only if real photos exist for this branch) -->
 <?php if (!empty($gallery_list)) { ?>
-<!-- Photo Gallery Section (ফটো গ্যালারী) -->
 <section class="gallery-section py-5" style="background-color: #f8fafc;">
     <div class="container">
         <div class="section-title">
@@ -703,20 +653,14 @@ document.addEventListener('DOMContentLoaded', function(){
 
         <div class="row g-4 gallery-container">
             <?php 
-            if (!empty($gallery_list)) {
-                foreach ($gallery_list as $photo) {
-                    $photo_title = get_lang_field($photo, 'title');
-                    $photo_desc = get_lang_field($photo, 'description');
-                    $img_name = !empty($photo['thumb_image']) ? $photo['thumb_image'] : '';
-                    if (!empty($img_name) && file_exists(FCPATH . 'uploads/frontend/gallery/' . $img_name)) {
-                        $img_url = base_url('uploads/frontend/gallery/' . $img_name);
-                    } elseif (!empty($img_name) && file_exists(FCPATH . 'assets/frontend/dvs/storage/albums/' . $img_name)) {
-                        $img_url = base_url('assets/frontend/dvs/storage/albums/' . $img_name);
-                    } elseif (file_exists(FCPATH . 'uploads/frontend/gallery/defualt.png')) {
-                        $img_url = base_url('uploads/frontend/gallery/defualt.png');
-                    } else {
-                        $img_url = base_url('assets/images/profile_bg.jpg');
-                    }
+            foreach ($gallery_list as $photo) {
+                $photo_title = get_lang_field($photo, 'title');
+                $photo_desc = get_lang_field($photo, 'description');
+                $img_name = !empty($photo['thumb_image']) ? $photo['thumb_image'] : '';
+                $img_url = base_url('uploads/app_image/default.png');
+                if (!empty($img_name) && file_exists(FCPATH . 'uploads/frontend/gallery/' . $img_name)) {
+                    $img_url = base_url('uploads/frontend/gallery/' . $img_name);
+                }
             ?>
                 <div class="col-sm-6 col-md-4 col-lg-3 gallery-item">
                     <a href="<?php echo $img_url; ?>" class="gallery-popup d-block text-decoration-none" title="<?php echo html_escape($photo_title); ?>">
@@ -733,10 +677,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         </div>
                     </a>
                 </div>
-            <?php 
-                }
-            } 
-            ?>
+            <?php } ?>
         </div>
 
         <div class="text-center mt-5">
@@ -749,15 +690,15 @@ document.addEventListener('DOMContentLoaded', function(){
 </section>
 <?php } ?>
 
-<!-- Achievements and Statistics (আমাদের অর্জন ও পরিসংখ্যান) -->
+<!-- Achievements and Statistics (Only if active in Home Page Settings > Statistics) -->
+<?php if (!empty($statistics) && (!isset($statistics['active']) || $statistics['active'] == 1)) { ?>
 <section class="achievements-section py-5 bg-white">
     <div class="container">
         <div class="section-title">
-            <h2><i class="fas fa-star"></i> <?php echo translate('our_achievements_statistics'); ?></h2>
+            <h2><i class="fas fa-star"></i> <?php echo html_escape(get_lang_field($statistics, 'title', translate('our_achievements_statistics'))); ?></h2>
         </div>
         
         <?php 
-        // Dynamic counter stats from home_model
         $stat_students = $this->home_model->getStatisticsCounter('student', $branchID_active);
         $stat_teachers = $this->home_model->getStatisticsCounter('teacher', $branchID_active);
         $stat_classes  = $this->home_model->getStatisticsCounter('class', $branchID_active);
@@ -837,4 +778,5 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
         </div>
     </div>
-</section>
+</section>
+<?php } ?>

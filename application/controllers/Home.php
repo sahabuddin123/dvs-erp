@@ -107,8 +107,27 @@ class Home extends Frontend_Controller
         $teachers_list = [];
         if ($this->db->table_exists('teacher')) {
             $teachers_list = $this->db->where('branch_id', $branchID)->where('active', 1)->where('show_on_homepage', 1)->order_by('position', 'asc')->get('teacher')->result_array();
-            if (empty($teachers_list)) {
-                $teachers_list = $this->db->where('active', 1)->where('show_on_homepage', 1)->order_by('position', 'asc')->get('teacher')->result_array();
+        }
+        // If no dedicated website teachers exist for this branch, load institutional teachers (role 3) for this branch
+        if (empty($teachers_list)) {
+            $doc_list = $this->home_model->get_teacher_list('', $branchID);
+            if (!empty($doc_list)) {
+                foreach ($doc_list as $doc) {
+                    $teachers_list[] = [
+                        'id' => $doc['id'],
+                        'name' => $doc['name'],
+                        'name_bn' => $doc['name'],
+                        'name_en' => $doc['name'],
+                        'title' => !empty($doc['designation_name']) ? $doc['designation_name'] : translate('teacher'),
+                        'designation' => !empty($doc['designation_name']) ? $doc['designation_name'] : translate('teacher'),
+                        'subject' => !empty($doc['department_name']) ? $doc['department_name'] : '',
+                        'image' => !empty($doc['photo']) ? $doc['photo'] : '',
+                        'phone' => !empty($doc['mobileno']) ? $doc['mobileno'] : '',
+                        'email' => !empty($doc['email']) ? $doc['email'] : '',
+                        'message' => '',
+                        'is_staff' => true,
+                    ];
+                }
             }
         }
         $this->data['teachers_list'] = $teachers_list;
@@ -126,19 +145,10 @@ class Home extends Frontend_Controller
         $this->data['notices'] = $this->home_model->getLatestNewsList($branchID, array('limit' => 10));
 
         $this->data['events'] = $this->home_model->getLatestEventList($branchID, array('limit' => 6));
-        if (empty($this->data['events'])) {
-            $this->data['events'] = $this->db->where('status', 1)->where('show_web', 1)->order_by('start_date', 'desc')->limit(6)->get('event')->result_array();
-        }
 
-        $this->data['gallery_list'] = $this->db->where('branch_id', $branchID)->where('file_type', 'image')->where('show_web', 1)->order_by('id', 'asc')->limit(8)->get('front_cms_gallery_content')->result_array();
-        if (empty($this->data['gallery_list'])) {
-            $this->data['gallery_list'] = $this->db->where('file_type', 'image')->where('show_web', 1)->order_by('id', 'asc')->limit(8)->get('front_cms_gallery_content')->result_array();
-        }
+        $this->data['gallery_list'] = $this->db->where('branch_id', $branchID)->where('file_type', 'image')->where('show_web', 1)->order_by('id', 'desc')->limit(8)->get('front_cms_gallery_content')->result_array();
 
-        $this->data['video_list'] = $this->db->where('branch_id', $branchID)->where('file_type', 'video')->where('show_web', 1)->order_by('id', 'asc')->limit(6)->get('front_cms_gallery_content')->result_array();
-        if (empty($this->data['video_list'])) {
-            $this->data['video_list'] = $this->db->where('file_type', 'video')->where('show_web', 1)->order_by('id', 'asc')->limit(6)->get('front_cms_gallery_content')->result_array();
-        }
+        $this->data['video_list'] = $this->db->where('branch_id', $branchID)->where('file_type', 'video')->where('show_web', 1)->order_by('id', 'desc')->limit(6)->get('front_cms_gallery_content')->result_array();
 
         $this->data['page_data'] = $this->home_model->get('front_cms_home_seo', array('branch_id' => $branchID), true);
 
