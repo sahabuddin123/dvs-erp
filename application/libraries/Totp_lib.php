@@ -119,9 +119,36 @@ class Totp_lib
             $CI->load->library('Ciqrcode');
         }
 
-        ob_start();
-        QRcode::png($otpAuthUrl, false, QR_ECLEVEL_M, 6, 2);
-        $imageData = ob_get_clean();
+        $tmpDir = sys_get_temp_dir();
+        if (!is_dir($tmpDir) || !is_writable($tmpDir)) {
+            $tmpDir = FCPATH . 'uploads/temp';
+            if (!is_dir($tmpDir)) {
+                @mkdir($tmpDir, 0755, true);
+            }
+        }
+
+        $tmpFile = rtrim($tmpDir, '/\\') . DIRECTORY_SEPARATOR . '2fa_qr_' . md5($otpAuthUrl . microtime(true)) . '.png';
+
+        // When a file path is passed, phpqrcode writes to disk and DOES NOT emit Header("Content-type: image/png")
+        QRcode::png($otpAuthUrl, $tmpFile, QR_ECLEVEL_M, 6, 2);
+
+        $imageData = '';
+        if (file_exists($tmpFile)) {
+            $imageData = file_get_contents($tmpFile);
+            @unlink($tmpFile);
+        }
+
+        if (empty($imageData)) {
+            ob_start();
+            QRcode::png($otpAuthUrl, false, QR_ECLEVEL_M, 6, 2);
+            $imageData = ob_get_clean();
+        }
+
+        // Always guarantee Content-Type header is text/html so browser never renders whole page as an image
+        if (!headers_sent()) {
+            header("Content-Type: text/html; charset=UTF-8");
+        }
+
         return 'data:image/png;base64,' . base64_encode($imageData);
     }
 

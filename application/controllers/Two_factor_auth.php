@@ -41,6 +41,7 @@ class Two_factor_auth extends Admin_Controller
         $this->data['title'] = translate('two_factor_authentication');
         $this->data['sub_page'] = 'two_factor_auth/index';
         $this->data['main_menu'] = 'two_factor_auth';
+        $this->output->set_content_type('text/html');
         $this->load->view('layout/index', $this->data);
     }
 
@@ -119,6 +120,7 @@ class Two_factor_auth extends Admin_Controller
         $this->data['title'] = translate('two_factor_authentication');
         $this->data['sub_page'] = 'two_factor_auth/setup';
         $this->data['main_menu'] = 'two_factor_auth';
+        $this->output->set_content_type('text/html');
         $this->load->view('layout/index', $this->data);
     }
 
@@ -240,6 +242,7 @@ class Two_factor_auth extends Admin_Controller
         $this->data['title'] = translate('two_factor_authentication') . ' - ' . translate('activity_logs');
         $this->data['sub_page'] = 'two_factor_auth/logs';
         $this->data['main_menu'] = 'two_factor_auth';
+        $this->output->set_content_type('text/html');
         $this->load->view('layout/index', $this->data);
     }
 }
