@@ -161,7 +161,7 @@ if (count($allocations)) {
 												if($type_amount == 0) {
 													$status = translate('unpaid');
 													$labelmode = 'label-danger-custom';
-												} elseif($balance == 0) {
+												} elseif($balance <= 0 || abs($balance) < 0.01) {
 													$status = translate('total_paid');
 													$labelmode = 'label-success-custom';
 												} else {
@@ -210,7 +210,7 @@ if (count($allocations)) {
 												if($type_amount == 0) {
 													$status = translate('unpaid');
 													$labelmode = 'label-danger-custom';
-												} elseif($balance == 0) {
+												} elseif($balance <= 0 || abs($balance) < 0.01) {
 													$status = translate('total_paid');
 													$labelmode = 'label-success-custom';
 												} else {
@@ -364,7 +364,7 @@ if (count($allocations)) {
 									<tbody>
 										<?php
 										$count = 1;
-										$allocations = $this->db->where(array('student_id' => $basic['id'], 'session_id' => get_session_id()))->get('fee_allocation')->result_array();
+										$allocations = $this->db->where_in('student_id', array($basic['enroll_id'], $basic['id']))->where('session_id', get_session_id())->get('fee_allocation')->result_array();
 										foreach ($allocations as $allRow) {
 											$historys = $this->fees_model->getPaymentHistory($allRow['id'], $allRow['group_id']);
 											foreach ($historys as $row) {
@@ -476,10 +476,18 @@ if (moduleIsEnabled('transport')) {
 								<span class="error"></span>
 								</div>
 							</div>
+							<?php 
+							$allow_partial = isset($global_config['allow_partial_fee_payment']) ? (int)$global_config['allow_partial_fee_payment'] : 1;
+							$proc_val = floatval($global_config['fee_processing_fee_value'] ?? 0);
+							$proc_type = $global_config['fee_processing_fee_type'] ?? 'flat';
+							?>
 							<div class="form-group">
 								<label class="col-md-3 control-label"><?=translate('amount')?> <span class="required">*</span></label>
 								<div class="col-md-6">
-									<input type="text" class="form-control" name="fee_amount" id="feeAmount" value="" autocomplete="off" />
+									<input type="text" class="form-control" name="fee_amount" id="feeAmount" value="" autocomplete="off" <?php echo ($allow_partial == 0) ? 'readonly=""' : ''; ?> />
+									<?php if ($allow_partial == 0): ?>
+										<span class="help-block" style="font-size:12px; color:#d9534f;"><i class="fas fa-lock"></i> <?=translate('partial_payment_disabled_notice') ?? 'Partial payment is disabled. Full balance must be paid.'?></span>
+									<?php endif; ?>
 									<span class="error"></span>
 								</div>
 							</div>
@@ -490,7 +498,7 @@ if (moduleIsEnabled('transport')) {
 										<span class="input-group-addon text-success"><i class="fas fa-tags"></i></span>
 										<input type="text" class="form-control text-success" name="discount_amount" id="discountAmount" value="0" readonly="" />
 									</div>
-									<span class="help-block text-success" style="font-size:12px;"><i class="fas fa-check-circle"></i> Fee discount has been applied to this item.</span>
+									<span class="help-block text-success" style="font-size:12px;"><i class="fas fa-check-circle"></i> <?=translate('fee_discount_applied') ?? 'Fee discount has been applied to this item.'?></span>
 								</div>
 							</div>
 							<div class="form-group">
@@ -498,6 +506,16 @@ if (moduleIsEnabled('transport')) {
 								<div class="col-md-6">
 									<input type="text" class="form-control" name="fine_amount" id="fineAmount" value="0" autocomplete="off" readonly="" />
 									<span class="error"></span>
+								</div>
+							</div>
+							<div class="form-group" id="processingFeeGroup" style="<?php echo ($proc_val > 0) ? '' : 'display:none;'; ?>">
+								<label class="col-md-3 control-label"><?=translate('processing_fee')?></label>
+								<div class="col-md-6">
+									<div class="input-group">
+										<span class="input-group-addon"><i class="fas fa-receipt"></i></span>
+										<input type="text" class="form-control" name="processing_fee" id="processingFee" value="0.00" readonly="" />
+									</div>
+									<span class="help-block" style="font-size:12px; color:#6b7280;"><i class="fas fa-info-circle"></i> <?=translate('online_payment_processing_charge') ?? 'Payment gateway processing charge'?> (<?php echo ($proc_type == 'percentage') ? $proc_val . '%' : currencyFormat($proc_val); ?>)</span>
 								</div>
 							</div>
 							<div class="form-group">
@@ -829,10 +847,21 @@ if (moduleIsEnabled('transport')) {
 	            } else {
 	                $(sel).closest('form').find('#discountGroup').hide(300);
 	            }
-	        	if (parseFloat(data.fine) == 0) {
+	            var procVal = <?php echo (float)$proc_val; ?>;
+	            var procType = '<?php echo $proc_type; ?>';
+	            var procFee = 0;
+	            if (procVal > 0) {
+	                if (procType === 'percentage') {
+	                    procFee = (data.balance * procVal) / 100;
+	                } else {
+	                    procFee = procVal;
+	                }
+	            }
+	            $(sel).closest('form').find('#processingFee').val(procFee.toFixed(2));
+	        	if (parseFloat(data.fine) == 0 && procFee == 0) {
 	        		$('#totalPayableDiv').hide(500);
 	        	} else {
-	        		$('#totalPayable').html(parseFloat(data.balance + data.fine).toFixed(2));
+	        		$('#totalPayable').html(parseFloat(data.balance + data.fine + procFee).toFixed(2));
 	        		$('#totalPayableDiv').show(500);
 	        	}
 	        }

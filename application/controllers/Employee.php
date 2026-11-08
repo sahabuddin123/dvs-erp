@@ -215,6 +215,51 @@ class Employee extends Admin_Controller
         }
     }
 
+    public function bulk_delete()
+    {
+        if ($_POST) {
+            $status = 'fail';
+            $message = translate('access_denied');
+            if (get_permission('employee', 'is_delete')) {
+                $arrayID = $this->input->post('array_id');
+                if (!empty($arrayID) && is_array($arrayID)) {
+                    $currentUserId = get_loggedin_user_id();
+                    $arrayID = array_diff($arrayID, array($currentUserId));
+
+                    if (!empty($arrayID)) {
+                        $branchID = $this->application_model->get_branch_id();
+                        $get_field = $this->db->where(array('form_to' => 'employee', 'branch_id' => $branchID))->get('custom_field')->result_array();
+                        if (!empty($get_field)) {
+                            $field_id = array_column($get_field, 'id');
+                            $this->db->where_in('relid', $arrayID);
+                            $this->db->where_in('field_id', $field_id);
+                            $this->db->delete('custom_fields_values');
+                        }
+                        $this->db->where_in('staff_id', $arrayID)->delete('staff_bank_account');
+
+                        if (!is_superadmin_loggedin()) {
+                            $this->db->where('branch_id', get_loggedin_branch_id());
+                        }
+                        $this->db->where_in('id', $arrayID);
+                        $this->db->delete('staff');
+                        if ($this->db->affected_rows() > 0) {
+                            $this->db->where_in('user_id', $arrayID);
+                            $this->db->where_not_in('role', array(1, 6, 7));
+                            $this->db->delete('login_credential');
+                        }
+                        $status = 'success';
+                        $message = translate('information_deleted');
+                    } else {
+                        $message = translate('logged_in_user_cannot_be_deleted') ?? 'Logged-in user cannot be deleted.';
+                    }
+                } else {
+                    $message = translate('no_records_selected') ?? 'No records selected.';
+                }
+            }
+            echo json_encode(array('status' => $status, 'message' => $message));
+        }
+    }
+
     // unique valid username verification is done here
     public function unique_username($username)
     {

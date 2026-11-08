@@ -1,5 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
+#[\AllowDynamicProperties]
 class MY_Controller extends CI_Controller
 {
 
@@ -163,6 +164,7 @@ class MY_Controller extends CI_Controller
     }
 }
 
+#[\AllowDynamicProperties]
 class Admin_Controller extends MY_Controller
 {
     public function __construct()
@@ -190,6 +192,7 @@ class Admin_Controller extends MY_Controller
     }
 }
 
+#[\AllowDynamicProperties]
 class User_Controller extends MY_Controller
 {
     public function __construct()
@@ -202,6 +205,7 @@ class User_Controller extends MY_Controller
     }
 }
 
+#[\AllowDynamicProperties]
 class Authentication_Controller extends MY_Controller
 {
     public function __construct()
@@ -211,6 +215,7 @@ class Authentication_Controller extends MY_Controller
     }
 }
 
+#[\AllowDynamicProperties]
 class Frontend_Controller extends MY_Controller
 {
     public function __construct()

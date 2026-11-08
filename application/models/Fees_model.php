@@ -105,12 +105,17 @@ class Fees_model extends MY_Model
         $this->db->group_end();
         $paid = $this->db->get()->row_array();
 
-        if ($paid['amount'] == 0) {
+        $totalPayable = floatval($balance['total'] + $trans_amount);
+        $totalPaid = floatval($paid['amount'] + $paid['discount']);
+
+        if ($paid['amount'] == 0 && $paid['discount'] == 0) {
             $status = 'unpaid';
-        } elseif (($balance['total'] + $trans_amount) == ($paid['amount'] + $paid['discount'])) {
+        } elseif ($totalPayable > 0 && ($totalPaid >= $totalPayable || abs($totalPayable - $totalPaid) < 0.01)) {
             $status = 'total';
-        } elseif ($paid['amount'] > 1) {
+        } elseif ($totalPaid > 0) {
             $status = 'partly';
+        } else {
+            $status = 'unpaid';
         }
         return array('status' => $status, 'invoice_no' => $invNo);
     }

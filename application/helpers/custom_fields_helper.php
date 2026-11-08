@@ -24,13 +24,13 @@ function render_custom_Fields($belongs_to, $branch_id = null, $edit_id = false, 
             $fieldID = $field['id'];
 
             if ($bsColumn == '' || $bsColumn == 0) {
-            	$bsColumn == 12;
+            	$bsColumn = 12;
             }
             $value = $field['default_value'];
 
             if ($edit_id !== false) {
                 $return = get_custom_field_value($edit_id, $fieldID, $formTo);
-                if (!empty($return)) {
+                if ($return !== null && $return !== '') {
                     $value = $return;
                 }
             }
@@ -61,7 +61,7 @@ function render_custom_Fields($belongs_to, $branch_id = null, $edit_id = false, 
 	        } else {
             	$html .= '<div class="col-md-' . $bsColumn . ' mb-sm"><div class="checkbox-replace">';
             	$html .= '<label class="i-checks">';
-            	$html .= '<input type="checkbox" name="[' . $formTo . '][' . $fieldID . ']" value="1" ' . ($value == 1 ? 'checked' : '') . ' ><i></i>';
+            	$html .= '<input type="checkbox" name="custom_fields[' . $formTo . '][' . $fieldID . ']" value="1" ' . ($value == 1 ? 'checked' : '') . ' ><i></i>';
             	$html .= $fieldLabel;
             	$html .= '</label>';
             	$html .= '</div></div>';
@@ -229,7 +229,7 @@ function saveCustomFields($post, $userID)
 		$insertData = array(
 			'field_id' => $key, 
 			'relid' => $userID, 
-			'value' => $value, 
+			'value' => (string)$value, 
 		);
         $CI->db->where('relid', $userID);
         $CI->db->where('field_id', $key);
@@ -332,7 +332,7 @@ function render_online_custom_fields($belongs_to, $branch_id = null, $edit_id = 
 
                 if ($edit_id !== false) {
                     $return = get_online_custom_field_value($edit_id, $fieldID, $formTo);
-                    if (!empty($return)) {
+                    if ($return !== null && $return !== '') {
                         $value = $return;
                     }
                 }
@@ -363,7 +363,7 @@ function render_online_custom_fields($belongs_to, $branch_id = null, $edit_id = 
                 } else {
                     $html .= '<div class="col-md-' . $bsColumn . ' mb-sm"><div class="checkbox-replace">';
                     $html .= '<label class="i-checks">';
-                    $html .= '<input type="checkbox" name="[' . $formTo . '][' . $fieldID . ']" value="1" ' . ($value == 1 ? 'checked' : '') . ' ><i></i>';
+                    $html .= '<input type="checkbox" name="custom_fields[' . $formTo . '][' . $fieldID . ']" value="1" ' . ($value == 1 ? 'checked' : '') . ' ><i></i>';
                     $html .= $fieldLabel;
                     $html .= '</label>';
                     $html .= '</div></div>';
@@ -412,7 +412,7 @@ function saveCustomFieldsOnline($post, $userID)
         $insertData = array(
             'field_id' => $key, 
             'relid' => $userID, 
-            'value' => $value, 
+            'value' => (string)$value, 
         );
         $CI->db->where('relid', $userID);
         $CI->db->where('field_id', $key);

@@ -90,7 +90,7 @@ class Timetable_model extends MY_Model
         LEFT JOIN subject as s ON s.id = sa.subject_id LEFT JOIN timetable_exam as te ON te.class_id = sa.class_id and te.section_id = sa.section_id and
         te.subject_id = sa.subject_id and te.session_id = sa.session_id and te.exam_id = " . $this->db->escape($examID) . " WHERE sa.class_id = " .
         $this->db->escape($classID) . " AND sa.section_id = " . $this->db->escape($sectionID) . " AND sa.branch_id = " .
-        $this->db->escape($branchID) . " AND sa.session_id = " . $this->db->escape($sessionID);
+        $this->db->escape($branchID) . " AND sa.session_id = " . $this->db->escape($sessionID) . " ORDER BY te.exam_date ASC, te.time_start ASC";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -113,6 +113,8 @@ class Timetable_model extends MY_Model
         $this->db->where('t.class_id', $classID);
         $this->db->where('t.section_id', $sectionID);
         $this->db->where('t.session_id', $sessionID);
+        $this->db->order_by('t.exam_date', 'ASC');
+        $this->db->order_by('t.time_start', 'ASC');
         return $this->db->get();
     }
 

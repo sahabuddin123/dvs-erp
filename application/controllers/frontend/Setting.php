@@ -178,6 +178,17 @@ class Setting extends Admin_Controller
                     }
                 }
 
+                // upload page background
+                if (isset($_FILES["page_background"]) && !empty($_FILES["page_background"]['name'])) {
+                    $imageNmae = $_FILES['page_background']['name'];
+                    $extension = pathinfo($imageNmae, PATHINFO_EXTENSION);
+                    $newBgName = "page_bg$branchID." . $extension;
+                    $image_path = $upload_dir . $newBgName;
+                    if (move_uploaded_file($_FILES['page_background']['tmp_name'], $image_path)) {
+                        $cms_setting['page_background'] = $newBgName;
+                    }
+                }
+
                 // Safe filtering of columns to prevent MySQL unknown column errors
                 $table_fields = $this->db->list_fields('front_cms_setting');
                 $filtered_setting = array();

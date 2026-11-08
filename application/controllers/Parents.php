@@ -218,6 +218,42 @@ class Parents extends Admin_Controller
         }
     }
 
+    public function bulk_delete()
+    {
+        if ($_POST) {
+            $status = 'fail';
+            $message = translate('access_denied');
+            if (get_permission('parent', 'is_delete')) {
+                $arrayID = $this->input->post('array_id');
+                if (!empty($arrayID) && is_array($arrayID)) {
+                    $branchID = $this->application_model->get_branch_id();
+                    $get_field = $this->db->where(array('form_to' => 'parents', 'branch_id' => $branchID))->get('custom_field')->result_array();
+                    if (!empty($get_field)) {
+                        $field_id = array_column($get_field, 'id');
+                        $this->db->where_in('relid', $arrayID);
+                        $this->db->where_in('field_id', $field_id);
+                        $this->db->delete('custom_fields_values');
+                    }
+                    if (!is_superadmin_loggedin()) {
+                        $this->db->where('branch_id', get_loggedin_branch_id());
+                    }
+                    $this->db->where_in('id', $arrayID);
+                    $this->db->delete('parent');
+                    if ($this->db->affected_rows() > 0) {
+                        $this->db->where_in('user_id', $arrayID);
+                        $this->db->where('role', 6);
+                        $this->db->delete('login_credential');
+                    }
+                    $status = 'success';
+                    $message = translate('information_deleted');
+                } else {
+                    $message = translate('no_records_selected') ?? 'No records selected.';
+                }
+            }
+            echo json_encode(array('status' => $status, 'message' => $message));
+        }
+    }
+
     // unique valid username verification is done here
     public function unique_username($username)
     {

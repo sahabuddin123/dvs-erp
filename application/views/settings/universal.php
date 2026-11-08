@@ -229,6 +229,46 @@
 					</div>
 				</div>
 				<div class="form-group">
+					<label class="col-md-3 control-label"><?=translate('student_partial_fee_payment')?></label>
+					<div class="col-md-6">
+						<?php
+						$partialPayList = array('1' => translate('enabled'), '0' => translate('disabled'));
+						echo form_dropdown("allow_partial_fee_payment", $partialPayList, set_value('allow_partial_fee_payment', $global_config['allow_partial_fee_payment'] ?? 1), "class='form-control' required data-plugin-selectTwo data-width='100%' data-minimum-results-for-search='Infinity'");
+						?>
+						<span class="help-block" style="font-size:12px; color:#6b7280;"><?=translate('allow_students_and_parents_to_make_partial_fee_payments')?></span>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-md-3 control-label"><?=translate('payment_processing_fee')?></label>
+					<div class="col-md-3">
+						<?php
+						$procTypeList = array('flat' => translate('flat_amount'), 'percentage' => translate('percentage') . ' (%)');
+						echo form_dropdown("fee_processing_fee_type", $procTypeList, set_value('fee_processing_fee_type', $global_config['fee_processing_fee_type'] ?? 'flat'), "class='form-control' data-plugin-selectTwo data-width='100%' data-minimum-results-for-search='Infinity'");
+						?>
+					</div>
+					<div class="col-md-3">
+						<input type="number" step="0.01" min="0" class="form-control" name="fee_processing_fee_value" value="<?=set_value('fee_processing_fee_value', $global_config['fee_processing_fee_value'] ?? '0.00')?>" placeholder="<?=translate('fee_amount_or_percent')?>" />
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-md-3 control-label"><?=translate('profile_photo_resizing_and_crop')?></label>
+					<div class="col-md-2">
+						<input type="number" min="50" max="2000" class="form-control" name="profile_photo_width" value="<?=set_value('profile_photo_width', $global_config['profile_photo_width'] ?? 300)?>" placeholder="<?=translate('width')?> (px)" />
+					</div>
+					<div class="col-md-2">
+						<input type="number" min="50" max="2000" class="form-control" name="profile_photo_height" value="<?=set_value('profile_photo_height', $global_config['profile_photo_height'] ?? 300)?>" placeholder="<?=translate('height')?> (px)" />
+					</div>
+					<div class="col-md-2">
+						<?php
+						$cropList = array('1' => translate('crop_to_ratio'), '0' => translate('fit_preserve_ratio'));
+						echo form_dropdown("profile_photo_crop", $cropList, set_value('profile_photo_crop', $global_config['profile_photo_crop'] ?? 1), "class='form-control' data-plugin-selectTwo data-width='100%' data-minimum-results-for-search='Infinity'");
+						?>
+					</div>
+				</div>
+
+				<div class="form-group">
 					<label class="col-md-3 control-label"><?=translate('footer_text');?></label>
 					<div class="col-md-6">
 						<input type="text" class="form-control" name="footer_text" value="<?=set_value('footer_text', $global_config['footer_text'])?>" />

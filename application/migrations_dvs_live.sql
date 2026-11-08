@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `transport_fee_fine` (
 -- ২.১ শাখা সেটিংস (Branch ID 1)
 UPDATE `branch` SET 
     `school_name` = 'Dream Valley School', 
-    `name` = 'ড্রিম ভ্যালি স্কুল (মূল শাখা)', 
+    `name` = 'ড্রিম ভ্যালি স্কুল', 
     `email` = 'info@dreamvalleyschool.com', 
     `mobileno` = '+88 01716 122 899', 
     `currency` = 'BDT', 

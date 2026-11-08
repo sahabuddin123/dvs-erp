@@ -359,20 +359,41 @@ class Exam extends Admin_Controller
         $subjectID = $this->input->post('subject_id');
         $examID = $this->input->post('exam_id');
 
-        $this->data['branch_id'] = $branchID;
-        $this->data['class_id'] = $classID;
-        $this->data['section_id'] = $sectionID;
-        $this->data['subject_id'] = $subjectID;
-        $this->data['exam_id'] = $examID;
-        if (isset($_POST['search'])) {
+        $searchData = $this->session->flashdata('mark_search');
+        if (!empty($searchData)) {
+            $branchID = $searchData['branch_id'] ?? $branchID;
+            $classID = $searchData['class_id'] ?? $classID;
+            $sectionID = $searchData['section_id'] ?? $sectionID;
+            $subjectID = $searchData['subject_id'] ?? $subjectID;
+            $examID = $searchData['exam_id'] ?? $examID;
+            $this->data['branch_id'] = $branchID;
+            $this->data['class_id'] = $classID;
+            $this->data['section_id'] = $sectionID;
+            $this->data['subject_id'] = $subjectID;
+            $this->data['exam_id'] = $examID;
             $this->data['timetable_detail'] = $this->exam_model->getTimetableDetail($classID, $sectionID, $examID, $subjectID);
             $this->data['student'] = $this->exam_model->getMarkAndStudent($branchID, $classID, $sectionID, $examID, $subjectID);
+        } else {
+            $this->data['branch_id'] = $branchID;
+            $this->data['class_id'] = $classID;
+            $this->data['section_id'] = $sectionID;
+            $this->data['subject_id'] = $subjectID;
+            $this->data['exam_id'] = $examID;
+            if (isset($_POST['search'])) {
+                $this->data['timetable_detail'] = $this->exam_model->getTimetableDetail($classID, $sectionID, $examID, $subjectID);
+                $this->data['student'] = $this->exam_model->getMarkAndStudent($branchID, $classID, $sectionID, $examID, $subjectID);
+            }
         }
 
         $this->data['sub_page'] = 'exam/marks_register';
         $this->data['main_menu'] = 'mark';
         $this->data['title'] = translate('mark_entries');
         $this->load->view('layout/index', $this->data);
+    }
+
+    public function marks_register()
+    {
+        $this->mark_entry();
     }
 
     public function mark_save()
@@ -470,7 +491,14 @@ class Exam extends Admin_Controller
 
         if (empty($timetable_detail)) {
             set_alert('error', 'Exam timetable not found for this subject.');
-            redirect(base_url('exam/marks_register'));
+            $this->session->set_flashdata('mark_search', array(
+            'branch_id' => $branchID,
+            'class_id' => $classID,
+            'section_id' => $sectionID,
+            'subject_id' => $subjectID,
+            'exam_id' => $examID
+        ));
+        redirect(base_url('exam/mark_entry'));
         }
 
         $distributions = json_decode($timetable_detail['mark_distribution'], true);
@@ -525,20 +553,41 @@ class Exam extends Admin_Controller
 
         if (!isset($_FILES['csv_file']['tmp_name']) || empty($_FILES['csv_file']['tmp_name'])) {
             set_alert('error', 'Please upload a CSV file.');
-            redirect(base_url('exam/marks_register'));
+            $this->session->set_flashdata('mark_search', array(
+            'branch_id' => $branchID,
+            'class_id' => $classID,
+            'section_id' => $sectionID,
+            'subject_id' => $subjectID,
+            'exam_id' => $examID
+        ));
+        redirect(base_url('exam/mark_entry'));
         }
 
         $file = $_FILES['csv_file']['tmp_name'];
         $handle = fopen($file, 'r');
         if (!$handle) {
             set_alert('error', 'Unable to read the uploaded CSV file.');
-            redirect(base_url('exam/marks_register'));
+            $this->session->set_flashdata('mark_search', array(
+            'branch_id' => $branchID,
+            'class_id' => $classID,
+            'section_id' => $sectionID,
+            'subject_id' => $subjectID,
+            'exam_id' => $examID
+        ));
+        redirect(base_url('exam/mark_entry'));
         }
 
         $headers = fgetcsv($handle);
         if (!$headers) {
             set_alert('error', 'Uploaded CSV file is empty.');
-            redirect(base_url('exam/marks_register'));
+            $this->session->set_flashdata('mark_search', array(
+            'branch_id' => $branchID,
+            'class_id' => $classID,
+            'section_id' => $sectionID,
+            'subject_id' => $subjectID,
+            'exam_id' => $examID
+        ));
+        redirect(base_url('exam/mark_entry'));
         }
 
         // Map assessment distribution columns: [ID:XX|Max:YY]
@@ -629,7 +678,14 @@ class Exam extends Admin_Controller
             set_alert('success', "Exam marks successfully imported for {$imported} students from CSV!");
         }
 
-        redirect(base_url('exam/marks_register'));
+        $this->session->set_flashdata('mark_search', array(
+            'branch_id' => $branchID,
+            'class_id' => $classID,
+            'section_id' => $sectionID,
+            'subject_id' => $subjectID,
+            'exam_id' => $examID
+        ));
+        redirect(base_url('exam/mark_entry'));
     }
 
     /* exam grade form validation rules */

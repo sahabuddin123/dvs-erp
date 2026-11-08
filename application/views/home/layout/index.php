@@ -166,6 +166,13 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
         }
 
         .page-header-wave path { fill: var(--primary-color) !important; }
+        <?php if (!empty($cms_setting['page_background'])): ?>
+        .page-header {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.55)), url('<?=base_url("uploads/frontend/images/" . $cms_setting["page_background"])?>') !important;
+            background-size: cover !important;
+            background-position: center !important;
+        }
+        <?php endif; ?>
     </style>
 </head>
 <body>

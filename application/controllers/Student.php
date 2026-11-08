@@ -677,6 +677,8 @@ class Student extends Admin_Controller
         }
         $this->load->model('fees_model');
         $this->load->model('exam_model');
+        $this->load->model('transport_fees_model');
+        $this->load->model('student_fields_model');
         if (moduleIsEnabled('behaviour_records')) {
             $this->load->model('behaviour_records_model');
         }
@@ -911,6 +913,30 @@ class Student extends Admin_Controller
         $this->data['settings'] = $admission_settings;
         $this->data['custom_fields'] = $custom_fields;
         $this->load->view('student/print_admission_form', $this->data);
+    }
+
+    public function download_profile_pdf($id = '')
+    {
+        if (!get_permission('student', 'is_view') && !get_permission('student', 'is_edit')) {
+            access_denied();
+        }
+        if (empty($id)) {
+            access_denied();
+        }
+        $student = $this->student_model->getSingleStudent($id, true);
+        if (empty($student)) {
+            $student = $this->student_model->getSingleStudent($id, false);
+        }
+        if (empty($student)) {
+            set_alert('error', translate('no_information_available'));
+            redirect(base_url('student/search'));
+        }
+        $branchID = !empty($student['branch_id']) ? $student['branch_id'] : $this->application_model->get_branch_id();
+        $this->data['student'] = $student;
+        $this->data['branch'] = $this->db->get_where('branch', array('id' => $branchID))->row_array();
+        $html = $this->load->view('student/profile_pdf', $this->data, true);
+        $this->load->library('html2pdf');
+        $this->html2pdf->create($html, 'Student_Profile_' . $student['register_no'] . '.pdf', 'I');
     }
 
     public function admission_settings()

@@ -226,6 +226,9 @@ if (!empty($student['birthday'])) {
 				<div class="panel-heading">
 					<h4 class="panel-title">
                         <div class="auth-pan">
+                            <a href="<?=base_url('student/download_profile_pdf/' . $student['id'])?>" class="btn btn-default btn-circle" target="_blank" style="margin-right: 6px;">
+                                <i class="fas fa-file-pdf text-danger"></i> <?=translate('download_pdf') ?? 'প্রোফাইল PDF'?>
+                            </a>
                             <button class="btn btn-default btn-circle" <?php echo $student['active'] == 0 ? 'disabled' : '' ?> id="authentication_btn">
                                 <?php if ($student['active'] == 1) { ?><i class="fas fa-unlock-alt"></i> <?=translate('authentication')?> <?php } else { ?><i class="fas fa-lock"></i> <?=translate('deactivated')?> <?php } ?>
                             </button>
@@ -742,7 +745,14 @@ if ($student_photo['status']) {
 								<div class="form-group">
 									<label class="control-label"><?php echo translate('fees_allocation') ?></label>
 <?php 
-$transport_results = $this->transport_fees_model->getStudentTransportFeesByEnroll( $student['enrollid'], set_value('stoppage_point_id', $student['stoppage_point_id']), $branchID);
+$ci_inst = &get_instance();
+if (!isset($ci_inst->transport_fees_model)) {
+    $ci_inst->load->model('transport_fees_model');
+}
+$transport_results = $ci_inst->transport_fees_model->getStudentTransportFeesByEnroll($student['enrollid'], set_value('stoppage_point_id', $student['stoppage_point_id']), $branchID);
+if (!is_array($transport_results)) {
+    $transport_results = [];
+}
 ?>
 									<select class="form-control" multiple="multiple" name="transport_fees_month[]" data-plugin-multiselect data-plugin-options='{"numberDisplayed" : 6,"buttonClass": "btn btn-default cus-multiselect", "buttonWidth": "100%", "maxHeight": 400, "maxWidth": 400, "includeSelectAllOption": true, "nonSelectedText" : "<?=translate('select_month')?>" }'>
 										<?php

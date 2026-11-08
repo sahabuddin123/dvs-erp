@@ -395,13 +395,11 @@ class Online_admission extends Admin_Controller
 
         $classID = $this->input->post('class_id');
         $sectionID = $this->input->post('section_id');
-        if ($this->uri->segment(3)) {
-            $this->db->where_not_in('student_id', $this->uri->segment(3));
-        }
+        $sessionID = get_session_id();
         if ($unique_roll == 2) {
             $this->db->where('section_id', $sectionID);
         }
-        $this->db->where(array('roll' => $roll, 'class_id' => $classID, 'branch_id' => $branchID));
+        $this->db->where(array('roll' => $roll, 'class_id' => $classID, 'branch_id' => $branchID, 'session_id' => $sessionID));
         $q = $this->db->get('enroll')->num_rows();
         if ($q == 0) {
             return true;
@@ -411,14 +409,10 @@ class Online_admission extends Admin_Controller
         }
     }
 
-
     /* unique valid register ID verification is done here */
     public function unique_registerid($register)
     {
         $branchID = $this->application_model->get_branch_id();
-        if ($this->uri->segment(3)) {
-            $this->db->where_not_in('id', $this->uri->segment(3));
-        }
         $this->db->where('register_no', $register);
         $query = $this->db->get('student')->num_rows();
         if ($query == 0) {

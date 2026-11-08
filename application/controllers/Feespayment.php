@@ -69,8 +69,37 @@ class Feespayment extends Admin_Controller
             }
 
             if ($this->form_validation->run() !== false) {
-                $stu = $this->userrole_model->getStudentDetails();
+                $allow_partial = isset($this->data['global_config']['allow_partial_fee_payment']) ? (int)$this->data['global_config']['allow_partial_fee_payment'] : 1;
                 $feesType = explode("|", $this->input->post('fees_type'));
+                if ($allow_partial === 0) {
+                    if ($feesType[0] == 'transport') {
+                        $balData = $this->fees_model->getTransportBalance($feesType[1]);
+                    } else {
+                        $balData = $this->fees_model->getBalance($feesType[0], $feesType[1]);
+                    }
+                    $exactBalance = floatval($balData['balance']);
+                    $enteredAmount = floatval($this->input->post('fee_amount'));
+                    if ($enteredAmount < ($exactBalance - 0.01)) {
+                        $array = array('status' => 'fail', 'error' => array('fee_amount' => translate('partial_payment_not_allowed') ?? 'Partial payment is disabled. Full balance must be paid.'));
+                        echo json_encode($array);
+                        exit;
+                    }
+                }
+
+                $stu = $this->userrole_model->getStudentDetails();
+
+                // Calculate gateway processing fee surcharge if configured
+                $procVal = floatval($this->data['global_config']['fee_processing_fee_value'] ?? 0);
+                $procType = $this->data['global_config']['fee_processing_fee_type'] ?? 'flat';
+                $processingFee = 0.00;
+                $feeAmount = floatval($this->input->post('fee_amount'));
+                if ($procVal > 0) {
+                    if ($procType === 'percentage') {
+                        $processingFee = round(($feeAmount * $procVal) / 100, 2);
+                    } else {
+                        $processingFee = round($procVal, 2);
+                    }
+                }
 
                 $params = array(
                     'student_id' => $stu['student_id'],
@@ -79,6 +108,8 @@ class Feespayment extends Admin_Controller
                     'invoice_no' => $this->input->post('invoice_no'),
                     'amount' => $this->input->post('fee_amount'),
                     'fine' => $this->input->post('fine_amount'),
+                    'processing_fee' => $processingFee,
+                    'gross_amount' => $feeAmount + floatval($this->input->post('fine_amount')) + $processingFee,
                     'currency' => $this->data['global_config']['currency'],
                 );
 
@@ -226,6 +257,11 @@ class Feespayment extends Admin_Controller
     public function getsuccesspayment()
     {
         $params = $this->session->userdata('params');
+        if (empty($params)) {
+            set_alert('error', "Invalid session or payment expired.");
+            redirect(base_url('userrole/invoice'));
+            return;
+        }
         if (!empty($params)) {
             // null session data
             $this->session->set_userdata("params", "");
@@ -245,10 +281,18 @@ class Feespayment extends Admin_Controller
                 if (isset($paypalResponse['PAYMENTINFO_0_ACK']) && $paypalResponse['PAYMENTINFO_0_ACK'] === 'Success') {
                     if ($purchaseId) {
                         $ref_id = $paypalResponse['PAYMENTINFO_0_TRANSACTIONID'];
+                        // Duplicate payment protection
+                        $already = $this->db->like('remarks', $ref_id)->get('fee_payment_history')->num_rows();
+                        if ($already > 0) {
+                            set_alert('warning', "This payment has already been recorded.");
+                            redirect(base_url('userrole/invoice'));
+                            return;
+                        }
                         // payment info update in invoice
                         $arrayFees = array(
                             'allocation_id' => $params['allocation_id'],
                             'type_id' => $params['type_id'],
+                            'transport_fee_details_id' => $params['transport_fee_details_id'],
                             'collect_by' => "",
                             'amount' => floatval($paypalResponse['PAYMENTINFO_0_AMT'] - $params['fine']),
                             'discount' => 0,
@@ -307,12 +351,24 @@ class Feespayment extends Admin_Controller
     {
         $sessionId = $this->input->get('session_id');
         $params = $this->session->userdata('params');
+        if (empty($sessionId) || empty($params)) {
+            set_alert('error', "Invalid session or payment cancelled.");
+            redirect(base_url('userrole/invoice'));
+            return;
+        }
         if (!empty($sessionId) && !empty($params)) {
             try {
                 $response = $this->stripe_payment->verify($sessionId);
                 if (isset($response->payment_status) && $response->payment_status == 'paid') {
                     $amount = floatval($response->amount_total) / 100;
                     $ref_id = $response->payment_intent;
+                    // Duplicate payment protection
+                    $already = $this->db->like('remarks', $ref_id)->get('fee_payment_history')->num_rows();
+                    if ($already > 0) {
+                        set_alert('warning', "This payment has already been recorded.");
+                        redirect(base_url('userrole/invoice'));
+                        return;
+                    }
                     // payment info update in invoice
                     $arrayFees = array(
                         'allocation_id' => $params['allocation_id'],
@@ -670,9 +726,20 @@ class Feespayment extends Admin_Controller
     public function sslcommerz_success()
     {
         $params = $this->session->userdata('params');
+        if (empty($params) || empty($_POST['status']) || empty($_POST['tran_id'])) {
+            set_alert('error', "Invalid session or payment cancelled.");
+            redirect(base_url('userrole/invoice'));
+            return;
+        }
         if (($_POST['status'] == 'VALID') && ($params['tran_id'] == $_POST['tran_id'])) {
             if ($this->sslcommerz->ValidateResponse($_POST['currency_amount'], "BDT", $_POST)) {
                 $tran_id = $params['tran_id'];
+                $already = $this->db->like('remarks', $tran_id)->get('fee_payment_history')->num_rows();
+                if ($already > 0) {
+                    set_alert('warning', "This transaction has already been recorded.");
+                    redirect(base_url('userrole/invoice'));
+                    return;
+                }
                 $arrayFees = array(
                     'allocation_id' => $params['allocation_id'],
                     'type_id' => $params['type_id'],
@@ -1511,6 +1578,12 @@ class Feespayment extends Admin_Controller
 
             if (!empty($obj) && isset($obj->statusCode) && $obj->statusCode == '0000') {
                 $trxID = !empty($obj->trxID) ? $obj->trxID : $paymentID;
+                $already = $this->db->like('remarks', $trxID)->get('fee_payment_history')->num_rows();
+                if ($already > 0) {
+                    set_alert('warning', "This bKash transaction has already been recorded.");
+                    redirect(base_url('userrole/invoice'));
+                    return;
+                }
                 $arrayFees = array(
                     'allocation_id' => $params['allocation_id'],
                     'type_id' => $params['type_id'],
@@ -1574,12 +1647,19 @@ class Feespayment extends Admin_Controller
 
             if (isset($verify['status']) && $verify['status'] === 'Success') {
                 $this->session->set_userdata("params", "");
+                $already = $this->db->like('remarks', $paymentRefId)->get('fee_payment_history')->num_rows();
+                if ($already > 0) {
+                    set_alert('warning', "This Nagad transaction has already been recorded.");
+                    redirect(base_url('userrole/invoice'));
+                    return;
+                }
                 $arrayFees = array(
                     'allocation_id' => $params['allocation_id'],
                     'type_id'       => $params['type_id'],
+                    'transport_fee_details_id' => $params['transport_fee_details_id'] ?? NULL,
                     'amount'        => floatval($params['amount']),
                     'fine'          => floatval($params['fine']),
-                    'discount'      => floatval($params['discount']),
+                    'discount'      => floatval($params['discount'] ?? 0),
                     'pay_via'       => 16,
                     'remarks'       => "Fees deposit online via Nagad Ref: " . $paymentRefId,
                     'date'          => date("Y-m-d H:i:s"),
@@ -1602,7 +1682,7 @@ class Feespayment extends Admin_Controller
 
         // transaction voucher save function
         $getSeeting = $this->fees_model->get('transactions_links', array('branch_id' => get_loggedin_branch_id()), true);
-        if ($getSeeting['status']) {
+        if (!empty($getSeeting['status']) && !empty($getSeeting['deposit'])) {
             $arrayTransaction = array(
                 'account_id' => $getSeeting['deposit'],
                 'amount' => $data['amount'] + $data['fine'],
@@ -1610,5 +1690,6 @@ class Feespayment extends Admin_Controller
             );
             $this->fees_model->saveTransaction($arrayTransaction);
         }
+        $this->session->unset_userdata("params");
     }
 }

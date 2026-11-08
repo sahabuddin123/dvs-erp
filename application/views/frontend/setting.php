@@ -155,6 +155,13 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('page_background_image') ?? 'Page / Banner Background Image'; ?></label>
+						<div class="col-md-6">
+							<input type="file" name="page_background" class="dropify dre-render" data-height="110" data-allowed-file-extensions="png jpg jpeg webp" data-default-file="<?php echo !empty($setting['page_background']) ? base_url('uploads/frontend/images/' . $setting['page_background'] . img_reload()) : ''; ?>" />
+							<span class="help-block" style="font-size:12px; color:#6b7280;"><?=translate('configurable_page_header_and_body_background_image') ?? 'Configurable background image for frontend page headers and banners.'?></span>
+						</div>
+					</div>
+					<div class="form-group">
 						<label class="col-md-3 control-label"><?php echo translate('address'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-6">
 							<textarea class="form-control" id="address" name="address" placeholder="" rows="3" ><?php echo set_value('address', $setting['address']); ?></textarea>

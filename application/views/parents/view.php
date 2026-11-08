@@ -37,6 +37,13 @@
 	<div class="col-md-12">
 		<section class="panel">
 			<header class="panel-heading">
+			<?php if (get_permission('parent', 'is_delete')): ?>
+				<div class="panel-btn">
+					<button class="btn btn-default btn-circle" id="parent_bulk_delete" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing">
+						<i class="fas fa-trash-alt"></i> <?=translate('bulk_delete')?>
+					</button>
+				</div>
+			<?php endif; ?>
 				<h4 class="panel-title">
 					<i class="fas fa-users"></i> <?=translate('parents_list')?>
 				</h4>
@@ -46,6 +53,13 @@
 					<table class="table table-bordered table-hover table-condensed mb-none table-export">
 						<thead>
 							<tr>
+							<?php if (get_permission('parent', 'is_delete')): ?>
+								<th width="10" class="no-sort">
+									<div class="checkbox-replace">
+										<label class="i-checks"><input type="checkbox" id="selectAllchkbox"><i></i></label>
+									</div>
+								</th>
+							<?php endif; ?>
 								<th><?=translate('sl')?></th>
 							<?php if (is_superadmin_loggedin()) { ?>
 								<th><?=translate('branch')?></th>
@@ -72,6 +86,13 @@
 								foreach($parentslist as $row):
 							?>	
 							<tr>
+							<?php if (get_permission('parent', 'is_delete')): ?>
+								<td class="checked-area">
+									<div class="checkbox-replace">
+										<label class="i-checks"><input type="checkbox" class="cb_bulkdelete" value="<?=$row->id?>"><i></i></label>
+									</div>
+								</td>
+							<?php endif; ?>
 								<td><?php echo $count++; ?></td>
 							<?php if (is_superadmin_loggedin()) { ?>
 								<td><?php echo get_type_name_by_id('branch', $row->branch_id);?></td>
@@ -107,4 +128,73 @@
 		</section>
 	</div>
 </div>
+<?php if (get_permission('parent', 'is_delete')): ?>
+<script type="text/javascript">
+	$(document).ready(function () {
+		$('#selectAllchkbox').on('change', function() {
+			var isChecked = this.checked;
+			$("input[type='checkbox'].cb_bulkdelete").each(function () {
+				this.checked = isChecked;
+			});
+		});
+
+		$('#parent_bulk_delete').on('click', function() {
+			var btn = $(this);
+			var arrayID = [];
+			$("input[type='checkbox'].cb_bulkdelete").each(function () {
+				if(this.checked) {
+					arrayID.push($(this).val());
+				}
+			});
+			if (arrayID.length === 0) {
+				swal({
+					title: "<?=translate('no_selection') ?? 'No Record Selected'?>",
+					text: "<?=translate('please_select_at_least_one_record') ?? 'Please select at least one record to delete.'?>",
+					type: "warning"
+				});
+				return false;
+			}
+			swal({
+				title: "<?=translate('are_you_sure')?>",
+				text: "<?=translate('delete_this_information')?> (" + arrayID.length + " records)",
+				type: "warning",
+				showCancelButton: true,
+				confirmButtonClass: "btn btn-danger",
+				confirmButtonText: "<?=translate('yes_continue')?>",
+				cancelButtonText: "<?=translate('cancel')?>",
+				showLoaderOnConfirm: true,
+				closeOnConfirm: false
+			}, function (isConfirm) {
+				if (isConfirm) {
+					btn.button('loading');
+					$.ajax({
+						url: base_url + "parents/bulk_delete",
+						type: "POST",
+						dataType: "json",
+						data: { array_id : arrayID },
+						success: function(data) {
+							btn.button('reset');
+							if (data.status == 'success') {
+								swal({
+									title: "<?=translate('deleted')?>",
+									text: data.message,
+									type: "success"
+								}, function () {
+									location.reload();
+								});
+							} else {
+								swal("Error", data.message, "error");
+							}
+						},
+						error: function() {
+							btn.button('reset');
+							swal("Error", "Server error occurred", "error");
+						}
+					});
+				}
+			});
+		});
+	});
+</script>
+<?php endif; ?>
 <?php endif; ?>
