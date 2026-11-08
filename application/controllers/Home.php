@@ -1736,95 +1736,72 @@ class Home extends Frontend_Controller
 
 
     public function message_founder($id = '1')
-
     {
-
         $branchID = $this->home_model->getDefaultBranch();
 
-
-
-        // Mapping from URL ID to database testimonial ID
-
-        $founder_id_map = [
-
-            '1' => 15,
-
-            '2' => 18,
-
-            '3' => 17,
-
-            '4' => 20,
-
-            '5' => 19,
-
-            '6' => 16,
-
-            '7' => 21,
-
-        ];
-
-        $reverse_map = array_flip($founder_id_map);
-
-        $db_id = isset($founder_id_map[$id]) ? $founder_id_map[$id] : $id;
-
-
-
-        $founder = $this->db->get_where('front_cms_testimonial', array('id' => $db_id))->row_array();
-
-        if (empty($founder)) {
-
-            $founder = $this->db->get_where('front_cms_testimonial', array('rank' => $id))->row_array();
-
+        $founder = [];
+        if ($this->db->table_exists('founder')) {
+            // Find by ID and branch
+            $founder = $this->db->get_where('founder', array('id' => $id, 'branch_id' => $branchID, 'active' => 1))->row_array();
+            if (empty($founder)) {
+                $founder = $this->db->get_where('founder', array('id' => $id, 'active' => 1))->row_array();
+            }
+            if (empty($founder)) {
+                $founder = $this->db->get_where('founder', array('position' => $id, 'branch_id' => $branchID, 'active' => 1))->row_array();
+            }
+            if (empty($founder)) {
+                $founder = $this->db->get_where('founder', array('position' => $id, 'active' => 1))->row_array();
+            }
+            if (empty($founder)) {
+                $founder = $this->db->where('branch_id', $branchID)->where('active', 1)->order_by('position', 'asc')->get('founder')->row_array();
+            }
+            if (empty($founder)) {
+                $founder = $this->db->where('active', 1)->order_by('position', 'asc')->get('founder')->row_array();
+            }
         }
 
+        // Backward compatibility fallback to front_cms_testimonial if no founder record exists
         if (empty($founder)) {
-
-            $founder = $this->db->get_where('front_cms_testimonial', array('rank' => 1))->row_array();
-
+            $founder_id_map = [
+                '1' => 15,
+                '2' => 18,
+                '3' => 17,
+                '4' => 20,
+                '5' => 19,
+                '6' => 16,
+                '7' => 21,
+            ];
+            $db_id = isset($founder_id_map[$id]) ? $founder_id_map[$id] : $id;
+            $founder = $this->db->get_where('front_cms_testimonial', array('id' => $db_id))->row_array();
+            if (empty($founder)) {
+                $founder = $this->db->get_where('front_cms_testimonial', array('rank' => $id))->row_array();
+            }
+            if (empty($founder)) {
+                $founder = $this->db->get_where('front_cms_testimonial', array('rank' => 1))->row_array();
+            }
         }
 
-
-
-        // Load custom messages if available
-
+        // Load custom messages if available as fallback
         $json_file = FCPATH . 'assets/frontend/dvs/data/founders_messages.json';
-
         $messages_data = [];
-
         if (file_exists($json_file)) {
-
             $messages_data = json_decode(file_get_contents($json_file), true);
-
         }
-
-
-
-        $founder_num = isset($reverse_map[$founder['id']]) ? $reverse_map[$founder['id']] : $id;
-
-
 
         $this->data['branchID'] = $branchID;
-
         $this->data['founder'] = $founder;
-
-        $this->data['founder_num_id'] = $founder_num;
-
+        $this->data['founder_num_id'] = $id;
         $this->data['messages_data'] = $messages_data;
-
         $this->data['active_menu'] = 'governing-body';
 
+        $page_name = !empty($founder['name_en']) ? $founder['name_en'] : (!empty($founder['name_bn']) ? $founder['name_bn'] : (!empty($founder['name']) ? $founder['name'] : 'Founder Message'));
+        $page_title = !empty($founder['designation_en']) ? $founder['designation_en'] : (!empty($founder['designation_bn']) ? $founder['designation_bn'] : (!empty($founder['surname']) ? $founder['surname'] : 'Message'));
         $this->data['page_data'] = [
-
-            'page_title' => !empty($founder['name']) ? $founder['name'] : 'Message',
-
-            'title' => !empty($founder['surname']) ? $founder['surname'] : 'Founder Message',
-
+            'page_title' => $page_name,
+            'title' => $page_title,
         ];
-
         $this->data['main_contents'] = $this->load->view('home/message_founder', $this->data, true);
-
         $this->load->view('home/layout/index', $this->data);
-
     }
 
 

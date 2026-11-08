@@ -167,36 +167,33 @@ $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_front
 </section>
 
 <!-- Leadership Messages (নেতৃত্বের বার্তা) -->
+<?php
+// Fetch leaders dynamically from founder table
+$branchID_active = !empty($branchID) ? $branchID : 1;
+$db_leaders = [];
+if ($this->db->table_exists('founder')) {
+    $db_leaders = $this->db->where('branch_id', $branchID_active)->where('active', 1)->order_by('position', 'asc')->order_by('id', 'asc')->get('founder')->result_array();
+    if (empty($db_leaders)) {
+        $db_leaders = $this->db->where('active', 1)->order_by('position', 'asc')->order_by('id', 'asc')->get('founder')->result_array();
+    }
+}
+if (!empty($db_leaders)) {
+?>
 <section class="leadership-section py-5" style="background-color: #f8fafc;">
     <div class="container">
         <div class="section-title mb-4">
             <h2><i class="fas fa-comments"></i> <?php echo translate('messages_from_leadership'); ?></h2>
         </div>
 
-        <?php
-        // Fetch leaders dynamically from front_cms_testimonial
-        $branchID_active = !empty($branchID) ? $branchID : 1;
-        $db_leaders = $this->db->where('branch_id', $branchID_active)->order_by('rank', 'asc')->get('front_cms_testimonial')->result_array();
-        
-        $url_map = [
-            15 => 1,
-            18 => 2,
-            17 => 3,
-            20 => 4,
-            19 => 5,
-            16 => 6,
-            21 => 7,
-        ];
-        ?>
-
         <div class="row g-4 justify-content-center">
             <?php 
-            if (!empty($db_leaders)) {
                 $count = count($db_leaders);
                 foreach ($db_leaders as $index => $leader) { 
                     // Determine image path
-                    $img_file = $leader['image'];
-                    if (!empty($img_file) && file_exists(FCPATH . 'assets/frontend/dvs/storage/founders/' . $img_file)) {
+                    $img_file = !empty($leader['image']) ? $leader['image'] : '';
+                    if (!empty($img_file) && file_exists(FCPATH . 'uploads/frontend/founder/' . $img_file)) {
+                        $img_src = base_url('uploads/frontend/founder/' . $img_file);
+                    } elseif (!empty($img_file) && file_exists(FCPATH . 'assets/frontend/dvs/storage/founders/' . $img_file)) {
                         $img_src = base_url('assets/frontend/dvs/storage/founders/' . $img_file);
                     } elseif (!empty($img_file) && file_exists(FCPATH . 'uploads/frontend/testimonial/' . $img_file)) {
                         $img_src = base_url('uploads/frontend/testimonial/' . $img_file);
@@ -205,26 +202,31 @@ $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_front
                     }
 
                     // If last odd card, center it in row
-                    $col_class = ($index == 6 && $count == 7) ? "col-lg-6 col-md-8 mx-auto" : "col-lg-6 col-md-6";
-                    $leader_url_id = isset($leader['id']) && isset($url_map[$leader['id']]) ? $url_map[$leader['id']] : (!empty($leader['rank']) ? $leader['rank'] : ($index + 1));
+                    $col_class = ($count % 2 != 0 && $index == ($count - 1)) ? "col-lg-6 col-md-8 mx-auto" : "col-lg-6 col-md-6";
+                    
+                    $leader_name = function_exists('get_lang_field') ? get_lang_field($leader, 'name') : (!empty($leader['name_bn']) ? $leader['name_bn'] : $leader['name_en']);
+                    $leader_desig = function_exists('get_lang_field') ? get_lang_field($leader, 'designation') : (!empty($leader['designation_bn']) ? $leader['designation_bn'] : $leader['designation_en']);
+                    if (empty($leader_desig)) {
+                        $leader_desig = function_exists('get_lang_field') ? get_lang_field($leader, 'title') : (!empty($leader['title_bn']) ? $leader['title_bn'] : $leader['title_en']);
+                    }
             ?>
                 <div class="<?php echo $col_class; ?>">
                     <div class="card border-0 shadow-sm h-100 bg-white" style="border-radius: 8px; border-left: 4px solid var(--primary-color) !important;">
                         <div class="card-body p-3 d-flex align-items-center gap-3">
                             <div style="flex-shrink: 0; width: 135px; height: 160px; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
-                                <img src="<?php echo $img_src; ?>" alt="<?php echo html_escape(get_lang_field($leader, 'name')); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="<?php echo $img_src; ?>" alt="<?php echo html_escape($leader_name); ?>" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                             <div class="flex-grow-1">
                                 <h5 class="mb-1 fw-bold" style="color: var(--primary-color); font-size: 1.25rem;">
-                                    <?php echo html_escape(get_lang_field($leader, 'name')); ?>
+                                    <?php echo html_escape($leader_name); ?>
                                 </h5>
                                 <div class="mb-3">
                                     <span class="badge rounded-pill text-white" style="background-color: var(--primary-color); font-weight: 500; font-size: 11px; padding: 4px 12px;">
-                                        <?php echo html_escape(get_lang_field($leader, 'surname')); ?>
+                                        <?php echo html_escape($leader_desig); ?>
                                     </span>
                                 </div>
                                 <div>
-                                    <a href="<?php echo base_url('message-founder/' . $leader_url_id); ?>" class="btn btn-sm text-white" style="background-color: #d97706; font-weight: 600; padding: 5px 16px; border-radius: 4px; font-size: 13px; text-decoration: none;">
+                                    <a href="<?php echo base_url('message-founder/' . $leader['id']); ?>" class="btn btn-sm text-white" style="background-color: #d97706; font-weight: 600; padding: 5px 16px; border-radius: 4px; font-size: 13px; text-decoration: none;">
                                         <?php echo translate('read_full_message'); ?>
                                     </a>
                                 </div>
@@ -234,11 +236,11 @@ $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_front
                 </div>
             <?php 
                 } 
-            } 
             ?>
         </div>
     </div>
 </section>
+<?php } ?>
 
 <!-- Welcome Section -->
 <section class="welcome-section">

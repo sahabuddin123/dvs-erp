@@ -109,6 +109,7 @@
                             get_permission('frontend_section', 'is_view') ||
                             get_permission('manage_page', 'is_view') ||
                             get_permission('frontend_slider', 'is_view') ||
+                            get_permission('frontend_founder', 'is_view') ||
                             get_permission('frontend_features', 'is_view') ||
                             get_permission('frontend_testimonial', 'is_view') ||
                             get_permission('frontend_services', 'is_view') ||
@@ -155,6 +156,12 @@
                             <li class="<?php if ($sub_page == 'frontend/slider' || $sub_page == 'frontend/slider_edit') echo 'nav-active'; ?>">
                                 <a href="<?php echo base_url('frontend/slider'); ?>">
                                     <span><i class="fas fa-caret-right"></i><?php echo translate('slider'); ?></span>
+                                </a>
+                            </li>
+                            <?php } if(get_permission('frontend_founder', 'is_view') || get_permission('frontend_testimonial', 'is_view')){ ?>
+                            <li class="<?php if ($sub_page == 'frontend/founder' || $sub_page == 'frontend/founder_edit') echo 'nav-active'; ?>">
+                                <a href="<?php echo base_url('frontend/founder'); ?>">
+                                    <span><i class="fas fa-caret-right"></i><?php echo translate('founders'); ?></span>
                                 </a>
                             </li>
                             <?php } if(get_permission('frontend_features', 'is_view')){ ?>

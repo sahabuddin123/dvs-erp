@@ -238,6 +238,14 @@ $route['custom_domain'] = 'custom_domain/list';
 $route['custom_domain/(:any)'] = 'custom_domain/$1';
 $route['custom_domain/(:any)/(:any)'] = 'custom_domain/$1/$2';
 
+// Founder management routes
+$route['frontend/founder'] = 'frontend/founder/index';
+$route['frontend/founder/(:any)'] = 'frontend/founder/$1';
+$route['frontend/founders'] = 'frontend/founder/index';
+$route['frontend/founders/(:any)'] = 'frontend/founder/$1';
+$route['founders'] = 'frontend/founder/index';
+$route['founders/(:any)'] = 'frontend/founder/$1';
+
 $route['authentication'] = 'authentication/index';
 $route['home'] = 'home/index';
 $route['404_override'] = 'errors';
