@@ -360,7 +360,7 @@ endif;
 		</style>
 
 		<section class="panel dvs-wizard-wrapper">
-			<?php echo form_open_multipart('student/save', array('class' => 'frm-submit-data', 'id' => 'studentAdmissionForm')); ?>
+			<?php echo form_open_multipart('student/save', array('class' => 'frm-submit-data', 'id' => 'studentAdmissionForm', 'novalidate' => 'novalidate')); ?>
 			<input type="hidden" name="draft_id" id="draft_id" value="<?=!empty($draft_id) ? (int)$draft_id : ''?>">
 			<input type="hidden" name="last_step" id="last_step" value="<?=!empty($draft_row->last_step) ? (int)$draft_row->last_step : 1?>">
 			
@@ -1940,6 +1940,7 @@ function dvsApplyDraftData(data) {
 				if (data.section_id) {
 					$('#section_id').val(data.section_id).trigger('change');
 				}
+				dvsPopulateSummary();
 			}
 		});
 	}
@@ -1956,6 +1957,7 @@ function dvsApplyDraftData(data) {
 	var jumpStep = Math.min(5, Math.max(1, draftLastStep >= 4 ? 5 : (draftLastStep + 1)));
 	setTimeout(function() {
 		dvsUpdateWizardUI(jumpStep);
+		dvsPopulateSummary();
 	}, 300);
 }
 
@@ -2069,6 +2071,9 @@ $(document).ready(function() {
 		dvsRecalculateFees();
 	});
 
+	// Ensure HTML5 constraint validation never blocks multi-step submission
+	$('#studentAdmissionForm').attr('novalidate', 'novalidate');
+
 	// Checkbox confirmation before submission
 	$('#studentAdmissionForm').on('submit', function(e) {
 		if (!$('#confirmDataCorrect').is(':checked')) {
@@ -2098,6 +2103,14 @@ $(document).ready(function() {
 								$('html, body').animate({
 									scrollTop: $errors.first().offset().top - 120
 								}, 400);
+								if (typeof swal === 'function') {
+									swal({
+										title: "কিছু তথ্য অসম্পূর্ণ রয়েছে!",
+										text: "অনুগ্রহ করে লাল চিহ্নিত তথ্যগুলো সঠিকভাবে পূরণ করুন।",
+										type: "warning",
+										button: "ঠিক আছে"
+									});
+								}
 								break;
 							}
 						}

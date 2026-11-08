@@ -129,3 +129,4 @@ $is_bn = (function_exists('get_current_lang') && get_current_lang() === 'bn');
 		</div>
 	</div>
 </section>
+
