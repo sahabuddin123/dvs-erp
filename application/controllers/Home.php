@@ -104,6 +104,15 @@ class Home extends Frontend_Controller
 
         $this->data['teachers'] = $this->home_model->getCmsHome('teachers', $branchID);
 
+        $teachers_list = [];
+        if ($this->db->table_exists('teacher')) {
+            $teachers_list = $this->db->where('branch_id', $branchID)->where('active', 1)->where('show_on_homepage', 1)->order_by('position', 'asc')->get('teacher')->result_array();
+            if (empty($teachers_list)) {
+                $teachers_list = $this->db->where('active', 1)->where('show_on_homepage', 1)->order_by('position', 'asc')->get('teacher')->result_array();
+            }
+        }
+        $this->data['teachers_list'] = $teachers_list;
+
         $this->data['testimonial'] = $this->home_model->getCmsHome('testimonial', $branchID);
 
         $this->data['testimonials'] = $this->db->where('branch_id', $branchID)->order_by('rank', 'asc')->get('front_cms_testimonial')->result_array();
@@ -117,10 +126,19 @@ class Home extends Frontend_Controller
         $this->data['notices'] = $this->home_model->getLatestNewsList($branchID, array('limit' => 10));
 
         $this->data['events'] = $this->home_model->getLatestEventList($branchID, array('limit' => 6));
+        if (empty($this->data['events'])) {
+            $this->data['events'] = $this->db->where('status', 1)->where('show_web', 1)->order_by('start_date', 'desc')->limit(6)->get('event')->result_array();
+        }
 
         $this->data['gallery_list'] = $this->db->where('branch_id', $branchID)->where('file_type', 'image')->where('show_web', 1)->order_by('id', 'asc')->limit(8)->get('front_cms_gallery_content')->result_array();
+        if (empty($this->data['gallery_list'])) {
+            $this->data['gallery_list'] = $this->db->where('file_type', 'image')->where('show_web', 1)->order_by('id', 'asc')->limit(8)->get('front_cms_gallery_content')->result_array();
+        }
 
         $this->data['video_list'] = $this->db->where('branch_id', $branchID)->where('file_type', 'video')->where('show_web', 1)->order_by('id', 'asc')->limit(6)->get('front_cms_gallery_content')->result_array();
+        if (empty($this->data['video_list'])) {
+            $this->data['video_list'] = $this->db->where('file_type', 'video')->where('show_web', 1)->order_by('id', 'asc')->limit(6)->get('front_cms_gallery_content')->result_array();
+        }
 
         $this->data['page_data'] = $this->home_model->get('front_cms_home_seo', array('branch_id' => $branchID), true);
 

@@ -317,6 +317,202 @@ if (!empty($db_leaders)) {
     </div>
 </section>
 
+<?php
+// Our Teachers Section (আমাদের শিক্ষকবৃন্দ)
+$teachers_display = !empty($teachers_list) ? $teachers_list : [];
+if (empty($teachers_display) && $this->db->table_exists('teacher')) {
+    $branch_active_id = !empty($branchID) ? $branchID : 1;
+    $teachers_display = $this->db->where('branch_id', $branch_active_id)->where('active', 1)->where('show_on_homepage', 1)->order_by('position', 'asc')->get('teacher')->result_array();
+    if (empty($teachers_display)) {
+        $teachers_display = $this->db->where('active', 1)->where('show_on_homepage', 1)->order_by('position', 'asc')->get('teacher')->result_array();
+    }
+}
+if (!empty($teachers_display)) {
+?>
+<!-- Our Teachers Section (আমাদের শিক্ষকবৃন্দ) -->
+<section class="teachers-section py-5" id="teachers-section" style="background-color: #f8fafc;">
+    <div class="container">
+        <div class="teachers-section-title mb-4">
+            <h2 style="color: #007F3D; font-weight: 700; font-size: 2.2rem; display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+                <i class="fas fa-comments" style="color: #007F3D; font-size: 2rem;"></i>
+                <span>Our Teachers</span>
+            </h2>
+            <div style="margin-left: 50px;">
+                <div style="width: 50px; height: 3px; background-color: #007F3D; border-radius: 2px;"></div>
+                <div style="width: 50px; height: 3px; background-color: #f59e0b; border-radius: 2px; margin-top: 3px;"></div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center g-4">
+            <?php 
+            foreach ($teachers_display as $t_item) {
+                $t_name = ($current_lang == 'en') ? (!empty($t_item['name_en']) ? $t_item['name_en'] : $t_item['name']) : (!empty($t_item['name_bn']) ? $t_item['name_bn'] : $t_item['name']);
+                $t_designation = ($current_lang == 'en') ? (!empty($t_item['designation_en']) ? $t_item['designation_en'] : $t_item['designation']) : (!empty($t_item['designation_bn']) ? $t_item['designation_bn'] : $t_item['designation']);
+                $t_title = ($current_lang == 'en') ? (!empty($t_item['title_en']) ? $t_item['title_en'] : $t_item['title']) : (!empty($t_item['title_bn']) ? $t_item['title_bn'] : $t_item['title']);
+                $t_subject = ($current_lang == 'en') ? (!empty($t_item['subject_en']) ? $t_item['subject_en'] : $t_item['subject']) : (!empty($t_item['subject_bn']) ? $t_item['subject_bn'] : $t_item['subject']);
+                $t_message = ($current_lang == 'en') ? (!empty($t_item['message_en']) ? $t_item['message_en'] : $t_item['message']) : (!empty($t_item['message_bn']) ? $t_item['message_bn'] : $t_item['message']);
+
+                $t_img = !empty($t_item['image']) ? $t_item['image'] : '';
+                if (!empty($t_img) && file_exists(FCPATH . 'uploads/frontend/teacher/' . $t_img)) {
+                    $t_img_url = base_url('uploads/frontend/teacher/' . $t_img);
+                } elseif (!empty($t_img) && file_exists(FCPATH . 'uploads/frontend/founder/' . $t_img)) {
+                    $t_img_url = base_url('uploads/frontend/founder/' . $t_img);
+                } elseif (!empty($t_img) && file_exists(FCPATH . 'assets/frontend/dvs/storage/founders/' . $t_img)) {
+                    $t_img_url = base_url('assets/frontend/dvs/storage/founders/' . $t_img);
+                } else {
+                    $t_img_url = base_url('assets/frontend/dvs/storage/founders/4AsJWZzPctGqP8vDTvzbXDSJc7i15wPQNsPGGf6E.jpg');
+                }
+            ?>
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="teacher-card text-center h-100 p-4" style="background: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; flex-direction: column; align-items: center; justify-content: space-between; transition: transform 0.25s ease, box-shadow 0.25s ease;">
+                        <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                            <div style="width: 130px; height: 130px; border-radius: 8px; overflow: hidden; background: #f1f5f9; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+                                <img src="<?php echo $t_img_url; ?>" alt="<?php echo html_escape($t_name); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <h4 style="color: #007F3D; font-weight: 700; font-size: 1.15rem; margin-bottom: 4px;"><?php echo html_escape($t_name); ?></h4>
+                            <p style="color: #64748b; font-size: 0.92rem; margin-bottom: 8px; font-weight: 500;"><?php echo html_escape(!empty($t_designation) ? $t_designation : $t_title); ?></p>
+                            <?php if (!empty($t_subject)): ?>
+                                <span class="badge" style="background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; font-size: 0.8rem; font-weight: 600; padding: 4px 10px; margin-bottom: 12px;"><?php echo html_escape($t_subject); ?></span>
+                            <?php endif; ?>
+                        </div>
+
+                        <div style="width: 100%; margin-top: 15px;">
+                            <button type="button" class="btn btn-teacher-msg w-100 text-white" 
+                                style="background-color: #007F3D; font-weight: 600; font-size: 0.9rem; padding: 8px 16px; border-radius: 4px; border: none; transition: background 0.2s;"
+                                data-bs-toggle="modal" data-bs-target="#teacherModal"
+                                data-name="<?php echo html_escape($t_name); ?>"
+                                data-designation="<?php echo html_escape($t_designation); ?>"
+                                data-title="<?php echo html_escape($t_title); ?>"
+                                data-subject="<?php echo html_escape($t_subject); ?>"
+                                data-phone="<?php echo html_escape(!empty($t_item['phone']) ? $t_item['phone'] : ''); ?>"
+                                data-email="<?php echo html_escape(!empty($t_item['email']) ? $t_item['email'] : ''); ?>"
+                                data-image="<?php echo $t_img_url; ?>"
+                                data-message="<?php echo html_escape($t_message); ?>">
+                                <?php echo ($current_lang == 'en') ? 'Read Full Message' : 'Read Full Message'; ?>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <?php } ?>
+        </div>
+    </div>
+</section>
+
+<!-- Teacher Modal -->
+<div class="modal fade" id="teacherModal" tabindex="-1" aria-labelledby="teacherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius: 10px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+            <div class="modal-header text-white" style="background-color: #007F3D; padding: 16px 24px;">
+                <h5 class="modal-title fw-bold" id="teacherModalLabel" style="font-size: 1.15rem; color: #fff;">
+                    <i class="fas fa-chalkboard-teacher me-2"></i> <span id="modalTeacherName">Teacher Profile</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row align-items-center mb-3">
+                    <div class="col-sm-4 text-center mb-3 mb-sm-0">
+                        <img id="modalTeacherImg" src="" alt="Teacher Photo" class="img-fluid rounded shadow-sm" style="max-height: 180px; width: 160px; object-fit: cover; border: 2px solid #e2e8f0;">
+                    </div>
+                    <div class="col-sm-8">
+                        <h4 id="modalTeacherFullName" class="fw-bold mb-1" style="color: #007F3D;"></h4>
+                        <p id="modalTeacherDesig" class="text-muted fw-semibold mb-2" style="font-size: 1rem;"></p>
+                        <p class="mb-2"><span class="badge" style="background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; font-size: 0.85rem;" id="modalTeacherSubject"></span></p>
+                        <div id="modalTeacherContact" class="small text-muted mt-2">
+                            <span id="modalTeacherPhone" class="me-3" style="display:none;"><i class="fas fa-phone-alt me-1 text-success"></i> <span></span></span>
+                            <span id="modalTeacherEmail" style="display:none;"><i class="fas fa-envelope me-1 text-success"></i> <span></span></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border-color: #e2e8f0;">
+                <div class="teacher-bio-content mt-3">
+                    <h6 class="fw-bold text-dark mb-2"><i class="fas fa-comment-dots text-success me-1"></i> <?php echo translate('message'); ?> / Bio:</h6>
+                    <div id="modalTeacherMessage" class="text-muted lh-base" style="font-size: 0.98rem; max-height: 300px; overflow-y: auto; padding: 12px; background: #f8fafc; border-radius: 6px;"></div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light" style="padding: 10px 24px;">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal"><?php echo translate('close'); ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    var teacherBtns = document.querySelectorAll('.btn-teacher-msg');
+    teacherBtns.forEach(function(btn){
+        btn.addEventListener('click', function(){
+            var name = this.getAttribute('data-name') || '';
+            var desig = this.getAttribute('data-designation') || '';
+            var title = this.getAttribute('data-title') || '';
+            var subj = this.getAttribute('data-subject') || '';
+            var phone = this.getAttribute('data-phone') || '';
+            var email = this.getAttribute('data-email') || '';
+            var img = this.getAttribute('data-image') || '';
+            var msg = this.getAttribute('data-message') || '';
+
+            var displayDesig = desig ? desig : title;
+            if (title && desig && title !== desig) {
+                displayDesig = title + ' (' + desig + ')';
+            }
+
+            var modalTitle = document.getElementById('modalTeacherName');
+            if (modalTitle) modalTitle.textContent = name;
+            var modalFullName = document.getElementById('modalTeacherFullName');
+            if (modalFullName) modalFullName.textContent = name;
+            var modalDesig = document.getElementById('modalTeacherDesig');
+            if (modalDesig) modalDesig.textContent = displayDesig;
+            var modalImg = document.getElementById('modalTeacherImg');
+            if (modalImg) modalImg.src = img;
+
+            var subjEl = document.getElementById('modalTeacherSubject');
+            if (subjEl) {
+                if (subj) {
+                    subjEl.textContent = 'Subject: ' + subj;
+                    subjEl.style.display = 'inline-block';
+                } else {
+                    subjEl.style.display = 'none';
+                }
+            }
+
+            var phoneEl = document.getElementById('modalTeacherPhone');
+            if (phoneEl) {
+                if (phone) {
+                    phoneEl.querySelector('span').textContent = phone;
+                    phoneEl.style.display = 'inline-block';
+                } else {
+                    phoneEl.style.display = 'none';
+                }
+            }
+
+            var emailEl = document.getElementById('modalTeacherEmail');
+            if (emailEl) {
+                if (email) {
+                    emailEl.querySelector('span').textContent = email;
+                    emailEl.style.display = 'inline-block';
+                } else {
+                    emailEl.style.display = 'none';
+                }
+            }
+
+            var msgContainer = document.getElementById('modalTeacherMessage');
+            if (msgContainer) {
+                if (msg && msg.trim() !== '') {
+                    if (/<[a-z][\s\S]*>/i.test(msg)) {
+                        msgContainer.innerHTML = msg;
+                    } else {
+                        msgContainer.innerHTML = msg.replace(/\n/g, '<br>');
+                    }
+                } else {
+                    msgContainer.innerHTML = '<em>No message or biography has been added yet.</em>';
+                }
+            }
+        });
+    });
+});
+</script>
+<?php } ?>
+
+<?php if (!empty($events)) { ?>
 <!-- Latest Events Section (সর্বশেষ ইভেন্ট) -->
 <section class="news-section">
     <div class="container">
@@ -373,7 +569,9 @@ if (!empty($db_leaders)) {
         </div>
     </div>
 </section>
+<?php } ?>
 
+<?php if (!empty($video_list)) { ?>
 <!-- Video Gallery Section (ভিডিও গ্যালারী) -->
 <section class="video-gallery-section py-5 bg-white" id="video-gallery-section">
     <div class="container">
@@ -492,7 +690,9 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 });
 </script>
+<?php } ?>
 
+<?php if (!empty($gallery_list)) { ?>
 <!-- Photo Gallery Section (ফটো গ্যালারী) -->
 <section class="gallery-section py-5" style="background-color: #f8fafc;">
     <div class="container">
@@ -547,6 +747,7 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
     </div>
 </section>
+<?php } ?>
 
 <!-- Achievements and Statistics (আমাদের অর্জন ও পরিসংখ্যান) -->
 <section class="achievements-section py-5 bg-white">

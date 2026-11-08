@@ -246,6 +246,14 @@ $route['frontend/founders/(:any)'] = 'frontend/founder/$1';
 $route['founders'] = 'frontend/founder/index';
 $route['founders/(:any)'] = 'frontend/founder/$1';
 
+// Teacher management routes
+$route['frontend/teacher'] = 'frontend/teacher/index';
+$route['frontend/teacher/(:any)'] = 'frontend/teacher/$1';
+$route['frontend/teacher/(:any)/(:any)'] = 'frontend/teacher/$1/$2';
+$route['frontend/teachers'] = 'frontend/teacher/index';
+$route['frontend/teachers/(:any)'] = 'frontend/teacher/$1';
+$route['frontend/teachers/(:any)/(:any)'] = 'frontend/teacher/$1/$2';
+
 // Homepage settings routes
 $route['frontend/home_settings'] = 'frontend/section/home';
 $route['frontend/homepage_settings'] = 'frontend/section/home';
