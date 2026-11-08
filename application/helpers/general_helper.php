@@ -430,13 +430,20 @@ function dvs_language_fallback($word, $lang = 'bengali')
     );
 
     static $bn_dict = array(
+        // Core
+        'save' => 'সংরক্ষণ করুন',
+        'active' => 'চালু',
+        'inactive' => 'বন্ধ',
+        'filter' => 'ফিল্টার',
+        'status' => 'স্ট্যাটাস',
+
         // Thermal Print
         'thermal_print' => 'থার্মাল প্রিন্ট',
         'thermal_print_settings' => 'থার্মাল প্রিন্ট সেটিংস ও কনফিগারেশন',
         'thermal_print_configuration' => 'থার্মাল প্রিন্ট কনফিগারেশন সেটিংস',
         'printer_paper_size' => 'প্রিন্টার পেপার সাইজ',
-        'standard_pos' => '৩-ইঞ্চি Standard POS',
-        'mini_pos' => '২-ইঞ্চি Mini POS',
+        'standard_pos' => '৮০ মিমি স্ট্যান্ডার্ড পিওএস',
+        'mini_pos' => '৫৮ মিমি মিনি পিওএস',
         'printer_paper_size_help' => 'আপনার থার্মাল প্রিন্টারের রোল অনুযায়ী সাইজ নির্বাচন করুন (সাধারণত 80mm সবচেয়ে জনপ্রিয়)।',
         'receipt_options' => 'রসিদ অপশনসমূহ',
         'show_school_logo' => 'স্কুল লোগো প্রদর্শন করুন',
@@ -1180,20 +1187,13 @@ function get_loggedin_user_type()
 // Check if institution has multiple branches
 function is_multiple_branches()
 {
-    static $multi = null;
-    if ($multi !== null) {
-        return $multi;
-    }
-    $CI = &get_instance();
-    $count = $CI->db->count_all_results('branch');
-    $multi = ($count > 1);
-    return $multi;
+    return false;
 }
 
 // Check if institution has only a single branch
 function is_single_branch()
 {
-    return !is_multiple_branches();
+    return true;
 }
 
 // Get the default single branch ID

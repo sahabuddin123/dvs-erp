@@ -10,37 +10,11 @@
             <nav id="menu" class="nav-main" role="navigation">
                 <ul class="nav nav-main">
                     <!-- dashboard -->
-                    <?php if (is_superadmin_loggedin() && is_multiple_branches()) { ?>
-                    <li class="nav-parent <?php if ($main_menu == 'dashboard') echo 'nav-active nav-expanded';?>">
-                        <a>
+                    <li class="<?php if ($main_menu == 'dashboard') echo 'nav-active'; ?>">
+                        <a href="<?=base_url('dashboard')?>">
                             <i class="icons icon-grid"></i><span><?=translate('dashboard')?></span>
                         </a>
-                        <ul class="nav nav-children">
-                        <?php $school_id = $this->input->get('school_id'); ?>
-                            <li class="<?php if ($main_menu == 'dashboard' && empty($school_id)) echo 'nav-active';?>">
-                                <a href="<?=base_url('dashboard')?>">
-                                    <span><i class="fas fa-caret-right" aria-hidden="true"></i> <?=translate('all_branches')?></span>
-                                </a>
-                            </li>
-                            <?php
-                                $branches = $this->db->get('branch')->result();
-                                foreach($branches as $row){
-                            ?>
-                                <li class="<?php if ($school_id == $row->id) echo 'nav-active';?>">
-                                    <a href="<?=base_url('dashboard/index?school_id='.$row->id)?>">
-                                        <span><i class="fas fa-caret-right" aria-hidden="true"></i> <?=html_escape($row->name)?></span>
-                                    </a>
-                                </li>
-                        <?php } ?>
-                        </ul>
                     </li>
-                    <?php } else { ?>
-                            <li class="<?php if ($main_menu == 'dashboard') echo 'nav-active'; ?>">
-                                <a href="<?=base_url('dashboard')?>">
-                                    <i class="icons icon-grid"></i><span><?=translate('dashboard')?></span>
-                                </a>
-                            </li>
-                    <?php } ?>
                     <?php if (moduleIsEnabled('inventory')) { 
                         if (get_permission('product', 'is_view') ||
                             get_permission('product_category', 'is_view') ||
@@ -1018,6 +992,10 @@
                         </ul>
                     </li>
                     <?php }} ?>
+
+                    <?php if (moduleIsEnabled('question_bank')) {
+                        include "question_bank_menu.php";
+                    } ?>
 
                     <?php
                     if (moduleIsEnabled('hostel') || moduleIsEnabled('transport')) {

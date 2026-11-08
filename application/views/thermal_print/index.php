@@ -29,11 +29,11 @@
 							<?php $p_width = isset($settings->printer_width) ? $settings->printer_width : '80mm'; ?>
 							<div class="radio-custom radio-inline">
 								<input type="radio" id="width_80" name="printer_width" value="80mm" <?=($p_width == '80mm') ? 'checked' : ''?>>
-								<label for="width_80"><strong>80mm (<?=translate('standard_pos')?>)</strong></label>
+								<label for="width_80"><strong><?=translate('standard_pos')?></strong></label>
 							</div>
 							<div class="radio-custom radio-inline">
 								<input type="radio" id="width_58" name="printer_width" value="58mm" <?=($p_width == '58mm') ? 'checked' : ''?>>
-								<label for="width_58"><strong>58mm (<?=translate('mini_pos')?>)</strong></label>
+								<label for="width_58"><strong><?=translate('mini_pos')?></strong></label>
 							</div>
 							<span class="help-block"><small><?=translate('printer_paper_size_help')?></small></span>
 						</div>

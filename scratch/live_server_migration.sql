@@ -262,3 +262,155 @@ UPDATE `certificates_templete` SET
     `name` = REPLACE(`name`, 'মাদ্রাসা', 'স্কুল'), 
     `content` = REPLACE(`content`, 'মাদ্রাসা', 'স্কুল') 
 WHERE `name` LIKE '%মাদ্রাসা%' OR `content` LIKE '%মাদ্রাসা%';
+
+
+-- ------------------------------------------------------------------------------
+-- পার্ট ৬: কোয়েশ্চেন ব্যাংক ও এআই প্রশ্ন জেনারেটর (Question Bank & AI Generator)
+-- ------------------------------------------------------------------------------
+
+-- ==============================================================================
+-- DREAM VALLEY SCHOOL (DVS) ERP - QUESTION BANK & AI EXAM GENERATOR ADDON
+-- Database Migration Script
+-- ==============================================================================
+
+-- 1. Addon Registration
+INSERT INTO `addon` (`name`, `prefix`, `version`, `purchase_code`, `items_code`, `status`, `created_at`) 
+VALUES ('Question Bank & AI Exam Generator', 'question_bank', '1.0.0', 'OFFICIAL-ADDON-DVS', 'qb_ai_pro', 1, NOW())
+ON DUPLICATE KEY UPDATE `status` = 1, `name` = VALUES(`name`), `version` = VALUES(`version`);
+
+-- 2. Permission Module Registration
+INSERT INTO `permission_modules` (`name`, `prefix`, `sorted`) 
+SELECT 'Question Bank', 'question_bank', 25 
+WHERE NOT EXISTS (SELECT 1 FROM `permission_modules` WHERE `prefix` = 'question_bank');
+
+-- 3. Permission Definitions
+INSERT INTO `permission` (`module_id`, `name`, `prefix`, `show_view`, `show_add`, `show_edit`, `show_delete`, `created_at`)
+SELECT pm.id, 'Question Bank', 'question_bank', 1, 1, 1, 1, NOW()
+FROM `permission_modules` pm
+WHERE pm.prefix = 'question_bank'
+AND NOT EXISTS (SELECT 1 FROM `permission` WHERE `prefix` = 'question_bank');
+
+-- 4. Chapters Table
+CREATE TABLE IF NOT EXISTS `qb_chapters` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT NOT NULL DEFAULT 1,
+  `class_id` INT NOT NULL,
+  `subject_id` INT NOT NULL,
+  `chapter_no` VARCHAR(50) NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_class_subject` (`class_id`, `subject_id`),
+  KEY `idx_branch` (`branch_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. Topics Table
+CREATE TABLE IF NOT EXISTS `qb_topics` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `chapter_id` INT NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_chapter` (`chapter_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6. Questions Repository Table
+CREATE TABLE IF NOT EXISTS `qb_questions` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT NOT NULL DEFAULT 1,
+  `class_id` INT NOT NULL,
+  `subject_id` INT NOT NULL,
+  `chapter_id` INT NULL DEFAULT NULL,
+  `topic_id` INT NULL DEFAULT NULL,
+  `type` ENUM('mcq', 'true_false', 'fill_blank', 'matching', 'short_answer', 'long_answer') NOT NULL DEFAULT 'mcq',
+  `difficulty` ENUM('easy', 'medium', 'hard') NOT NULL DEFAULT 'medium',
+  `taxonomy` ENUM('remembering', 'understanding', 'applying', 'analyzing', 'evaluating', 'creating') NOT NULL DEFAULT 'remembering',
+  `question_text` LONGTEXT NOT NULL,
+  `explanation` LONGTEXT NULL DEFAULT NULL,
+  `marks` DECIMAL(5,2) NOT NULL DEFAULT 1.00,
+  `negative_marks` DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+  `status` ENUM('draft', 'review', 'approved', 'rejected') NOT NULL DEFAULT 'approved',
+  `source` ENUM('manual', 'ai_generated', 'import') NOT NULL DEFAULT 'manual',
+  `created_by` INT NOT NULL,
+  `reviewed_by` INT NULL DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_qb_class_subj` (`class_id`, `subject_id`),
+  KEY `idx_qb_type` (`type`),
+  KEY `idx_qb_diff` (`difficulty`),
+  KEY `idx_qb_tax` (`taxonomy`),
+  KEY `idx_qb_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. Question Options Table (for MCQ, True/False, Matching, Blanks)
+CREATE TABLE IF NOT EXISTS `qb_question_options` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `question_id` INT NOT NULL,
+  `option_key` VARCHAR(50) NOT NULL,
+  `option_text` LONGTEXT NOT NULL,
+  `is_correct` TINYINT(1) NOT NULL DEFAULT 0,
+  `match_pair` TEXT NULL DEFAULT NULL,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_question_id` (`question_id`),
+  CONSTRAINT `fk_qb_options_question` FOREIGN KEY (`question_id`) REFERENCES `qb_questions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 8. Generated Exam Papers Table
+CREATE TABLE IF NOT EXISTS `qb_papers` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT NOT NULL DEFAULT 1,
+  `class_id` INT NOT NULL,
+  `subject_id` INT NOT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `term` VARCHAR(100) NULL DEFAULT NULL,
+  `exam_date` DATE NULL DEFAULT NULL,
+  `duration_minutes` INT NOT NULL DEFAULT 60,
+  `total_marks` DECIMAL(6,2) NOT NULL DEFAULT 100.00,
+  `pass_marks` DECIMAL(6,2) NOT NULL DEFAULT 40.00,
+  `instructions` TEXT NULL DEFAULT NULL,
+  `paper_format` ENUM('single_column', 'two_column') NOT NULL DEFAULT 'single_column',
+  `status` ENUM('draft', 'published', 'archived') NOT NULL DEFAULT 'draft',
+  `created_by` INT NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_paper_class_subj` (`class_id`, `subject_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 9. Exam Paper Questions Linking Table
+CREATE TABLE IF NOT EXISTS `qb_paper_questions` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `paper_id` INT NOT NULL,
+  `section_name` VARCHAR(100) NOT NULL DEFAULT 'Section A',
+  `section_instructions` VARCHAR(255) NULL DEFAULT NULL,
+  `question_id` INT NOT NULL,
+  `marks` DECIMAL(5,2) NOT NULL DEFAULT 1.00,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_paper_id` (`paper_id`),
+  KEY `idx_paper_question` (`question_id`),
+  CONSTRAINT `fk_qb_pq_paper` FOREIGN KEY (`paper_id`) REFERENCES `qb_papers` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_qb_pq_question` FOREIGN KEY (`question_id`) REFERENCES `qb_questions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 10. AI Settings Table
+CREATE TABLE IF NOT EXISTS `qb_ai_settings` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `branch_id` INT NOT NULL DEFAULT 1,
+  `api_provider` ENUM('gemini', 'openai') NOT NULL DEFAULT 'gemini',
+  `api_key` VARCHAR(255) NULL DEFAULT NULL,
+  `model_name` VARCHAR(100) NOT NULL DEFAULT 'gemini-1.5-flash',
+  `default_language` VARCHAR(20) NOT NULL DEFAULT 'bengali',
+  `custom_system_prompt` TEXT NULL DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_ai_branch` (`branch_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Insert default AI Settings row for Branch 1
+INSERT INTO `qb_ai_settings` (`branch_id`, `api_provider`, `model_name`, `default_language`)
+VALUES (1, 'gemini', 'gemini-1.5-flash', 'bengali')
+ON DUPLICATE KEY UPDATE `model_name` = VALUES(`model_name`);
