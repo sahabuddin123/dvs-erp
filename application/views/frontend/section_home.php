@@ -105,8 +105,27 @@ if (empty($elements)) {
 							<div class="form-group">
 								<label class="col-md-3 control-label"><?php echo translate('photo'); ?> <span class="required">*</span></label>
 								<div class="col-md-4">
-									<input type="hidden" name="old_photo" value="<?php echo $well_ele['image'] ?>">
-									<input type="file" name="photo" class="dropify" data-height="150" data-default-file="<?php echo base_url('uploads/frontend/home_page/' . $well_ele['image']); ?>" />
+									<?php
+										$well_img_val = !empty($well_ele['image']) ? $well_ele['image'] : '';
+										$well_preview_url = '';
+										if (!empty($well_img_val)) {
+											if (file_exists(FCPATH . 'uploads/frontend/home_page/' . $well_img_val)) {
+												$well_preview_url = base_url('uploads/frontend/home_page/' . $well_img_val);
+											} elseif (file_exists(FCPATH . 'assets/frontend/dvs/storage/uploads/settings/' . $well_img_val)) {
+												$well_preview_url = base_url('assets/frontend/dvs/storage/uploads/settings/' . $well_img_val);
+											} else {
+												$fn_raw = pathinfo($well_img_val, PATHINFO_FILENAME);
+												foreach (['jpg', 'png', 'jpeg', 'webp'] as $test_ext) {
+													if (file_exists(FCPATH . 'uploads/frontend/home_page/' . $fn_raw . '.' . $test_ext)) {
+														$well_preview_url = base_url('uploads/frontend/home_page/' . $fn_raw . '.' . $test_ext);
+														break;
+													}
+												}
+											}
+										}
+									?>
+									<input type="hidden" name="old_photo" value="<?php echo html_escape($well_img_val); ?>">
+									<input type="file" name="photo" class="dropify" data-height="150" <?php if (!empty($well_preview_url)) { ?>data-default-file="<?php echo $well_preview_url; ?>"<?php } ?> data-allowed-file-extensions="jpg jpeg png gif webp" />
 									<span class="error"></span>
 								</div>
 							</div>

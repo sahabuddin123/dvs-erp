@@ -246,6 +246,11 @@ $route['frontend/founders/(:any)'] = 'frontend/founder/$1';
 $route['founders'] = 'frontend/founder/index';
 $route['founders/(:any)'] = 'frontend/founder/$1';
 
+// Homepage settings routes
+$route['frontend/home_settings'] = 'frontend/section/home';
+$route['frontend/homepage_settings'] = 'frontend/section/home';
+$route['frontend/home_page_settings'] = 'frontend/section/home';
+
 $route['authentication'] = 'authentication/index';
 $route['home'] = 'home/index';
 $route['404_override'] = 'errors';

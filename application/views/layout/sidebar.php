@@ -143,7 +143,7 @@
                                                             $sub_page == 'frontend/section_about' ||
                                                                 $sub_page == 'frontend/section_services') echo 'nav-active'; ?>">
                                 <a href="<?php echo base_url('frontend/section/index'); ?>">
-                                    <span><i class="fas fa-caret-right" aria-hidden="true"></i><?php echo translate('page') . " " . translate('section'); ?></span>
+                                    <span><i class="fas fa-caret-right" aria-hidden="true"></i><?php echo translate('home_page_settings'); ?></span>
                                 </a>
                             </li>
                             <?php } if(get_permission('manage_page', 'is_view')){ ?>

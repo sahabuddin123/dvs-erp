@@ -266,13 +266,49 @@ if (!empty($db_leaders)) {
             <div class="col-lg-6 mb-4 text-center">
                 <?php 
                 $wellcome_elements = !empty($wellcome['elements']) ? json_decode($wellcome['elements'], true) : [];
-                $wellcome_img = !empty($wellcome_elements['image']) ? $wellcome_elements['image'] : 'welcome_image_1781274557.jpg';
-                if (!empty($wellcome_img) && file_exists(FCPATH . 'uploads/frontend/home_page/' . $wellcome_img)) {
-                    $wellcome_img_url = base_url('uploads/frontend/home_page/' . $wellcome_img);
-                } elseif (!empty($wellcome_img) && file_exists(FCPATH . 'assets/frontend/dvs/storage/uploads/settings/' . $wellcome_img)) {
-                    $wellcome_img_url = base_url('assets/frontend/dvs/storage/uploads/settings/' . $wellcome_img);
-                } else {
-                    $wellcome_img_url = base_url('assets/frontend/dvs/storage/uploads/settings/welcome_image_1781274557.jpg');
+                $wellcome_img = !empty($wellcome_elements['image']) ? $wellcome_elements['image'] : '';
+                $wellcome_img_url = '';
+
+                // 1. Direct path or alternate extension in uploads/frontend/home_page/
+                if (!empty($wellcome_img)) {
+                    if (file_exists(FCPATH . 'uploads/frontend/home_page/' . $wellcome_img)) {
+                        $wellcome_img_url = base_url('uploads/frontend/home_page/' . $wellcome_img);
+                    } else {
+                        $fn_raw = pathinfo($wellcome_img, PATHINFO_FILENAME);
+                        foreach (['jpg', 'png', 'jpeg', 'webp'] as $test_ext) {
+                            if (file_exists(FCPATH . 'uploads/frontend/home_page/' . $fn_raw . '.' . $test_ext)) {
+                                $wellcome_img_url = base_url('uploads/frontend/home_page/' . $fn_raw . '.' . $test_ext);
+                                break;
+                            }
+                        }
+                    }
+
+                    // 2. Settings folder path if not found in home_page/
+                    if (empty($wellcome_img_url) && file_exists(FCPATH . 'assets/frontend/dvs/storage/uploads/settings/' . $wellcome_img)) {
+                        $wellcome_img_url = base_url('assets/frontend/dvs/storage/uploads/settings/' . $wellcome_img);
+                    }
+                }
+
+                // 3. Branch-specific fallback in home_page/
+                if (empty($wellcome_img_url)) {
+                    $branch_active_id = !empty($branchID) ? $branchID : 1;
+                    foreach (['jpg', 'png', 'jpeg', 'webp'] as $test_ext) {
+                        if (file_exists(FCPATH . 'uploads/frontend/home_page/wellcome' . $branch_active_id . '.' . $test_ext)) {
+                            $wellcome_img_url = base_url('uploads/frontend/home_page/wellcome' . $branch_active_id . '.' . $test_ext);
+                            break;
+                        }
+                    }
+                }
+
+                // 4. Default fallback: wellcome1.jpg / wellcome1.png
+                if (empty($wellcome_img_url)) {
+                    if (file_exists(FCPATH . 'uploads/frontend/home_page/wellcome1.jpg')) {
+                        $wellcome_img_url = base_url('uploads/frontend/home_page/wellcome1.jpg');
+                    } elseif (file_exists(FCPATH . 'uploads/frontend/home_page/wellcome1.png')) {
+                        $wellcome_img_url = base_url('uploads/frontend/home_page/wellcome1.png');
+                    } else {
+                        $wellcome_img_url = base_url('assets/frontend/dvs/storage/uploads/settings/welcome_image_1781274557.jpg');
+                    }
                 }
                 ?>
                 <img src="<?php echo $wellcome_img_url; ?>" alt="Welcome" class="img-fluid shadow-sm" style="border-radius: 8px; max-height: 480px; width: 100%; object-fit: cover;">
@@ -301,8 +337,10 @@ if (!empty($db_leaders)) {
                         $ev_img_url = base_url('uploads/frontend/events/' . $ev_img);
                     } elseif (!empty($ev_img) && file_exists(FCPATH . 'assets/frontend/dvs/storage/events/' . $ev_img)) {
                         $ev_img_url = base_url('assets/frontend/dvs/storage/events/' . $ev_img);
+                    } elseif (file_exists(FCPATH . 'uploads/frontend/events/defualt.png')) {
+                        $ev_img_url = base_url('uploads/frontend/events/defualt.png');
                     } else {
-                        $ev_img_url = base_url('assets/frontend/dvs/storage/events/5hMJasdzo9ywqzCMgWDKotpc00a7l8RsTtCWNRFY.jpg');
+                        $ev_img_url = base_url('assets/images/profile_bg.jpg');
                     }
             ?>
                 <div class="col-md-6 col-lg-4 mb-4 news-item">
@@ -352,12 +390,14 @@ if (!empty($db_leaders)) {
                     $vid_elem = !empty($vid['elements']) ? json_decode($vid['elements'], true) : [];
                     $vid_url = !empty($vid_elem['video_url']) ? $vid_elem['video_url'] : '';
                     $vid_thumb = !empty($vid['thumb_image']) ? $vid['thumb_image'] : '';
-                    if (!empty($vid_thumb) && file_exists(FCPATH . 'assets/frontend/dvs/storage/uploads/videos/' . $vid_thumb)) {
-                        $thumb_url = base_url('assets/frontend/dvs/storage/uploads/videos/' . $vid_thumb);
-                    } elseif (!empty($vid_thumb) && file_exists(FCPATH . 'uploads/frontend/gallery/' . $vid_thumb)) {
+                    if (!empty($vid_thumb) && file_exists(FCPATH . 'uploads/frontend/gallery/' . $vid_thumb)) {
                         $thumb_url = base_url('uploads/frontend/gallery/' . $vid_thumb);
+                    } elseif (!empty($vid_thumb) && file_exists(FCPATH . 'assets/frontend/dvs/storage/uploads/videos/' . $vid_thumb)) {
+                        $thumb_url = base_url('assets/frontend/dvs/storage/uploads/videos/' . $vid_thumb);
+                    } elseif (file_exists(FCPATH . 'uploads/frontend/gallery/defualt.png')) {
+                        $thumb_url = base_url('uploads/frontend/gallery/defualt.png');
                     } else {
-                        $thumb_url = base_url('assets/frontend/dvs/storage/uploads/videos/hMqdHC9RqSxAAyUNDCBTQRSuRVKaMTRkADVlbUgo.png');
+                        $thumb_url = base_url('assets/images/profile_bg.jpg');
                     }
             ?>
                 <div class="col-sm-6 col-md-4 col-lg-4">
@@ -468,12 +508,14 @@ document.addEventListener('DOMContentLoaded', function(){
                     $photo_title = get_lang_field($photo, 'title');
                     $photo_desc = get_lang_field($photo, 'description');
                     $img_name = !empty($photo['thumb_image']) ? $photo['thumb_image'] : '';
-                    if (!empty($img_name) && file_exists(FCPATH . 'assets/frontend/dvs/storage/albums/' . $img_name)) {
-                        $img_url = base_url('assets/frontend/dvs/storage/albums/' . $img_name);
-                    } elseif (!empty($img_name) && file_exists(FCPATH . 'uploads/frontend/gallery/' . $img_name)) {
+                    if (!empty($img_name) && file_exists(FCPATH . 'uploads/frontend/gallery/' . $img_name)) {
                         $img_url = base_url('uploads/frontend/gallery/' . $img_name);
+                    } elseif (!empty($img_name) && file_exists(FCPATH . 'assets/frontend/dvs/storage/albums/' . $img_name)) {
+                        $img_url = base_url('assets/frontend/dvs/storage/albums/' . $img_name);
+                    } elseif (file_exists(FCPATH . 'uploads/frontend/gallery/defualt.png')) {
+                        $img_url = base_url('uploads/frontend/gallery/defualt.png');
                     } else {
-                        $img_url = base_url('assets/frontend/dvs/storage/albums/VVrjVFgyFGcDDTDTo242IIgyxYaL1LAhoQDsPcAH.png');
+                        $img_url = base_url('assets/images/profile_bg.jpg');
                     }
             ?>
                 <div class="col-sm-6 col-md-4 col-lg-3 gallery-item">
