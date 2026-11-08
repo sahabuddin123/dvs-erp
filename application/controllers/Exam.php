@@ -1053,4 +1053,19 @@ class Exam extends Admin_Controller
             echo json_encode($array);
         }
     }
+
+    public function seat_plan()
+    {
+        redirect(base_url('seat_plan' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')));
+    }
+
+    public function seat_plan_print()
+    {
+        redirect(base_url('seat_plan/print_card' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')));
+    }
+
+    public function seat_plan_report()
+    {
+        redirect(base_url('seat_plan/room_report' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')));
+    }
 }

@@ -1340,3 +1340,61 @@ INSERT INTO `languages` (`word`, `english`, `bengali`)
 SELECT 'manage_lesson_plan', 'Manage Lesson Plan', 'পাঠ পরিকল্পনা পরিচালনা'
 WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'manage_lesson_plan');
 
+
+-- ==============================================================================
+-- Exam Seat Plan Module Setup
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS `exam_seat_plan` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `branch_id` int(11) NOT NULL DEFAULT 1,
+  `session_id` int(11) NOT NULL,
+  `exam_id` int(11) NOT NULL,
+  `hall_id` int(11) NOT NULL,
+  `class_id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `enroll_id` int(11) NOT NULL,
+  `seat_no` varchar(50) NOT NULL,
+  `bench_no` varchar(50) DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_seat_exam` (`exam_id`),
+  KEY `idx_seat_hall` (`hall_id`),
+  KEY `idx_seat_student` (`student_id`),
+  KEY `idx_seat_enroll` (`enroll_id`),
+  KEY `idx_seat_session` (`session_id`),
+  KEY `idx_seat_branch` (`branch_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `permission` (`module_id`, `name`, `prefix`, `show_view`, `show_add`, `show_edit`, `show_delete`, `created_at`)
+SELECT 9, 'Seat Plan', 'seat_plan', 1, 1, 1, 1, NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `permission` WHERE `prefix` = 'seat_plan');
+
+INSERT INTO `staff_privileges` (`role_id`, `permission_id`, `is_add`, `is_edit`, `is_view`, `is_delete`)
+SELECT 1, p.id, 1, 1, 1, 1 FROM `permission` p WHERE p.prefix = 'seat_plan'
+AND NOT EXISTS (SELECT 1 FROM `staff_privileges` sp WHERE sp.role_id = 1 AND sp.permission_id = p.id);
+
+INSERT INTO `staff_privileges` (`role_id`, `permission_id`, `is_add`, `is_edit`, `is_view`, `is_delete`)
+SELECT 2, p.id, 1, 1, 1, 1 FROM `permission` p WHERE p.prefix = 'seat_plan'
+AND NOT EXISTS (SELECT 1 FROM `staff_privileges` sp WHERE sp.role_id = 2 AND sp.permission_id = p.id);
+
+INSERT INTO `staff_privileges` (`role_id`, `permission_id`, `is_add`, `is_edit`, `is_view`, `is_delete`)
+SELECT 3, p.id, 0, 0, 1, 0 FROM `permission` p WHERE p.prefix = 'seat_plan'
+AND NOT EXISTS (SELECT 1 FROM `staff_privileges` sp WHERE sp.role_id = 3 AND sp.permission_id = p.id);
+
+INSERT INTO `languages` (`word`, `english`, `bengali`)
+SELECT 'seat_plan', 'Seat Plan', 'সিট প্ল্যান'
+WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'seat_plan');
+
+INSERT INTO `languages` (`word`, `english`, `bengali`)
+SELECT 'seat_allocation', 'Seat Allocation', 'আসন নির্ধারণ'
+WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'seat_allocation');
+
+INSERT INTO `languages` (`word`, `english`, `bengali`)
+SELECT 'print_seat_cards', 'Print Seat Cards', 'সিট কার্ড প্রিন্ট'
+WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'print_seat_cards');
+
+INSERT INTO `languages` (`word`, `english`, `bengali`)
+SELECT 'room_attendance_sheet', 'Room Attendance Sheet', 'কক্ষভিত্তিক উপস্থিতি ও সিট শিট'
+WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'room_attendance_sheet');

@@ -208,6 +208,12 @@ $route['whatsapp_messaging/(:any)/(:any)'] = 'whatsapp_messaging/$1/$2';
 $route['thermal_print'] = 'thermal_print/index';
 $route['thermal_print/(:any)'] = 'thermal_print/$1';
 $route['thermal_print/(:any)/(:any)'] = 'thermal_print/$1/$2';
+$route['seat_plan'] = 'seat_plan/index';
+$route['seat_plan/(:any)'] = 'seat_plan/$1';
+$route['seat_plan/(:any)/(:any)'] = 'seat_plan/$1/$2';
+$route['exam/seat_plan'] = 'seat_plan/index';
+$route['exam/seat_plan_print'] = 'seat_plan/print_card';
+$route['exam/seat_plan_report'] = 'seat_plan/room_report';
 
 $route['authentication'] = 'authentication/index';
 $route['home'] = 'home/index';

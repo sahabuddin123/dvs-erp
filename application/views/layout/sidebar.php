@@ -829,10 +829,11 @@
                     get_permission('exam_mark', 'is_view') ||
                     get_permission('generate_position', 'is_view') ||
                     get_permission('marksheet_template', 'is_view') ||
+                    get_permission('seat_plan', 'is_view') ||
                     get_permission('exam_grade', 'is_view')) {
                     ?>
                     <!-- exam master -->
-                    <li class="nav-parent <?php if ($main_menu == 'exam' || $main_menu == 'mark' || $main_menu == 'exam_timetable' || $main_menu == 'marksheet_template') echo 'nav-expanded nav-active';?>">
+                    <li class="nav-parent <?php if ($main_menu == 'exam' || $main_menu == 'mark' || $main_menu == 'exam_timetable' || $main_menu == 'marksheet_template' || $main_menu == 'seat_plan') echo 'nav-expanded nav-active';?>">
                         <a>
                             <i class="icons icon-book-open" aria-hidden="true"></i><span><?=translate('exam_master')?></span>
                         </a>
@@ -939,6 +940,31 @@
                                         </a>
                                     </li>
                                     <?php } ?>
+                                </ul>
+                            </li>
+                            <?php } ?>
+                            <?php if (get_permission('seat_plan', 'is_view')) { ?>
+                            <!-- seat plan -->
+                            <li class="nav-parent <?php if ($main_menu == 'seat_plan') echo 'nav-expanded nav-active';?>">
+                                <a>
+                                    <i class="fas fa-th-large"></i> <span><?=translate('seat_plan')?></span>
+                                </a>
+                                <ul class="nav nav-children">
+                                    <li class="<?php if ($sub_page == 'seat_plan/index') echo 'nav-active';?>">
+                                        <a href="<?=base_url('seat_plan')?>">
+                                            <span><?=translate('seat_allocation')?></span>
+                                        </a>
+                                    </li>
+                                    <li class="<?php if ($sub_page == 'seat_plan/print_card') echo 'nav-active';?>">
+                                        <a href="<?=base_url('seat_plan/print_card')?>">
+                                            <span><?=translate('print_seat_cards')?></span>
+                                        </a>
+                                    </li>
+                                    <li class="<?php if ($sub_page == 'seat_plan/room_report') echo 'nav-active';?>">
+                                        <a href="<?=base_url('seat_plan/room_report')?>">
+                                            <span><?=translate('room_attendance_sheet')?></span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                             <?php } ?>
