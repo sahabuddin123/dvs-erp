@@ -40,7 +40,14 @@
 								</td>
 								<td><?php echo empty($row->created_at) ? '-' : _d($row->created_at);?></td>
 								<td><?php echo empty($row->created_at) ? '-' : _d($row->created_at);?></td>
-								<td><a href="<?=base_url('addons/update/'.$row->prefix)?>" class="btn btn-default btn-circle"><i class="fas fa-undo"></i> Update Check</a> </td>
+								<td>
+									<a href="<?=base_url('addons/download/'.$row->prefix)?>" class="btn btn-default btn-circle text-primary" style="margin-right: 4px;" title="Download Addon ZIP">
+										<i class="fas fa-download"></i> Download
+									</a>
+									<a href="<?=base_url('addons/update/'.$row->prefix)?>" class="btn btn-default btn-circle" title="Update Check">
+										<i class="fas fa-undo"></i> Update Check
+									</a>
+								</td>
 							</tr>
 							<?php endforeach; ?>
 						</tbody>

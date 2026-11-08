@@ -2,13 +2,9 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 /**
- * @package : Ramom school management system
- * @version : 6.8
- * @developed by : RamomCoder
- * @support : ramomcoder@yahoo.com
- * @author url : http://codecanyon.net/user/RamomCoder
+ * @package : Dream Valley School ERP
+ * @version : 7.0
  * @filename : Addons.php
- * @copyright : Reserved RamomCoder Team
  */
 
 class Addons extends MY_Controller
@@ -373,7 +369,7 @@ class Addons extends MY_Controller
         if ($statusCode == 505) {
             $mailBody = 'Hello. I tried to upgrade to the latest version but for some reason the upgrade failed. Please remove the key from the upgrade log so i can try again. My installation URL is: ' . base_url() . '. Regards.';
             $mailSubject = 'Purchase Key Removal Request - [' . $this->purchase_code . ']';
-            $error = 'Purchase key already used to download upgrade files for version ' . wordwrap($this->latest_version, 1, '.', true) . '. Performing multiple auto updates to the latest version with one purchase key is not allowed. If you have multiple installations you must buy another license.<br /><br /> If you have staging/testing installation and auto upgrade is performed there, <b>you should perform manually upgrade</b> in your production area<br /><br /> <h4 class="bold">Upgrade failed?</h4> The error can be shown also if the update failed for some reason, but because the purchase key is already used to download the files, you won’t be able to re-download the files again.<br /><br />Click <a href="mailto:ramomcoder@yahoo.com?subject=' . $mailSubject . '&body=' . $mailBody . '"><b>here</b></a> to send an mail and get your purchase key removed from the upgrade log.';
+            $error = 'Upgrade error encountered. Please check your update files or contact technical support.';
         } elseif ($statusCode == 506) {
             $error = 'This is not a valid purchase code.';
         } elseif ($statusCode == 507) {
@@ -427,5 +423,46 @@ class Addons extends MY_Controller
             echo json_encode(['status' => 'fail', 'message' => translate('addon_not_found')]);
         }
         exit();
+    }
+
+    public function download($prefix = '')
+    {
+        if (!is_superadmin_loggedin()) {
+            access_denied();
+        }
+        if (empty($prefix)) {
+            set_alert('error', translate('addon_not_found'));
+            redirect(base_url('addons/manage'));
+        }
+
+        $addon = $this->addons_model->getAddonDetails($prefix);
+        if (empty($addon)) {
+            set_alert('error', translate('addon_not_found'));
+            redirect(base_url('addons/manage'));
+        }
+
+        $zipPath = $this->addons_model->packageAddonZip($prefix);
+        if (!$zipPath || !file_exists($zipPath)) {
+            set_alert('error', 'Failed to generate addon archive.');
+            redirect(base_url('addons/manage'));
+        }
+
+        $cleanVer = !empty($addon->version) ? str_replace('.', '_', $addon->version) : '1_0';
+        $filename = $prefix . '_v' . $cleanVer . '.zip';
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($zipPath));
+        readfile($zipPath);
+        @unlink($zipPath);
+        exit;
     }
 }
