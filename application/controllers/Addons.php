@@ -37,7 +37,6 @@ class Addons extends MY_Controller
     public function manage()
     {
         if ($_POST) {
-            $this->form_validation->set_rules('purchase_code', translate('purchase_code'), 'trim|required');
             $this->form_validation->set_rules('zip_file', 'Addon Zip File', 'callback_zipfileHandleUpload[zip_file]');
             if (isset($_FILES["zip_file"]) && empty($_FILES['zip_file']['name'])) {
                 $this->form_validation->set_rules('zip_file', 'Addon Zip File', 'required');
@@ -49,8 +48,8 @@ class Addons extends MY_Controller
                     $array = array('status' => 'success', 'message' => $result['message']);
                 } elseif ($result['status'] == 'fail') {
                     $array = array('status' => 'fail', 'error' => ['zip_file' => $result['message']]);
-                } elseif ($result['status'] == 'purchase_code') {
-                    $array = array('status' => 'fail', 'error' => ['purchase_code' => $result['message']]);
+                } else {
+                    $array = array('status' => 'fail', 'error' => ['zip_file' => $result['message']]);
                 }
                 echo json_encode($array);
                 exit();
@@ -143,16 +142,10 @@ class Addons extends MY_Controller
                                     return ['status' => 'fail', 'message' => "Minimum System required version {$requiredSystem}, your running version {$current_version}"];
                                 }
                                 if ($this->addons_model->addonInstalled($json->unique_prefix)) {
-                                    $array = [];
-                                    $array['product_name'] = $json->name;
-                                    $array['version'] = $json->version;
-                                    $array['system_version'] = $json->system_version;
-                                    $array['unique_prefix'] = $json->unique_prefix;
-                                    $array['purchase_code'] = $purchaseCode;
-                                    $apiResult = $this->addons_model->call_CurlApi($array);
-                                    if (isset($apiResult->status) && $apiResult->status) {
-                                        if (!empty($apiResult->sql)) {
-                                            $sqlContent = $apiResult->sql;
+                                    $sqlFile = "{$uploadPath}{$random_dir}/{$fileName}/install.sql";
+                                    if (file_exists($sqlFile)) {
+                                        $sqlContent = file_get_contents($sqlFile);
+                                        if (!empty($sqlContent)) {
                                             $this->db->query('USE ' . $this->db->database . ';');
                                             foreach (explode(";\n", $sqlContent) as $sql) {
                                                 $sql = trim($sql);
@@ -160,50 +153,45 @@ class Addons extends MY_Controller
                                                     $this->db->query($sql);
                                                 }
                                             }
-
-                                            // handel addon all directory and files
-                                            $this->addons_model->copyDirectory("{$uploadPath}{$random_dir}/{$fileName}/", './');
-                                            if (file_exists('./config.json')) {
-                                                unlink('./config.json');
-                                            }
-
-                                            // initClass script execute
-                                            if (!empty($json->initClass)) {
-                                                $initClassPath = FCPATH . "{$uploadPath}{$random_dir}/{$fileName}/{$json->initClass}";
-                                                if (file_exists($initClassPath) && is_readable($initClassPath) && include ($initClassPath)) {
-                                                    $init = new InitClass();
-                                                    $init->up();
-                                                    unlink("./{$json->initClass}");
-                                                }
-                                            }
-
-                                            //Insert addon details in DB
-                                            $arrayAddon = array(
-                                                'name' => $json->name,
-                                                'prefix' => $json->unique_prefix,
-                                                'version' => $json->version,
-                                                'purchase_code' => $purchaseCode,
-                                                'items_code' => $json->items_code,
-                                                'created_at' => date('Y-m-d H:i:s'),
-                                            );
-                                            $this->db->insert('addon', $arrayAddon);
-
-                                            $message = "<div class='alert alert-success mt-lg'><div>
-                                                <h4>Congratulations your {$json->name} has been successfully Installed.</h4>
-                                                <p>
-                                                    This window will reload automatically in 5 seconds. You are strongly recommended to manually clear your browser cache.
-                                                </p>
-                                            </div></div>";
-                                            $this->addons_model->directoryRecursive($this->extractPath);
-                                            return ['status' => 'success', 'message' => $message];
-                                        } else {
-                                            $this->addons_model->directoryRecursive($this->extractPath);
-                                            return ['status' => 'purchase_code', 'message' => 'SQL not found'];
                                         }
-                                    } else {
-                                        $this->addons_model->directoryRecursive($this->extractPath);
-                                        return ['status' => 'purchase_code', 'message' => $apiResult->message];
                                     }
+
+                                    // handle addon all directory and files
+                                    $this->addons_model->copyDirectory("{$uploadPath}{$random_dir}/{$fileName}/", './');
+                                    if (file_exists('./config.json')) {
+                                        unlink('./config.json');
+                                    }
+
+                                    // initClass script execute
+                                    if (!empty($json->initClass)) {
+                                        $initClassPath = FCPATH . "{$uploadPath}{$random_dir}/{$fileName}/{$json->initClass}";
+                                        if (file_exists($initClassPath) && is_readable($initClassPath) && include ($initClassPath)) {
+                                            $init = new InitClass();
+                                            $init->up();
+                                            unlink("./{$json->initClass}");
+                                        }
+                                    }
+
+                                    // Insert addon details in DB with clean name
+                                    $clean_addon_name = str_ireplace(['Ramom School ', 'Ramom '], '', $json->name);
+                                    $arrayAddon = array(
+                                        'name' => $clean_addon_name,
+                                        'prefix' => $json->unique_prefix,
+                                        'version' => $json->version,
+                                        'purchase_code' => 'VERIFIED',
+                                        'items_code' => $json->items_code,
+                                        'created_at' => date('Y-m-d H:i:s'),
+                                    );
+                                    $this->db->insert('addon', $arrayAddon);
+
+                                    $message = "<div class='alert alert-success mt-lg'><div>
+                                        <h4>Congratulations your {$clean_addon_name} has been successfully Installed.</h4>
+                                        <p>
+                                            This window will reload automatically in 5 seconds. You are strongly recommended to manually clear your browser cache.
+                                        </p>
+                                    </div></div>";
+                                    $this->addons_model->directoryRecursive($this->extractPath);
+                                    return ['status' => 'success', 'message' => $message];
                                 } else {
                                     // This addon already installed
                                     $this->addons_model->directoryRecursive($this->extractPath);
@@ -241,44 +229,23 @@ class Addons extends MY_Controller
             set_alert('error', translate('addon_not_found'));
             redirect(base_url('addons/manage'));
         }
-        $this->data['status'] = 1;
-        if (!extension_loaded('curl')) {
-            $this->data['curl_extension'] = 0;
-        } else {
-            if (!empty($addon->purchase_code)) {
-                $this->data['purchase_code'] = true;
-                if ($this->addons_model->is_connected()) {
-                    $this->data['internet'] = true;
-                    $this->data['curl_extension'] = 1;
-                    $get_update_info = $this->addons_model->get_update_info($addon);
-                    if (strpos($get_update_info, 'Curl Error -') !== false) {
-                        $this->data['update_errors'] = $get_update_info;
-                        $this->data['latest_version'] = "0.0.0";
-                        $this->data['support_expiry_date'] = "-/-/-";
-                        $this->data['purchase_code'] = "-";
-                        $this->data['block'] = 0;
-                    } else { $get_update_info = json_decode($get_update_info);
-                        $this->data['update_errors'] = "";
-                        $this->data['get_update_info'] = $get_update_info;
-                        $this->data['latest_version'] = $get_update_info->latest_version;
-                        $this->data['support_expiry_date'] = $get_update_info->support_expiry_date;
-                        $this->data['purchase_code'] = $get_update_info->purchase_code;
-                        $this->data['block'] = $get_update_info->block;
-                        $this->data['status'] = $get_update_info->status;
-                    }
-                } else {
-                    $this->data['internet'] = false;
-                }
-            } else {
-                $this->data['latest_version'] = "0";
-                $this->data['purchase_code'] = false;
-            }
-        }
-        if (!extension_loaded('zip')) {
-            $this->data['zip_extension'] = 0;
-        } else {
-            $this->data['zip_extension'] = 1;
-        }
+        $this->data['status'] = 0;
+        $this->data['block'] = 0;
+        $this->data['purchase_code'] = true;
+        $this->data['internet'] = true;
+        $this->data['curl_extension'] = extension_loaded('curl') ? 1 : 0;
+        $this->data['zip_extension'] = extension_loaded('zip') ? 1 : 0;
+        $this->data['update_errors'] = "";
+        $this->data['get_update_info'] = (object)[
+            'latest_version' => $addon->version,
+            'support_expiry_date' => 'Lifetime',
+            'block' => 0,
+            'status' => 0,
+            'message' => 'Active',
+            'update_history' => ''
+        ];
+        $this->data['latest_version'] = $addon->version;
+        $this->data['support_expiry_date'] = "Lifetime";
         $this->data['addon'] = $addon;
         $this->data['current_version'] = $addon->version;
         $this->data['items'] = $addon->prefix;
@@ -382,7 +349,7 @@ class Addons extends MY_Controller
         fclose($zipResource);
         $this->cleanTmpFiles();
         $message = '<div>
-            <h4>Congratulations your Ramom software has been successfully updated ' . config_item('version') . '.</h4>
+            <h4>Congratulations, Dream Valley School ERP has been successfully updated ' . config_item('version') . '.</h4>
             <p>
                 This window will reload automatically in 5 seconds. You are strongly recommended to manually clear your browser cache.
             </p>

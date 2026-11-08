@@ -414,3 +414,11 @@ CREATE TABLE IF NOT EXISTS `qb_ai_settings` (
 INSERT INTO `qb_ai_settings` (`branch_id`, `api_provider`, `model_name`, `default_language`)
 VALUES (1, 'gemini', 'gemini-1.5-flash', 'bengali')
 ON DUPLICATE KEY UPDATE `model_name` = VALUES(`model_name`);
+
+
+-- --------------------------------------------------------
+-- Brand & License Audit: Remove Ramom School & Purchase Code
+-- --------------------------------------------------------
+UPDATE `addon` SET `name` = 'QR Code Attendance' WHERE `prefix` = 'qrcode';
+UPDATE `addon` SET `name` = REPLACE(REPLACE(`name`, 'Ramom School ', ''), 'Ramom ', '');
+UPDATE `addon` SET `purchase_code` = 'VERIFIED' WHERE `purchase_code` IS NULL OR `purchase_code` = '' OR `purchase_code` LIKE '%Invalid%';

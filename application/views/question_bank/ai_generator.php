@@ -340,3 +340,4 @@ $has_api_key = !empty($ai_settings['api_key']);
 		return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 	}
 </script>
+

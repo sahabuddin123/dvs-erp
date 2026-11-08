@@ -383,3 +383,4 @@ $is_bn = (function_exists('get_current_lang') && get_current_lang() === 'bn');
 		$('#match_container').append(html);
 	}
 </script>
+

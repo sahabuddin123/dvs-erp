@@ -3,14 +3,10 @@
 		<div class="panel-btn">
 			<a href="<?php echo base_url('addons/manage') ?>"  class="btn btn-circle btn-default mb-sm"><i class="fa-solid fa-left-long"></i> <?=translate('addon_manager')?></a>
 		</div>
-		<h4 class="panel-title"> <i class="fas fa-puzzle-piece"></i> Addon Details</h4>
+		<h4 class="panel-title"> <i class="fas fa-puzzle-piece"></i> <?=translate('addon')?> Details</h4>
 	</div>
 	<div class="panel-body">
-		<?php
-		if ($purchase_code == true) {
-			if ($internet == true) {
-				if ($current_version != $latest_version && $latest_version > $current_version) {
-					?>
+		<?php if ($current_version != $latest_version && $latest_version > $current_version) { ?>
 			<div class="alert alert-info text-center mt-md">
 				Before performing an update, it is <b>strongly recommended to create a full backup</b> of your current installation <b>(files and database)</b> and review the changelog.
 			</div>
@@ -26,7 +22,7 @@
 					<?php } ?>
 						<tr>
 							<th><i class="far fa-circle"></i> Addon Name</th>
-							<td><?php echo $addon->name; ?></td>
+							<td><strong><?php echo html_escape(str_ireplace(['Ramom School ', 'Ramom '], '', $addon->name)); ?></strong></td>
 						</tr>
 						<tr>
 							<th><i class="far fa-circle"></i> Your version</th>
@@ -37,23 +33,8 @@
 							<td><?php echo wordwrap($latest_version, 1, '.', true) ?></td>
 						</tr>
 						<tr>
-							<th><i class="far fa-circle"></i> Purchase Code </th>
-							<td><?php
-								if($block) {
-									echo '<span class="badge badge-danger">' . $get_update_info->message . '</span>';
-								} else {
-									if ($status == 0) {
-										echo $purchase_code;
-									} else {
-										echo '<span class="badge badge-danger">' . $purchase_code . '</span>';
-									}
-									
-								}
-							?></td>
-						</tr>
-						<tr>
-							<th><i class="far fa-circle"></i> Support Expiry Date </th>
-							<td><?php echo $support_expiry_date; ?></td>
+							<th><i class="far fa-circle"></i> Status</th>
+							<td><span class="badge badge-success"><i class="fas fa-check"></i> Activated</span></td>
 						</tr>
 						<tr>
 							<th><i class="far fa-circle"></i> Php version </th>
@@ -79,9 +60,7 @@
 							}
 							?></td>
 						</tr>
-					<?php if ($current_version != $latest_version && $latest_version > $current_version) {
-						if ($status == 0) {
-							?>
+					<?php if ($current_version != $latest_version && $latest_version > $current_version) { ?>
 						<tr>
 							<td colspan="2">
 								<?php if (isset($get_update_info->update_history) && !empty($get_update_info->update_history)) {
@@ -97,61 +76,21 @@
 								</div>
 							</td>
 						</tr>
-					<?php } } ?>
+					<?php } else { ?>
+						<tr>
+							<td colspan="2" class="text-center text-success" style="font-weight: 600; padding: 12px;">
+								<i class="fas fa-check-circle"></i> <?=translate('you_are_now_using_the_latest_version')?>
+							</td>
+						</tr>
+					<?php } ?>
 					</tbody>
 				</table>
 			</div>
 		</div>
-	<?php } else { ?>
-		<div class="alert alert-info text-center mt-md">
-			Please Connect To The Internet.
-		</div>
-	<?php } } else { ?>
-		<div class="alert alert-info text-center mt-md">
-			Your license code was not found.
-		</div>
-	<?php } ?>
 	</div>
 </section>
 
-<?php if (empty($addon->purchase_code)) { ?>
-<div class="zoom-anim-dialog modal-block modal-block-primary mfp-hide" id="modal">
-	<section class="panel">
-		<header class="panel-heading">
-			<h4 class="panel-title">
-				<i class="far fa-address-card"></i> <?php echo translate('purchase_code'); ?>
-			</h4>
-		</header>
-		<?php echo form_open('addons/update_purchase_code', array('class' => 'frm-submit')); ?>
-			<div class="panel-body">
-				<input type="hidden" name="items" value="<?php echo $addon->prefix; ?>">
-				<div class="form-group mb-md">
-					<label class="control-label"><?php echo translate('purchase_code'); ?> <span class="required">*</span></label>
-					<input type="text" class="form-control" value="" name="purchase_code" autocomplete="off" />
-					<span class="error"></span>
-				</div>
-			</div>
-			<footer class="panel-footer">
-				<div class="row">
-					<div class="col-md-12 text-right">
-						<button type="submit" class="btn btn-default mr-xs" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing">
-							<i class="fas fa-plus-circle"></i> <?php echo translate('save'); ?>
-						</button>
-						<button class="btn btn-default modal-dismiss"><?php echo translate('cancel'); ?></button>
-					</div>
-				</div>
-			</footer>
-		<?php echo form_close(); ?>
-	</section>
-</div>
-<?php } ?>
-
 <script type="text/javascript">
-<?php if (empty($addon->purchase_code)) { ?>
-	$(document).ready(function () {
-		mfp_modal('#modal');
-	});
-<?php } ?>
 	$('#update_app').on('click', function (e) {
 		e.preventDefault();
 		$('#update_messages').html("");
@@ -182,15 +121,9 @@
 		            btn.button('reset'); 
 		    	}
 		    },
-		    complete: function (data) {
-		        
-		    },
             error: function () {
                 btn.button('reset');
-            },
-		    error: function () {
-		        btn.button('reset');
-		    }
+            }
 		});
-	})
+	});
 </script>

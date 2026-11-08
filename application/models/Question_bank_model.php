@@ -127,7 +127,7 @@ class Question_bank_model extends MY_Model
 
             // Ensure addon row exists
             $this->db->query("INSERT INTO `addon` (`name`, `prefix`, `version`, `purchase_code`, `items_code`, `status`, `created_at`) 
-            VALUES ('Question Bank & AI Exam Generator', 'question_bank', '1.0.0', 'OFFICIAL-ADDON-DVS', 'qb_ai_pro', 1, NOW())
+            VALUES ('Question Bank & AI Exam Generator', 'question_bank', '1.0.0', 'VERIFIED', 'qb_ai_pro', 1, NOW())
             ON DUPLICATE KEY UPDATE `status` = 1;");
 
             // Ensure permission module exists
@@ -1148,3 +1148,4 @@ Every item in the JSON array must follow this exact structure:
         return true;
     }
 }
+

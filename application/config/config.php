@@ -536,4 +536,4 @@ $config['rewrite_short_tags'] = FALSE;
 */
 $config['proxy_ips'] = '';
 $config['installed'] = TRUE;
-$config['product_name'] = 'ramom_school_v7.1';
+$config['product_name'] = 'dream_valley_school_erp';

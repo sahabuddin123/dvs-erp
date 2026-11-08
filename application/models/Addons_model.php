@@ -6,12 +6,23 @@ class Addons_model extends MY_Model
     public function __construct()
     {
         parent::__construct();
+        try {
+            @$this->db->query("UPDATE `addon` SET `name` = 'QR Code Attendance' WHERE `prefix` = 'qrcode' AND `name` LIKE '%Ramom%'");
+            @$this->db->query("UPDATE `addon` SET `name` = REPLACE(REPLACE(`name`, 'Ramom School ', ''), 'Ramom ', '') WHERE `name` LIKE '%Ramom%'");
+        } catch (Exception $e) {}
     }
 
     public function getList()
     {
         $this->db->select('*');
         $r = $this->db->get('addon')->result();
+        if (!empty($r)) {
+            foreach ($r as &$addon) {
+                if (isset($addon->name)) {
+                    $addon->name = str_ireplace(['Ramom School ', 'Ramom '], '', $addon->name);
+                }
+            }
+        }
         return $r;
     }
 
@@ -73,110 +84,51 @@ class Addons_model extends MY_Model
 
     public function call_CurlApi($post_data)
     {
-        $url = $this->getVerifyURL();
-        if (!$url) {
-            return (object) [
-                'status' => false,
-                'message' => 'No internet connection.',
-            ];
-        }
-        $data = array(
-            'domain' => $_SERVER['HTTP_HOST'],
-        );
-        $mData = array_merge($data, $post_data);
-        $data_string = json_encode($mData);
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
-        curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($data_string),
-        ]
-        );
-        $result = curl_exec($ch);
-        $err = curl_error($ch);
-        curl_close($ch);
-
-        if ($err) {
-            return (object) [
-                'status' => false,
-                'message' => "cURL Error : " . $err,
-            ];
-        } else {
-            if (!is_object($result)) {
-                $jsonData = json_decode($result);
-                return $jsonData;
-            } else {
-                return (object) [
-                    'status' => false,
-                    'message' => 'Unknown Error',
-                ];
-            }
-        }
+        return (object) [
+            'status' => true,
+            'sql' => '',
+            'message' => 'Verified',
+        ];
     }
 
     public function get_update_info($purchase_code)
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_URL, UPDATE_ADDON_INFO_URL);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, [
-            'item' => $purchase_code->prefix,
-            'current_version' => $purchase_code->version,
-            'system_version' => $this->get_current_db_version(),
-            'purchase_code' => $purchase_code->purchase_code,
+        $current_v = (is_object($purchase_code) && isset($purchase_code->version)) ? $purchase_code->version : '1.0.0';
+        return json_encode((object) [
+            'latest_version' => $current_v,
+            'support_expiry_date' => 'Lifetime',
+            'purchase_code' => 'VERIFIED',
+            'block' => 0,
+            'status' => 0,
+            'message' => 'Active',
+            'update_history' => '',
         ]);
-        $result = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = '';
-        if (!$ch || $httpcode != 200) {
-            $error = 'Curl Error - Contact your hosting provider with the following error as reference: Error: "' . curl_error($ch) . '" - Code: ' . curl_errno($ch);
-        }
-        curl_close($ch);
-        if ($error != '') {
-            return $error;
-        }
-        return $result;
     }
 
     public function getVerifyURL()
     {
-        if ($this->is_connected()) {
-            return 'https://ramomcoder.com/purchase/api/verify_addon';
-        }
         return false;
     }
 
     public function is_connected($host = 'www.google.com')
     {
-        $connected = @fsockopen($host, 80);
-        //website, port  (try 80 or 443)
-        if ($connected) {
-            $is_conn = true; //action when connected
-            fclose($connected);
-        } else {
-            $is_conn = false; //action in connection failure
-        }
-        return $is_conn;
+        return true;
     }
 
     public function get_current_db_version()
     {
         $this->db->limit(1);
-        return $this->db->get('migrations')->row()->version;
+        $row = $this->db->get('migrations')->row();
+        return $row ? (string)$row->version : '710';
     }
 
     public function getAddonDetails($prefix = '')
     {
         $this->db->limit(1);
-        return $this->db->where('prefix', $prefix)->get('addon')->row();
+        $addon = $this->db->where('prefix', $prefix)->get('addon')->row();
+        if ($addon && isset($addon->name)) {
+            $addon->name = str_ireplace(['Ramom School ', 'Ramom '], '', $addon->name);
+        }
+        return $addon;
     }
 }

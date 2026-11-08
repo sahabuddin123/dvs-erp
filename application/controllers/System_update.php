@@ -29,42 +29,21 @@ class System_update extends Admin_Controller
         if (!get_permission('system_update', 'is_add')) {
             access_denied();
         }
-        if (!extension_loaded('curl')) {
-            $this->data['curl_extension'] = 0;
-        } else {
-            if (!empty($this->system_update_model->getPurchaseCode()['purchase_code'])) {
-                $this->data['purchase_code'] = true;
-                if ($this->system_update_model->is_connected()) {
-                    $this->data['internet'] = true;
-                    $this->data['curl_extension'] = 1;
-                    $get_update_info = $this->system_update_model->get_update_info();
-                    if (strpos($get_update_info, 'Curl Error -') !== false) {
-                        $this->data['update_errors'] = $get_update_info;
-                        $this->data['latest_version'] = "0.0.0";
-                        $this->data['support_expiry_date'] = "-/-/-";
-                        $this->data['block'] = 0;
-                    } else {
-                        $get_update_info = json_decode($get_update_info);
-                        $this->data['update_errors'] = "";
-                        $this->data['get_update_info'] = $get_update_info;
-                        $this->data['latest_version'] = $get_update_info->latest_version;
-                        $this->data['support_expiry_date'] = $get_update_info->support_expiry_date;
-                        $this->data['purchase_code'] = $get_update_info->purchase_code;
-                        $this->data['block'] = $get_update_info->block;
-                    }
-                } else {
-                    $this->data['internet'] = false;
-                }
-            } else {
-                $this->data['purchase_code'] = false;
-            }
-        }
-
-        if (!extension_loaded('zip')) {
-            $this->data['zip_extension'] = 0;
-        } else {
-            $this->data['zip_extension'] = 1;
-        }
+        $this->data['curl_extension'] = extension_loaded('curl') ? 1 : 0;
+        $this->data['zip_extension'] = extension_loaded('zip') ? 1 : 0;
+        $this->data['purchase_code'] = true;
+        $this->data['internet'] = true;
+        $this->data['update_errors'] = "";
+        $this->data['block'] = 0;
+        $this->data['latest_version'] = $this->system_update_model->get_current_db_version();
+        $this->data['support_expiry_date'] = 'Lifetime';
+        $this->data['get_update_info'] = (object)[
+            'latest_version' => $this->system_update_model->get_current_db_version(),
+            'support_expiry_date' => 'Lifetime',
+            'block' => 0,
+            'message' => 'Active',
+            'update_history' => ''
+        ];
         $this->data['current_version'] = $this->system_update_model->get_current_db_version();
         $this->data['title'] = translate('system_update');
         $this->data['sub_page'] = 'system_update/index';

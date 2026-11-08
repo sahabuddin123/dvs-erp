@@ -241,3 +241,4 @@ $is_bn = (function_exists('get_current_lang') && get_current_lang() === 'bn');
 		$('#addTopicModal').modal('show');
 	}
 </script>
+

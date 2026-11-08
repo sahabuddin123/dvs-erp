@@ -5,8 +5,8 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta content="width=device-width,initial-scale=1" name="viewport">
 	<meta name="keywords" content="">
-	<meta name="description" content="Ramom School Management System">
-	<meta name="author" content="RamomCoder">
+	<meta name="description" content="Dream Valley School ERP">
+	<meta name="author" content="Dream Valley School">
 	<title><?php echo translate('reset_password');?></title>
 	<link rel="shortcut icon" href="<?php echo base_url('assets/images/favicon.png');?>">
 	
@@ -37,7 +37,7 @@
                                 <h2><?php echo translate('welcome_to');?></h2>
                             </div>
                             <div class="center img-hol-p">
-                                <img src="<?php echo base_url('uploads/app_image/logo.png');?>" height="60" alt="RamomCoder School">
+                                <img src="<?php echo base_url('uploads/app_image/logo.png');?>" height="60" alt="Dream Valley School">
                             </div>
                             <div class="address">
                                 <p><?php echo $global_config['address'];?></p>

@@ -326,3 +326,4 @@ $is_bn = (function_exists('get_current_lang') && get_current_lang() === 'bn');
 		return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 	}
 </script>
+

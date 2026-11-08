@@ -707,3 +707,4 @@ class Question_bank extends Admin_Controller
         $this->load->view('layout/index', $this->data);
     }
 }
+

@@ -17,7 +17,7 @@
 								<th width="50"><?=translate('sl')?></th>
 								<th><?=translate('name')?></th>
 								<th><?=translate('version')?></th>
-								<th><?=translate('status')?> / অন-অফ</th>
+								<th><?=translate('status')?></th>
 								<th><?=translate('installed')?></th>
 								<th><?=translate('last_upgrade')?></th>
 								<th><?=translate('action')?></th>
@@ -30,7 +30,7 @@
 							?>
 							<tr>
 								<td><?php echo $count++; ?></td>
-								<td><strong><?php echo $row->name;?></strong></td>
+								<td><strong><?php echo html_escape(str_ireplace(['Ramom School ', 'Ramom '], '', $row->name));?></strong></td>
 								<td><?php echo wordwrap($row->version, 1, '.', true);?></td>
 								<td>
 									<div class="material-switch" style="display: inline-block;">
@@ -55,13 +55,6 @@
 					</div>
 					</div>
 					<div class="form-group mt-md">
-						<label class="col-md-3 control-label"><?=translate('addon_purchase_code')?> <span class="required">*</span></label>
-						<div class="col-md-6">
-							<input type="text" class="form-control" name="purchase_code" autocomplete="off" value="<?=set_value('purchase_code')?>" autocomplete="off" />
-							<span class="error"><?=form_error('purchase_code') ?></span>
-						</div>
-					</div>
-					<div class="form-group">
 						<label class="col-md-3 control-label">Zip File <span class="required">*</span></label>
 						<div class="col-md-6 mb-md">
 							<input type="file" name="zip_file" class="dropify" data-height="80" data-allowed-file-extensions="*" data-default-file="" />

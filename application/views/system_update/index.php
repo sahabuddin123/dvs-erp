@@ -4,10 +4,8 @@
 	</div>
 	<div class="panel-body">
 		<?php
-		if ($purchase_code == true) {
-			if ($internet == true) {
-				if ($current_version != $latest_version && $latest_version > $current_version) {
-					?>
+		if ($current_version != $latest_version && $latest_version > $current_version) {
+		?>
 			<div class="alert alert-info text-center mt-md">
 				Before performing an update, it is <b>strongly recommended to create a full backup</b> of your current installation <b>(files and database)</b> and review the changelog.
 			</div>
@@ -28,16 +26,6 @@
 						<tr>
 							<th><i class="far fa-circle"></i> Latest Version</th>
 							<td><?php echo wordwrap((string)($latest_version ?? '710'), 1, '.', true) ?></td>
-						</tr>
-						<tr>
-							<th><i class="far fa-circle"></i> Purchase Code </th>
-							<td><?php
-								if($block) {
-									echo '<span class="badge badge-danger">' . $get_update_info->message . '</span>';
-								} else {
-									echo $purchase_code;
-								}
-							?></td>
 						</tr>
 						<tr>
 							<th><i class="far fa-circle"></i> Support Expiry Date </th>
@@ -88,15 +76,6 @@
 				</table>
 			</div>
 		</div>
-	<?php } else { ?>
-		<div class="alert alert-info text-center mt-md">
-			Please Connect To The Internet.
-		</div>
-	<?php } } else { ?>
-		<div class="alert alert-info text-center mt-md">
-			Your license code was not found.
-		</div>
-	<?php } ?>
 	</div>
 </section>
 

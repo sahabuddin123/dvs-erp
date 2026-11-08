@@ -35,7 +35,7 @@ if ($extINTL == true) {
 							<div class="row">
 								<div class="col-xs-6">
 									<div class="ib">
-										<img src="<?=$this->application_model->getBranchImage($basic['branch_id'], 'printing-logo')?>" alt="RamomCoder Img" />
+										<img src="<?=$this->application_model->getBranchImage($basic['branch_id'], 'printing-logo')?>" alt="Dream Valley School Logo" />
 									</div>
 								</div>
 								<div class="col-md-6 text-right">
@@ -309,7 +309,7 @@ if ($extINTL == true) {
 							<div class="row">
 								<div class="col-xs-6">
 									<div class="ib">
-										<img src="<?=$this->application_model->getBranchImage($basic['branch_id'], 'printing-logo')?>" alt="RamomCoder Img" />
+										<img src="<?=$this->application_model->getBranchImage($basic['branch_id'], 'printing-logo')?>" alt="Dream Valley School Logo" />
 									</div>
 								</div>
 								<div class="col-md-6 text-right">
