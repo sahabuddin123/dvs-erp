@@ -126,6 +126,24 @@ class Settings extends Admin_Controller
                 }
             }
 
+            // Sync uploaded logos to branch-specific files (e.g. branch 1)
+            $branches = $this->db->select('id')->get('branch')->result_array();
+            $logo_field_map = [
+                'logo_file'   => 'logo',
+                'text_logo'   => 'logo-small',
+                'print_file'  => 'printing-logo',
+                'report_card' => 'report-card-logo',
+            ];
+            foreach ($logo_field_map as $field => $type_prefix) {
+                $src = $upload_map[$field];
+                if (file_exists($src)) {
+                    foreach ($branches as $br) {
+                        $target = "uploads/app_image/{$type_prefix}-{$br['id']}.png";
+                        @copy($src, $target);
+                    }
+                }
+            }
+
             set_alert('success', translate('the_configuration_has_been_updated'));
             $this->session->set_flashdata('active', 3);
             redirect(current_url());

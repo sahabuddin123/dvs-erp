@@ -2081,6 +2081,11 @@ function get_current_lang()
     } else {
         $set_lang = get_global_setting('translation');
     }
+    // Frontend always defaults to Bengali (bn) unless user explicitly selected English
+    $is_frontend = (isset($CI->router) && $CI->router->fetch_class() === 'home');
+    if ($is_frontend && (!$CI->session->has_userdata('set_lang') || empty($set_lang))) {
+        $set_lang = 'bengali';
+    }
     if (empty($set_lang)) {
         $set_lang = 'bengali';
     }

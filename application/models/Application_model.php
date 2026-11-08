@@ -287,13 +287,38 @@ class Application_model extends CI_Model
 
     public function getBranchImage($id = '', $type = 'logo')
     {
-        $file_path = 'uploads/app_image/' . $type . '-' . $id . '.png';
-        if (file_exists($file_path) && !empty($id)) {
-            $image_url = base_url($file_path);
-        } else {
-            $image_url = base_url("uploads/app_image/$type.png");
+        $branch_file = 'uploads/app_image/' . $type . '-' . $id . '.png';
+        $global_file = "uploads/app_image/$type.png";
+
+        $is_single = is_single_branch();
+
+        // 1. In a single-branch system or if branch file is missing, the global logo uploaded
+        // in settings/universal takes precedence.
+        if (file_exists($global_file)) {
+            if ($is_single || empty($id) || !file_exists($branch_file)) {
+                return base_url($global_file) . img_reload();
+            }
+            if (filemtime($global_file) >= filemtime($branch_file)) {
+                return base_url($global_file) . img_reload();
+            }
         }
-        return $image_url . img_reload();
+
+        // 2. If branch-specific file exists
+        if (!empty($id) && file_exists($branch_file)) {
+            return base_url($branch_file) . img_reload();
+        }
+
+        // 3. Fallback to global file if exists
+        if (file_exists($global_file)) {
+            return base_url($global_file) . img_reload();
+        }
+
+        // 4. Fallback for logo-small to main logo
+        if ($type === 'logo-small') {
+            return $this->getBranchImage($id, 'logo');
+        }
+
+        return base_url("uploads/app_image/defualt.png") . img_reload();
     }
 
     public function checkArrayDBVal($data, $table)

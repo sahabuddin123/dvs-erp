@@ -1,7 +1,7 @@
 <?php
 /**
- * Dream Valley School (DVS) - Automated Live Database Migration Runner
- * Accessible via Browser: https://erp.dreamvalleyschool.com/run_migration.php
+ * Automated Live Database Migration & Asset Sync Runner
+ * Accessible via Browser: https://chidm.edu.bd/run_migration.php
  * Or via Terminal CLI: php run_migration.php
  */
 
@@ -46,9 +46,9 @@ function output_msg($type, $msg) {
 }
 
 if (!$is_cli) {
-    echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>DVS Live Migration</title>
+    echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Live Database Migration</title>
     <style>body { font-family: system-ui, -apple-system, sans-serif; background: #f1f5f9; padding: 25px; } .card { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); } h2 { color: #007F3D; margin-top: 0; } hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }</style>
-    </head><body><div class='card'><h2>🚀 Dream Valley School - Live Database Migration</h2><p>Database: <strong>$database</strong> | Host: <strong>$hostname</strong></p><hr>";
+    </head><body><div class='card'><h2>🚀 Live Database Migration & Asset Sync</h2><p>Database: <strong>$database</strong> | Host: <strong>$hostname</strong></p><hr>";
 }
 
 // 1. Column Checker Helper
@@ -409,7 +409,24 @@ if (file_exists($sql_file)) {
     output_msg('err', "migrations_dvs_live.sql file not found.");
 }
 
-output_msg('ok', 'All Dream Valley School live database migrations finished successfully!');
+// Set default language to Bengali (bn) in global_settings
+@$conn->query("UPDATE `global_settings` SET `translation` = 'bengali' WHERE `id` = 1");
+output_msg('ok', 'Default system and frontend language configured to Bengali (bn).');
+
+// Auto-sync uploaded global logos to branch 1 files
+$logo_types = ['logo', 'logo-small', 'printing-logo', 'report-card-logo'];
+foreach ($logo_types as $lt) {
+    $g_file = __DIR__ . "/uploads/app_image/{$lt}.png";
+    $b_file = __DIR__ . "/uploads/app_image/{$lt}-1.png";
+    if (file_exists($g_file)) {
+        if (!file_exists($b_file) || (filemtime($g_file) >= filemtime($b_file)) || (filesize($g_file) !== filesize($b_file) && filesize($g_file) > 0)) {
+            @copy($g_file, $b_file);
+            output_msg('ok', "Synced dynamic {$lt}.png to branch-1 file.");
+        }
+    }
+}
+
+output_msg('ok', 'All database migrations, configurations, and dynamic assets updated successfully!');
 
 if (!$is_cli) {
     echo "<hr><div style='text-align: center; color: #007F3D; font-weight: bold;'>🎉 Migration Complete! You can now safely close this window.</div></div></body></html>";

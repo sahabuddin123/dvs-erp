@@ -46,6 +46,9 @@ class Home extends Frontend_Controller
 
         $this->load->library('mailer');
 
+        if (!$this->session->has_userdata('set_lang')) {
+            $this->session->set_userdata('set_lang', 'bengali');
+        }
     }
 
 

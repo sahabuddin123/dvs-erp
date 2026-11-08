@@ -1,7 +1,14 @@
+<?php
+$branch_id = get_loggedin_branch_id();
+$topbar_logo = $this->application_model->getBranchImage($branch_id, 'logo-small');
+if (empty($topbar_logo) || strpos($topbar_logo, 'defualt') !== false) {
+    $topbar_logo = $this->application_model->getBranchImage($branch_id, 'logo');
+}
+?>
 <header class="header">
 	<div class="logo-env" style="overflow: hidden; max-width: 230px;">
 		<a href="<?php echo base_url('dashboard');?>" class="logo" style="text-align: left; padding-left: 12px; margin-top: 12px;">
-			<img src="<?=$this->application_model->getBranchImage(get_loggedin_branch_id(), 'logo-small')?>" style="max-height: 35px !important; max-width: 170px !important; width: auto !important; height: auto !important; object-fit: contain !important; vertical-align: middle;" alt="Logo">
+			<img src="<?=$topbar_logo?>" style="max-height: 38px !important; max-width: 175px !important; width: auto !important; height: auto !important; object-fit: contain !important; vertical-align: middle;" alt="Logo">
 		</a>
 
 		<div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
