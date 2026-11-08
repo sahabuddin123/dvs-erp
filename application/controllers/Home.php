@@ -46,6 +46,9 @@ class Home extends Frontend_Controller
 
         $this->load->library('mailer');
 
+        if (!$this->session->has_userdata('frontend_lang')) {
+            $this->session->set_userdata('frontend_lang', 'bn');
+        }
         if (!$this->session->has_userdata('set_lang')) {
             $this->session->set_userdata('set_lang', 'bengali');
         }
@@ -64,17 +67,13 @@ class Home extends Frontend_Controller
 
 
     public function lang($action = 'bn')
-
     {
-
         if ($action == 'en' || $action == 'english') {
-
+            $this->session->set_userdata('frontend_lang', 'en');
             $this->session->set_userdata('set_lang', 'english');
-
         } else {
-
+            $this->session->set_userdata('frontend_lang', 'bn');
             $this->session->set_userdata('set_lang', 'bengali');
-
         }
 
         if (!empty($_SERVER['HTTP_REFERER'])) {

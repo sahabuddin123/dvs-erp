@@ -232,6 +232,9 @@ class Frontend_Controller extends MY_Controller
         $this->data['main_menu'] = $this->home_model->menuList('', $branchID);
 
         // Ensure frontend default language is always Bengali (bn) unless explicitly chosen
+        if (!$this->session->has_userdata('frontend_lang')) {
+            $this->session->set_userdata('frontend_lang', 'bn');
+        }
         if (!$this->session->has_userdata('set_lang')) {
             $this->session->set_userdata('set_lang', 'bengali');
         }

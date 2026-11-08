@@ -10,10 +10,16 @@ function translate($word = '')
         return '';
     }
     $CI = &get_instance();
-    if ($CI->session->has_userdata('set_lang')) {
-        $set_lang = $CI->session->userdata('set_lang');
+    $is_frontend = (isset($CI->router) && $CI->router->fetch_class() === 'home');
+    if ($is_frontend) {
+        $frontend_lang = $CI->session->userdata('frontend_lang');
+        $set_lang = ($frontend_lang === 'en' || $frontend_lang === 'english') ? 'english' : 'bengali';
     } else {
-        $set_lang = get_global_setting('translation');
+        if ($CI->session->has_userdata('set_lang')) {
+            $set_lang = $CI->session->userdata('set_lang');
+        } else {
+            $set_lang = get_global_setting('translation');
+        }
     }
 
     if ($set_lang == '') {
@@ -2078,8 +2084,8 @@ function get_current_lang()
     $CI = &get_instance();
     $is_frontend = (isset($CI->router) && $CI->router->fetch_class() === 'home');
     if ($is_frontend) {
-        $user_lang = $CI->session->userdata('set_lang');
-        if ($user_lang === 'english' || $user_lang === 'en') {
+        $frontend_lang = $CI->session->userdata('frontend_lang');
+        if ($frontend_lang === 'english' || $frontend_lang === 'en') {
             return 'en';
         }
         return 'bn';
