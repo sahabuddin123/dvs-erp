@@ -293,6 +293,16 @@ class Addons_model extends MY_Model
                 ],
                 'module_id' => 507,
             ],
+            'database_backup' => [
+                'name' => 'Database Backup & Restore',
+                'items' => [
+                    'application/controllers/Backup.php',
+                    'application/models/Backup_model.php',
+                    'application/views/database_backup',
+                ],
+                'tables' => [],
+                'module_id' => 18,
+            ],
         ];
 
         if (isset($known[$prefix])) {

@@ -2,13 +2,9 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 /**
- * @package : Ramom school management system
- * @version : 5.0
- * @developed by : RamomCoder
- * @support : ramomcoder@yahoo.com
- * @author url : http://codecanyon.net/user/RamomCoder
+ * @package : Dream Valley School ERP
+ * @version : 7.0
  * @filename : Cron_api.php
- * @copyright : Reserved RamomCoder Team
  */
 
 class Cron_api extends MY_Controller
