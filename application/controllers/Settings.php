@@ -53,11 +53,17 @@ class Settings extends Admin_Controller
             if (empty($config['reg_prefix'])) {
                 $config['reg_prefix'] = false;
             }
+            unset($config['branch_id']);
+            $table_fields = $this->db->list_fields('global_settings');
+            if (!empty($table_fields)) {
+                $config = array_intersect_key($config, array_flip($table_fields));
+            }
             $this->db->where('id', 1);
             $this->db->update('global_settings', $config);
 
-            $isRTL = $this->app_lib->getRTLStatus($config['translation']);
-            $this->session->set_userdata(['set_lang' => $config['translation'], 'is_rtl' => $isRTL]);
+            $lang = isset($config['translation']) ? $config['translation'] : 'english';
+            $isRTL = $this->app_lib->getRTLStatus($lang);
+            $this->session->set_userdata(['set_lang' => $lang, 'is_rtl' => $isRTL]);
             
             set_alert('success', translate('the_configuration_has_been_updated'));
             redirect(current_url());
@@ -69,6 +75,11 @@ class Settings extends Admin_Controller
                     continue;
                 }
                 $config[$input] = $value;
+            }
+            unset($config['branch_id']);
+            $theme_fields = $this->db->list_fields('theme_settings');
+            if (!empty($theme_fields)) {
+                $config = array_intersect_key($config, array_flip($theme_fields));
             }
             $this->db->where('id', 1);
             $this->db->update('theme_settings', $config);

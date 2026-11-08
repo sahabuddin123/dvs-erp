@@ -176,8 +176,12 @@ class Admin_Controller extends MY_Controller
             redirect(base_url('authentication'), 'refresh');
         }
         if (is_single_branch()) {
-            if (!empty($_POST) && empty($_POST['branch_id'])) {
-                $_POST['branch_id'] = (string)get_single_branch_id();
+            $current_class = strtolower($this->router->fetch_class());
+            $skip_classes = ['settings', 'translations', 'system_update', 'database_backup', 'cron', 'custom_fields', 'addons'];
+            if (!in_array($current_class, $skip_classes)) {
+                if (!empty($_POST) && empty($_POST['branch_id'])) {
+                    $_POST['branch_id'] = (string)get_single_branch_id();
+                }
             }
             if (empty($this->data['branch_id'])) {
                 $this->data['branch_id'] = get_single_branch_id();
