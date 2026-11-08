@@ -132,8 +132,13 @@
 								$count = 1;
 								$passStudentArrayList = array();
 								$failStudentArrayList = array();
+								$seen_students = array();
 								if(count($students_list)) {
 									foreach($students_list as $enroll) {
+										if (isset($seen_students[$enroll->student_id])) {
+											continue;
+										}
+										$seen_students[$enroll->student_id] = true;
 										$studentArray = array();
 										$studentArray['rank'] = empty($enroll->rank) ? 0 : $enroll->rank;
 										$studentArray['enrollID'] = $enroll->id;

@@ -305,7 +305,8 @@
                 	'session_id' : session_id,
                 	'branch_id' : branch_id,
                 	'template_id' : template_id,
-                	'student_id[]' : arrayData,
+                	'print_date' : $('form.printIn input[name="print_date"]').val(),
+                	'student_id' : arrayData,
                 },
                 dataType: 'html',
                 beforeSend: function () {

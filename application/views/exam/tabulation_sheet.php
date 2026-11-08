@@ -120,10 +120,10 @@ $branch = $this->db->where('id',$branch_id)->get('branch')->row_array();
 						<table class="table table-bordered table-hover table-condensed mb-none" id="tableExport">
 							<thead class="text-dark">
 								<tr>
+									<th><?=translate('roll')?></th>
 									<th><?=translate('position')?></th>
 									<th><?=translate('students')?></th>
 									<th><?=translate('register_no')?></th>
-									<th><?=translate('roll')?></th>
                                     <?php
                                         foreach($get_subjects as $subject){
                                         	$fullMark = array_sum(array_column(json_decode($subject['mark_distribution'], true), 'full_mark'));
@@ -145,8 +145,13 @@ $branch = $this->db->where('id',$branch_id)->get('branch')->row_array();
 									'branch_id' 	=> $branch_id,
 								))->result_array();
 								$studentArrayList = array();
+								$seen_students = array();
 								if(count($students_list)) {
 									foreach($students_list as $enroll) {
+										if (isset($seen_students[$enroll->student_id])) {
+											continue;
+										}
+										$seen_students[$enroll->student_id] = true;
 										$studentArray = array();
 										$studentArray['rank'] = empty($enroll->rank) ? translate("not_generated") : $enroll->rank;
 										$studentArray['enrollID'] = $enroll->id;
@@ -229,10 +234,10 @@ $branch = $this->db->where('id',$branch_id)->get('branch')->row_array();
 								foreach ($studentArrayList as $row1):
 							?>
 								<tr>
+									<td><?php echo $row1['roll']; ?></td>
 									<td><?php echo $row1['rank']; ?></td>
 									<td><?php echo $row1['student_name']; ?></td>
 									<td><?php echo $row1['register_no']; ?></td>
-									<td><?php echo $row1['roll']; ?></td>
 									<?php foreach ($row1['subject_array_list'] as $subject): ?>
 									<td>
 									<?php

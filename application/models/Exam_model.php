@@ -32,7 +32,8 @@ class Exam_model extends CI_Model
         $this->db->where('e.branch_id', $branch_id);
         $this->db->where('e.session_id', $session_ID);
         $this->db->where('s.active', 1);
-        $this->db->order_by('exam_rank.rank', 'ASC');
+        $this->db->group_by('e.student_id');
+        $this->db->order_by('exam_rank.rank IS NULL, exam_rank.rank ASC, CAST(e.roll AS UNSIGNED) ASC, e.roll ASC');
         return $this->db->get()->result();
     }
 
@@ -152,6 +153,9 @@ class Exam_model extends CI_Model
         $this->db->where('t.session_id', $sessionID);
         $this->db->where('t.branch_id', $branchID);
         $this->db->group_by('t.subject_id');
+        $this->db->order_by('t.exam_date', 'ASC');
+        $this->db->order_by('t.time_start', 'ASC');
+        $this->db->order_by('t.id', 'ASC');
         return $this->db->get()->result_array();
     }
 
@@ -194,28 +198,93 @@ class Exam_model extends CI_Model
         $this->db->join('student_category as sc', 's.category_id=sc.id', 'left');
         $this->db->join('parent as p', 'p.id=s.parent_id', 'left');
         $this->db->join('branch as br', 'br.id = e.branch_id', 'left');
-        $this->db->where('e.student_id', $studentID);
+        $this->db->where('(e.student_id = ' . $this->db->escape($studentID) . ' OR e.id = ' . $this->db->escape($studentID) . ')');
         $this->db->where('e.session_id', $sessionID);
         if (!empty($classID))
             $this->db->where('e.class_id', $classID);
         if (!empty($sectionID))
             $this->db->where('e.section_id', $sectionID);
-        $result['student'] = $this->db->get()->row_array();
+        $studentRow = $this->db->get()->row_array();
+        $result['student'] = $studentRow;
 
-        $this->db->select('m.mark as get_mark,IFNULL(m.absent, 0) as get_abs,subject.name as subject_name, te.mark_distribution, m.subject_id');
-        $this->db->from('mark as m');
-        $this->db->join('subject', 'subject.id = m.subject_id', 'left');
-        $this->db->join('timetable_exam as te', 'te.exam_id = m.exam_id and te.class_id = m.class_id and te.section_id = m.section_id and te.subject_id = m.subject_id', 'left');
-        $this->db->where('m.exam_id', $examID);
-        $this->db->where('m.student_id', $studentID);
-        $this->db->where('m.session_id', $sessionID);
-        if (!empty($classID))
-            $this->db->where('m.class_id', $classID);
-        if (!empty($sectionID))
-            $this->db->where('m.section_id', $sectionID);
-        $this->db->group_by('m.subject_id');
-        $this->db->order_by('subject.id', 'ASC');
-        $result['exam'] = $this->db->get()->result_array();
+        $actualStudentID = !empty($studentRow['id']) ? $studentRow['id'] : $studentID;
+
+        // Fetch subjects from timetable_exam sorted chronologically by exam date and time
+        $this->db->select('te.mark_distribution, te.subject_id, te.exam_date, te.time_start, s.name as subject_name, m.mark as get_mark, IFNULL(m.absent, 0) as get_abs');
+        $this->db->from('timetable_exam as te');
+        $this->db->join('subject as s', 's.id = te.subject_id', 'inner');
+        $this->db->join('mark as m', 'm.subject_id = te.subject_id and m.exam_id = te.exam_id and m.student_id = ' . $this->db->escape($actualStudentID) . ' and m.session_id = ' . $this->db->escape($sessionID), 'left');
+        $this->db->where('te.exam_id', $examID);
+        if (!empty($classID)) {
+            $this->db->where('te.class_id', $classID);
+        }
+        if (!empty($sectionID)) {
+            $this->db->where('te.section_id', $sectionID);
+        }
+        $this->db->where('te.session_id', $sessionID);
+        $this->db->group_by('te.subject_id');
+        $this->db->order_by('te.exam_date', 'ASC');
+        $this->db->order_by('te.time_start', 'ASC');
+        $this->db->order_by('te.id', 'ASC');
+        $examSubjects = $this->db->get()->result_array();
+
+        if (empty($examSubjects)) {
+            // Fallback: search without section constraint on timetable
+            $this->db->select('te.mark_distribution, te.subject_id, te.exam_date, te.time_start, s.name as subject_name, m.mark as get_mark, IFNULL(m.absent, 0) as get_abs');
+            $this->db->from('timetable_exam as te');
+            $this->db->join('subject as s', 's.id = te.subject_id', 'inner');
+            $this->db->join('mark as m', 'm.subject_id = te.subject_id and m.exam_id = te.exam_id and m.student_id = ' . $this->db->escape($actualStudentID) . ' and m.session_id = ' . $this->db->escape($sessionID), 'left');
+            $this->db->where('te.exam_id', $examID);
+            if (!empty($classID)) {
+                $this->db->where('te.class_id', $classID);
+            }
+            $this->db->where('te.session_id', $sessionID);
+            $this->db->group_by('te.subject_id');
+            $this->db->order_by('te.exam_date', 'ASC');
+            $this->db->order_by('te.time_start', 'ASC');
+            $this->db->order_by('te.id', 'ASC');
+            $examSubjects = $this->db->get()->result_array();
+        }
+
+        if (empty($examSubjects)) {
+            // Fallback: marks table directly
+            $this->db->select('m.mark as get_mark, IFNULL(m.absent, 0) as get_abs, subject.name as subject_name, te.mark_distribution, m.subject_id');
+            $this->db->from('mark as m');
+            $this->db->join('subject', 'subject.id = m.subject_id', 'left');
+            $this->db->join('timetable_exam as te', 'te.exam_id = m.exam_id and te.class_id = m.class_id and te.subject_id = m.subject_id and te.session_id = m.session_id', 'left');
+            $this->db->where('m.exam_id', $examID);
+            $this->db->where('m.student_id', $actualStudentID);
+            $this->db->where('m.session_id', $sessionID);
+            if (!empty($classID))
+                $this->db->where('m.class_id', $classID);
+            if (!empty($sectionID))
+                $this->db->where('m.section_id', $sectionID);
+            $this->db->group_by('m.subject_id');
+            $this->db->order_by('te.exam_date', 'ASC');
+            $this->db->order_by('te.time_start', 'ASC');
+            $this->db->order_by('subject.id', 'ASC');
+            $examSubjects = $this->db->get()->result_array();
+        }
+
+        // Ensure mark_distribution is populated for each subject
+        if (!empty($examSubjects)) {
+            $examRow = $this->db->where('id', $examID)->get('exam')->row_array();
+            $examDistributions = !empty($examRow['mark_distribution']) ? json_decode($examRow['mark_distribution'], true) : [];
+            foreach ($examSubjects as &$sub) {
+                if (empty($sub['mark_distribution']) || $sub['mark_distribution'] == 'null') {
+                    $defDist = [];
+                    if (is_array($examDistributions)) {
+                        foreach ($examDistributions as $dId) {
+                            $defDist[$dId] = ['full_mark' => 100, 'pass_mark' => 33];
+                        }
+                    }
+                    $sub['mark_distribution'] = json_encode($defDist);
+                }
+            }
+            unset($sub);
+        }
+
+        $result['exam'] = $examSubjects;
         return $result;
     }
 

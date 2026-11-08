@@ -792,21 +792,20 @@ class Exam extends Admin_Controller
                 $examID = $this->input->post('exam_id');
                 $classID = $this->input->post('class_id');
                 $sectionID = $this->input->post('section_id');
-                $this->db->select('e.roll,e.id as enrollID,s.*,c.name as category');
+                $this->db->select('e.roll,e.id as enrollID,s.*,c.name as category,r.rank');
                 $this->db->from('enroll as e');
                 $this->db->join('student as s', 'e.student_id = s.id', 'inner');
-                $this->db->join('mark as m', 's.id = m.student_id', 'inner');
                 $this->db->join('student_category as c', 'c.id = s.category_id', 'left');
-                $this->db->join('exam_rank as r', 'r.exam_id = m.exam_id and r.enroll_id = e.id', 'left');
+                $this->db->join('exam_rank as r', 'r.exam_id = ' . $this->db->escape($examID) . ' and r.enroll_id = e.id', 'left');
+                $this->db->where('e.class_id', $classID);
+                if (!empty($sectionID)) {
+                    $this->db->where('e.section_id', $sectionID);
+                }
                 $this->db->where('e.session_id', $sessionID);
-                $this->db->where('s.active', 1);
-                $this->db->where('m.session_id', $sessionID);
-                $this->db->where('m.class_id', $classID);
-                $this->db->where('m.section_id', $sectionID);
                 $this->db->where('e.branch_id', $branchID);
-                $this->db->where('m.exam_id', $examID);
-                $this->db->group_by('m.student_id');
-                $this->db->order_by('r.rank', 'ASC');
+                $this->db->where('s.active', 1);
+                $this->db->group_by('e.student_id');
+                $this->db->order_by('r.rank IS NULL, r.rank ASC, CAST(e.roll AS UNSIGNED) ASC, e.roll ASC');
                 $this->data['student'] = $this->db->get()->result_array();
             }
         }
@@ -824,7 +823,17 @@ class Exam extends Admin_Controller
             if (!get_permission('report_card', 'is_view')) {
                 ajax_access_denied();
             }
-            $this->data['student_array'] = $this->input->post('student_id');
+            $raw_students = $this->input->post('student_id');
+            $student_array = [];
+            if (is_array($raw_students)) {
+                array_walk_recursive($raw_students, function($val) use (&$student_array) {
+                    if (!empty($val)) $student_array[] = $val;
+                });
+                $student_array = array_values(array_unique($student_array));
+            } elseif (!empty($raw_students)) {
+                $student_array = [$raw_students];
+            }
+            $this->data['student_array'] = $student_array;
             $this->data['print_date'] = $this->input->post('print_date');
             $this->data['examID'] = $this->input->post('exam_id');
             $this->data['class_id'] = $this->input->post('class_id');
@@ -842,7 +851,17 @@ class Exam extends Admin_Controller
             if (!get_permission('report_card', 'is_view')) {
                 ajax_access_denied();
             }
-            $this->data['student_array'] = $this->input->post('student_id');
+            $raw_students = $this->input->post('student_id');
+            $student_array = [];
+            if (is_array($raw_students)) {
+                array_walk_recursive($raw_students, function($val) use (&$student_array) {
+                    if (!empty($val)) $student_array[] = $val;
+                });
+                $student_array = array_values(array_unique($student_array));
+            } elseif (!empty($raw_students)) {
+                $student_array = [$raw_students];
+            }
+            $this->data['student_array'] = $student_array;
             $this->data['print_date'] = $this->input->post('print_date');
             $this->data['examID'] = $this->input->post('exam_id');
             $this->data['class_id'] = $this->input->post('class_id');
@@ -874,7 +893,17 @@ class Exam extends Admin_Controller
                 ajax_access_denied();
             }
             $enrollID = $this->input->post('enrollID');
-            $this->data['student_array'] = [$this->input->post('student_id')];
+            $raw_students = $this->input->post('student_id');
+            $student_array = [];
+            if (is_array($raw_students)) {
+                array_walk_recursive($raw_students, function($val) use (&$student_array) {
+                    if (!empty($val)) $student_array[] = $val;
+                });
+                $student_array = array_values(array_unique($student_array));
+            } elseif (!empty($raw_students)) {
+                $student_array = [$raw_students];
+            }
+            $this->data['student_array'] = $student_array;
             $this->data['print_date'] = $this->input->post('print_date');
             $this->data['examID'] = $this->input->post('exam_id');
             $this->data['class_id'] = $this->input->post('class_id');

@@ -98,65 +98,65 @@ class Marksheet_template_model extends MY_Model
 
     public function tagsReplace($studentData = '', $template = '', $extendsData = [], $header_content = '')
     {
+        if (empty($template) || !isset($template[$header_content])) {
+            return '';
+        }
         $body = $template[$header_content];
-        $photo_size = $template['photo_size'];
-        $photo_style = $template['photo_style'];
+        $photo_size = empty($template['photo_size']) ? 100 : $template['photo_size'];
+        $photo_style = empty($template['photo_style']) ? 1 : $template['photo_style'];
         $tags = $this->tagsList();
-        $userDetails = $studentData;
+        $userDetails = is_array($studentData) ? $studentData : [];
         $arr = array('{', '}');
         foreach ($tags as $tag) {
             $field = str_replace($arr, '', $tag);
             if ($field == 'student_photo') {
-                $photo = '<img class="' . ($photo_style == 1 ? '' : 'rounded') . '" src="' . get_image_url('student', $userDetails['photo']) . '" height="' . $photo_size . '">';
+                $photoUrl = (!empty($userDetails['photo'])) ? get_image_url('student', $userDetails['photo']) : base_url('uploads/app_image/defualt.png');
+                $photo = '<img class="' . ($photo_style == 1 ? '' : 'rounded') . '" src="' . $photoUrl . '" height="' . $photo_size . '">';
                 $body = str_replace($tag, $photo, $body);
             } else if ($field == 'logo') {
                 if (!empty($template['logo'])) {
                     $logo_ph = '<img src="' . base_url('uploads/marksheet/' . $template['logo']) . '">';
                     $body = str_replace($tag, $logo_ph, $body);
+                } else {
+                    $body = str_replace($tag, '', $body);
                 }
             } else if ($field == 'left_signature') {
                 if (!empty($template['left_signature'])) {
                     $signature_ph = '<img src="' . base_url('uploads/marksheet/' . $template['left_signature']) . '">';
                     $body = str_replace($tag, $signature_ph, $body);
+                } else {
+                    $body = str_replace($tag, '', $body);
                 }
             } else if ($field == 'middle_signature') {
                 if (!empty($template['middle_signature'])) {
                     $signature_ph = '<img src="' . base_url('uploads/marksheet/' . $template['middle_signature']) . '">';
                     $body = str_replace($tag, $signature_ph, $body);
+                } else {
+                    $body = str_replace($tag, '', $body);
                 }
             } else if ($field == 'right_signature') {
                 if (!empty($template['right_signature'])) {
                     $signature_ph = '<img src="' . base_url('uploads/marksheet/' . $template['right_signature']) . '">';
                     $body = str_replace($tag, $signature_ph, $body);
+                } else {
+                    $body = str_replace($tag, '', $body);
                 }
             } else if ($field == 'present_address') {
-                $body = str_replace($tag, $userDetails['current_address'], $body);
+                $body = str_replace($tag, (string)($userDetails['current_address'] ?? ''), $body);
             } else if ($field == 'academic_session') {
-                if (!empty($extendsData['schoolYear'])) {
-                    $body = str_replace($tag, $extendsData['schoolYear'], $body);
-                }
+                $body = str_replace($tag, (string)($extendsData['schoolYear'] ?? ''), $body);
             } else if ($field == 'print_date') {
-                if (!empty($extendsData['print_date'])) {
-                    $body = str_replace($tag, _d($extendsData['print_date']), $body);
-                }  
+                $pDate = !empty($extendsData['print_date']) ? _d($extendsData['print_date']) : _d(date('Y-m-d'));
+                $body = str_replace($tag, (string)$pDate, $body);
             } else if ($field == 'exam_name') {
-                if (!empty($extendsData['exam_name'])) {
-                    $body = str_replace($tag, $extendsData['exam_name'], $body);
-                }  
+                $body = str_replace($tag, (string)($extendsData['exam_name'] ?? ''), $body);
             } else if ($field == 'principal_comments') {
-                if (!empty($extendsData['principal_comments'])) {
-                    $body = str_replace($tag, $extendsData['principal_comments'], $body);
-                } else {
-                    $body = str_replace($tag, "", $body);
-                }
+                $body = str_replace($tag, (string)($extendsData['principal_comments'] ?? ''), $body);
             } else if ($field == 'teacher_comments') {
-                if (!empty($extendsData['teacher_comments'])) {
-                    $body = str_replace($tag, $extendsData['teacher_comments'], $body);
-                } else {
-                   $body = str_replace($tag, "", $body); 
-                }
+                $body = str_replace($tag, (string)($extendsData['teacher_comments'] ?? ''), $body);
             } else {
-                $body = str_replace($tag, $userDetails[$field], $body);
+                $val = (isset($userDetails[$field]) && $userDetails[$field] !== null) ? (string)$userDetails[$field] : '';
+                $body = str_replace($tag, $val, $body);
             }
         }
         return $body;
