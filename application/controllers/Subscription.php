@@ -152,3 +152,4 @@ class Subscription extends Admin_Controller
         redirect(base_url('subscription/index'));
     }
 }
+

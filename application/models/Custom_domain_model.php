@@ -98,3 +98,4 @@ class Custom_domain_model extends MY_Model
         return $this->db->delete('custom_domain');
     }
 }
+

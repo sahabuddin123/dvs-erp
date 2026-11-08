@@ -223,3 +223,4 @@ function changePlanModal(schoolId, schoolName, currentPackageId) {
 	$('#changePlanModal').modal('show');
 }
 </script>
+

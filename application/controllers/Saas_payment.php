@@ -71,3 +71,4 @@ class Saas_payment extends MY_Controller
         redirect(base_url('subscription/payment_cancel'));
     }
 }
+

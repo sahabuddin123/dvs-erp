@@ -153,3 +153,4 @@ function editTemplateModal(id, subject, notified, tags) {
 	$('#editTemplateModal').modal('show');
 }
 </script>
+

@@ -102,3 +102,4 @@ class Custom_domain extends Admin_Controller
         redirect(base_url('custom_domain/list'));
     }
 }
+

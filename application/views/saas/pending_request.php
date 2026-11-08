@@ -99,3 +99,4 @@ function rejectModal(requestId, schoolName) {
 	$('#rejectModal').modal('show');
 }
 </script>
+

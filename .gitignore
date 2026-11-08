@@ -3,7 +3,6 @@
 # --------------------------------------------------
 /scratch/
 scratch/
-!/scratch/live_server_migration.sql
 cookies_live.txt
 *cookie*.txt
 cookies/
@@ -86,6 +85,7 @@ assets/frontend/dvs/img/*.pdf
 !/uploads/db_backup/index.html
 /uploads/db_temp/*
 !/uploads/db_temp/index.html
+*.sql
 *.sql.gz
 *.sql.zip
 *.sql.tar

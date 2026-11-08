@@ -116,3 +116,4 @@ function reviewDomainModal(id, url, status, comments) {
 	$('#reviewDomainModal').modal('show');
 }
 </script>
+

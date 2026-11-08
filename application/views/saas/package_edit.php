@@ -125,3 +125,4 @@ $('#period_type').on('change', function() {
 	}
 });
 </script>
+

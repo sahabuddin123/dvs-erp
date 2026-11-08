@@ -401,3 +401,4 @@ class Saas_model extends MY_Model
         return $this->db->where('in_module', 1)->order_by('sorted', 'ASC')->get('permission_modules')->result_array();
     }
 }
+

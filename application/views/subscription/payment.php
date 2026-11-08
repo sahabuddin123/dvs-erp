@@ -145,3 +145,4 @@ $net_amount = max(0, (float)$package['price'] - (float)$package['discount']);
 		</section>
 	</div>
 </div>
+
