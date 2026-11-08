@@ -279,6 +279,16 @@
                                     <span><i class="fas fa-caret-right" aria-hidden="true"></i><?=translate('create_admission')?></span>
                                 </a>
                             </li>
+                            <li class="<?php if ($sub_page == 'student/draft_admissions') echo 'nav-active';?>">
+                                <a href="<?=base_url('student/draft_admissions')?>">
+                                    <span><i class="fas fa-caret-right" aria-hidden="true"></i><?=translate('draft_admissions')?></span>
+                                    <?php 
+                                    $draftAdmissionCount = function_exists('get_draft_admission_count') ? get_draft_admission_count() : 0;
+                                    if ($draftAdmissionCount > 0) { ?>
+                                        <span class="badge badge-warning pull-right" style="background:#e67e22; color:#fff; border-radius:10px; font-size:10px; padding:2px 7px; margin-top:2px; font-weight:700;"><?=$draftAdmissionCount?></span>
+                                    <?php } ?>
+                                </a>
+                            </li>
                         <?php } if(get_permission('online_admission', 'is_view')){ ?>
                             <li class="<?php if ($sub_page == 'online_admission/index' || $sub_page =='online_admission/approved') echo 'nav-active';?>">
                                 <a href="<?=base_url('online_admission/index')?>">

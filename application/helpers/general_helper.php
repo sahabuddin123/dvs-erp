@@ -279,6 +279,15 @@ function dvs_language_fallback($word, $lang = 'bengali')
 
         // Admission Settings
         'admission_settings' => 'Admission Settings',
+        'draft_admissions' => 'Draft Admissions',
+        'draft_admission' => 'Draft Admission',
+        'save_as_draft' => 'Save as Draft',
+        'resume_admission' => 'Resume Admission',
+        'draft_saved_successfully' => 'Admission draft saved successfully',
+        'draft_deleted_successfully' => 'Admission draft deleted successfully',
+        'last_saved_step' => 'Last Completed Step',
+        'draft_list' => 'Draft List',
+        'clear_draft' => 'Delete Draft',
         'admission_settings_fee' => 'Admission Fee & Settings',
         'default_admission_fee' => 'Default Admission Fee',
         'default_admission_fee_help' => 'This initial fee will be displayed in Step 5 of the student admission form.',
@@ -784,8 +793,17 @@ function dvs_language_fallback($word, $lang = 'bengali')
         'approved_by' => 'অনুমোদনকারী',
         'computer_generated_voucher_note' => 'ড্রিম ভ্যালি স্কুল ইআরপি - অফিসিয়াল হিসাব শাখা কর্তৃক কম্পিউটার জেনারেটেড ভাউচার কপি।',
 
-        // Admission Settings
+        // Admission Settings & Drafts
         'admission_settings' => 'ভর্তি সেটিংস',
+        'draft_admissions' => 'ড্রাফট ভর্তি তালিকা',
+        'draft_admission' => 'ড্রাফট ভর্তি',
+        'save_as_draft' => 'ড্রাফট সংরক্ষণ',
+        'resume_admission' => 'ভর্তি সম্পন্ন করুন',
+        'draft_saved_successfully' => 'ভর্তি ড্রাফট সফলভাবে সংরক্ষিত হয়েছে',
+        'draft_deleted_successfully' => 'ভর্তি ড্রাফট মুছে ফেলা হয়েছে',
+        'last_saved_step' => 'সর্বশেষ সম্পন্ন ধাপ',
+        'draft_list' => 'ড্রাফট তালিকা',
+        'clear_draft' => 'ড্রাফট মুছুন',
         'admission_settings_fee' => 'ভর্তি ফি ও শর্তাবলী কনফিগারেশন',
         'default_admission_fee' => 'নির্ধারিত ভর্তি ফি',
         'default_admission_fee_help' => 'নতুন শিক্ষার্থী ভর্তির সময় ফরমের ৫নং ধাপে এই ফি-টি প্রারম্ভিক ভর্তি ফি হিসেবে প্রদর্শিত হবে।',
@@ -2330,3 +2348,25 @@ if (!function_exists('dvs_number_to_words_english')) {
         return $out . " Only";
     }
 }
+
+if (!function_exists('get_draft_admission_count')) {
+    function get_draft_admission_count($branch_id = null)
+    {
+        $ci = &get_instance();
+        if (!isset($ci->db)) {
+            return 0;
+        }
+        if (!$ci->db->table_exists('student_admission_draft')) {
+            return 0;
+        }
+        if (empty($branch_id)) {
+            $branch_id = $ci->session->userdata('loggedin_branch_id');
+        }
+        $ci->db->from('student_admission_draft');
+        if (!empty($branch_id)) {
+            $ci->db->where('branch_id', (int)$branch_id);
+        }
+        return (int)$ci->db->count_all_results();
+    }
+}
+

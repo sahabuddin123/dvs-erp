@@ -278,6 +278,20 @@ endif;
 				background: linear-gradient(135deg, #005f2e 0%, #047857 100%);
 				box-shadow: 0 6px 18px rgba(0, 127, 61, 0.5);
 			}
+			.btn-dvs-draft {
+				border-radius: 6px;
+				padding: 9px 18px;
+				font-weight: 600;
+				color: #92400e;
+				background: #fef3c7;
+				border: 1px solid #fcd34d;
+				transition: all 0.2s;
+			}
+			.btn-dvs-draft:hover {
+				background: #fde68a;
+				color: #78350f;
+				border-color: #f59e0b;
+			}
 			.dvs-card-highlight {
 				background: #f0fdf4;
 				border: 1px solid #bbf7d0;
@@ -347,21 +361,46 @@ endif;
 
 		<section class="panel dvs-wizard-wrapper">
 			<?php echo form_open_multipart('student/save', array('class' => 'frm-submit-data', 'id' => 'studentAdmissionForm')); ?>
+			<input type="hidden" name="draft_id" id="draft_id" value="<?=!empty($draft_id) ? (int)$draft_id : ''?>">
+			<input type="hidden" name="last_step" id="last_step" value="<?=!empty($draft_row->last_step) ? (int)$draft_row->last_step : 1?>">
 			
 			<!-- Wizard Header -->
 			<div class="dvs-wizard-header">
 				<div class="row align-items-center">
-					<div class="col-sm-8 title-area">
+					<div class="col-sm-7 title-area">
 						<h3><i class="fas fa-user-graduate"></i> <?=$is_bn ? 'শিক্ষার্থীর নতুন ভর্তি' : 'Student Admission'?></h3>
 						<p><?=$is_bn ? 'অনুগ্রহ করে নিচের ৫টি ধাপে শিক্ষার্থীর যাবতীয় সঠিক তথ্য পূরণ করে ভর্তি নিশ্চিত করুন।' : 'Please complete the following 5 steps with accurate information to confirm admission.'?></p>
 					</div>
-					<div class="col-sm-4 text-right hidden-xs">
+					<div class="col-sm-5 text-right hidden-xs" style="display:flex; justify-content:flex-end; align-items:center; gap:8px;">
+						<a href="<?=base_url('student/draft_admissions')?>" class="btn btn-warning btn-sm" style="background:#e67e22; border-color:#d35400; color:#fff; font-weight:700; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.15); padding: 6px 12px;">
+							<i class="fas fa-folder-open"></i> <?=translate('draft_admissions')?> 
+							<?php $draftCount = function_exists('get_draft_admission_count') ? get_draft_admission_count($branch_id) : 0; ?>
+							<span class="badge" id="dvsDraftBadgeCount" style="background:#fff; color:#d35400; margin-left:4px; font-weight:700;"><?=$draftCount?></span>
+						</a>
 						<span class="badge" style="background: rgba(255,255,255,0.25); font-size: 13px; padding: 7px 14px; font-weight: 600;">
 							<i class="fas fa-shield-alt"></i> ড্রিম ভ্যালী স্কুল ইআরপি
 						</span>
 					</div>
 				</div>
 			</div>
+
+			<?php if (!empty($draft_row)): ?>
+			<div class="alert alert-warning m-md" style="margin: 15px 25px 0; border-left: 4px solid #e67e22; background: #fffbeb; color: #92400e; border-radius: 6px;">
+				<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+					<div>
+						<i class="fas fa-file-invoice"></i> <strong><?=$is_bn ? 'ড্রাফট ভর্তি লোড করা হয়েছে:' : 'Admission Draft Loaded:'?></strong>
+						<span style="font-size: 14px; font-weight: 700;"><?=html_escape($draft_row->fullname ? $draft_row->fullname : 'নামহীন শিক্ষার্থী')?></span>
+						<span class="badge badge-info" style="margin-left: 6px;"><?='ধাপ ' . $draft_row->last_step . ' সংরক্ষিত'?></span>
+						<?php if (!empty($draft_row->register_no)): ?> | Reg: <?=html_escape($draft_row->register_no)?><?php endif; ?>
+					</div>
+					<div>
+						<a href="<?=base_url('student/add')?>" class="btn btn-default btn-xs" style="background: #fff; font-weight: 600; color: #b45309; border: 1px solid #fcd34d;">
+							<i class="fas fa-redo"></i> <?=$is_bn ? 'নতুন ফর্ম শুরু করুন' : 'Start Fresh'?>
+						</a>
+					</div>
+				</div>
+			</div>
+			<?php endif; ?>
 
 			<!-- Wizard Step Navigator Tabs -->
 			<div class="dvs-step-navigator">
@@ -530,7 +569,10 @@ endif;
 					<!-- Step 1 Nav Buttons -->
 					<div class="dvs-nav-buttons">
 						<div></div>
-						<div>
+						<div style="display: flex; gap: 8px;">
+							<button type="button" class="btn btn-warning btn-dvs-draft" onclick="dvsSaveDraft(1, false)">
+								<i class="fas fa-save"></i> <?=$is_bn ? 'ড্রাফট সংরক্ষণ' : 'Save as Draft'?>
+							</button>
 							<button type="button" class="btn btn-dvs-next" onclick="dvsNextStep(1)">
 								<?=$is_bn ? 'পরবর্তী ধাপ: শিক্ষার্থীর তথ্য' : 'Next: Student Details'?> <i class="fas fa-arrow-right"></i>
 							</button>
@@ -856,7 +898,10 @@ endif;
 								<i class="fas fa-arrow-left"></i> পূর্ববর্তী: একাডেমিক তথ্য
 							</button>
 						</div>
-						<div>
+						<div style="display: flex; gap: 8px;">
+							<button type="button" class="btn btn-warning btn-dvs-draft" onclick="dvsSaveDraft(2, false)">
+								<i class="fas fa-save"></i> <?=$is_bn ? 'ড্রাফট সংরক্ষণ' : 'Save as Draft'?>
+							</button>
 							<button type="button" class="btn btn-dvs-next" onclick="dvsNextStep(2)">
 								<?=$is_bn ? 'পরবর্তী ধাপ: অভিভাবকের তথ্য' : 'Next: Parents & Guardian'?> <i class="fas fa-arrow-right"></i>
 							</button>
@@ -1212,9 +1257,12 @@ endif;
 								<i class="fas fa-arrow-left"></i> পূর্ববর্তী: শিক্ষার্থীর তথ্য
 							</button>
 						</div>
-						<div>
+						<div style="display: flex; gap: 8px;">
+							<button type="button" class="btn btn-warning btn-dvs-draft" onclick="dvsSaveDraft(3, false)">
+								<i class="fas fa-save"></i> <?=$is_bn ? 'ড্রাফট সংরক্ষণ' : 'Save as Draft'?>
+							</button>
 							<button type="button" class="btn btn-dvs-next" onclick="dvsNextStep(3)">
-								পরবর্তী ধাপ: সুবিধা ও সাবমিট (Next) <i class="fas fa-arrow-right"></i>
+								<?=$is_bn ? 'পরবর্তী ধাপ: অন্যান্য সুবিধা' : 'Next: Facilities'?> <i class="fas fa-arrow-right"></i>
 							</button>
 						</div>
 					</div>
@@ -1374,9 +1422,12 @@ endif;
 								<i class="fas fa-arrow-left"></i> পূর্ববর্তী: অভিভাবকের তথ্য
 							</button>
 						</div>
-						<div>
+						<div style="display: flex; gap: 8px;">
+							<button type="button" class="btn btn-warning btn-dvs-draft" onclick="dvsSaveDraft(4, false)">
+								<i class="fas fa-save"></i> <?=$is_bn ? 'ড্রাফট সংরক্ষণ' : 'Save as Draft'?>
+							</button>
 							<button type="button" class="btn btn-dvs-next" onclick="dvsNextStep(4)">
-								পরবর্তী ধাপ: ভর্তি ফি ও পেমেন্ট <i class="fas fa-arrow-right"></i>
+								<?=$is_bn ? 'পরবর্তী ধাপ: ভর্তি ফি ও পেমেন্ট' : 'Next: Fee & Payment'?> <i class="fas fa-arrow-right"></i>
 							</button>
 						</div>
 					</div>
@@ -1596,7 +1647,10 @@ endif;
 								<i class="fas fa-arrow-left"></i> পূর্ববর্তী: সুবিধা ও বিবরণ
 							</button>
 						</div>
-						<div>
+						<div style="display: flex; gap: 8px;">
+							<button type="button" class="btn btn-warning btn-dvs-draft" onclick="dvsSaveDraft(5, false)">
+								<i class="fas fa-save"></i> <?=$is_bn ? 'ড্রাফট সংরক্ষণ' : 'Save as Draft'?>
+							</button>
 							<button type="submit" id="btnSubmitAdmission" data-loading-text="<i class='fas fa-spinner fa-spin'></i> সংরক্ষণ হচ্ছে..." class="btn btn-dvs-submit">
 								<i class="fas fa-check-circle"></i> <?=$is_bn ? 'ভর্তি সম্পন্ন করুন ও রসিদ প্রিন্ট করুন' : 'Confirm Admission & Print Receipt'?>
 							</button>
@@ -1784,10 +1838,125 @@ function dvsValidateStep(step) {
 	return isValid;
 }
 
+function dvsSaveDraft(step, isAuto) {
+	var $form = $('#studentAdmissionForm');
+	var formData = $form.serializeArray();
+	
+	// Add step indicator
+	formData.push({name: 'last_step', value: step});
+	
+	var $draftBtns = $('.btn-dvs-draft');
+	if (!isAuto) {
+		$draftBtns.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> <?=$is_bn ? "সংরক্ষণ হচ্ছে..." : "Saving..."?>');
+	}
+	
+	$.ajax({
+		url: '<?=base_url("student/save_admission_draft")?>',
+		type: 'POST',
+		data: formData,
+		dataType: 'json',
+		success: function(res) {
+			if (res.status === 'success') {
+				if (res.draft_id) {
+					$('#draft_id').val(res.draft_id);
+				}
+				if (res.draft_count !== undefined) {
+					$('#dvsDraftBadgeCount').text(res.draft_count);
+				}
+				if (!isAuto) {
+					if (typeof swal === 'function') {
+						swal({
+							title: "<?=$is_bn ? 'ড্রাফট সংরক্ষিত হয়েছে!' : 'Draft Saved!'?>",
+							text: "<?=$is_bn ? 'শিক্ষার্থীর ভর্তি তথ্য সফলভাবে ড্রাফট তালিকায় সংরক্ষিত হয়েছে। আপনি ড্রাফট তালিকা থেকে যেকোনো সময় এটি সম্পন্ন করতে পারবেন।' : 'Admission draft has been saved successfully. You can resume it anytime from Draft Admissions.'?>",
+							type: "success",
+							timer: 2000,
+							showConfirmButton: false
+						});
+					} else {
+						alert("<?=$is_bn ? 'ড্রাফট সফলভাবে সংরক্ষিত হয়েছে!' : 'Draft saved successfully!'?>");
+					}
+				}
+			}
+		},
+		complete: function() {
+			if (!isAuto) {
+				$draftBtns.prop('disabled', false).html('<i class="fas fa-save"></i> <?=$is_bn ? "ড্রাফট সংরক্ষণ" : "Save as Draft"?>');
+			}
+		}
+	});
+}
+
 function dvsNextStep(currentStep) {
 	if (dvsValidateStep(currentStep)) {
+		dvsSaveDraft(currentStep, true);
 		dvsUpdateWizardUI(currentStep + 1);
 	}
+}
+
+var draftFormData = <?=!empty($draft_data) ? json_encode($draft_data, JSON_UNESCAPED_UNICODE) : 'null'?>;
+var draftLastStep = <?=!empty($draft_row->last_step) ? (int)$draft_row->last_step : 1?>;
+
+function dvsApplyDraftData(data) {
+	if (!data) return;
+
+	// Populate basic fields
+	$.each(data, function(key, val) {
+		if (typeof val === 'string' || typeof val === 'number') {
+			var $elem = $('[name="' + key + '"]');
+			if ($elem.length) {
+				if ($elem.is(':checkbox') || $elem.is(':radio')) {
+					$elem.filter('[value="' + val + '"]').prop('checked', true).trigger('change');
+				} else {
+					$elem.val(val);
+					if ($elem.hasClass('select2-hidden-accessible')) {
+						$elem.trigger('change');
+					}
+				}
+			}
+		} else if (typeof val === 'object' && val !== null) {
+			$.each(val, function(subKey, subVal) {
+				if (typeof subVal === 'string' || typeof subVal === 'number') {
+					var $nested = $('[name="' + key + '[' + subKey + ']"]');
+					if ($nested.length) {
+						$nested.val(subVal);
+						if ($nested.hasClass('select2-hidden-accessible')) {
+							$nested.trigger('change');
+						}
+					}
+				}
+			});
+		}
+	});
+
+	// Handle class and section cascade
+	if (data.class_id) {
+		$('#class_id').val(data.class_id).trigger('change');
+		$.ajax({
+			url: base_url + 'ajax/getSectionByClass',
+			type: 'POST',
+			data: { class_id: data.class_id, all: 0, multi: 0 },
+			success: function(resp) {
+				$('#section_id').html(resp);
+				if (data.section_id) {
+					$('#section_id').val(data.section_id).trigger('change');
+				}
+			}
+		});
+	}
+
+	// Handle guardian toggle
+	if (data.parent_id || data.guardian_chk) {
+		$('#chkGuardian').prop('checked', true).trigger('change');
+		if (data.parent_id) {
+			$('#parent_id').val(data.parent_id).trigger('change');
+		}
+	}
+
+	// Advance to last step reached or Step 5
+	var jumpStep = Math.min(5, Math.max(1, draftLastStep >= 4 ? 5 : (draftLastStep + 1)));
+	setTimeout(function() {
+		dvsUpdateWizardUI(jumpStep);
+	}, 300);
 }
 
 function dvsPrevStep(currentStep) {
@@ -1908,6 +2077,11 @@ $(document).ready(function() {
 			return false;
 		}
 	});
+
+	// If resuming from an admission draft, apply the draft data and resume step
+	if (typeof draftFormData !== 'undefined' && draftFormData) {
+		dvsApplyDraftData(draftFormData);
+	}
 
 	// Auto-jump to the step containing server validation errors
 	$(document).ajaxSuccess(function(event, xhr, settings) {

@@ -159,6 +159,20 @@ class Student extends Admin_Controller
         $this->data['main_menu'] = 'admission';
         $this->data['register_id'] = $this->student_model->regSerNumber($branchID);
         $this->data['admission_settings'] = $this->get_admission_settings($branchID);
+        
+        $draft_id = (int)$this->input->get('draft_id');
+        $draft_row = null;
+        $draft_data = array();
+        if ($draft_id > 0) {
+            $draft_row = $this->student_model->get_admission_draft($draft_id, $branchID);
+            if ($draft_row && !empty($draft_row->form_data)) {
+                $draft_data = json_decode($draft_row->form_data, true);
+            }
+        }
+        $this->data['draft_id'] = $draft_id;
+        $this->data['draft_row'] = $draft_row;
+        $this->data['draft_data'] = $draft_data;
+
         $this->data['title'] = translate('create_admission');
         $this->data['headerelements'] = array(
             'css' => array(
@@ -382,6 +396,11 @@ class Student extends Admin_Controller
                 // send account activate sms
                 $this->sms_model->send_sms($arrayEnroll, 1);
 
+                // If this admission was completed from a draft, clean up the draft record
+                if (!empty($post['draft_id'])) {
+                    $this->student_model->delete_admission_draft($post['draft_id'], $branchID);
+                }
+
                 set_alert('success', translate('information_has_been_saved_successfully'));
                 $url = base_url('student/print_admission_form/' . $enrollID);
                 $array = array('status' => 'success', 'url' => $url);
@@ -391,6 +410,73 @@ class Student extends Admin_Controller
             }
             echo json_encode($array);
         }
+    }
+
+    /* AJAX handler to automatically or manually save student admission draft across wizard steps */
+    public function save_admission_draft()
+    {
+        if (!get_permission('student', 'is_add')) {
+            echo json_encode(array('status' => 'fail', 'message' => translate('access_denied')));
+            return;
+        }
+
+        $post = $this->input->post();
+        if (empty($post)) {
+            echo json_encode(array('status' => 'fail', 'message' => 'No data received'));
+            return;
+        }
+
+        $branchID = $this->application_model->get_branch_id();
+        $sessionID = get_session_id();
+
+        $draft_id = $this->student_model->save_admission_draft($post, $branchID, $sessionID);
+        $draft_count = function_exists('get_draft_admission_count') ? get_draft_admission_count($branchID) : 0;
+
+        echo json_encode(array(
+            'status' => 'success',
+            'draft_id' => $draft_id,
+            'draft_count' => $draft_count,
+            'message' => translate('draft_saved_successfully'),
+        ));
+    }
+
+    /* List of draft student admissions with resume and delete capabilities */
+    public function draft_admissions()
+    {
+        if (!get_permission('student', 'is_add') && !get_permission('student', 'is_view')) {
+            access_denied();
+        }
+
+        $branchID = $this->application_model->get_branch_id();
+        $sessionID = get_session_id();
+
+        $this->data['drafts'] = $this->student_model->get_admission_drafts_list($branchID, $sessionID);
+        $this->data['branch_id'] = $branchID;
+        $this->data['title'] = translate('draft_admissions');
+        $this->data['main_menu'] = 'admission';
+        $this->data['sub_page'] = 'student/draft_admissions';
+        $this->data['headerelements'] = array(
+            'css' => array(
+                'vendor/dropify/css/dropify.min.css',
+            ),
+            'js' => array(
+                'js/student.js',
+            ),
+        );
+        $this->load->view('layout/index', $this->data);
+    }
+
+    /* Delete an admission draft */
+    public function delete_admission_draft($id = '')
+    {
+        if (!get_permission('student', 'is_add') && !get_permission('student', 'is_delete')) {
+            access_denied();
+        }
+
+        $branchID = $this->application_model->get_branch_id();
+        $this->student_model->delete_admission_draft($id, $branchID);
+        set_alert('success', translate('draft_deleted_successfully'));
+        redirect(base_url('student/draft_admissions'));
     }
 
     /* csv file to import student information and stored in the database here */

@@ -684,4 +684,134 @@ class Student_model extends MY_Model
         );
         return json_encode($json_data);
     }
+
+    public function ensure_draft_table()
+    {
+        if (!$this->db->table_exists('student_admission_draft')) {
+            $sql = "CREATE TABLE IF NOT EXISTS `student_admission_draft` (
+              `id` int(11) NOT NULL AUTO_INCREMENT,
+              `branch_id` int(11) DEFAULT NULL,
+              `session_id` int(11) DEFAULT NULL,
+              `class_id` int(11) DEFAULT NULL,
+              `section_id` int(11) DEFAULT NULL,
+              `first_name` varchar(255) DEFAULT NULL,
+              `last_name` varchar(255) DEFAULT NULL,
+              `fullname` varchar(255) DEFAULT NULL,
+              `register_no` varchar(100) DEFAULT NULL,
+              `roll` varchar(100) DEFAULT NULL,
+              `admission_date` date DEFAULT NULL,
+              `guardian_name` varchar(255) DEFAULT NULL,
+              `guardian_phone` varchar(50) DEFAULT NULL,
+              `guardian_relation` varchar(100) DEFAULT NULL,
+              `mobile_no` varchar(50) DEFAULT NULL,
+              `last_step` int(11) DEFAULT 1,
+              `form_data` longtext DEFAULT NULL,
+              `created_by` int(11) DEFAULT NULL,
+              `created_at` datetime DEFAULT NULL,
+              `updated_at` datetime DEFAULT NULL,
+              PRIMARY KEY (`id`),
+              KEY `idx_branch_session` (`branch_id`,`session_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+            $this->db->query($sql);
+        }
+    }
+
+    public function save_admission_draft($post, $branchID = null, $sessionID = null)
+    {
+        $this->ensure_draft_table();
+
+        if (empty($branchID)) {
+            $branchID = !empty($post['branch_id']) ? (int)$post['branch_id'] : (int)$this->application_model->get_branch_id();
+        }
+        if (empty($sessionID)) {
+            $sessionID = !empty($post['year_id']) ? (int)$post['year_id'] : (int)get_session_id();
+        }
+
+        $first_name = isset($post['first_name']) ? trim($post['first_name']) : '';
+        $last_name = isset($post['last_name']) ? trim($post['last_name']) : '';
+        $fullname = trim($first_name . ' ' . $last_name);
+        if (empty($fullname) && !empty($post['custom_fields']['student'][1])) {
+            $fullname = trim($post['custom_fields']['student'][1]);
+        }
+
+        $last_step = isset($post['last_step']) ? max(1, (int)$post['last_step']) : 1;
+        $now = date('Y-m-d H:i:s');
+
+        $data = array(
+            'branch_id' => $branchID,
+            'session_id' => $sessionID,
+            'class_id' => !empty($post['class_id']) ? (int)$post['class_id'] : null,
+            'section_id' => !empty($post['section_id']) ? (int)$post['section_id'] : null,
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'fullname' => !empty($fullname) ? $fullname : (!empty($post['register_no']) ? 'ড্রাফট - ' . $post['register_no'] : 'নতুন শিক্ষার্থী ড্রাফট'),
+            'register_no' => isset($post['register_no']) ? trim($post['register_no']) : null,
+            'roll' => isset($post['roll']) ? trim($post['roll']) : null,
+            'admission_date' => !empty($post['admission_date']) ? date('Y-m-d', strtotime($post['admission_date'])) : date('Y-m-d'),
+            'guardian_name' => isset($post['grd_name']) ? trim($post['grd_name']) : (isset($post['father_name']) ? trim($post['father_name']) : null),
+            'guardian_phone' => isset($post['grd_mobileno']) ? trim($post['grd_mobileno']) : (isset($post['father_mobileno']) ? trim($post['father_mobileno']) : null),
+            'guardian_relation' => isset($post['grd_relation']) ? trim($post['grd_relation']) : null,
+            'mobile_no' => isset($post['mobileno']) ? trim($post['mobileno']) : null,
+            'last_step' => $last_step,
+            'form_data' => json_encode($post, JSON_UNESCAPED_UNICODE),
+            'created_by' => get_loggedin_user_id() ? get_loggedin_user_id() : 0,
+            'updated_at' => $now,
+        );
+
+        $draft_id = !empty($post['draft_id']) ? (int)$post['draft_id'] : 0;
+        if ($draft_id > 0) {
+            $this->db->where('id', $draft_id);
+            if (!is_superadmin_loggedin() && !empty($branchID)) {
+                $this->db->where('branch_id', $branchID);
+            }
+            $existing = $this->db->get('student_admission_draft')->row();
+            if ($existing) {
+                $this->db->where('id', $draft_id);
+                $this->db->update('student_admission_draft', $data);
+                return $draft_id;
+            }
+        }
+
+        $data['created_at'] = $now;
+        $this->db->insert('student_admission_draft', $data);
+        return $this->db->insert_id();
+    }
+
+    public function get_admission_draft($id, $branchID = null)
+    {
+        $this->ensure_draft_table();
+        $this->db->where('id', (int)$id);
+        if (!is_superadmin_loggedin() && !empty($branchID)) {
+            $this->db->where('branch_id', (int)$branchID);
+        }
+        return $this->db->get('student_admission_draft')->row();
+    }
+
+    public function get_admission_drafts_list($branchID = null, $sessionID = null)
+    {
+        $this->ensure_draft_table();
+        $this->db->select('sad.*, c.name as class_name, s.name as section_name, b.name as branch_name');
+        $this->db->from('student_admission_draft sad');
+        $this->db->join('class c', 'c.id = sad.class_id', 'left');
+        $this->db->join('section s', 's.id = sad.section_id', 'left');
+        $this->db->join('branch b', 'b.id = sad.branch_id', 'left');
+        if (!empty($branchID)) {
+            $this->db->where('sad.branch_id', (int)$branchID);
+        }
+        if (!empty($sessionID)) {
+            $this->db->where('sad.session_id', (int)$sessionID);
+        }
+        $this->db->order_by('sad.updated_at', 'DESC');
+        return $this->db->get()->result_array();
+    }
+
+    public function delete_admission_draft($id, $branchID = null)
+    {
+        $this->ensure_draft_table();
+        $this->db->where('id', (int)$id);
+        if (!is_superadmin_loggedin() && !empty($branchID)) {
+            $this->db->where('branch_id', (int)$branchID);
+        }
+        return $this->db->delete('student_admission_draft');
+    }
 }
