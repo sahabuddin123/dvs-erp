@@ -349,7 +349,7 @@
             margin: 8px 0;
             font-size: 11.5px;
             color: #78350f;
-            line-height: 1.45;
+            line-height: 1.5;
         }
         .undertaking-box ol {
             margin: 4px 0 0 16px;
@@ -455,8 +455,23 @@
 <body>
 
 <?php
+// Extract custom field values
+$cf_vals = array();
+if (!empty($custom_fields)) {
+    foreach ($custom_fields as $cf) {
+        $f_id = isset($cf['custom_field_id']) ? $cf['custom_field_id'] : (isset($cf['field_id']) ? $cf['field_id'] : 0);
+        $f_val = isset($cf['field_value']) ? $cf['field_value'] : (isset($cf['value']) ? $cf['value'] : '');
+        $cf_vals[$f_id] = $f_val;
+    }
+}
+$name_en = isset($cf_vals[1]) ? trim($cf_vals[1]) : '';
+$father_en = isset($cf_vals[2]) ? trim($cf_vals[2]) : '';
+$mother_en = isset($cf_vals[3]) ? trim($cf_vals[3]) : '';
+$birth_reg = isset($cf_vals[4]) ? trim($cf_vals[4]) : '';
+$age_bn = isset($cf_vals[12]) ? trim($cf_vals[12]) : '';
+
 // Calculate student age cleanly
-$student_age = 'N/A';
+$student_age = !empty($age_bn) ? $age_bn : 'তথ্য নেই';
 if (!empty($student['birthday'])) {
     $birthDate = new DateTime($student['birthday']);
     $today = new DateTime();
@@ -475,7 +490,7 @@ $photo_url = get_image_url('student', $student['photo']);
 
 // Branch info
 $branch_name = !empty($branch['name']) ? $branch['name'] : 'ড্রিম ভ্যালি স্কুল';
-$branch_address = !empty($branch['address']) ? $branch['address'] : (!empty($global_config['address']) ? $global_config['address'] : 'খাসেরহাট মেইন রোড, মাস্টার পাড়া, চরবাটা, সুবর্ণচর, নোয়াখালী');
+$branch_address = !empty($branch['address']) ? $branch['address'] : (!empty($global_config['address']) ? $global_config['address'] : 'খাসেরহাট মেইন রোড, চরবাটা, সুবর্ণচর, নোয়াখালী');
 $branch_phone = !empty($branch['mobileno']) ? $branch['mobileno'] : (!empty($global_config['mobileno']) ? $global_config['mobileno'] : '+88 01716 122 899');
 $branch_email = !empty($branch['email']) ? $branch['email'] : (!empty($global_config['email']) ? $global_config['email'] : 'info@dreamvalleyschool.com');
 $ci =& get_instance();
@@ -488,6 +503,12 @@ if (empty($branch_logo)) {
 
 // Previous details
 $prev_details = !empty($student['previous_details']) ? json_decode($student['previous_details'], true) : [];
+$has_prev_school = !empty($prev_details['school_name']) && trim($prev_details['school_name']) !== '';
+
+// Parents info resolution
+$father_bn = !empty($parent['father_name']) ? $parent['father_name'] : (!empty($parent['name']) ? $parent['name'] : '');
+$mother_bn = !empty($parent['mother_name']) ? $parent['mother_name'] : '';
+$guardian_name = !empty($parent['name']) ? $parent['name'] : (!empty($father_bn) ? $father_bn : (!empty($father_en) ? $father_en : 'তথ্য নেই'));
 ?>
 
 <!-- Floating Action Bar (Hidden on print) -->
@@ -553,23 +574,26 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
     <table class="dvs-table">
         <tr>
             <td class="dvs-label">শিক্ষার্থীর পূর্ণ নাম<span class="dvs-label-sub">Student Full Name</span></td>
-            <td class="dvs-val" colspan="3"><strong style="font-size: 14px; color: #007F3D;"><?=html_escape($student_full_name)?></strong></td>
+            <td class="dvs-val" colspan="3">
+                <strong style="font-size: 14px; color: #007F3D;"><?=html_escape($student_full_name)?></strong>
+                <?=(!empty($name_en) ? ' <span style="font-size: 13px; color: #475569; font-weight: normal;">(' . html_escape($name_en) . ')</span>' : '')?>
+            </td>
         </tr>
         <tr>
             <td class="dvs-label">ভর্তি / রেজিস্টার নং<span class="dvs-label-sub">Register / ID No</span></td>
-            <td class="dvs-val"><span class="badge-reg"><?=html_escape($student['register_no'])?></span></td>
+            <td class="dvs-val"><span class="badge-reg"><?=html_escape($student['register_no'] ?: 'N/A')?></span></td>
             <td class="dvs-label">শ্রেণি রোল নম্বর<span class="dvs-label-sub">Class Roll No</span></td>
-            <td class="dvs-val"><strong style="font-size: 13px; color: #b45309;"><?=!empty($student['roll']) ? html_escape($student['roll']) : '১ (Roll-1)'?></strong></td>
+            <td class="dvs-val"><strong style="font-size: 13px; color: #b45309;"><?=!empty($student['roll']) ? html_escape($student['roll']) : 'প্রযোজ্য নয় / অপেক্ষমাণ'?></strong></td>
         </tr>
         <tr>
             <td class="dvs-label">বর্তমান শ্রেণি<span class="dvs-label-sub">Current Class</span></td>
-            <td class="dvs-val"><strong><?=html_escape($student['class_name'] ?: 'N/A')?></strong></td>
+            <td class="dvs-val"><strong><?=html_escape(!empty($student['class_name']) ? $student['class_name'] : 'তথ্য নেই')?></strong></td>
             <td class="dvs-label">শাখা / সেকশন<span class="dvs-label-sub">Section / Group</span></td>
-            <td class="dvs-val"><strong><?=html_escape($student['section_name'] ?: 'General (জেনারেল)')?></strong></td>
+            <td class="dvs-val"><strong><?=html_escape(!empty($student['section_name']) ? $student['section_name'] : 'তথ্য নেই')?></strong></td>
         </tr>
         <tr>
             <td class="dvs-label">ভর্তির শিক্ষাবর্ষ<span class="dvs-label-sub">Academic Session</span></td>
-            <td class="dvs-val"><?=!empty($session_name) ? html_escape($session_name) : '2026-2027'?></td>
+            <td class="dvs-val"><?=!empty($session_name) ? html_escape($session_name) : (!empty($student['session_id']) ? html_escape(get_type_name_by_id('schoolyear', $student['session_id'], 'school_year')) : date('Y'))?></td>
             <td class="dvs-label">ভর্তির তারিখ<span class="dvs-label-sub">Admission Date</span></td>
             <td class="dvs-val"><?=!empty($student['admission_date']) ? _d($student['admission_date']) : date('d M Y')?></td>
         </tr>
@@ -578,7 +602,11 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
             <td class="dvs-val"><?=!empty($student['category_name']) ? html_escape($student['category_name']) : 'সাধারণ (General)'?></td>
             <td class="dvs-label">প্রাতিষ্ঠানিক অবস্থা<span class="dvs-label-sub">Enrollment Status</span></td>
             <td class="dvs-val">
-                <span class="badge-active"><i class="fas fa-check-circle"></i> সক্রিয় নিয়মিত শিক্ষার্থী (Active Regular)</span>
+                <?php if (isset($student['active']) && $student['active'] == 1): ?>
+                    <span class="badge-active"><i class="fas fa-check-circle"></i> সক্রিয় নিয়মিত শিক্ষার্থী (Active Regular)</span>
+                <?php else: ?>
+                    <span class="badge-active" style="background: #f1f5f9; color: #64748b; border-color: #cbd5e1;"><i class="fas fa-clock"></i> অনিবন্ধিত / নিষ্ক্রিয়</span>
+                <?php endif; ?>
             </td>
         </tr>
     </table>
@@ -591,19 +619,19 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
     <table class="dvs-table">
         <tr>
             <td class="dvs-label">জন্ম তারিখ<span class="dvs-label-sub">Date of Birth</span></td>
-            <td class="dvs-val"><strong><?=_d($student['birthday'])?></strong></td>
+            <td class="dvs-val"><strong><?=!empty($student['birthday']) ? _d($student['birthday']) : 'তথ্য নেই'?></strong></td>
             <td class="dvs-label">বর্তমান বয়স<span class="dvs-label-sub">Current Age</span></td>
             <td class="dvs-val"><strong style="color: #007F3D;"><?=$student_age?></strong></td>
         </tr>
         <tr>
             <td class="dvs-label">লিঙ্গ<span class="dvs-label-sub">Gender</span></td>
-            <td class="dvs-val"><?=ucwords($student['gender'] ?: 'পুরুষ (Male)')?></td>
+            <td class="dvs-val"><?=!empty($student['gender']) ? (strtolower($student['gender']) == 'male' ? 'পুরুষ (Male)' : (strtolower($student['gender']) == 'female' ? 'মহিলা (Female)' : ucfirst($student['gender']))) : 'তথ্য নেই'?></td>
             <td class="dvs-label">রক্তের গ্রুপ<span class="dvs-label-sub">Blood Group</span></td>
-            <td class="dvs-val"><strong style="color: #dc2626;"><?=!empty($student['blood_group']) ? html_escape($student['blood_group']) : 'O+ (Positive)'?></strong></td>
+            <td class="dvs-val"><strong style="color: #dc2626;"><?=!empty($student['blood_group']) ? html_escape($student['blood_group']) : '<span style="color: #64748b; font-weight: normal;">তথ্য নেই (N/A)</span>'?></strong></td>
         </tr>
         <tr>
             <td class="dvs-label">ধর্ম<span class="dvs-label-sub">Religion</span></td>
-            <td class="dvs-val"><?=!empty($student['religion']) ? html_escape($student['religion']) : 'ইসলাম (Islam)'?></td>
+            <td class="dvs-val"><?=!empty($student['religion']) ? html_escape($student['religion']) : 'তথ্য নেই'?></td>
             <td class="dvs-label">জাতীয়তা<span class="dvs-label-sub">Nationality</span></td>
             <td class="dvs-val">বাংলাদেশী (Bangladeshi)</td>
         </tr>
@@ -611,17 +639,17 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
             <td class="dvs-label">মাতৃভাষা<span class="dvs-label-sub">Mother Tongue</span></td>
             <td class="dvs-val"><?=!empty($student['mother_tongue']) && $student['mother_tongue'] != 'N/A' ? html_escape($student['mother_tongue']) : 'বাংলা (Bengali)'?></td>
             <td class="dvs-label">জন্ম সনদ নম্বর (BRN)<span class="dvs-label-sub">Birth Certificate No</span></td>
-            <td class="dvs-val"><?=!empty($student['caste']) && $student['caste'] != 'N/A' ? html_escape($student['caste']) : 'দাখিলকৃত ও অফিস নথিতে সংরক্ষিত'?></td>
+            <td class="dvs-val"><?=!empty($birth_reg) ? html_escape($birth_reg) : (!empty($student['caste']) && $student['caste'] != 'N/A' ? html_escape($student['caste']) : '<span style="color: #64748b; font-weight: normal;">তথ্য নেই / দাখিল করা হয়নি</span>')?></td>
         </tr>
         <tr>
             <td class="dvs-label">শিক্ষার্থীর মোবাইল<span class="dvs-label-sub">Student Mobile No</span></td>
-            <td class="dvs-val"><?=!empty($student['mobileno']) && $student['mobileno'] != 'N/A' ? html_escape($student['mobileno']) : (!empty($parent['mobileno']) ? html_escape($parent['mobileno']) . ' (পিতা/অভিভাবক)' : 'প্রযোজ্য নয়')?></td>
+            <td class="dvs-val"><?=!empty($student['mobileno']) && $student['mobileno'] != 'N/A' ? html_escape($student['mobileno']) : (!empty($parent['mobileno']) ? html_escape($parent['mobileno']) . ' (পিতা/অভিভাবক)' : '<span style="color: #64748b; font-weight: normal;">তথ্য নেই</span>')?></td>
             <td class="dvs-label">ইমেইল ঠিকানা<span class="dvs-label-sub">Email Address</span></td>
-            <td class="dvs-val"><?=!empty($student['email']) && $student['email'] != 'N/A' ? html_escape($student['email']) : 'info@dreamvalleyschool.com'?></td>
+            <td class="dvs-val"><?=!empty($student['email']) && $student['email'] != 'N/A' ? html_escape($student['email']) : '<span style="color: #64748b; font-weight: normal;">তথ্য নেই (N/A)</span>'?></td>
         </tr>
         <tr>
             <td class="dvs-label">বিশেষ শারীরিক চাহিদা<span class="dvs-label-sub">Special Needs / Disability</span></td>
-            <td class="dvs-val" colspan="3"><span style="color: #166534;"><i class="fas fa-check"></i> কোনো শারীরিক বা মানসিক প্রতিবন্ধিতা নেই (সম্পূর্ণ সুস্থ ও স্বাভাবিক)</span></td>
+            <td class="dvs-val" colspan="3"><span style="color: #166534;"><i class="fas fa-check"></i> কোনো শারীরিক বা মানসিক প্রতিবন্ধিতা নথিভুক্ত নেই (স্বাভাবিক)</span></td>
         </tr>
     </table>
 
@@ -634,13 +662,13 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
         <tr>
             <td class="dvs-label">বর্তমান ঠিকানা<span class="dvs-label-sub">Present Address</span></td>
             <td class="dvs-val" colspan="3">
-                <?=!empty($student['current_address']) && $student['current_address'] != 'N/A' ? html_escape($student['current_address']) : (!empty($parent['address']) ? html_escape($parent['address']) : 'মাস্টার পাড়া, চরবাটা, সুবর্ণচর, নোয়াখালী')?>
+                <?=!empty($student['current_address']) && $student['current_address'] != 'N/A' ? html_escape($student['current_address']) : (!empty($parent['address']) ? html_escape($parent['address']) : '<span style="color: #64748b; font-weight: normal;">তথ্য নেই (N/A)</span>')?>
             </td>
         </tr>
         <tr>
             <td class="dvs-label">স্থায়ী ঠিকানা<span class="dvs-label-sub">Permanent Address</span></td>
             <td class="dvs-val" colspan="3">
-                <?=!empty($student['permanent_address']) && $student['permanent_address'] != 'N/A' ? html_escape($student['permanent_address']) : (!empty($parent['address']) ? html_escape($parent['address']) : 'মাস্টার পাড়া, চরবাটা, সুবর্ণচর, নোয়াখালী')?>
+                <?=!empty($student['permanent_address']) && $student['permanent_address'] != 'N/A' ? html_escape($student['permanent_address']) : (!empty($student['current_address']) && $student['current_address'] != 'N/A' ? html_escape($student['current_address']) : (!empty($parent['address']) ? html_escape($parent['address']) : '<span style="color: #64748b; font-weight: normal;">তথ্য নেই (N/A)</span>'))?>
             </td>
         </tr>
     </table>
@@ -652,34 +680,44 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
     </div>
     <table class="dvs-table">
         <tr>
-            <td class="dvs-label">পিতার নাম (বাংলা)<span class="dvs-label-sub">Father's Name (Bangla)</span></td>
-            <td class="dvs-val"><strong style="color: #007F3D;"><?=!empty($parent['father_name']) ? html_escape($parent['father_name']) : (!empty($parent['name']) ? html_escape($parent['name']) : 'সাহাব উদ্দিন')?></strong></td>
-            <td class="dvs-label">মাতার নাম (বাংলা)<span class="dvs-label-sub">Mother's Name (Bangla)</span></td>
-            <td class="dvs-val"><strong style="color: #007F3D;"><?=!empty($parent['mother_name']) ? html_escape($parent['mother_name']) : 'সোবহানা আক্তার'?></strong></td>
+            <td class="dvs-label">পিতার নাম (বাংলা ও ইংরেজি)<span class="dvs-label-sub">Father's Name</span></td>
+            <td class="dvs-val">
+                <strong style="color: #007F3D;">
+                    <?=!empty($father_bn) ? html_escape($father_bn) : (!empty($father_en) ? html_escape($father_en) : 'তথ্য নেই')?>
+                </strong>
+                <?=(!empty($father_en) && !empty($father_bn) ? ' <span style="font-size: 11px; color: #64748b; font-weight: normal;">(' . html_escape($father_en) . ')</span>' : '')?>
+            </td>
+            <td class="dvs-label">মাতার নাম (বাংলা ও ইংরেজি)<span class="dvs-label-sub">Mother's Name</span></td>
+            <td class="dvs-val">
+                <strong style="color: #007F3D;">
+                    <?=!empty($mother_bn) ? html_escape($mother_bn) : (!empty($mother_en) ? html_escape($mother_en) : 'তথ্য নেই')?>
+                </strong>
+                <?=(!empty($mother_en) && !empty($mother_bn) ? ' <span style="font-size: 11px; color: #64748b; font-weight: normal;">(' . html_escape($mother_en) . ')</span>' : '')?>
+            </td>
         </tr>
         <tr>
             <td class="dvs-label">পিতার পেশা<span class="dvs-label-sub">Father's Occupation</span></td>
-            <td class="dvs-val"><?=!empty($parent['occupation']) && $parent['occupation'] != 'N/A' ? html_escape($parent['occupation']) : 'ব্যবসা / চাকুরিজীবী'?></td>
+            <td class="dvs-val"><?=!empty($parent['occupation']) && $parent['occupation'] != 'N/A' ? html_escape($parent['occupation']) : 'তথ্য নেই'?></td>
             <td class="dvs-label">মাতার পেশা<span class="dvs-label-sub">Mother's Occupation</span></td>
-            <td class="dvs-val">গৃহিণী (Homemaker)</td>
+            <td class="dvs-val"><?=!empty($parent['mother_occupation']) && $parent['mother_occupation'] != 'N/A' ? html_escape($parent['mother_occupation']) : 'গৃহিণী (Homemaker)'?></td>
         </tr>
         <tr>
             <td class="dvs-label">পিতার মোবাইল নং<span class="dvs-label-sub">Father's Mobile No</span></td>
-            <td class="dvs-val"><strong style="color: #0f172a;"><?=!empty($parent['mobileno']) ? html_escape($parent['mobileno']) : '01867033550'?></strong></td>
+            <td class="dvs-val"><strong style="color: #0f172a;"><?=!empty($parent['father_mobileno']) ? html_escape($parent['father_mobileno']) : (!empty($parent['mobileno']) ? html_escape($parent['mobileno']) : 'তথ্য নেই')?></strong></td>
             <td class="dvs-label">মাতার মোবাইল নং<span class="dvs-label-sub">Mother's Mobile No</span></td>
-            <td class="dvs-val"><?=!empty($parent['mobileno']) ? html_escape($parent['mobileno']) : '01867033550'?></td>
+            <td class="dvs-val"><?=!empty($parent['mother_mobileno']) ? html_escape($parent['mother_mobileno']) : 'তথ্য নেই'?></td>
         </tr>
         <tr>
             <td class="dvs-label">পিতার জাতীয় পরিচয়পত্র (NID)<span class="dvs-label-sub">Father's National ID</span></td>
-            <td class="dvs-val">দাখিলকৃত ও অফিস ফাইলে সংরক্ষিত</td>
+            <td class="dvs-val"><?=!empty($parent['father_nid']) ? html_escape($parent['father_nid']) : (!empty($parent['nid']) ? html_escape($parent['nid']) : 'তথ্য নেই / দাখিল করা হয়নি')?></td>
             <td class="dvs-label">মাতার জাতীয় পরিচয়পত্র (NID)<span class="dvs-label-sub">Mother's National ID</span></td>
-            <td class="dvs-val">দাখিলকৃত ও অফিস ফাইলে সংরক্ষিত</td>
+            <td class="dvs-val"><?=!empty($parent['mother_nid']) ? html_escape($parent['mother_nid']) : 'তথ্য নেই / দাখিল করা হয়নি'?></td>
         </tr>
         <tr>
             <td class="dvs-label">পিতার শিক্ষাগত যোগ্যতা<span class="dvs-label-sub">Father's Education</span></td>
-            <td class="dvs-val"><?=!empty($parent['education']) && $parent['education'] != 'N/A' ? html_escape($parent['education']) : 'স্নাতক / উচ্চ মাধ্যমিক'?></td>
+            <td class="dvs-val"><?=!empty($parent['education']) && $parent['education'] != 'N/A' ? html_escape($parent['education']) : 'তথ্য নেই'?></td>
             <td class="dvs-label">পিতার বার্ষিক/মাসিক আয়<span class="dvs-label-sub">Estimated Income</span></td>
-            <td class="dvs-val"><?=!empty($parent['income']) && $parent['income'] != 'N/A' ? html_escape($parent['income']) : 'স্বাবলম্বী / নিয়মিত'?></td>
+            <td class="dvs-val"><?=!empty($parent['income']) && $parent['income'] != 'N/A' ? (is_numeric($parent['income']) ? number_format((float)$parent['income']) . ' ৳' : html_escape($parent['income'])) : 'তথ্য নেই'?></td>
         </tr>
     </table>
 
@@ -691,19 +729,19 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
     <table class="dvs-table">
         <tr>
             <td class="dvs-label">অভিভাবকের নাম<span class="dvs-label-sub">Guardian Full Name</span></td>
-            <td class="dvs-val"><strong><?=!empty($parent['name']) ? html_escape($parent['name']) : 'সাহাব উদ্দিন'?></strong></td>
+            <td class="dvs-val"><strong><?=html_escape($guardian_name)?></strong></td>
             <td class="dvs-label">শিক্ষার্থীর সাথে সম্পর্ক<span class="dvs-label-sub">Relationship</span></td>
-            <td class="dvs-val"><strong style="color: #007F3D;"><?=!empty($parent['relation']) ? html_escape($parent['relation']) : 'পিতা (Father)'?></strong></td>
+            <td class="dvs-val"><strong style="color: #007F3D;"><?=!empty($parent['relation']) ? html_escape($parent['relation']) : 'অভিভাবক (Guardian)'?></strong></td>
         </tr>
         <tr>
             <td class="dvs-label">প্রধান মোবাইল নম্বর<span class="dvs-label-sub">Primary Mobile No</span></td>
-            <td class="dvs-val"><strong style="color: #b45309;"><?=!empty($parent['mobileno']) ? html_escape($parent['mobileno']) : '01867033550'?></strong></td>
+            <td class="dvs-val"><strong style="color: #b45309;"><?=!empty($parent['mobileno']) ? html_escape($parent['mobileno']) : (!empty($parent['father_mobileno']) ? html_escape($parent['father_mobileno']) : 'তথ্য নেই')?></strong></td>
             <td class="dvs-label">জরুরি বিকল্প মোবাইল<span class="dvs-label-sub">Emergency Alternative No</span></td>
-            <td class="dvs-val"><strong>+88 01716 122 899</strong></td>
+            <td class="dvs-val"><?=!empty($parent['mother_mobileno']) ? html_escape($parent['mother_mobileno']) . ' (মাতা)' : (!empty($student['mobileno']) ? html_escape($student['mobileno']) . ' (শিক্ষার্থী)' : 'তথ্য নেই')?></td>
         </tr>
         <tr>
             <td class="dvs-label">অভিভাবকের ঠিকানা<span class="dvs-label-sub">Guardian Address</span></td>
-            <td class="dvs-val" colspan="3"><?=!empty($parent['address']) ? html_escape($parent['address']) : 'মাস্টার পাড়া, চরবাটা, সুবর্ণচর, নোয়াখালী'?></td>
+            <td class="dvs-val" colspan="3"><?=!empty($parent['address']) ? html_escape($parent['address']) : (!empty($student['current_address']) ? html_escape($student['current_address']) : 'তথ্য নেই')?></td>
         </tr>
     </table>
 
@@ -734,7 +772,7 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
         </div>
         <div class="page2-student-pill">
             <strong>শিক্ষার্থী:</strong> <?=html_escape($student_full_name)?><br>
-            <strong>আইডি:</strong> <?=html_escape($student['register_no'])?> | <strong>রোল:</strong> <?=!empty($student['roll']) ? html_escape($student['roll']) : '১'?> | <strong>শ্রেণি:</strong> <?=html_escape($student['class_name'])?>
+            <strong>আইডি:</strong> <?=html_escape($student['register_no'])?> | <strong>রোল:</strong> <?=!empty($student['roll']) ? html_escape($student['roll']) : 'N/A'?> | <strong>শ্রেণি:</strong> <?=html_escape(!empty($student['class_name']) ? $student['class_name'] : 'N/A')?>
         </div>
     </div>
 
@@ -747,20 +785,20 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
         <tr>
             <td class="dvs-label">পূর্ববর্তী প্রতিষ্ঠানের নাম<span class="dvs-label-sub">Previous School / Madrasah</span></td>
             <td class="dvs-val" colspan="3">
-                <?=!empty($prev_details['school_name']) ? html_escape($prev_details['school_name']) : 'পূর্বে কোনো আনুষ্ঠানিক প্রতিষ্ঠানে পড়েনি (নতুন শিক্ষার্থী হিসেবে প্রি-প্লে শ্রেণিতে ভর্তি)'?>
+                <?=$has_prev_school ? html_escape($prev_details['school_name']) : 'পূর্বে কোনো প্রাতিষ্ঠানিক তথ্য নথিভুক্ত নেই (নতুন ভর্তি)'?>
             </td>
         </tr>
         <tr>
             <td class="dvs-label">সর্বশেষ পঠিত শ্রেণি<span class="dvs-label-sub">Last Class Attended</span></td>
-            <td class="dvs-val"><?=!empty($prev_details['qualification']) ? html_escape($prev_details['qualification']) : 'প্রযোজ্য নয় (প্রাক-প্রাথমিক)'?></td>
+            <td class="dvs-val"><?=$has_prev_school && !empty($prev_details['qualification']) ? html_escape($prev_details['qualification']) : 'প্রযোজ্য নয়'?></td>
             <td class="dvs-label">পাশের সন ও ফলাফল<span class="dvs-label-sub">Passing Year & GPA/Grade</span></td>
-            <td class="dvs-val"><?=!empty($prev_details['qualification']) ? html_escape($prev_details['qualification']) : 'সন্তোষজনক / নতুন ভর্তি'?></td>
+            <td class="dvs-val"><?=$has_prev_school && !empty($prev_details['qualification']) ? html_escape($prev_details['qualification']) : 'প্রযোজ্য নয়'?></td>
         </tr>
         <tr>
             <td class="dvs-label">ছাড়পত্র / টিসি নম্বর ও তারিখ<span class="dvs-label-sub">Transfer Certificate (TC)</span></td>
-            <td class="dvs-val">প্রযোজ্য নয় / সংরক্ষিত</td>
+            <td class="dvs-val"><?=$has_prev_school ? 'দাখিলকৃত ও অফিস নথিতে সংরক্ষিত' : 'প্রযোজ্য নয়'?></td>
             <td class="dvs-label">প্রতিষ্ঠান ত্যাগের কারণ<span class="dvs-label-sub">Reason for Transfer</span></td>
-            <td class="dvs-val"><?=!empty($prev_details['remarks']) ? html_escape($prev_details['remarks']) : 'উন্নত ইসলামিক কারিকুলামে পড়াশোনার লক্ষ্যে ভর্তি'?></td>
+            <td class="dvs-val"><?=$has_prev_school && !empty($prev_details['remarks']) ? html_escape($prev_details['remarks']) : 'নতুন ভর্তি'?></td>
         </tr>
     </table>
 
@@ -772,9 +810,9 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
     <table class="dvs-table" style="margin-bottom: 6px;">
         <tr>
             <td class="dvs-label">কারিকুলাম বিভাগ<span class="dvs-label-sub">Curriculum Track</span></td>
-            <td class="dvs-val"><strong>ইসলামিক কারিকুলাম + আধুনিক জেনারেল শিক্ষা + তাহফিজুল কুরআন</strong></td>
-            <td class="dvs-label">তাহফিজ / নাজেরা গ্রুপ<span class="dvs-label-sub">Tahfiz Group Status</span></td>
-            <td class="dvs-val"><strong style="color: #007F3D;">নাজেরা ও কায়দা স্তর (মাখরাজ ও সহীহ কুরআন পাঠ)</strong></td>
+            <td class="dvs-val"><strong><?=!empty($student['class_name']) ? html_escape($student['class_name']) . ' কারিকুলাম' : 'ইসলামিক ও সাধারণ সমন্বিত শিক্ষা'?></strong></td>
+            <td class="dvs-label">তাহফিজ / নাজেরা গ্রুপ<span class="dvs-label-sub">Section / Group</span></td>
+            <td class="dvs-val"><strong style="color: #007F3D;"><?=!empty($student['section_name']) ? html_escape($student['section_name']) : 'সাধারণ বিভাগ'?></strong></td>
         </tr>
     </table>
 
@@ -786,7 +824,7 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
                 <th width="110">বিষয় কোড</th>
                 <th style="text-align: left;">পাঠ্য বিষয়ের নাম (Subject Name)</th>
                 <th width="140">বিষয়ের ধরন</th>
-                <th width="150">কারিকুলাম বিভাগ</th>
+                <th width="180">কারিকুলাম বিবরণ</th>
             </tr>
         </thead>
         <tbody>
@@ -794,54 +832,17 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
                 <?php $sl = 1; foreach ($subjects as $sub): ?>
                 <tr>
                     <td><?=$sl++?></td>
-                    <td><code><?=!empty($sub['subject_code']) ? html_escape($sub['subject_code']) : 'DVS-' . sprintf('%02d', $sl-1)?></code></td>
+                    <td><code><?=!empty($sub['subject_code']) ? html_escape($sub['subject_code']) : 'SUB-' . sprintf('%02d', $sl-1)?></code></td>
                     <td style="text-align: left; font-weight: 600;"><?=html_escape($sub['subject_name'])?></td>
                     <td><?=!empty($sub['subject_type']) ? ucwords($sub['subject_type']) : 'আবশ্যিক (Theory)'?></td>
-                    <td>ইসলামিক ও জেনারেল সমন্বিত</td>
+                    <td><?=!empty($sub['subject_author']) ? html_escape($sub['subject_author']) : 'জাতীয় ও প্রাতিষ্ঠানিক কারিকুলাম'?></td>
                 </tr>
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td>১</td>
-                    <td><code>DVS-01</code></td>
-                    <td style="text-align: left; font-weight: 600;">বাংলা ভাষা ও ছড়া (Bangla Rhymes & Alphabets)</td>
-                    <td>আবশ্যিক (Theory & Oral)</td>
-                    <td>জাতীয় কারিকুলাম ভিত্তিক</td>
-                </tr>
-                <tr>
-                    <td>২</td>
-                    <td><code>DVS-02</code></td>
-                    <td style="text-align: left; font-weight: 600;">English Spoken & Phonics (ইংরেজি কথোপকথন ও ধ্বনিতত্ত্ব)</td>
-                    <td>আবশ্যিক (Theory & Oral)</td>
-                    <td>আধুনিক ইংরেজি মাধ্যম</td>
-                </tr>
-                <tr>
-                    <td>৩</td>
-                    <td><code>DVS-03</code></td>
-                    <td style="text-align: left; font-weight: 600;">গণিত ও সংখ্যাজ্ঞান (Elementary Mathematics)</td>
-                    <td>আবশ্যিক (Theory)</td>
-                    <td>সাধারণ মৌলিক গণিত</td>
-                </tr>
-                <tr>
-                    <td>৪</td>
-                    <td><code>DVS-04</code></td>
-                    <td style="text-align: left; font-weight: 600;">কুরআন মাজিদ ও তাজভিদ (Holy Qur'an Recitation & Tajweed)</td>
-                    <td>ধর্মীয় আবশ্যিক</td>
-                    <td>তাহফিজুল কুরআন বিভাগ</td>
-                </tr>
-                <tr>
-                    <td>৫</td>
-                    <td><code>DVS-05</code></td>
-                    <td style="text-align: left; font-weight: 600;">আদ-দ্বীন ও মাসনুন দোয়া (Islamic Studies & Daily Masnoon Du'a)</td>
-                    <td>ধর্মীয় ও শিষ্টাচার</td>
-                    <td>ইসলামিক মূল্যবোধ ও চরিত্র গঠন</td>
-                </tr>
-                <tr>
-                    <td>৬</td>
-                    <td><code>DVS-06</code></td>
-                    <td style="text-align: left; font-weight: 600;">চারু ও কারুকলা এবং সাধারণ জ্ঞান (Art, Craft & General Knowledge)</td>
-                    <td>সহপাঠ্যক্রমিক</td>
-                    <td>সৃজনশীল দক্ষতা বৃদ্ধি</td>
+                    <td colspan="5" style="padding: 16px; color: #64748b; font-style: italic; background: #fff; text-align: center;">
+                        <i class="fas fa-info-circle" style="color: #007F3D;"></i> অত্র শ্রেণি ও শাখার জন্য কোনো পাঠ্যবিষয় এখনো নির্ধারিত বা তালিকাভুক্ত করা হয়নি।
+                    </td>
                 </tr>
             <?php endif; ?>
         </tbody>
@@ -855,43 +856,76 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
     <table class="dvs-table">
         <tr>
             <td class="dvs-label">যাতায়াত ব্যবস্থা<span class="dvs-label-sub">Transport Facility</span></td>
-            <td class="dvs-val"><?=!empty($transport['route_name']) ? html_escape($transport['route_name']) . ' (' . html_escape($transport['vehicle_no']) . ')' : 'নিজস্ব ব্যবস্থায় যাতায়াত / নির্ধারিত রুট নেই'?></td>
+            <td class="dvs-val"><?=!empty($transport['route_name']) ? html_escape($transport['route_name']) . (!empty($transport['vehicle_no']) ? ' (' . html_escape($transport['vehicle_no']) . ')' : '') : 'নিজস্ব ব্যবস্থায় যাতায়াত / নির্ধারিত রুট নেই'?></td>
             <td class="dvs-label">আবাসন সুবিধা<span class="dvs-label-sub">Hostel Facility</span></td>
-            <td class="dvs-val"><?=!empty($hostel['hostel_name']) ? html_escape($hostel['hostel_name']) : 'অনাবাসিক নিয়মিত শিক্ষার্থী (Day Scholar)'?></td>
+            <td class="dvs-val"><?=!empty($hostel['hostel_name']) ? html_escape($hostel['hostel_name']) . (!empty($hostel['room_name']) ? ' (রুম: ' . html_escape($hostel['room_name']) . ')' : '') : 'অনাবাসিক নিয়মিত শিক্ষার্থী (Day Scholar)'?></td>
         </tr>
         <tr>
             <td class="dvs-label">রক্তের গ্রুপ<span class="dvs-label-sub">Blood Group</span></td>
-            <td class="dvs-val"><strong style="color: #dc2626;"><?=!empty($student['blood_group']) ? html_escape($student['blood_group']) : 'O+ (Positive)'?></strong></td>
+            <td class="dvs-val"><strong style="color: #dc2626;"><?=!empty($student['blood_group']) ? html_escape($student['blood_group']) : '<span style="color: #64748b; font-weight: normal;">তথ্য নেই</span>'?></strong></td>
             <td class="dvs-label">স্বাস্থ্যগত জটিলতা / অ্যালার্জি<span class="dvs-label-sub">Chronic Illness / Allergy</span></td>
-            <td class="dvs-val"><span style="color: #166534;"><i class="fas fa-check"></i> কোনো জটিলতা বা অ্যালার্জি নেই (সুস্থ)</span></td>
+            <td class="dvs-val"><span style="color: #166534;"><i class="fas fa-check"></i> কোনো জটিলতা বা অ্যালার্জি নথিভুক্ত নেই</span></td>
         </tr>
         <tr>
             <td class="dvs-label">নিয়মিত কোনো ঔষধ সেবন<span class="dvs-label-sub">Regular Medication</span></td>
             <td class="dvs-val">প্রযোজ্য নয়</td>
             <td class="dvs-label">সহশিক্ষা দক্ষতা / আগ্রহ<span class="dvs-label-sub">Extracurricular Interest</span></td>
-            <td class="dvs-val">কুরআন তিলাওয়াত, সুন্দর হস্তলিপি ও খেলাধুলা</td>
+            <td class="dvs-val">কুরআন তিলাওয়াত, সাধারণ জ্ঞান ও খেলাধুলা</td>
         </tr>
     </table>
 
-    <!-- ৯. ভর্তি ফি ও আর্থিক ছাড়ের তথ্য -->
+    <!-- ৯. ভর্তি ফি ও অর্থনৈতিক বিবরণ -->
     <div class="sec-title">
         <span><i class="fas fa-file-invoice-dollar sec-title-icon"></i> ৯. ভর্তি ফি ও অর্থনৈতিক বিবরণ (Admission Fee & Concession Profile)</span>
         <span class="sec-tag">Financial Record</span>
     </div>
+    <?php
+    $has_payment = !empty($admission_payment) && (
+        (isset($admission_payment['admission_fee']) && (float)$admission_payment['admission_fee'] > 0) ||
+        (isset($admission_payment['paid_amount']) && (float)$admission_payment['paid_amount'] > 0)
+    );
+
+    $fee_amount = $has_payment ? (float)$admission_payment['admission_fee'] : 0.00;
+    $disc_amount = $has_payment ? (float)$admission_payment['discount'] : 0.00;
+    $net_amount = $has_payment ? (isset($admission_payment['net_amount']) ? (float)$admission_payment['net_amount'] : max(0, $fee_amount - $disc_amount)) : 0.00;
+    $paid_amount = $has_payment ? (float)$admission_payment['paid_amount'] : 0.00;
+    $due_amount = $has_payment ? (isset($admission_payment['due_amount']) ? (float)$admission_payment['due_amount'] : max(0, $net_amount - $paid_amount)) : 0.00;
+    $pay_method = !empty($admission_payment['pay_via']) ? $admission_payment['pay_via'] : 'Cash';
+    ?>
+    <?php if ($has_payment): ?>
     <table class="dvs-table">
         <tr>
             <td class="dvs-label">নির্ধারিত ভর্তি ফি<span class="dvs-label-sub">Admission Fee</span></td>
-            <td class="dvs-val"><strong><?=!empty($admission_payment['admission_fee']) ? number_format($admission_payment['admission_fee'], 2) . ' ৳' : '১৫,০০০.০০ ৳'?></strong></td>
+            <td class="dvs-val"><strong><?=number_format($fee_amount, 2)?> ৳</strong></td>
             <td class="dvs-label">বিশেষ ছাড় / বৃত্তি<span class="dvs-label-sub">Discount / Scholarship</span></td>
-            <td class="dvs-val"><?=!empty($admission_payment['discount']) ? number_format($admission_payment['discount'], 2) . ' ৳' : '০.০০ ৳ (সাধারণ)'?></td>
+            <td class="dvs-val"><?=number_format($disc_amount, 2)?> ৳</td>
         </tr>
         <tr>
             <td class="dvs-label">পরিশোধিত ভর্তি ফি<span class="dvs-label-sub">Paid Amount</span></td>
-            <td class="dvs-val"><strong style="color: #15803d;"><?=!empty($admission_payment['paid_amount']) ? number_format($admission_payment['paid_amount'], 2) . ' ৳' : 'পরিশোধিত / নথিবদ্ধ'?></strong></td>
+            <td class="dvs-val"><strong style="color: #15803d;"><?=number_format($paid_amount, 2)?> ৳</strong></td>
+            <td class="dvs-label">অবশিষ্ট বকেয়া ফি<span class="dvs-label-sub">Due Amount & Method</span></td>
+            <td class="dvs-val">
+                <strong style="color: <?=($due_amount > 0 ? '#b91c1c' : '#15803d')?>;"><?=number_format($due_amount, 2)?> ৳</strong> 
+                <span style="font-size: 11px; color: #64748b;">(<?=html_escape($pay_method)?>)</span>
+            </td>
+        </tr>
+    </table>
+    <?php else: ?>
+    <table class="dvs-table">
+        <tr>
+            <td class="dvs-label">নির্ধারিত ভর্তি ফি<span class="dvs-label-sub">Admission Fee</span></td>
+            <td class="dvs-val">তথ্য নেই / নথিবদ্ধ নয়</td>
+            <td class="dvs-label">বিশেষ ছাড় / বৃত্তি<span class="dvs-label-sub">Discount / Scholarship</span></td>
+            <td class="dvs-val">০.০০ ৳</td>
+        </tr>
+        <tr>
+            <td class="dvs-label">পরিশোধিত ভর্তি ফি<span class="dvs-label-sub">Paid Amount</span></td>
+            <td class="dvs-val">নথিবদ্ধ নয়</td>
             <td class="dvs-label">মাসিক টিউশন ফি স্ট্যাটাস<span class="dvs-label-sub">Monthly Tuition Fee</span></td>
             <td class="dvs-val"><span class="badge-active">নিয়মিত ধার্য্য অনুযায়ী প্রযোজ্য</span></td>
         </tr>
     </table>
+    <?php endif; ?>
 
     <!-- ১০. অভিভাবকের অঙ্গীকারনামা ও প্রতিষ্ঠানের নিয়মাবলী -->
     <div class="sec-title">
@@ -900,12 +934,18 @@ $prev_details = !empty($student['previous_details']) ? json_decode($student['pre
     </div>
     <div class="undertaking-box">
         <strong>আমি অত্র শিক্ষার্থীর বৈধ অভিভাবক হিসেবে সজ্ঞানে অঙ্গীকার করছি যে:</strong>
-        <ol>
-            <li>অত্র জীবনবৃত্তান্ত ও ভর্তি নথিতে প্রদত্ত যাবতীয় তথ্য সম্পূর্ণ সত্য ও সঠিক। কোনো অসত্য তথ্য প্রমাণিত হলে প্রতিষ্ঠানের আইন অনুযায়ী ব্যবস্থা গ্রহণ প্রযোজ্য হবে।</li>
-            <li>ড্রিম ভ্যালি স্কুলের সকল অভ্যন্তরীণ নিয়মাবলী, শৃঙ্খলাবিধি, মার্জিত ইসলামিক পোশাক পরিধান ও দ্বীনি অনুশাসন আমার সন্তান যথাযথভাবে মেনে চলবে।</li>
-            <li>প্রতিষ্ঠানের নির্ধারিত মাসিক বেতন ও আনুষঙ্গিক অন্যান্য ফি প্রতি মাসের ১০ তারিখের মধ্যে নিয়মিত পরিশোধ করতে বাধ্য থাকব।</li>
-            <li>কর্তৃপক্ষের পূর্বানুমোদন ব্যতীত একটানা ৭ দিন অনুপস্থিত থাকলে স্কুলের শৃঙ্খলাবিধি অনুযায়ী ব্যবস্থা গ্রহণ কর্তৃপক্ষ করতে পারবে।</li>
-        </ol>
+        <?php if (!empty($admission_settings['terms_conditions'])): ?>
+            <div style="margin-top: 5px; white-space: pre-line; line-height: 1.6;">
+                <?=nl2br(html_escape($admission_settings['terms_conditions']))?>
+            </div>
+        <?php else: ?>
+            <ol>
+                <li>অত্র জীবনবৃত্তান্ত ও ভর্তি নথিতে প্রদত্ত যাবতীয় তথ্য সম্পূর্ণ সত্য ও সঠিক। কোনো অসত্য তথ্য প্রমাণিত হলে প্রতিষ্ঠানের আইন অনুযায়ী ব্যবস্থা গ্রহণ প্রযোজ্য হবে।</li>
+                <li>বিদ্যালয়ের সকল অভ্যন্তরীণ নিয়মাবলী, শৃঙ্খলাবিধি, মার্জিত ইসলামিক পোশাক পরিধান ও দ্বীনি অনুশাসন আমার সন্তান যথাযথভাবে মেনে চলবে।</li>
+                <li>প্রতিষ্ঠানের নির্ধারিত মাসিক বেতন ও আনুষঙ্গিক অন্যান্য ফি প্রতি মাসের ১০ তারিখের মধ্যে নিয়মিত পরিশোধ করতে বাধ্য থাকব।</li>
+                <li>কর্তৃপক্ষের পূর্বানুমোদন ব্যতীত একটানা অনুপস্থিত থাকলে স্কুলের শৃঙ্খলাবিধি অনুযায়ী সিদ্ধান্ত কর্তৃপক্ষ গ্রহণ করতে পারবে।</li>
+            </ol>
+        <?php endif; ?>
     </div>
 
     <!-- ১১. অফিশিয়াল অনুমোদন ও স্বাক্ষর ব্লক -->

@@ -176,7 +176,7 @@
         <td class="label-cell">ধর্ম (Religion):</td>
         <td class="value-cell"><?=!empty($student['religion']) ? $student['religion'] : '-'?></td>
         <td class="label-cell">জন্ম নিবন্ধন নং (Birth Reg):</td>
-        <td class="value-cell"><?=!empty($student['birth_certificate_no']) ? $student['birth_certificate_no'] : (get_custom_field_value($student['id'], 2, 'student') ?? '-')?></td>
+        <td class="value-cell"><?=!empty($student['birth_certificate_no']) ? $student['birth_certificate_no'] : (get_custom_field_value($student['id'], 4, 'student') ?? (!empty($student['caste']) ? $student['caste'] : '-'))?></td>
     </tr>
     <tr>
         <td class="label-cell">শিক্ষার্থীর মোবাইল:</td>

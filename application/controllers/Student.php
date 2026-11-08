@@ -916,9 +916,44 @@ class Student extends Admin_Controller
         $this->db->where('enroll_id', $enroll_id);
         $this->db->order_by('id', 'DESC');
         $admission_payment = $this->db->get('student_admission_payment')->row_array();
+        if (empty($admission_payment) && !empty($getStudent['id'])) {
+            $this->db->where('student_id', (int)$getStudent['id']);
+            $this->db->order_by('id', 'DESC');
+            $admission_payment = $this->db->get('student_admission_payment')->row_array();
+        }
+        if (empty($admission_payment)) {
+            $fee = isset($getStudent['admission_fee']) ? (float)$getStudent['admission_fee'] : 0.00;
+            $disc = isset($getStudent['admission_discount']) ? (float)$getStudent['admission_discount'] : 0.00;
+            $paid = isset($getStudent['admission_paid']) ? (float)$getStudent['admission_paid'] : 0.00;
+            $net = max(0, $fee - $disc);
+            $due = max(0, $net - $paid);
+            if ($fee > 0 || $paid > 0) {
+                $admission_payment = array(
+                    'admission_fee' => $fee,
+                    'discount' => $disc,
+                    'net_amount' => $net,
+                    'paid_amount' => $paid,
+                    'due_amount' => $due,
+                    'pay_via' => !empty($getStudent['admission_pay_via']) ? $getStudent['admission_pay_via'] : 'Cash',
+                    'reference_no' => isset($getStudent['admission_trx_id']) ? $getStudent['admission_trx_id'] : '',
+                    'payment_date' => !empty($getStudent['admission_pay_date']) ? $getStudent['admission_pay_date'] : (!empty($getStudent['admission_date']) ? $getStudent['admission_date'] : date('Y-m-d')),
+                    'status' => !empty($getStudent['admission_status']) ? $getStudent['admission_status'] : 'confirmed',
+                    'remarks' => isset($getStudent['admission_remarks']) ? $getStudent['admission_remarks'] : '',
+                );
+            }
+        }
 
         $session_id = !empty($getStudent['session_id']) ? $getStudent['session_id'] : get_session_id();
         $session_name = get_type_name_by_id('schoolyear', $session_id, 'school_year');
+
+        $admission_settings = $this->get_admission_settings($branchID);
+        if (function_exists('get_custom_fields')) {
+            $custom_fields = get_custom_fields('student', $getStudent['id']);
+        } else {
+            $this->db->select('field_id as custom_field_id, value as field_value');
+            $this->db->where('relid', (int)$getStudent['id']);
+            $custom_fields = $this->db->get('custom_fields_values')->result_array();
+        }
 
         $this->data['student'] = $getStudent;
         $this->data['parent'] = $getParent;
@@ -928,6 +963,8 @@ class Student extends Admin_Controller
         $this->data['subjects'] = $subjects;
         $this->data['admission_payment'] = $admission_payment;
         $this->data['session_name'] = $session_name;
+        $this->data['admission_settings'] = $admission_settings;
+        $this->data['custom_fields'] = $custom_fields;
         $this->load->view('student/profile_print', $this->data);
     }
 
