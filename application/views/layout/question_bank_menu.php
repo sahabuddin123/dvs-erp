@@ -7,7 +7,7 @@ $is_admin = (is_superadmin_loggedin() || is_admin_loggedin());
 <?php if ($can_view || $is_admin): ?>
 <li class="nav-parent <?php if ($main_menu == 'question_bank') echo 'nav-expanded nav-active'; ?>">
 	<a>
-		<i class="fas fa-layer-group" style="color: #06b6d4;"></i><span><?=$is_bn ? 'প্রশ্ন ভাণ্ডার ও প্রশ্নপত্র' : 'Question Bank Pro'?></span>
+		<i class="fas fa-layer-group"></i><span><?=$is_bn ? 'প্রশ্ন ভাণ্ডার ও প্রশ্নপত্র' : 'Question Bank Pro'?></span>
 	</a>
 	<ul class="nav nav-children">
 		<li class="<?php if ($sub_page == 'question_bank/index') echo 'nav-active'; ?>">
@@ -23,7 +23,7 @@ $is_admin = (is_superadmin_loggedin() || is_admin_loggedin());
 		</li>
 		<li class="<?php if ($sub_page == 'question_bank/ai_generator') echo 'nav-active'; ?>">
 			<a href="<?=base_url('question_bank/ai_generator')?>">
-				<span><i class="fas fa-magic text-warning"></i><?=$is_bn ? 'এআই প্রশ্ন জেনারেটর' : 'AI Question Generator'?> <span class="badge badge-warning" style="background:#f59e0b; font-size:10px; margin-left:3px;">AI</span></span>
+				<span><i class="fas fa-caret-right"></i><?=$is_bn ? 'এআই প্রশ্ন জেনারেটর' : 'AI Question Generator'?> <span class="badge badge-warning" style="background:#f59e0b; font-size:10px; margin-left:3px;">AI</span></span>
 			</a>
 		</li>
 		<?php endif; ?>
@@ -34,7 +34,7 @@ $is_admin = (is_superadmin_loggedin() || is_admin_loggedin());
 		</li>
 		<li class="<?php if ($sub_page == 'question_bank/paper_generator') echo 'nav-active'; ?>">
 			<a href="<?=base_url('question_bank/paper_generator')?>">
-				<span><i class="fas fa-file-invoice text-info"></i><?=$is_bn ? 'স্বয়ংক্রিয় প্রশ্নপত্র প্রণয়ন' : 'Paper Generator'?></span>
+				<span><i class="fas fa-caret-right"></i><?=$is_bn ? 'স্বয়ংক্রিয় প্রশ্নপত্র প্রণয়ন' : 'Paper Generator'?></span>
 			</a>
 		</li>
 		<li class="<?php if ($sub_page == 'question_bank/papers_list' || $sub_page == 'question_bank/paper_view') echo 'nav-active'; ?>">
@@ -45,12 +45,12 @@ $is_admin = (is_superadmin_loggedin() || is_admin_loggedin());
 		<?php if ($is_admin): ?>
 		<li class="<?php if ($sub_page == 'question_bank/approvals') echo 'nav-active'; ?>">
 			<a href="<?=base_url('question_bank/approvals')?>">
-				<span><i class="fas fa-check-double text-success"></i><?=$is_bn ? 'প্রশ্ন পর্যালোচনা ও অনুমোদন' : 'Review & Approvals'?></span>
+				<span><i class="fas fa-caret-right"></i><?=$is_bn ? 'প্রশ্ন পর্যালোচনা ও অনুমোদন' : 'Review & Approvals'?></span>
 			</a>
 		</li>
 		<li class="<?php if ($sub_page == 'question_bank/settings') echo 'nav-active'; ?>">
 			<a href="<?=base_url('question_bank/settings')?>">
-				<span><i class="fas fa-cog"></i><?=$is_bn ? 'এআই সেটিংস' : 'AI & Settings'?></span>
+				<span><i class="fas fa-caret-right"></i><?=$is_bn ? 'এআই সেটিংস' : 'AI & Settings'?></span>
 			</a>
 		</li>
 		<?php endif; ?>

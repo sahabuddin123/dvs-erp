@@ -1,6 +1,6 @@
 <li class="nav-parent <?php if ($main_menu == 'whatsapp_messaging') echo 'nav-expanded nav-active'; ?>">
 	<a>
-		<i class="fab fa-whatsapp" style="color: #25D366; font-size: 16px;"></i><span><?=translate('whatsapp_messaging')?></span>
+		<i class="fab fa-whatsapp"></i><span><?=translate('whatsapp_messaging')?></span>
 	</a>
 	<ul class="nav nav-children">
 		<li class="<?php if ($sub_page == 'whatsapp_messaging/send' || $sub_page == 'whatsapp_messaging/queue') echo 'nav-active'; ?>">
