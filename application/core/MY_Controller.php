@@ -228,5 +228,7 @@ class Frontend_Controller extends MY_Controller
             redirect(site_url('authentication'));
         }
         $this->data['cms_setting'] = $cms_setting;
+        $this->data['branchID'] = $branchID;
+        $this->data['main_menu'] = $this->home_model->menuList('', $branchID);
     }
 }

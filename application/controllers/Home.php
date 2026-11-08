@@ -1414,12 +1414,69 @@ class Home extends Frontend_Controller
             }
 
             echo json_encode($array);
-
         }
-
     }
 
+    public function exam_routine()
+    {
+        $branchID = $this->home_model->getDefaultBranch();
+        $this->data['branchID'] = $branchID;
 
+        // Fetch CMS page record for exam-routine if available
+        $this->db->select('front_cms_menu.title as menu_title,front_cms_menu.alias,front_cms_pages.*');
+        $this->db->from('front_cms_menu');
+        $this->db->join('front_cms_pages', 'front_cms_pages.menu_id = front_cms_menu.id', 'inner');
+        $this->db->where('front_cms_menu.alias', 'exam-routine');
+        $this->db->where('front_cms_menu.publish', 1);
+        $this->data['page_data'] = $this->db->get()->row_array();
+
+        // Get Exams list for this branch
+        $sessionID = get_session_id();
+        $this->data['exams'] = $this->db->select('exam.id, exam.name, exam.term_id')
+            ->from('exam')
+            ->where('branch_id', $branchID)
+            ->where('session_id', $sessionID)
+            ->where('status', 1)
+            ->order_by('id', 'desc')
+            ->get()->result_array();
+
+        // Get Classes for this branch
+        $this->data['classes'] = $this->db->select('id, name')
+            ->where('branch_id', $branchID)
+            ->order_by('id', 'asc')
+            ->get('class')->result_array();
+
+        // Handle search / filter
+        $exam_id = $this->input->get('exam_id', true);
+        $class_id = $this->input->get('class_id', true);
+        $section_id = $this->input->get('section_id', true);
+
+        $this->data['selected_exam'] = $exam_id;
+        $this->data['selected_class'] = $class_id;
+        $this->data['selected_section'] = $section_id;
+        $this->data['timetable'] = array();
+
+        if (!empty($exam_id) && !empty($class_id)) {
+            $this->db->select('timetable_exam.*, subject.name as subject_name, subject.subject_code, subject.subject_type, class.name as class_name, section.name as section_name');
+            $this->db->from('timetable_exam');
+            $this->db->join('subject', 'subject.id = timetable_exam.subject_id', 'left');
+            $this->db->join('class', 'class.id = timetable_exam.class_id', 'left');
+            $this->db->join('section', 'section.id = timetable_exam.section_id', 'left');
+            $this->db->where('timetable_exam.exam_id', $exam_id);
+            $this->db->where('timetable_exam.class_id', $class_id);
+            if (!empty($section_id)) {
+                $this->db->where('timetable_exam.section_id', $section_id);
+            }
+            $this->db->where('timetable_exam.session_id', $sessionID);
+            $this->db->order_by('timetable_exam.exam_date', 'asc');
+            $this->db->order_by('timetable_exam.time_start', 'asc');
+            $this->data['timetable'] = $this->db->get()->result_array();
+        }
+
+        $this->data['active_menu'] = 'exam-routine';
+        $this->data['main_contents'] = $this->load->view('home/exam_routine', $this->data, true);
+        $this->load->view('home/layout/index', $this->data);
+    }
 
     public function certificates()
 
@@ -1882,11 +1939,13 @@ class Home extends Frontend_Controller
         }
 
         if ($alias == 'staff') {
-
             $this->staff();
-
             return;
+        }
 
+        if ($alias == 'exam-routine' || $alias == 'exam_routine') {
+            $this->exam_routine();
+            return;
         }
 
 

@@ -305,89 +305,58 @@ class Home_model extends MY_Model
 
 
         foreach ($mainMenu as $key => $value) {
-
-            $mergeMenu[$key] = $value;
-
-            $mergeMenu[$key]['url'] = $this->genURL($value, $school);
-
+            $value['url'] = $this->genURL($value, $school);
+            $value['submenu'] = array();
             foreach ($subMenu as $key2 => $value2) {
-
                 if ($value['id'] == $value2['parent_id']) {
-
-                    $mergeMenu[$key]['submenu'][$key2] = array(
-
+                    $value['submenu'][] = array(
+                        'id' => $value2['id'],
                         'title' => $value2['title'],
-
+                        'alias' => $value2['alias'],
+                        'ordering' => $value2['ordering'],
                         'open_new_tab' => $value2['open_new_tab'],
-
                         'url' => $this->genURL($value2, $school),
-
                     );
-
                 }
-
             }
-
+            $mergeMenu[] = $value;
         }
-
-
 
         return $mergeMenu;
-
     }
 
-
-
     public function genURL($array = array(), $school = '')
-
     {
-
         $url = "#";
+        $defaultBranch = $this->getDefaultBranch();
 
-        if (!empty($school)) {
-
-            $school = '/' . $school;
-
+        if ($school == 'cms' || $school == '/cms' || empty($school)) {
+            $prefix = '';
+        } else {
+            $prefix = trim($school, '/') . '/';
         }
-
-
 
         $saasExisting = $this->app_lib->isExistingAddon('saas');
-
         if ($saasExisting && $this->db->table_exists("custom_domain")) {
-
             $getDomain = $this->getCurrentDomain();
-
-            if(!empty($getDomain)) {
-
-                $school = "";
-
+            if (!empty($getDomain)) {
+                $prefix = "";
             }
-
         }
 
-        
-
-        if ($array['system'] && $array['alias'] !== 'pages') {
-
-            $url = base_url($school . '/' . $array['alias']);
-
+        if (!empty($array['ext_url'])) {
+            $url = $array['ext_url_address'];
+        } elseif (!empty($array['system']) && $array['alias'] !== 'pages') {
+            $url = empty($array['alias']) ? base_url($prefix) : base_url($prefix . $array['alias']);
         } else {
-
-            if ($array['ext_url']) {
-
-                $url = $array['ext_url_address'];
-
+            if ($array['alias'] == 'exam-routine' || $array['alias'] == 'exam_routine') {
+                $url = base_url($prefix . 'exam-routine');
             } else {
-
-                $url = base_url( $school . '/page/' . $array['alias']);
-
+                $url = base_url($prefix . 'page/' . $array['alias']);
             }
-
         }
 
         return $url;
-
     }
 
 

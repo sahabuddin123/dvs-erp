@@ -116,141 +116,263 @@ $app_address = get_lang_field($cms_setting, 'address', 'চরবাটা, স�
     </div>
 </div>
 
-<!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg sticky-top bg-white shadow-sm py-2">
-    <div class="container">
-        <a class="navbar-brand d-lg-none" href="<?php echo base_url(); ?>">
-            <img src="<?php echo get_frontend_logo_url('light'); ?>" onerror="this.onerror=null;this.src='<?php echo base_url('uploads/app_image/logo.png'); ?>';" alt="Logo" height="40" class="me-2">
-            <span style="font-weight: 700; color: var(--primary-color); font-size: 1.1rem;"><?php echo $app_title; ?></span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavbar"
-            aria-controls="mobileNavbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- Desktop Menu -->
-        <div class="collapse navbar-collapse d-none d-lg-block" id="navbarNav">
-            <ul class="navbar-nav mx-auto">
-                <li class="nav-item">
-                    <a class="nav-link <?php echo (uri_string() == '' || uri_string() == 'home') ? 'active' : ''; ?>" href="<?php echo base_url(); ?>">
-                        <i class="fas fa-home me-1"></i> <?php echo translate('home'); ?>
-                    </a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?php echo (strpos(uri_string(), 'about') !== false || strpos(uri_string(), 'history') !== false || strpos(uri_string(), 'governing') !== false || strpos(uri_string(), 'teachers') !== false || strpos(uri_string(), 'staff') !== false) ? 'active' : ''; ?>" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-info-circle me-1"></i> <?php echo translate('about_us'); ?>
-                    </a>
-                    <ul class="dropdown-menu shadow border-0">
-                        <li><a class="dropdown-item" href="<?php echo base_url('history'); ?>"><i class="fas fa-landmark me-2 text-success"></i> <?php echo translate('institution_history'); ?></a></li>
-                        <li><a class="dropdown-item" href="<?php echo base_url('governing-body'); ?>"><i class="fas fa-users-cog me-2 text-success"></i> <?php echo translate('governing_body'); ?></a></li>
-                        <li><a class="dropdown-item" href="<?php echo base_url('teachers'); ?>"><i class="fas fa-chalkboard-teacher me-2 text-success"></i> <?php echo translate('teachers_information'); ?></a></li>
-                        <li><a class="dropdown-item" href="<?php echo base_url('staff'); ?>"><i class="fas fa-user-group me-2 text-success"></i> <?php echo translate('staff_information'); ?></a></li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?php echo (strpos(uri_string(), 'exam_results') !== false || strpos(uri_string(), 'routine') !== false || strpos(uri_string(), 'calendar') !== false) ? 'active' : ''; ?>" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-graduation-cap me-1"></i> <?php echo translate('academic'); ?>
-                    </a>
-                    <ul class="dropdown-menu shadow border-0">
-                        <li><a class="dropdown-item" href="<?php echo base_url('calendar-school'); ?>"><i class="fas fa-calendar-alt me-2 text-success"></i> <?php echo translate('academic_calendar'); ?></a></li>
-                        <li><a class="dropdown-item" href="<?php echo base_url('exam_results'); ?>"><i class="fas fa-award me-2 text-success"></i> <?php echo translate('exam_results'); ?></a></li>
-                        <li><a class="dropdown-item" href="<?php echo base_url('about'); ?>"><i class="fas fa-clock me-2 text-success"></i> <?php echo translate('class_routine'); ?></a></li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo (strpos(uri_string(), 'notice') !== false || strpos(uri_string(), 'news') !== false) ? 'active' : ''; ?>" href="<?php echo base_url('notice'); ?>">
-                        <i class="fas fa-bell me-1"></i> <?php echo translate('notice_board'); ?>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo (strpos(uri_string(), 'student') !== false) ? 'active' : ''; ?>" href="<?php echo base_url('students'); ?>">
-                        <i class="fas fa-graduation-cap me-1"></i> <?php echo translate('student_information'); ?>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo (strpos(uri_string(), 'admission') !== false) ? 'active' : ''; ?>" href="<?php echo base_url('admission'); ?>">
-                        <i class="fas fa-file-signature me-1"></i> <?php echo translate('online_admission'); ?>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo (strpos(uri_string(), 'gallery') !== false) ? 'active' : ''; ?>" href="<?php echo base_url('gallery'); ?>">
-                        <i class="fas fa-images me-1"></i> <?php echo translate('gallery'); ?>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo (strpos(uri_string(), 'contact') !== false) ? 'active' : ''; ?>" href="<?php echo base_url('contact'); ?>">
-                        <i class="fas fa-phone me-1"></i> <?php echo translate('contact'); ?>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Mobile Offcanvas Menu -->
-    <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="mobileNavbar" aria-labelledby="mobileNavbarLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="mobileNavbarLabel" style="font-weight: 700; color: var(--primary-color);">
-                <i class="fas fa-bars me-2"></i> <?php echo translate('menu'); ?>
-            </h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="<?php echo base_url(); ?>"><i class="fas fa-home me-2"></i> <?php echo translate('home'); ?></a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="collapse" data-bs-target="#mobileAbout" aria-expanded="false">
-                        <i class="fas fa-info-circle me-2"></i> <?php echo translate('about_us'); ?>
-                    </a>
-                    <div class="collapse" id="mobileAbout">
-                        <ul class="nav flex-column ms-3">
-                            <li class="nav-item"><a class="nav-link py-1" href="<?php echo base_url('history'); ?>"><i class="fas fa-landmark me-2"></i> <?php echo translate('institution_history'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link py-1" href="<?php echo base_url('governing-body'); ?>"><i class="fas fa-users-cog me-2"></i> <?php echo translate('governing_body'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link py-1" href="<?php echo base_url('teachers'); ?>"><i class="fas fa-chalkboard-user me-2"></i> <?php echo translate('teachers_information'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link py-1" href="<?php echo base_url('staff'); ?>"><i class="fas fa-user-group me-2"></i> <?php echo translate('staff_information'); ?></a></li>
-                        </ul>
-                    </div>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="collapse" data-bs-target="#mobileAcademic" aria-expanded="false">
-                        <i class="fas fa-book me-2"></i> <?php echo translate('academic'); ?>
-                    </a>
-                    <div class="collapse" id="mobileAcademic">
-                        <ul class="nav flex-column ms-3">
-                            <li class="nav-item"><a class="nav-link py-1" href="<?php echo base_url('calendar-school'); ?>"><i class="fas fa-calendar-alt me-2"></i> <?php echo translate('academic_calendar'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link py-1" href="<?php echo base_url('exam_results'); ?>"><i class="fas fa-award me-2"></i> <?php echo translate('exam_results'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link py-1" href="<?php echo base_url('about'); ?>"><i class="fas fa-clock me-2"></i> <?php echo translate('class_routine'); ?></a></li>
-                        </ul>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?php echo base_url('notice'); ?>"><i class="fas fa-bell me-2"></i> <?php echo translate('notice_board'); ?></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?php echo base_url('students'); ?>"><i class="fas fa-graduation-cap me-2"></i> <?php echo translate('student_information'); ?></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?php echo base_url('admission'); ?>"><i class="fas fa-file-signature me-2"></i> <?php echo translate('online_admission'); ?></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?php echo base_url('gallery'); ?>"><i class="fas fa-images me-2"></i> <?php echo translate('gallery'); ?></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?php echo base_url('contact'); ?>"><i class="fas fa-phone me-2"></i> <?php echo translate('contact'); ?></a>
-                </li>
-                <li class="nav-item mt-3 pt-3 border-top">
-                    <?php if (!is_loggedin()) { ?>
-                        <a class="btn btn-primary w-100" style="background: var(--primary-color); border: none;" href="<?php echo base_url('authentication'); ?>">
-                            <i class="fas fa-user-lock me-2"></i> <?php echo translate('login'); ?>
-                        </a>
-                    <?php } else { ?>
-                        <a class="btn btn-primary w-100" style="background: var(--primary-color); border: none;" href="<?php echo base_url('dashboard'); ?>">
-                            <i class="fas fa-tachometer-alt me-2"></i> <?php echo translate('dashboard'); ?>
-                        </a>
-                    <?php } ?>
-                </li>
-            </ul>
-        </div>
-    </div>
+<?php
+if (!function_exists('get_dvs_menu_icon')) {
+    function get_dvs_menu_icon($alias, $title = '') {
+        $key = strtolower(trim((string)$alias));
+        $title_lower = mb_strtolower(trim((string)$title), 'UTF-8');
+        
+        $map = array(
+            '' => 'fas fa-home',
+            'home' => 'fas fa-home',
+            'about' => 'fas fa-info-circle',
+            'teachers' => 'fas fa-chalkboard-teacher',
+            'history' => 'fas fa-landmark',
+            'governing-body' => 'fas fa-users-cog',
+            'governing_body' => 'fas fa-users-cog',
+            'staff' => 'fas fa-user-group',
+            'faq' => 'fas fa-question-circle',
+            'principle-message' => 'fas fa-user-tie',
+            'recognition' => 'fas fa-award',
+            'events' => 'fas fa-calendar-alt',
+            'achievements' => 'fas fa-trophy',
+            'exam-routine' => 'fas fa-calendar-check',
+            'class-routine' => 'fas fa-clock',
+            'academic-record' => 'fas fa-clipboard-list',
+            'admission' => 'fas fa-file-signature',
+            'gallery' => 'fas fa-images',
+            'contact' => 'fas fa-phone',
+            'admit_card' => 'fas fa-id-card',
+            'admit-card' => 'fas fa-id-card',
+            'exam_results' => 'fas fa-poll',
+            'certificates' => 'fas fa-certificate',
+            'certificate' => 'fas fa-certificate',
+            'news' => 'fas fa-bell',
+            'notice' => 'fas fa-bell',
+            'students' => 'fas fa-graduation-cap',
+        );
+        
+        if (isset($map[$key])) {
+            return $map[$key];
+        }
+        
+        if (mb_strpos($title_lower, 'হোম') !== false) return 'fas fa-home';
+        if (mb_strpos($title_lower, 'সম্পর্কে') !== false) return 'fas fa-info-circle';
+        if (mb_strpos($title_lower, 'ইতিহাস') !== false) return 'fas fa-landmark';
+        if (mb_strpos($title_lower, 'পরিচালক') !== false || mb_strpos($title_lower, 'কমিটি') !== false) return 'fas fa-users-cog';
+        if (mb_strpos($title_lower, 'শিক্ষক') !== false) return 'fas fa-chalkboard-teacher';
+        if (mb_strpos($title_lower, 'কর্মকর্তা') !== false || mb_strpos($title_lower, 'কর্মচারী') !== false) return 'fas fa-user-group';
+        if (mb_strpos($title_lower, 'বার্তা') !== false) return 'fas fa-user-tie';
+        if (mb_strpos($title_lower, 'স্বীকৃতি') !== false) return 'fas fa-award';
+        if (mb_strpos($title_lower, 'রুটিন') !== false) return 'fas fa-calendar-check';
+        if (mb_strpos($title_lower, 'অর্জন') !== false) return 'fas fa-trophy';
+        if (mb_strpos($title_lower, 'ইভেন্ট') !== false) return 'fas fa-calendar-alt';
+        if (mb_strpos($title_lower, 'সনদ') !== false || mb_strpos($title_lower, 'প্রশংসাপত্র') !== false) return 'fas fa-certificate';
+        if (mb_strpos($title_lower, 'ভর্তি') !== false) return 'fas fa-file-signature';
+        if (mb_strpos($title_lower, 'গ্যালারি') !== false || mb_strpos($title_lower, 'গ্যালারী') !== false) return 'fas fa-images';
+        if (mb_strpos($title_lower, 'যোগাযোগ') !== false) return 'fas fa-phone';
+        if (mb_strpos($title_lower, 'প্রবেশপত্র') !== false) return 'fas fa-id-card';
+        if (mb_strpos($title_lower, 'ফলাফল') !== false) return 'fas fa-poll';
+        if (mb_strpos($title_lower, 'নোটিশ') !== false) return 'fas fa-bell';
+        if (mb_strpos($title_lower, 'শিক্ষার্থী') !== false || mb_strpos($title_lower, 'ছাত্র') !== false) return 'fas fa-graduation-cap';
+        if (mb_strpos($title_lower, 'প্রশ্ন') !== false) return 'fas fa-question-circle';
+        
+        return 'fas fa-circle-chevron-right';
+    }
+}
+
+// Ensure $main_menu is loaded
+if (empty($main_menu)) {
+    $header_branchID = isset($branchID) ? $branchID : (isset($cms_setting['branch_id']) ? $cms_setting['branch_id'] : $this->home_model->getDefaultBranch());
+    $main_menu = $this->home_model->menuList('', $header_branchID);
+}
+
+// Helper to determine active state
+$current_uri = trim(uri_string(), '/');
+if (substr($current_uri, 0, 4) === 'cms/') {
+    $current_uri = substr($current_uri, 4);
+}
+?>
+
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg sticky-top bg-white shadow-sm py-2">
+    <div class="container">
+        <a class="navbar-brand d-lg-none" href="<?php echo base_url(); ?>">
+            <img src="<?php echo get_frontend_logo_url('light'); ?>" onerror="this.onerror=null;this.src='<?php echo base_url('uploads/app_image/logo.png'); ?>';" alt="Logo" height="40" class="me-2">
+            <span style="font-weight: 700; color: var(--primary-color); font-size: 1.1rem;"><?php echo $app_title; ?></span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavbar"
+            aria-controls="mobileNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Desktop Menu -->
+        <div class="collapse navbar-collapse d-none d-lg-block" id="navbarNav">
+            <ul class="navbar-nav mx-auto align-items-center">
+                <?php if (!empty($main_menu)): foreach ($main_menu as $item): 
+                    $has_sub = !empty($item['submenu']);
+                    $item_icon = get_dvs_menu_icon($item['alias'] ?? '', $item['title']);
+                    
+                    // Determine active state
+                    $is_item_active = false;
+                    if (empty($item['alias'])) {
+                        $is_item_active = ($current_uri === '' || $current_uri === 'home' || $current_uri === 'cms');
+                    } else {
+                        $is_item_active = ($current_uri === $item['alias'] || strpos($current_uri, $item['alias']) !== false);
+                    }
+                    if ($has_sub) {
+                        foreach ($item['submenu'] as $s_check) {
+                            if (!empty($s_check['alias']) && ($current_uri === $s_check['alias'] || strpos($current_uri, $s_check['alias']) !== false)) {
+                                $is_item_active = true;
+                                break;
+                            }
+                        }
+                    }
+                    $active_class = $is_item_active ? 'active' : '';
+                    $target = !empty($item['open_new_tab']) ? 'target="_blank" rel="noopener noreferrer"' : '';
+                ?>
+                    <?php if ($has_sub): ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle <?php echo $active_class; ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="<?php echo $item_icon; ?> me-1"></i> <?php echo html_escape($item['title']); ?>
+                            </a>
+                            <ul class="dropdown-menu shadow border-0">
+                                <?php foreach ($item['submenu'] as $sub): 
+                                    $sub_icon = get_dvs_menu_icon($sub['alias'] ?? '', $sub['title']);
+                                    $sub_active = (!empty($sub['alias']) && ($current_uri === $sub['alias'] || strpos($current_uri, $sub['alias']) !== false)) ? 'active' : '';
+                                    $sub_target = !empty($sub['open_new_tab']) ? 'target="_blank" rel="noopener noreferrer"' : '';
+                                ?>
+                                    <li>
+                                        <a class="dropdown-item <?php echo $sub_active; ?>" href="<?php echo $sub['url']; ?>" <?php echo $sub_target; ?>>
+                                            <i class="<?php echo $sub_icon; ?> me-2 text-success"></i> <?php echo html_escape($sub['title']); ?>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $active_class; ?>" href="<?php echo $item['url']; ?>" <?php echo $target; ?>>
+                                <i class="<?php echo $item_icon; ?> me-1"></i> <?php echo html_escape($item['title']); ?>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                <?php endforeach; endif; ?>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Mobile Offcanvas Menu -->
+    <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="mobileNavbar" aria-labelledby="mobileNavbarLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="mobileNavbarLabel" style="font-weight: 700; color: var(--primary-color);">
+                <i class="fas fa-bars me-2"></i> <?php echo translate('menu'); ?>
+            </h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="navbar-nav">
+                <?php if (!empty($main_menu)): foreach ($main_menu as $item): 
+                    $has_sub = !empty($item['submenu']);
+                    $item_icon = get_dvs_menu_icon($item['alias'] ?? '', $item['title']);
+                    
+                    $is_item_active = false;
+                    if (empty($item['alias'])) {
+                        $is_item_active = ($current_uri === '' || $current_uri === 'home' || $current_uri === 'cms');
+                    } else {
+                        $is_item_active = ($current_uri === $item['alias'] || strpos($current_uri, $item['alias']) !== false);
+                    }
+                    if ($has_sub) {
+                        foreach ($item['submenu'] as $s_check) {
+                            if (!empty($s_check['alias']) && ($current_uri === $s_check['alias'] || strpos($current_uri, $s_check['alias']) !== false)) {
+                                $is_item_active = true;
+                                break;
+                            }
+                        }
+                    }
+                    $active_class = $is_item_active ? 'active' : '';
+                    $target = !empty($item['open_new_tab']) ? 'target="_blank" rel="noopener noreferrer"' : '';
+                ?>
+                    <?php if ($has_sub): ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle <?php echo $active_class; ?>" href="#" role="button" data-bs-toggle="collapse" data-bs-target="#mobileSub_<?php echo $item['id']; ?>" aria-expanded="<?php echo $is_item_active ? 'true' : 'false'; ?>">
+                                <i class="<?php echo $item_icon; ?> me-2"></i> <?php echo html_escape($item['title']); ?>
+                            </a>
+                            <div class="collapse <?php echo $is_item_active ? 'show' : ''; ?>" id="mobileSub_<?php echo $item['id']; ?>">
+                                <ul class="nav flex-column ms-3">
+                                    <?php foreach ($item['submenu'] as $sub): 
+                                        $sub_icon = get_dvs_menu_icon($sub['alias'] ?? '', $sub['title']);
+                                        $sub_active = (!empty($sub['alias']) && ($current_uri === $sub['alias'] || strpos($current_uri, $sub['alias']) !== false)) ? 'active' : '';
+                                        $sub_target = !empty($sub['open_new_tab']) ? 'target="_blank" rel="noopener noreferrer"' : '';
+                                    ?>
+                                        <li class="nav-item">
+                                            <a class="nav-link py-1 <?php echo $sub_active; ?>" href="<?php echo $sub['url']; ?>" <?php echo $sub_target; ?>>
+                                                <i class="<?php echo $sub_icon; ?> me-2 text-success"></i> <?php echo html_escape($sub['title']); ?>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $active_class; ?>" href="<?php echo $item['url']; ?>" <?php echo $target; ?>>
+                                <i class="<?php echo $item_icon; ?> me-2"></i> <?php echo html_escape($item['title']); ?>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                <?php endforeach; endif; ?>
+
+                <li class="nav-item mt-3 pt-3 border-top">
+                    <?php if (!is_loggedin()) { ?>
+                        <a class="btn btn-primary w-100" style="background: var(--primary-color); border: none;" href="<?php echo base_url('authentication'); ?>">
+                            <i class="fas fa-user-lock me-2"></i> <?php echo translate('login'); ?>
+                        </a>
+                    <?php } else { ?>
+                        <a class="btn btn-primary w-100" style="background: var(--primary-color); border: none;" href="<?php echo base_url('dashboard'); ?>">
+                            <i class="fas fa-tachometer-alt me-2"></i> <?php echo translate('dashboard'); ?>
+                        </a>
+                    <?php } ?>
+                </li>
+            </ul>
+        </div>
+    </div>
 </nav>
+
+<style>
+.navbar-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px 4px;
+}
+.navbar .nav-link {
+    font-size: 0.94rem;
+    font-weight: 600;
+    padding: 0.45rem 0.60rem !important;
+    color: #374151;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+}
+.navbar .nav-link:hover, .navbar .nav-link.active {
+    color: var(--primary-color) !important;
+    background-color: rgba(0, 127, 61, 0.08);
+}
+.dropdown-menu {
+    min-width: 220px;
+    padding: 8px 0;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12) !important;
+    border: 1px solid rgba(0,0,0,0.06) !important;
+}
+.dropdown-item {
+    font-size: 0.90rem;
+    font-weight: 500;
+    padding: 7px 16px;
+    transition: all 0.2s;
+}
+.dropdown-item:hover, .dropdown-item.active {
+    background-color: rgba(0, 127, 61, 0.1);
+    color: var(--primary-color) !important;
+}
+</style>
