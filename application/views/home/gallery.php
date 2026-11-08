@@ -39,11 +39,9 @@ $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'pa
                     $photo_cnt = !empty($cat['photo_count']) ? $cat['photo_count'] : (!empty($galleryList) ? count($galleryList) : 8);
                     
                     // Cover image
-                    $cover_img = base_url('assets/frontend/dvs/storage/galleries/dOE0oYuYQRh3bDbaMw6J9JQyEMO884GAv5lQ5YGq.jpg');
+                    $cover_img = base_url('uploads/app_image/default.png');
                     if (!empty($cat['cover_image']) && file_exists(FCPATH . 'uploads/frontend/gallery/' . $cat['cover_image'])) {
                         $cover_img = base_url('uploads/frontend/gallery/' . $cat['cover_image']);
-                    } elseif (!empty($cat['cover_image']) && file_exists(FCPATH . 'assets/frontend/dvs/storage/galleries/' . $cat['cover_image'])) {
-                        $cover_img = base_url('assets/frontend/dvs/storage/galleries/' . $cat['cover_image']);
                     }
             ?>
             <div class="col-md-6 col-lg-4">

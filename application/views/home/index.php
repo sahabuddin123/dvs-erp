@@ -87,7 +87,7 @@ $branchID_active = !empty($branchID) ? $branchID : 1;
                                         $img_url = base_url('uploads/frontend/images/' . $slide_img);
                                     }
                                 }
-                                $slide_title = get_lang_field($slide, 'title');
+                                $slide_title = html_entity_decode(get_lang_field($slide, 'title'), ENT_QUOTES, 'UTF-8');
                         ?>
                             <div class="item position-relative" style="background: #1e293b; height: 460px;">
                                 <?php if (!empty($img_url)) { ?>
@@ -184,13 +184,9 @@ if (!empty($db_leaders)) {
                 $count = count($db_leaders);
                 foreach ($db_leaders as $index => $leader) { 
                     $img_file = !empty($leader['image']) ? $leader['image'] : '';
-                    $img_src = base_url('uploads/app_image/default.png');
-                    if (!empty($img_file)) {
-                        if (file_exists(FCPATH . 'uploads/frontend/founder/' . $img_file)) {
-                            $img_src = base_url('uploads/frontend/founder/' . $img_file);
-                        } elseif (file_exists(FCPATH . 'uploads/frontend/testimonial/' . $img_file)) {
-                            $img_src = base_url('uploads/frontend/testimonial/' . $img_file);
-                        }
+                    $img_src = base_url('uploads/app_image/defualt.png');
+                    if (!empty($img_file) && file_exists(FCPATH . 'uploads/frontend/founder/' . $img_file)) {
+                        $img_src = base_url('uploads/frontend/founder/' . $img_file);
                     }
 
                     $col_class = ($count % 2 != 0 && $index == ($count - 1)) ? "col-lg-6 col-md-8 mx-auto" : "col-lg-6 col-md-6";

@@ -103,9 +103,34 @@ ensure_column($conn, 'transactions', 'received_by', 'VARCHAR(255) NULL DEFAULT N
 @$conn->query("ALTER TABLE `front_cms_setting` MODIFY `copyright_text` TEXT NULL");
 @$conn->query("ALTER TABLE `front_cms_setting` MODIFY `address` TEXT NULL");
 
-// Update email_config with official webmail SMTP settings
-@$conn->query("INSERT INTO `email_config` (`email`, `protocol`, `smtp_host`, `smtp_user`, `smtp_pass`, `smtp_port`, `smtp_encryption`, `smtp_auth`, `branch_id`) SELECT 'info@dreamvalleyschool.com', 'smtp', 'mail.dreamvalleyschool.com', 'info@dreamvalleyschool.com', 'Dvs@101#', '465', 'ssl', 'true', 1 WHERE NOT EXISTS (SELECT 1 FROM `email_config` WHERE `branch_id` = 1)");
-@$conn->query("UPDATE `email_config` SET `email` = 'info@dreamvalleyschool.com', `protocol` = 'smtp', `smtp_host` = 'mail.dreamvalleyschool.com', `smtp_user` = 'info@dreamvalleyschool.com', `smtp_pass` = 'Dvs@101#', `smtp_port` = '465', `smtp_encryption` = 'ssl', `smtp_auth` = 'true'");
+// Ensure CodeIgniter Database Session Driver tables exist
+@$conn->query("CREATE TABLE IF NOT EXISTS `srm_sessions` (
+  `id` varchar(128) NOT NULL,
+  `ip_address` varchar(45) NOT NULL,
+  `timestamp` int unsigned NOT NULL DEFAULT 0,
+  `data` blob NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ci_sessions_timestamp` (`timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+@$conn->query("CREATE TABLE IF NOT EXISTS `rm_sessions` (
+  `id` varchar(128) NOT NULL,
+  `ip_address` varchar(45) NOT NULL,
+  `timestamp` int unsigned NOT NULL DEFAULT 0,
+  `data` blob NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ci_sessions_timestamp` (`timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+@$conn->query("CREATE TABLE IF NOT EXISTS `ci_sessions` (
+  `id` varchar(128) NOT NULL,
+  `ip_address` varchar(45) NOT NULL,
+  `timestamp` int unsigned NOT NULL DEFAULT 0,
+  `data` blob NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ci_sessions_timestamp` (`timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+output_msg('ok', 'Session tables verified (srm_sessions, rm_sessions, ci_sessions).');
 
 $create_transport = "CREATE TABLE IF NOT EXISTS `transport_fee_fine` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -369,49 +394,42 @@ if (!$stmt_check || $stmt_check->num_rows == 0) {
 
 output_msg('ok', 'Schema alterations verified successfully.');
 
-// ==========================================
-// PART 2: READ AND RUN SQL STATEMENTS FROM migrations_dvs_live.sql
-// ==========================================
-$sql_file = __DIR__ . '/application/migrations_dvs_live.sql';
-if (file_exists($sql_file)) {
-    $raw_sql = file_get_contents($sql_file);
-
-    // Strip out procedure creation block since we handled columns in PHP
-    $part2_pos = strpos($raw_sql, '-- পার্ট ২:');
-    if ($part2_pos !== false) {
-        $run_sql = substr($raw_sql, $part2_pos);
-    } else {
-        $run_sql = $raw_sql;
-    }
-
-    // Split statements by semicolon
-    $statements = explode(";\n", str_replace("\r\n", "\n", $run_sql));
-    $success_count = 0;
-    $err_count = 0;
-
-    foreach ($statements as $stmt) {
-        $stmt = trim($stmt);
-        if (empty($stmt) || substr($stmt, 0, 2) === '--' || substr($stmt, 0, 9) === 'DELIMITER') {
-            continue;
-        }
-        try {
-            if ($conn->query($stmt)) {
-                $success_count++;
-            } else {
-                $err_count++;
-            }
-        } catch (\Throwable $e) {
-            $err_count++;
-        }
-    }
-    output_msg('ok', "Applied $success_count database updates, translations, and settings (Errors: $err_count).");
-} else {
-    output_msg('err', "migrations_dvs_live.sql file not found.");
-}
-
 // Set default language to Bengali (bn) in global_settings
 @$conn->query("UPDATE `global_settings` SET `translation` = 'bengali' WHERE `id` = 1");
 output_msg('ok', 'Default system and frontend language configured to Bengali (bn).');
+
+// Clean up any demo/foreign founders from live database so admin can add authentic records
+@$conn->query("TRUNCATE TABLE `founder`");
+output_msg('ok', 'Cleaned demo leadership records from founder table. Ready for authentic admin panel entry.');
+
+// Remove demo Dream Valley School sliders from database so only admin sliders display
+@$conn->query("DELETE FROM `front_cms_home` WHERE `item_type` = 'slider' AND (`elements` LIKE '%home-slider-1692875115%' OR `elements` LIKE '%home-slider-1692559149%')");
+output_msg('ok', 'Cleaned demo slider entries from front_cms_home table.');
+
+// Clean up demo school welcome photo if it matches demo file size (998558 bytes)
+$demo_dvs_welcome = __DIR__ . '/uploads/frontend/home_page/wellcome1.jpg';
+if (file_exists($demo_dvs_welcome) && filesize($demo_dvs_welcome) == 998558) {
+    @unlink($demo_dvs_welcome);
+    output_msg('ok', 'Purged demo school photo from welcome section.');
+}
+
+// Ensure default.png exists (copy from defualt.png if missing)
+$def_src = __DIR__ . '/uploads/app_image/defualt.png';
+$def_dst = __DIR__ . '/uploads/app_image/default.png';
+if (file_exists($def_src) && !file_exists($def_dst)) {
+    @copy($def_src, $def_dst);
+    output_msg('ok', 'Created uploads/app_image/default.png from defualt.png.');
+}
+
+// Sync uploaded main logo to logo-small if logo-small is still the demo image
+$main_logo = __DIR__ . '/uploads/app_image/logo.png';
+$small_logo = __DIR__ . '/uploads/app_image/logo-small.png';
+if (file_exists($main_logo)) {
+    if (!file_exists($small_logo) || filesize($small_logo) == 18993 || filemtime($main_logo) >= filemtime($small_logo)) {
+        @copy($main_logo, $small_logo);
+        output_msg('ok', 'Synced main system logo to text/header logo-small.png.');
+    }
+}
 
 // Auto-sync uploaded global logos to branch 1 files
 $logo_types = ['logo', 'logo-small', 'printing-logo', 'report-card-logo'];

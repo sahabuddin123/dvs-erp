@@ -96,8 +96,6 @@
 				if (!empty($founder['image'])) {
 					if (file_exists(FCPATH . 'uploads/frontend/founder/' . $founder['image'])) {
 						$current_img_url = base_url('uploads/frontend/founder/' . $founder['image']);
-					} elseif (file_exists(FCPATH . 'assets/frontend/dvs/storage/founders/' . $founder['image'])) {
-						$current_img_url = base_url('assets/frontend/dvs/storage/founders/' . $founder['image']);
 					}
 				}
 			?>

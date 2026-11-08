@@ -90,8 +90,6 @@
 						$current_img_url = base_url('uploads/frontend/teacher/' . $teacher['image']);
 					} elseif (file_exists(FCPATH . 'uploads/frontend/founder/' . $teacher['image'])) {
 						$current_img_url = base_url('uploads/frontend/founder/' . $teacher['image']);
-					} elseif (file_exists(FCPATH . 'assets/frontend/dvs/storage/founders/' . $teacher['image'])) {
-						$current_img_url = base_url('assets/frontend/dvs/storage/founders/' . $teacher['image']);
 					}
 				}
 			?>

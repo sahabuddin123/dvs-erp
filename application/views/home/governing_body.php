@@ -79,11 +79,11 @@ $date_display = !empty($page_data['created_at']) ? date('M d, Y', strtotime($pag
                                     $founder_url_id = isset($url_map[$m['id']]) ? $url_map[$m['id']] : $m['id'];
 
                                     // Image path resolution
-                                    $img_src = base_url('assets/frontend/dvs/storage/founders/' . $m['image']);
+                                    $img_src = base_url('uploads/app_image/default.png');
                                     if (!empty($m['image']) && file_exists(FCPATH . 'uploads/frontend/testimonial/' . $m['image'])) {
                                         $img_src = base_url('uploads/frontend/testimonial/' . $m['image']);
-                                    } elseif (!empty($m['image']) && file_exists(FCPATH . 'assets/frontend/dvs/storage/founders/' . $m['image'])) {
-                                        $img_src = base_url('assets/frontend/dvs/storage/founders/' . $m['image']);
+                                    } elseif (!empty($m['image']) && file_exists(FCPATH . 'uploads/frontend/founder/' . $m['image'])) {
+                                        $img_src = base_url('uploads/frontend/founder/' . $m['image']);
                                     }
                             ?>
                                 <div class="col-md-6 col-lg-4">

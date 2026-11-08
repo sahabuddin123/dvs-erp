@@ -126,6 +126,13 @@ class Settings extends Admin_Controller
                 }
             }
 
+            // If main System Logo was uploaded but text_logo was not, sync to logo-small
+            if (isset($_FILES['logo_file']) && !empty($_FILES['logo_file']['name']) && (empty($_FILES['text_logo']) || empty($_FILES['text_logo']['name']))) {
+                if (file_exists('uploads/app_image/logo.png')) {
+                    @copy('uploads/app_image/logo.png', 'uploads/app_image/logo-small.png');
+                }
+            }
+
             // Sync uploaded logos to branch-specific files (e.g. branch 1)
             $branches = $this->db->select('id')->get('branch')->result_array();
             $logo_field_map = [

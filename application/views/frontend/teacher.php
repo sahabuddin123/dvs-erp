@@ -66,7 +66,7 @@
 							$count = 1;
 							if (!empty($teacherlist)):
 								foreach ($teacherlist as $row):
-									$img_src = base_url('assets/frontend/dvs/storage/founders/4AsJWZzPctGqP8vDTvzbXDSJc7i15wPQNsPGGf6E.jpg');
+									$img_src = base_url('uploads/app_image/default.png');
 									if (!empty($row['image'])) {
 										if (file_exists(FCPATH . 'uploads/frontend/teacher/' . $row['image'])) {
 											$img_src = base_url('uploads/frontend/teacher/' . $row['image']);

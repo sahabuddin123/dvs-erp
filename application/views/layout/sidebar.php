@@ -159,7 +159,7 @@
                                     <span><i class="fas fa-caret-right"></i><?php echo translate('slider'); ?></span>
                                 </a>
                             </li>
-                            <?php } if(get_permission('frontend_founder', 'is_view') || get_permission('frontend_testimonial', 'is_view')){ ?>
+                            <?php } if(get_permission('frontend_founder', 'is_view') || get_permission('frontend_testimonial', 'is_view') || is_superadmin_loggedin() || get_permission('frontend_setting', 'is_view')){ ?>
                             <li class="<?php if ($sub_page == 'frontend/founder' || $sub_page == 'frontend/founder_edit') echo 'nav-active'; ?>">
                                 <a href="<?php echo base_url('frontend/founder'); ?>">
                                     <span><i class="fas fa-caret-right"></i><?php echo translate('founders'); ?></span>

@@ -17,27 +17,11 @@ if ($current_lang == 'en') {
     $full_message = !empty($founder['message_bn']) ? $founder['message_bn'] : (!empty($founder['message_en']) ? $founder['message_en'] : (!empty($founder['description']) ? $founder['description'] : ''));
 }
 
-// Fallback to JSON messages if message is still empty
-if (empty($full_message)) {
-    $num_key = (string) $founder_num_id;
-    if (!empty($messages_data[$current_lang][$num_key]['message'])) {
-        $full_message = $messages_data[$current_lang][$num_key]['message'];
-    } elseif (!empty($messages_data['bn'][$num_key]['message'])) {
-        $full_message = $messages_data['bn'][$num_key]['message'];
-    }
-}
-
 // Resolve Image
 $img_file = !empty($founder['image']) ? $founder['image'] : '';
-$img_src = base_url('assets/frontend/dvs/storage/founders/4AsJWZzPctGqP8vDTvzbXDSJc7i15wPQNsPGGf6E.jpg');
-if (!empty($img_file)) {
-    if (file_exists(FCPATH . 'uploads/frontend/founder/' . $img_file)) {
-        $img_src = base_url('uploads/frontend/founder/' . $img_file);
-    } elseif (file_exists(FCPATH . 'assets/frontend/dvs/storage/founders/' . $img_file)) {
-        $img_src = base_url('assets/frontend/dvs/storage/founders/' . $img_file);
-    } elseif (file_exists(FCPATH . 'uploads/frontend/testimonial/' . $img_file)) {
-        $img_src = base_url('uploads/frontend/testimonial/' . $img_file);
-    }
+$img_src = base_url('uploads/app_image/defualt.png');
+if (!empty($img_file) && file_exists(FCPATH . 'uploads/frontend/founder/' . $img_file)) {
+    $img_src = base_url('uploads/frontend/founder/' . $img_file);
 }
 ?>
 

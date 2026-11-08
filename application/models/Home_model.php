@@ -164,11 +164,13 @@ class Home_model extends MY_Model
 
         $this->db->join('staff_department', 'staff_department.id = staff.department', 'left');
 
-        $this->db->where('login_credential.role', 3);
+        $this->db->where_in('login_credential.role', array(3, 6));
 
         $this->db->where('login_credential.active', 1);
 
         $this->db->where('staff.branch_id', $branch_id);
+
+        $this->db->group_by('staff.id');
 
         $this->db->order_by('staff.id', 'asc');
 

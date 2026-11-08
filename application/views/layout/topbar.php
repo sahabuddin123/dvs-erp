@@ -1,8 +1,8 @@
 <?php
 $branch_id = get_loggedin_branch_id();
-$topbar_logo = $this->application_model->getBranchImage($branch_id, 'logo-small');
+$topbar_logo = $this->application_model->getBranchImage($branch_id, 'logo');
 if (empty($topbar_logo) || strpos($topbar_logo, 'defualt') !== false) {
-    $topbar_logo = $this->application_model->getBranchImage($branch_id, 'logo');
+    $topbar_logo = $this->application_model->getBranchImage($branch_id, 'logo-small');
 }
 ?>
 <header class="header">

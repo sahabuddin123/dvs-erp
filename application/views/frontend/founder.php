@@ -62,12 +62,10 @@
 									if (!empty($row['image'])) {
 										if (file_exists(FCPATH . 'uploads/frontend/founder/' . $row['image'])) {
 											$img_url = base_url('uploads/frontend/founder/' . $row['image']);
-										} elseif (file_exists(FCPATH . 'assets/frontend/dvs/storage/founders/' . $row['image'])) {
-											$img_url = base_url('assets/frontend/dvs/storage/founders/' . $row['image']);
 										}
 									}
 									if (empty($img_url)) {
-										$img_url = base_url('uploads/app_image/defualt.png');
+										$img_url = base_url('uploads/app_image/default.png');
 									}
 						?>
 						<tr>
@@ -128,7 +126,7 @@
 					<div class="form-group">
 						<label class="col-md-3 control-label">Name (Bangla) <span class="required">*</span></label>
 						<div class="col-md-6">
-							<input type="text" class="form-control" name="name_bn" value="<?php echo set_value('name_bn'); ?>" placeholder="যেমন: আরিফ বিল্লাহ" required />
+							<input type="text" class="form-control" name="name_bn" value="<?php echo set_value('name_bn'); ?>" placeholder="যেমন: মাওলানা মোঃ সাইফুল ইসলাম" required />
 							<span class="error"></span>
 						</div>
 					</div>
@@ -136,7 +134,7 @@
 					<div class="form-group">
 						<label class="col-md-3 control-label">Name (English) <span class="required">*</span></label>
 						<div class="col-md-6">
-							<input type="text" class="form-control" name="name_en" value="<?php echo set_value('name_en'); ?>" placeholder="e.g. Arif Billah" required />
+							<input type="text" class="form-control" name="name_en" value="<?php echo set_value('name_en'); ?>" placeholder="e.g. Md. Saiful Islam" required />
 							<span class="error"></span>
 						</div>
 					</div>
