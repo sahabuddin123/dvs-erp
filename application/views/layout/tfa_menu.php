@@ -1,11 +1,17 @@
 <?php if (is_superadmin_loggedin() || is_admin_loggedin() || get_permission('two_factor_auth', 'is_view')): ?>
 <li class="nav-parent <?php if ($main_menu == 'two_factor_auth') echo 'nav-expanded nav-active'; ?>">
 	<a>
-		<i class="fas fa-shield-alt"></i><span><?=translate('two_factor_auth')?></span>
+		<i class="fas fa-shield-alt"></i><span>2 FA Security</span>
 	</a>
 	<ul class="nav nav-children">
+		<li class="<?php if ($sub_page == 'two_factor_auth/setup') echo 'nav-active'; ?>">
+			<a href="<?=base_url('two_factor_auth/setup')?>">
+				<span><i class="fas fa-caret-right"></i><?=translate('my_2fa_setup')?></span>
+			</a>
+		</li>
+		<?php if (is_superadmin_loggedin() || is_admin_loggedin()): ?>
 		<li class="<?php if ($sub_page == 'two_factor_auth/index') echo 'nav-active'; ?>">
-			<a href="<?=base_url('two_factor_auth')?>">
+			<a href="<?=base_url('two_factor_auth/settings')?>">
 				<span><i class="fas fa-caret-right"></i><?=translate('settings')?></span>
 			</a>
 		</li>
@@ -14,7 +20,7 @@
 				<span><i class="fas fa-caret-right"></i><?=translate('activity_logs')?></span>
 			</a>
 		</li>
+		<?php endif; ?>
 	</ul>
 </li>
 <?php endif; ?>
-

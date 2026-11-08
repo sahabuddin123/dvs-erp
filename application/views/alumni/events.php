@@ -49,9 +49,10 @@ foreach ($years as $year){
 											"2" => translate("class"),
 											"3" => translate("section"),
 										);
-										$audition = $auditions[$event->audience];
-										echo "<strong>" . translate($audition) . "</strong>";
-										if($event->audience != 1){
+										$audKey = !empty($event->audience) ? (string)$event->audience : '1';
+										$audition = isset($auditions[$audKey]) ? $auditions[$audKey] : translate("everybody");
+										echo "<strong>" . $audition . "</strong>";
+										if($audKey != '1'){
 											if ($event->audience == 2) {
 												$selecteds = json_decode($event->selected_list); 
 												foreach ($selecteds as $selected) {

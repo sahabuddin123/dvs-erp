@@ -318,11 +318,14 @@ class Authentication extends Authentication_Controller
         $this->data['auth_method'] = $this->session->userdata('2FA_METHOD');
         $this->data['expires_at'] = $this->session->userdata('2FA_EXPIRES_AT');
         $this->data['sent_code'] = $this->session->userdata('2FA_SENT_CODE');
+        $this->data['instruction'] = $this->session->userdata('2FA_INSTRUCTION');
+        $this->data['show_remember'] = $this->session->userdata('2FA_SHOW_REMEMBER');
         $this->data['user_name'] = $sessionData['name'];
         $this->data['url_alias'] = $url_alias;
 
         if ($_POST) {
             $code = trim((string)$this->input->post('code'));
+            $remember_browser = $this->input->post('remember_browser') ? true : false;
             if (empty($code)) {
                 $digit1 = $this->input->post('digit1');
                 if ($digit1 !== null) {
@@ -334,7 +337,7 @@ class Authentication extends Authentication_Controller
                 set_alert('error', translate('please_enter_6_digit_security_code'));
             } else {
                 $this->load->model('two_fa_model');
-                $verify = $this->two_fa_model->verify_code($sessionData['loggedin_id'], $code);
+                $verify = $this->two_fa_model->verify_code($sessionData['loggedin_id'], $code, $remember_browser);
                 if ($verify['success']) {
                     // Clean up 2FA temporary session
                     $this->session->unset_userdata('2FA');
@@ -345,6 +348,8 @@ class Authentication extends Authentication_Controller
                     $this->session->unset_userdata('2FA_EXPIRES_AT');
                     $this->session->unset_userdata('2FA_METHOD');
                     $this->session->unset_userdata('2FA_SENT_CODE');
+                    $this->session->unset_userdata('2FA_INSTRUCTION');
+                    $this->session->unset_userdata('2FA_SHOW_REMEMBER');
 
                     // Set full authenticated session
                     $this->authentication_model->sessionSet($sessionData);

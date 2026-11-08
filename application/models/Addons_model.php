@@ -263,6 +263,36 @@ class Addons_model extends MY_Model
                 ],
                 'module_id' => 460,
             ],
+            'saas' => [
+                'name' => 'School Subscription (SaaS)',
+                'items' => [
+                    'application/controllers/Saas.php',
+                    'application/controllers/Custom_domain.php',
+                    'application/controllers/Subscription.php',
+                    'application/controllers/Saas_payment.php',
+                    'application/models/Saas_model.php',
+                    'application/models/Custom_domain_model.php',
+                    'application/views/saas',
+                    'application/views/custom_domain',
+                    'application/views/subscription',
+                    'application/views/layout/saas_menu.php',
+                ],
+                'tables' => [
+                    'saas_package',
+                    'saas_subscriptions',
+                    'saas_subscriptions_transactions',
+                    'saas_school_register',
+                    'saas_settings',
+                    'saas_offline_payments',
+                    'saas_offline_payment_types',
+                    'saas_email_templates',
+                    'saas_cms_features',
+                    'saas_cms_faq_list',
+                    'custom_domain',
+                    'custom_domain_instruction',
+                ],
+                'module_id' => 507,
+            ],
         ];
 
         if (isset($known[$prefix])) {

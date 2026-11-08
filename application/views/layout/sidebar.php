@@ -943,7 +943,7 @@
                                 </ul>
                             </li>
                             <?php } ?>
-                            <?php if (get_permission('seat_plan', 'is_view')) { ?>
+                            <?php if (get_permission('seat_plan', 'is_view') || is_superadmin_loggedin()) { ?>
                             <!-- seat plan -->
                             <li class="nav-parent <?php if ($main_menu == 'seat_plan') echo 'nav-expanded nav-active';?>">
                                 <a>

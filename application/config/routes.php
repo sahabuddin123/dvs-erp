@@ -200,6 +200,7 @@ $route['behaviour_records/(:any)'] = 'behaviour_records/$1';
 $route['behaviour_records/(:any)/(:any)'] = 'behaviour_records/$1/$2';
 $route['two_factor_auth'] = 'two_factor_auth/index';
 $route['two_factor_auth/(:any)'] = 'two_factor_auth/$1';
+$route['two_factor_auth/(:any)/(:any)'] = 'two_factor_auth/$1/$2';
 $route['two_fa_verification'] = 'authentication/two_fa_verification';
 $route['two_fa_resend'] = 'authentication/two_fa_resend';
 $route['whatsapp_messaging'] = 'whatsapp_messaging/index';
@@ -214,6 +215,20 @@ $route['seat_plan/(:any)/(:any)'] = 'seat_plan/$1/$2';
 $route['exam/seat_plan'] = 'seat_plan/index';
 $route['exam/seat_plan_print'] = 'seat_plan/print_card';
 $route['exam/seat_plan_report'] = 'seat_plan/room_report';
+
+// School Subscription (SaaS) Routes
+$route['saas'] = 'saas/school';
+$route['saas/(:any)'] = 'saas/$1';
+$route['saas/(:any)/(:any)'] = 'saas/$1/$2';
+$route['subscription'] = 'subscription/index';
+$route['subscription/(:any)'] = 'subscription/$1';
+$route['subscription/(:any)/(:any)'] = 'subscription/$1/$2';
+$route['saas_payment'] = 'saas_payment/checkout';
+$route['saas_payment/(:any)'] = 'saas_payment/$1';
+$route['saas_payment/(:any)/(:any)'] = 'saas_payment/$1/$2';
+$route['custom_domain'] = 'custom_domain/list';
+$route['custom_domain/(:any)'] = 'custom_domain/$1';
+$route['custom_domain/(:any)/(:any)'] = 'custom_domain/$1/$2';
 
 $route['authentication'] = 'authentication/index';
 $route['home'] = 'home/index';

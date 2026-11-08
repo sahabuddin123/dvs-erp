@@ -161,64 +161,68 @@ $is_bn = ($current_lang === 'bengali');
                     <!-- 2FA Verification Form -->
                     <div class="col-lg-6 col-lg-offset-right-1 col-md-6 col-md-offset-right-1 col-sm-12 col-xs-12 no-padding">
                         <div class="sign-area">
-                            <div class="sign-hader text-center" style="margin-bottom: 15px;">
+                            <div class="sign-hader text-center" style="margin-bottom: 20px;">
                                 <div class="tfa-shield-icon">
                                     <i class="fas fa-shield-alt"></i>
                                 </div>
                                 <h3 style="font-weight: 700; color: #ffffff !important; margin-top: 5px; margin-bottom: 4px;"><?php echo translate('two_factor_authentication'); ?></h3>
-                                <p style="color: #cbd5e1 !important; font-size: 13px; margin-bottom: 0;"><?php echo translate('two_factor_auth_desc'); ?></p>
-                            </div>
-
-                            <div class="tfa-hint-badge">
-                                <?php
-                                $masked_email = '';
-                                if (!empty($email)) {
-                                    $parts = explode('@', $email);
-                                    $masked_email = (strlen($parts[0]) > 3 ? substr($parts[0], 0, 3) : substr($parts[0], 0, 1)) . '•••@' . (isset($parts[1]) ? $parts[1] : '');
-                                }
-                                $masked_mobile = '';
-                                if (!empty($mobile)) {
-                                    $masked_mobile = substr($mobile, 0, 4) . '•••' . substr($mobile, -3);
-                                }
-                                ?>
-                                <?php if ($auth_method == 'sms' && !empty($masked_mobile)): ?>
-                                    <i class="fas fa-comment-dots text-success"></i> <?php echo sprintf(translate('security_code_sent_sms'), '<strong>' . html_escape($masked_mobile) . '</strong>'); ?>
-                                <?php elseif ($auth_method == 'both' && !empty($masked_email) && !empty($masked_mobile)): ?>
-                                    <i class="fas fa-paper-plane text-success"></i> <?php echo sprintf(translate('security_code_sent_both'), '<strong>' . html_escape($masked_email) . '</strong>', '<strong>' . html_escape($masked_mobile) . '</strong>'); ?>
-                                <?php else: ?>
-                                    <i class="fas fa-envelope text-success"></i> <?php echo sprintf(translate('security_code_sent_email'), '<strong>' . html_escape(!empty($masked_email) ? $masked_email : translate('email')) . '</strong>'); ?>
-                                <?php endif; ?>
+                                <p style="color: #cbd5e1 !important; font-size: 13px; margin-bottom: 0;">
+                                    <?php 
+                                    if (!empty($instruction)) {
+                                        echo html_escape($instruction);
+                                    } elseif ($auth_method === 'app') {
+                                        echo translate('download_google_authenticator_app_in_your_mobile_device');
+                                    } else {
+                                        echo translate('a_unique_code_has_been_sent_to_your_email_address');
+                                    }
+                                    ?>
+                                </p>
                             </div>
 
                             <?php echo form_open($this->uri->uri_string()); ?>
-                                <div class="form-group text-center">
-                                    <label style="font-weight: 600; color: #f1f5f9 !important; margin-bottom: 8px;">
-                                        <?php echo translate('enter_otp_code'); ?>:
-                                    </label>
-                                    <input type="text" 
-                                           name="code" 
-                                           id="otp_code_input" 
-                                           class="form-control otp-input-field" 
-                                           placeholder="••••••" 
-                                           maxlength="6" 
-                                           autocomplete="one-time-code" 
-                                           inputmode="numeric" 
-                                           pattern="[0-9]*" 
-                                           autofocus 
-                                           required />
+                                <div class="form-group">
+                                    <div class="input-group input-group-icon" style="margin-bottom: 5px;">
+                                        <span class="input-group-addon">
+                                            <span class="icon"><i class="fas fa-key"></i></span>
+                                        </span>
+                                        <input type="text" 
+                                               name="code" 
+                                               id="otp_code_input" 
+                                               class="form-control" 
+                                               placeholder="<?=translate('authentication_code')?>" 
+                                               maxlength="6" 
+                                               autocomplete="one-time-code" 
+                                               inputmode="numeric" 
+                                               pattern="[0-9]*" 
+                                               style="height: 48px; font-size: 18px; font-weight: 600; text-align: center; letter-spacing: 4px;"
+                                               autofocus 
+                                               required />
+                                    </div>
                                 </div>
 
-                                <div class="tfa-timer">
+                                <?php if (!empty($show_remember)): ?>
+                                <div class="checkbox-custom checkbox-default" style="margin-top: 10px; margin-bottom: 15px; text-align: left;">
+                                    <input type="checkbox" name="remember_browser" id="remember_browser" value="1">
+                                    <label for="remember_browser" style="color: #cbd5e1; font-size: 13px; font-weight: normal; cursor: pointer;">
+                                        <?=translate('do_not_ask_again_on_this_browser')?>
+                                    </label>
+                                </div>
+                                <?php endif; ?>
+
+                                <?php if ($auth_method !== 'app' && !empty($expires_at)): ?>
+                                <div class="tfa-timer mb-sm">
                                     <i class="far fa-clock"></i> <?php echo translate('time_remaining'); ?>: <span id="countdown_timer">--:--</span>
                                 </div>
+                                <?php endif; ?>
 
                                 <div class="form-group" style="margin-top: 15px;">
-                                    <button type="submit" id="btn_verify_submit" class="btn btn-block btn-verify-login">
-                                        <i class="fas fa-check-circle"></i> <?php echo translate('verify_and_login'); ?>
+                                    <button type="submit" id="btn_verify_submit" class="btn btn-block btn-verify-login" style="height: 46px; font-size: 16px; font-weight: 700;">
+                                        <i class="fas fa-check-circle"></i> <?=translate('verify')?>
                                     </button>
                                 </div>
 
-                                <div class="resend-box">
+                                <?php if ($auth_method !== 'app'): ?>
+                                <div class="resend-box" style="margin-top: 10px; text-align: center;">
                                     <a href="<?=base_url($this->authentication_model->getSegment(1) . 'two_fa_resend')?>" id="btn_resend_code" style="color: #4ade80 !important; font-weight: 600; font-size: 13px; text-decoration: none;">
                                         <i class="fas fa-redo"></i> <?php echo translate('resend_code'); ?>
                                     </a>
@@ -226,6 +230,7 @@ $is_bn = ($current_lang === 'bengali');
                                         <?php echo translate('resend_cooldown_wait'); ?>: <span id="resend_timer">60</span> <?php echo translate('seconds'); ?>
                                     </div>
                                 </div>
+                                <?php endif; ?>
 
                                 <div style="margin-top: 20px; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.12); padding-top: 14px;">
                                     <a href="<?=base_url($this->authentication_model->getSegment(1) . 'authentication/logout')?>" style="color: #94a3b8 !important; font-size: 13px; text-decoration: none;">

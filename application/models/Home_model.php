@@ -548,17 +548,24 @@ class Home_model extends MY_Model
         }
 
         if ($type == 'parent') {
-
-            $this->db->select('count(parent.id) as snumber');
-
-            $this->db->from('parent');
-
-            $this->db->where('parent.branch_id', $branch_id);
-
+            // Count distinct parents who have enrolled active students in this branch
+            $this->db->select('COUNT(DISTINCT student.parent_id) as snumber');
+            $this->db->from('enroll');
+            $this->db->join('student', 'student.id = enroll.student_id', 'inner');
+            $this->db->join('parent', 'parent.id = student.parent_id', 'inner');
+            $this->db->where('enroll.branch_id', $branch_id);
+            $this->db->where('student.active', 1);
             $q = $this->db->get()->row_array();
-
-            $result = $q['snumber'];
-
+            $result = (!empty($q['snumber']) && $q['snumber'] > 0) ? (int)$q['snumber'] : 0;
+            
+            if ($result === 0) {
+                // Fallback to direct parent records for this branch
+                $this->db->select('count(parent.id) as snumber');
+                $this->db->from('parent');
+                $this->db->where('parent.branch_id', $branch_id);
+                $q2 = $this->db->get()->row_array();
+                $result = !empty($q2['snumber']) ? (int)$q2['snumber'] : 0;
+            }
         }
 
         return $result;

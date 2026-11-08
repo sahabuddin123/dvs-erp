@@ -609,8 +609,8 @@ endif;
 								<label class="control-label"><?=$is_bn ? 'লিঙ্গ' : 'Gender'?><?php echo $gender['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 								<?php
 									$arrayGender = array(
-										'male' => translate('male') . ' (ছাত্র)',
-										'female' => translate('female') . ' (ছাত্রী)'
+										'male' => $is_bn ? 'ছাত্র' : 'Male',
+										'female' => $is_bn ? 'ছাত্রী' : 'Female'
 									);
 									echo form_dropdown("gender", $arrayGender, set_value('gender'), "class='form-control' id='gender' data-plugin-selectTwo
 									data-width='100%' data-minimum-results-for-search='Infinity' ");

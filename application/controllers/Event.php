@@ -418,7 +418,7 @@ class Event extends Admin_Controller
         $html .= "<td>" . _d($ev['end_date']) . "</td>";
         $html .= "</tr><tr>";
         $html .= "<td>" . translate('audience') . "</td>";
-        $aud_key = !empty($ev['audition']) ? (string)$ev['audition'] : '1';
+        $aud_key = (!empty($ev['audition']) || (isset($ev['audition']) && $ev['audition'] === '0')) ? (string)$ev['audition'] : '1';
         $audition = isset($auditions[$aud_key]) ? $auditions[$aud_key] : 'everybody';
         $html .= "<td>" . translate($audition);
         if ($aud_key != '1' && !empty($ev['selected_list'])) {

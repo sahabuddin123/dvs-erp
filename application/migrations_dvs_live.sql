@@ -1398,3 +1398,80 @@ WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'print_seat_cards');
 INSERT INTO `languages` (`word`, `english`, `bengali`)
 SELECT 'room_attendance_sheet', 'Room Attendance Sheet', 'কক্ষভিত্তিক উপস্থিতি ও সিট শিট'
 WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'room_attendance_sheet');
+
+-- ==============================================================================
+-- Two Factor Authentication (2FA) Enhanced Setup (Authenticator App + Email)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS `two_fa_remembered_browsers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `browser_token` varchar(128) NOT NULL,
+  `ip_address` varchar(50) NOT NULL,
+  `browser` varchar(100) DEFAULT NULL,
+  `platform` varchar(100) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `expires_at` datetime NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_2fa_user` (`user_id`),
+  KEY `idx_2fa_token` (`browser_token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- ====================================================================
+-- TWO FACTOR AUTHENTICATION (2FA) & REMEMBER BROWSER UPGRADES
+-- ====================================================================
+ALTER TABLE `two_fa_settings` ADD COLUMN IF NOT EXISTS `remember_browser` tinyint(1) NOT NULL DEFAULT 1;
+ALTER TABLE `two_fa_settings` ADD COLUMN IF NOT EXISTS `cookie_expiry` varchar(50) NOT NULL DEFAULT '1 Year';
+ALTER TABLE `two_fa_settings` ADD COLUMN IF NOT EXISTS `email_instruction` text;
+ALTER TABLE `two_fa_settings` ADD COLUMN IF NOT EXISTS `app_instruction` text;
+
+ALTER TABLE `two_fa_user_config` ADD COLUMN IF NOT EXISTS `app_enabled` tinyint(1) NOT NULL DEFAULT 0;
+ALTER TABLE `two_fa_user_config` ADD COLUMN IF NOT EXISTS `email_enabled` tinyint(1) NOT NULL DEFAULT 0;
+ALTER TABLE `two_fa_user_config` ADD COLUMN IF NOT EXISTS `secret_key` varchar(64) DEFAULT NULL;
+ALTER TABLE `two_fa_user_config` ADD COLUMN IF NOT EXISTS `updated_at` datetime DEFAULT NULL;
+
+CREATE TABLE IF NOT EXISTS `two_fa_remembered_browsers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `browser_token` varchar(128) NOT NULL,
+  `ip_address` varchar(50) DEFAULT NULL,
+  `browser` varchar(100) DEFAULT NULL,
+  `platform` varchar(100) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `expires_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `browser_token` (`browser_token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ====================================================================
+-- SEAT PLAN MODULE PERMISSIONS
+-- ====================================================================
+INSERT IGNORE INTO `permission_modules` (`id`, `name`, `prefix`, `system`, `sorted`, `in_module`, `created_at`) 
+VALUES ('506', 'Seat Plan', 'seat_plan', '1', '24', '0', NOW());
+
+INSERT IGNORE INTO `staff_privileges` (`role_id`, `permission_id`, `is_add`, `is_edit`, `is_view`, `is_delete`) 
+VALUES (1, 506, 1, 1, 1, 1), (2, 506, 1, 1, 1, 1), (3, 506, 0, 0, 1, 0);
+
+-- ====================================================================
+-- SCHOOL SUBSCRIPTION (SAAS) ADDON MODULE
+-- ====================================================================
+INSERT INTO `addon` (`name`, `prefix`, `version`, `purchase_code`, `items_code`, `status`, `created_at`) 
+VALUES ('School Subscription (SaaS)', 'saas', '1.0.0', 'DVS-SAAS-OFFICIAL', 'saas_pro', 1, NOW()) 
+ON DUPLICATE KEY UPDATE `status` = 1, `name` = 'School Subscription (SaaS)';
+
+INSERT IGNORE INTO `permission_modules` (`id`, `name`, `prefix`, `system`, `sorted`, `in_module`, `created_at`) 
+VALUES ('507', 'School Subscription', 'saas', '1', '25', '1', NOW());
+
+INSERT IGNORE INTO `permission_modules` (`id`, `name`, `prefix`, `system`, `sorted`, `in_module`, `created_at`) 
+VALUES ('400', 'Custom Domain', 'custom_domain', '1', '26', '1', NOW());
+
+INSERT IGNORE INTO `staff_privileges` (`role_id`, `permission_id`, `is_add`, `is_edit`, `is_view`, `is_delete`) 
+VALUES (1, 507, 1, 1, 1, 1), (2, 507, 1, 1, 1, 1), (1, 400, 1, 1, 1, 1), (2, 400, 1, 1, 1, 1);
+
+-- Cleanup Ramom School branding from addons
+UPDATE `addon` SET `name` = 'QR Code Attendance' WHERE `prefix` = 'qrcode';
+UPDATE `addon` SET `name` = REPLACE(REPLACE(`name`, 'Ramom School ', ''), 'Ramom ', '');
+UPDATE `addon` SET `purchase_code` = 'VERIFIED' WHERE `purchase_code` IS NULL OR `purchase_code` = '' OR `purchase_code` LIKE '%Invalid%';

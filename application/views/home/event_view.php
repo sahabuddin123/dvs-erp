@@ -68,9 +68,10 @@ $page_title = !empty($event['title']) ? $event['title'] : (($current_lang == 'en
                                 "2" => "class",
                                 "3" => "section",
                             ); 
-                            $audition = $auditions[$event['audition']];
+                            $aud_key = !empty($event['audition']) ? (string)$event['audition'] : '1';
+                            $audition = isset($auditions[$aud_key]) ? $auditions[$aud_key] : 'everybody';
                             $subtxt = "";
-                            if($event['audition'] != 1) {
+                            if($aud_key != '1') {
                                 $array = array();
                                 if ($event['audition'] == 2) {
                                     $selecteds = json_decode($event['selected_list']); 
