@@ -246,6 +246,23 @@ class Addons_model extends MY_Model
                 ],
                 'module_id' => 505,
             ],
+            'lesson_plan' => [
+                'name' => 'Lesson Plan',
+                'items' => [
+                    'application/controllers/Lesson_plan.php',
+                    'application/models/Lesson_plan_model.php',
+                    'application/views/lesson_plan',
+                    'application/views/layout/lesson_plan_menu.php',
+                    'uploads/attachments/lesson_plan',
+                ],
+                'tables' => [
+                    'lesson_plan_topic',
+                    'lesson_plan_lesson',
+                    'lesson_plan_syllabus',
+                    'lesson_plan_manage',
+                ],
+                'module_id' => 460,
+            ],
         ];
 
         if (isset($known[$prefix])) {

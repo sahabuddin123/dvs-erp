@@ -422,3 +422,56 @@ ON DUPLICATE KEY UPDATE `model_name` = VALUES(`model_name`);
 UPDATE `addon` SET `name` = 'QR Code Attendance' WHERE `prefix` = 'qrcode';
 UPDATE `addon` SET `name` = REPLACE(REPLACE(`name`, 'Ramom School ', ''), 'Ramom ', '');
 UPDATE `addon` SET `purchase_code` = 'VERIFIED' WHERE `purchase_code` IS NULL OR `purchase_code` = '' OR `purchase_code` LIKE '%Invalid%';
+
+-- --------------------------------------------------------
+-- Lesson Plan Addon Module Setup
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `lesson_plan_manage` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `branch_id` int DEFAULT NULL,
+  `class_id` int NOT NULL,
+  `section_id` int NOT NULL,
+  `subject_id` int NOT NULL,
+  `topic_id` int DEFAULT NULL,
+  `lesson_id` int DEFAULT NULL,
+  `date` date NOT NULL,
+  `time_from` varchar(20) DEFAULT NULL,
+  `time_to` varchar(20) DEFAULT NULL,
+  `objectives` text DEFAULT NULL,
+  `teaching_method` text DEFAULT NULL,
+  `general_objectives` text DEFAULT NULL,
+  `homework` text DEFAULT NULL,
+  `attachment` varchar(255) DEFAULT NULL,
+  `status` varchar(50) DEFAULT 'Pending',
+  `created_by` int DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `lp_branch` (`branch_id`),
+  KEY `lp_class` (`class_id`),
+  KEY `lp_section` (`section_id`),
+  KEY `lp_subject` (`subject_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `addon` (`name`, `prefix`, `version`, `purchase_code`, `items_code`, `created_at`, `last_update`, `status`)
+SELECT 'Lesson Plan', 'lesson_plan', '1.0.0', 'VERIFIED', NULL, NOW(), NULL, 1
+WHERE NOT EXISTS (SELECT 1 FROM `addon` WHERE `prefix` = 'lesson_plan');
+
+UPDATE `addon` SET `name` = 'Lesson Plan', `status` = 1, `purchase_code` = 'VERIFIED' WHERE `prefix` = 'lesson_plan';
+
+INSERT INTO `permission` (`module_id`, `name`, `prefix`, `show_view`, `show_add`, `show_edit`, `show_delete`, `created_at`)
+SELECT 460, 'Manage Lesson Plan', 'lesson_plan_manage', 1, 1, 1, 1, NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `permission` WHERE `prefix` = 'lesson_plan_manage');
+
+INSERT INTO `permission` (`module_id`, `name`, `prefix`, `show_view`, `show_add`, `show_edit`, `show_delete`, `created_at`)
+SELECT 460, 'Copy Old Lessons', 'lesson_copy', 1, 1, 0, 0, NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `permission` WHERE `prefix` = 'lesson_copy');
+
+INSERT INTO `languages` (`word`, `english`, `bengali`)
+SELECT 'copy_old_lessons', 'Copy Old Lessons', 'পূর্বের পাঠ কপি করুন'
+WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'copy_old_lessons');
+
+INSERT INTO `languages` (`word`, `english`, `bengali`)
+SELECT 'manage_lesson_plan', 'Manage Lesson Plan', 'পাঠ পরিকল্পনা পরিচালনা'
+WHERE NOT EXISTS (SELECT 1 FROM `languages` WHERE `word` = 'manage_lesson_plan');
+

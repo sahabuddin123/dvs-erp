@@ -304,4 +304,193 @@ class Lesson_plan_model extends MY_Model
             'topics'             => $detailedTopics,
         ];
     }
+
+    // --- MANAGE LESSON PLAN METHODS ---
+
+    public function getLessonPlanList($branch_id = '', $class_id = '', $section_id = '', $subject_id = '', $date_from = '', $date_to = '')
+    {
+        $this->db->select('lp.*, b.name as branch_name, c.name as class_name, s.name as section_name, sub.name as subject_name, sub.subject_code, t.name as topic_name, l.name as lesson_name, st.name as teacher_name');
+        $this->db->from('lesson_plan_manage as lp');
+        $this->db->join('branch as b', 'b.id = lp.branch_id', 'left');
+        $this->db->join('class as c', 'c.id = lp.class_id', 'left');
+        $this->db->join('section as s', 's.id = lp.section_id', 'left');
+        $this->db->join('subject as sub', 'sub.id = lp.subject_id', 'left');
+        $this->db->join('lesson_plan_topic as t', 't.id = lp.topic_id', 'left');
+        $this->db->join('lesson_plan_lesson as l', 'l.id = lp.lesson_id', 'left');
+        $this->db->join('staff as st', 'st.id = lp.created_by', 'left');
+
+        if (!empty($branch_id)) {
+            $this->db->where('lp.branch_id', $branch_id);
+        }
+        if (!empty($class_id)) {
+            $this->db->where('lp.class_id', $class_id);
+        }
+        if (!empty($section_id)) {
+            $this->db->where('lp.section_id', $section_id);
+        }
+        if (!empty($subject_id)) {
+            $this->db->where('lp.subject_id', $subject_id);
+        }
+        if (!empty($date_from)) {
+            $this->db->where('lp.date >=', $date_from);
+        }
+        if (!empty($date_to)) {
+            $this->db->where('lp.date <=', $date_to);
+        }
+
+        $this->db->order_by('lp.date', 'DESC');
+        $this->db->order_by('lp.id', 'DESC');
+        return $this->db->get()->result_array();
+    }
+
+    public function getLessonPlan($id)
+    {
+        $this->db->select('lp.*, b.name as branch_name, c.name as class_name, s.name as section_name, sub.name as subject_name, sub.subject_code, t.name as topic_name, l.name as lesson_name, st.name as teacher_name');
+        $this->db->from('lesson_plan_manage as lp');
+        $this->db->join('branch as b', 'b.id = lp.branch_id', 'left');
+        $this->db->join('class as c', 'c.id = lp.class_id', 'left');
+        $this->db->join('section as s', 's.id = lp.section_id', 'left');
+        $this->db->join('subject as sub', 'sub.id = lp.subject_id', 'left');
+        $this->db->join('lesson_plan_topic as t', 't.id = lp.topic_id', 'left');
+        $this->db->join('lesson_plan_lesson as l', 'l.id = lp.lesson_id', 'left');
+        $this->db->join('staff as st', 'st.id = lp.created_by', 'left');
+        $this->db->where('lp.id', $id);
+        return $this->db->get()->row_array();
+    }
+
+    public function saveLessonPlan($data)
+    {
+        $planData = [
+            'branch_id'          => !empty($data['branch_id']) ? (int)$data['branch_id'] : get_loggedin_branch_id(),
+            'class_id'           => (int)$data['class_id'],
+            'section_id'         => (int)$data['section_id'],
+            'subject_id'         => (int)$data['subject_id'],
+            'topic_id'           => !empty($data['topic_id']) ? (int)$data['topic_id'] : null,
+            'lesson_id'          => !empty($data['lesson_id']) ? (int)$data['lesson_id'] : null,
+            'date'               => !empty($data['date']) ? $data['date'] : date('Y-m-d'),
+            'time_from'          => !empty($data['time_from']) ? trim($data['time_from']) : null,
+            'time_to'            => !empty($data['time_to']) ? trim($data['time_to']) : null,
+            'objectives'         => !empty($data['objectives']) ? trim($data['objectives']) : null,
+            'teaching_method'    => !empty($data['teaching_method']) ? trim($data['teaching_method']) : null,
+            'general_objectives' => !empty($data['general_objectives']) ? trim($data['general_objectives']) : null,
+            'homework'           => !empty($data['homework']) ? trim($data['homework']) : null,
+            'status'             => !empty($data['status']) ? trim($data['status']) : 'Pending',
+        ];
+
+        if (!empty($data['attachment'])) {
+            $planData['attachment'] = $data['attachment'];
+        }
+
+        if (!empty($data['id'])) {
+            $this->db->where('id', $data['id'])->update('lesson_plan_manage', $planData);
+            return $data['id'];
+        } else {
+            $planData['created_by'] = get_loggedin_user_id();
+            $this->db->insert('lesson_plan_manage', $planData);
+            return $this->db->insert_id();
+        }
+    }
+
+    public function deleteLessonPlan($id)
+    {
+        $plan = $this->db->where('id', $id)->get('lesson_plan_manage')->row_array();
+        if ($plan && !empty($plan['attachment'])) {
+            $filePath = './uploads/attachments/lesson_plan/' . $plan['attachment'];
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+        }
+        $this->db->where('id', $id)->delete('lesson_plan_manage');
+    }
+
+    // --- COPY OLD LESSONS METHODS ---
+
+    public function getTopicsAndLessonsForCopy($class_id, $section_id, $subject_id)
+    {
+        $topics = $this->db->where([
+            'class_id'   => $class_id,
+            'section_id' => $section_id,
+            'subject_id' => $subject_id,
+        ])->order_by('id', 'ASC')->get('lesson_plan_topic')->result_array();
+
+        foreach ($topics as &$t) {
+            $t['lessons'] = $this->db->where('topic_id', $t['id'])
+                ->order_by('id', 'ASC')
+                ->get('lesson_plan_lesson')
+                ->result_array();
+        }
+        return $topics;
+    }
+
+    public function executeCopyLessons($targetBranch, $targetClass, $targetSection, $targetSubject, $selectedTopics, $selectedLessons)
+    {
+        $copiedTopicsCount = 0;
+        $copiedLessonsCount = 0;
+
+        if (empty($selectedTopics)) {
+            return ['topics' => 0, 'lessons' => 0];
+        }
+
+        foreach ($selectedTopics as $oldTopicId) {
+            $oldTopic = $this->db->where('id', $oldTopicId)->get('lesson_plan_topic')->row_array();
+            if (!$oldTopic) {
+                continue;
+            }
+
+            // Check if topic already exists in destination
+            $destTopic = $this->db->where([
+                'branch_id'  => $targetBranch,
+                'class_id'   => $targetClass,
+                'section_id' => $targetSection,
+                'subject_id' => $targetSubject,
+                'name'       => $oldTopic['name'],
+            ])->get('lesson_plan_topic')->row_array();
+
+            if ($destTopic) {
+                $newTopicId = $destTopic['id'];
+            } else {
+                $this->db->insert('lesson_plan_topic', [
+                    'branch_id'  => $targetBranch,
+                    'class_id'   => $targetClass,
+                    'section_id' => $targetSection,
+                    'subject_id' => $targetSubject,
+                    'name'       => $oldTopic['name'],
+                ]);
+                $newTopicId = $this->db->insert_id();
+                $copiedTopicsCount++;
+            }
+
+            // Copy child lessons
+            $oldLessons = $this->db->where('topic_id', $oldTopicId)->get('lesson_plan_lesson')->result_array();
+            foreach ($oldLessons as $oldLesson) {
+                if (!empty($selectedLessons) && !in_array($oldLesson['id'], $selectedLessons)) {
+                    continue;
+                }
+
+                // Check if lesson exists under this new topic
+                $destLesson = $this->db->where([
+                    'branch_id'  => $targetBranch,
+                    'class_id'   => $targetClass,
+                    'section_id' => $targetSection,
+                    'subject_id' => $targetSubject,
+                    'topic_id'   => $newTopicId,
+                    'name'       => $oldLesson['name'],
+                ])->get('lesson_plan_lesson')->row_array();
+
+                if (!$destLesson) {
+                    $this->db->insert('lesson_plan_lesson', [
+                        'branch_id'  => $targetBranch,
+                        'class_id'   => $targetClass,
+                        'section_id' => $targetSection,
+                        'subject_id' => $targetSubject,
+                        'topic_id'   => $newTopicId,
+                        'name'       => $oldLesson['name'],
+                    ]);
+                    $copiedLessonsCount++;
+                }
+            }
+        }
+
+        return ['topics' => $copiedTopicsCount, 'lessons' => $copiedLessonsCount];
+    }
 }
