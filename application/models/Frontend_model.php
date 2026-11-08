@@ -20,19 +20,20 @@ class Frontend_model extends MY_Model
 
     public function save_slider($data)
     {
+        $branch_id = !empty($data['branch_id']) ? $data['branch_id'] : $this->application_model->get_branch_id();
         $elements_data = array(
-            'position' => $data['position'],
-            'button_text1' => $data['button_text_1'],
-            'button_url1' => $data['button_url_1'],
-            'button_text2' => $data['button_text_2'],
-            'button_url2' => $data['button_url_2'],
+            'position' => isset($data['position']) ? $data['position'] : 'c-center',
+            'button_text1' => isset($data['button_text_1']) ? $data['button_text_1'] : '',
+            'button_url1' => isset($data['button_url_1']) ? $data['button_url_1'] : '',
+            'button_text2' => isset($data['button_text_2']) ? $data['button_text_2'] : '',
+            'button_url2' => isset($data['button_url_2']) ? $data['button_url_2'] : '',
             'image' => $this->upload_image(),
         );
 
         $slider_data = array(
-            'branch_id' => $this->application_model->get_branch_id(),
-            'title' => $data['title'],
-            'description' => $data['description'],
+            'branch_id' => $branch_id,
+            'title' => isset($data['title']) ? $data['title'] : '',
+            'description' => isset($data['description']) ? $data['description'] : '',
             'item_type' => 'slider',
             'elements' => json_encode($elements_data),
         );

@@ -39,6 +39,9 @@ if (empty($elements)) {
 						<a href="#welcome" data-toggle="tab"><?php echo translate('welcome') . ' ' . translate('message'); ?></a>
 					</li>
 					<li>
+						<a href="#slider" data-toggle="tab"><i class="fas fa-images"></i> <?php echo translate('slider'); ?></a>
+					</li>
+					<li>
 						<a href="#teachers" data-toggle="tab"><?php echo translate('teachers'); ?></a>
 					</li>
 					<li>
@@ -487,6 +490,124 @@ if (empty($elements)) {
 							</footer>
 						<?php echo form_close(); ?>
 					</div>
+
+					<div class="tab-pane" id="slider">
+						<div class="headers-line mb-md" style="display: flex; justify-content: space-between; align-items: center;">
+							<span><i class="fas fa-images"></i> <b><?php echo translate('slider') . ' ' . translate('list'); ?></b></span>
+							<a href="<?php echo base_url('frontend/slider'); ?>" class="btn btn-default btn-xs"><i class="fas fa-external-link-alt"></i> <?php echo translate('slider'); ?> <?php echo translate('management'); ?></a>
+						</div>
+						
+						<div class="table-responsive mb-lg">
+							<table class="table table-bordered table-hover table-condensed" cellspacing="0" width="100%">
+								<thead>
+									<tr style="background: #f8fafc;">
+										<th width="50"><?php echo translate('sl'); ?></th>
+										<th width="120"><?php echo translate('photo'); ?></th>
+										<th><?php echo translate('title'); ?></th>
+										<th><?php echo translate('position'); ?></th>
+										<th width="100"><?php echo translate('action'); ?></th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php
+									$count = 1;
+									if (!empty($sliderlist)) {
+										foreach ($sliderlist as $row):
+											$elements = json_decode($row['elements'], true);
+											$s_img = !empty($elements['image']) ? $elements['image'] : '';
+											$thumb_url = '';
+											if (!empty($s_img)) {
+												if (file_exists(FCPATH . 'uploads/frontend/slider/' . $s_img)) {
+													$thumb_url = base_url('uploads/frontend/slider/' . $s_img);
+												} elseif (file_exists(FCPATH . 'uploads/frontend/images/' . $s_img)) {
+													$thumb_url = base_url('uploads/frontend/images/' . $s_img);
+												} elseif (file_exists(FCPATH . 'assets/frontend/dvs/storage/sliders/' . $s_img)) {
+													$thumb_url = base_url('assets/frontend/dvs/storage/sliders/' . $s_img);
+												}
+											}
+											if (empty($thumb_url)) {
+												$thumb_url = base_url('uploads/frontend/slider/home-slider-1592582779.jpg');
+											}
+									?>
+									<tr>
+										<td><?php echo $count++; ?></td>
+										<td>
+											<img class="img-rounded" src="<?php echo $thumb_url; ?>" style="height: 50px; width: 90px; object-fit: cover;" onerror="this.src='<?php echo base_url('uploads/app_image/logo.png'); ?>';"/>
+										</td>
+										<td>
+											<strong><?php echo strip_tags($row['title']); ?></strong>
+											<?php if (!empty($row['description'])): ?>
+												<br><small class="text-muted"><?php echo html_escape($row['description']); ?></small>
+											<?php endif; ?>
+										</td>
+										<td><?php echo ucfirst(substr(!empty($elements['position']) ? $elements['position'] : '', 2)); ?></td>
+										<td class="min-w-xs">
+											<a href="<?php echo base_url('frontend/slider/edit/' . $row['id']); ?>" class="btn btn-default btn-circle icon" data-toggle="tooltip" data-original-title="<?php echo translate('edit'); ?>"> 
+												<i class="fas fa-pen-nib"></i>
+											</a>
+											<a href="<?php echo base_url('frontend/section/home_slider_delete/' . $row['id']); ?>" class="btn btn-danger btn-circle icon" onclick="return confirm('<?php echo translate('delete_confirm'); ?>');" data-toggle="tooltip" data-original-title="<?php echo translate('delete'); ?>"> 
+												<i class="fas fa-trash-alt"></i>
+											</a>
+										</td>
+									</tr>
+									<?php endforeach; } else { ?>
+									<tr>
+										<td colspan="5" class="text-center text-muted"><?php echo translate('no_information_available'); ?></td>
+									</tr>
+									<?php } ?>
+								</tbody>
+							</table>
+						</div>
+
+						<div class="panel panel-bordered">
+							<div class="panel-heading">
+								<h4 class="panel-title"><i class="fas fa-plus-circle"></i> <?php echo translate('add') . ' ' . translate('slider'); ?></h4>
+							</div>
+							<div class="panel-body">
+								<?php echo form_open_multipart('frontend/section/home_slider_save' . get_request_url(), array('class' => 'form-horizontal frm-submit-data')); ?>
+									<div class="form-group">
+										<label class="col-md-3 control-label"><?php echo translate('title'); ?> <span class="required">*</span></label>
+										<div class="col-md-7">
+											<input type="text" class="form-control" name="title" placeholder="যেমন: আধুনিক শিক্ষা পরিবার" required />
+											<span class="error"></span>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-md-3 control-label"><?php echo translate('description'); ?></label>
+										<div class="col-md-7">
+											<textarea class="form-control" name="description" rows="2" placeholder="সংক্ষিপ্ত বিবরণ বা স্লোগান"></textarea>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-md-3 control-label"><?php echo translate('position'); ?></label>
+										<div class="col-md-7">
+											<select name="position" class="form-control">
+												<option value="c-center"><?php echo translate('center'); ?></option>
+												<option value="c-left"><?php echo translate('left'); ?></option>
+												<option value="c-right"><?php echo translate('right'); ?></option>
+											</select>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-md-3 control-label"><?php echo translate('photo'); ?> <span class="required">*</span></label>
+										<div class="col-md-5">
+											<input type="file" name="photo" class="dropify" data-height="150" required />
+											<span class="error"></span>
+										</div>
+									</div>
+									<footer class="panel-footer mt-lg">
+										<div class="row">
+											<div class="col-md-2 col-md-offset-3">
+												<button type="submit" class="btn btn-default btn-block" data-loading-text="<i class='fas fa-spinner fa-spin'></i> Processing">
+													<i class="fas fa-plus-circle"></i> <?php echo translate('save'); ?>
+												</button>
+											</div>
+										</div>	
+									</footer>
+								<?php echo form_close(); ?>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -504,4 +625,9 @@ if (empty($elements)) {
 			zeroAlphaAsTransparent: false
 		},
     });
+
+	// Auto switch tab if URL has hash (e.g. #slider)
+	if (window.location.hash) {
+		$('.nav-tabs a[href="' + window.location.hash + '"]').tab('show');
+	}
 </script>

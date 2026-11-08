@@ -16,12 +16,12 @@ class Slider extends Admin_Controller
             $this->form_validation->set_rules('branch_id', translate('branch'), 'required');
         }
         $this->form_validation->set_rules('title', translate('title'), 'trim|required');
-        $this->form_validation->set_rules('position', translate('position'), 'trim|required');
-        $this->form_validation->set_rules('button_text_1', 'Button Text 1', 'trim|required');
-        $this->form_validation->set_rules('button_url_1', 'Button Url 1', 'trim|required');
-        $this->form_validation->set_rules('button_text_2', 'Button Text 2', 'trim|required');
-        $this->form_validation->set_rules('button_url_2', 'Button Url 2', 'trim|required');
-        $this->form_validation->set_rules('description', translate('description'), 'trim|required');
+        $this->form_validation->set_rules('position', translate('position'), 'trim');
+        $this->form_validation->set_rules('button_text_1', 'Button Text 1', 'trim');
+        $this->form_validation->set_rules('button_url_1', 'Button Url 1', 'trim');
+        $this->form_validation->set_rules('button_text_2', 'Button Text 2', 'trim');
+        $this->form_validation->set_rules('button_url_2', 'Button Url 2', 'trim');
+        $this->form_validation->set_rules('description', translate('description'), 'trim');
         $this->form_validation->set_rules('photo', translate('photo'), 'trim|callback_check_image');
     }
 

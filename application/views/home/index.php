@@ -77,20 +77,32 @@ $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_front
                             foreach ($sliders as $slide) {
                                 $elements = !empty($slide['elements']) ? json_decode($slide['elements'], true) : [];
                                 $slide_img = !empty($elements['image']) ? $elements['image'] : '';
-                                if (!empty($slide_img) && file_exists(FCPATH . 'assets/frontend/dvs/storage/sliders/' . $slide_img)) {
-                                    $img_url = base_url('assets/frontend/dvs/storage/sliders/' . $slide_img);
-                                } elseif (!empty($slide_img) && file_exists(FCPATH . 'uploads/frontend/slider/' . $slide_img)) {
-                                    $img_url = base_url('uploads/frontend/slider/' . $slide_img);
-                                } else {
-                                    $img_url = base_url('assets/frontend/dvs/storage/sliders/nVHaqYexQf7HCFWv7BFZfn2Xx5yW9Xf6tqvnqHhg.jpg');
+                                $img_url = '';
+                                if (!empty($slide_img)) {
+                                    if (file_exists(FCPATH . 'uploads/frontend/slider/' . $slide_img)) {
+                                        $img_url = base_url('uploads/frontend/slider/' . $slide_img);
+                                    } elseif (file_exists(FCPATH . 'uploads/frontend/images/' . $slide_img)) {
+                                        $img_url = base_url('uploads/frontend/images/' . $slide_img);
+                                    } elseif (file_exists(FCPATH . 'assets/frontend/dvs/storage/sliders/' . $slide_img)) {
+                                        $img_url = base_url('assets/frontend/dvs/storage/sliders/' . $slide_img);
+                                    }
+                                }
+                                if (empty($img_url)) {
+                                    if (file_exists(FCPATH . 'uploads/frontend/slider/home-slider-1592582779.jpg')) {
+                                        $img_url = base_url('uploads/frontend/slider/home-slider-1592582779.jpg');
+                                    } elseif (file_exists(FCPATH . 'uploads/frontend/slider/IXFXmvexlCc59dZtrb9u5AURZ1Ge4DAOFNijkMzB.jpg')) {
+                                        $img_url = base_url('uploads/frontend/slider/IXFXmvexlCc59dZtrb9u5AURZ1Ge4DAOFNijkMzB.jpg');
+                                    } else {
+                                        $img_url = base_url('uploads/frontend/slider/home-slider-1592582805.jpg');
+                                    }
                                 }
                                 $slide_title = get_lang_field($slide, 'title');
                         ?>
                             <div class="item position-relative">
-                                <img src="<?php echo $img_url; ?>" alt="<?php echo html_escape($slide_title); ?>" style="width: 100%; height: 460px; object-fit: cover;">
+                                <img src="<?php echo $img_url; ?>" alt="<?php echo strip_tags($slide_title); ?>" style="width: 100%; height: 460px; object-fit: cover;">
                                 <?php if (!empty($slide_title)) { ?>
                                 <div class="slider-caption" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 10px 15px 28px 15px; text-align: center; font-weight: 600; font-size: 1.05rem;">
-                                    <?php echo html_escape($slide_title); ?>
+                                    <?php echo strip_tags($slide_title, '<span><strong><b><small><em>'); ?>
                                 </div>
                                 <?php } ?>
                             </div>
@@ -98,9 +110,14 @@ $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_front
                             }
                         } else { ?>
                             <div class="item position-relative">
-                                <img src="<?php echo base_url('assets/frontend/dvs/storage/sliders/nVHaqYexQf7HCFWv7BFZfn2Xx5yW9Xf6tqvnqHhg.jpg'); ?>" alt="DVS Reception" style="width: 100%; height: 460px; object-fit: cover;">
+                                <?php 
+                                $default_slide_img = file_exists(FCPATH . 'uploads/frontend/slider/home-slider-1592582779.jpg') 
+                                    ? base_url('uploads/frontend/slider/home-slider-1592582779.jpg') 
+                                    : base_url('uploads/frontend/slider/home-slider-1592582805.jpg');
+                                ?>
+                                <img src="<?php echo $default_slide_img; ?>" alt="<?php echo html_escape($app_title); ?>" style="width: 100%; height: 460px; object-fit: cover;">
                                 <div class="slider-caption" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 10px 15px 28px 15px; text-align: center; font-weight: 600; font-size: 1.05rem;">
-                                    <?php echo ($current_lang == 'en') ? 'Reception' : 'রিসিপশন'; ?>
+                                    <?php echo html_escape($app_title); ?>
                                 </div>
                             </div>
                         <?php } ?>

@@ -54,10 +54,64 @@ class Section extends Admin_Controller
         $this->data['services']     = $this->frontend_model->get('front_cms_home', array('item_type' => 'services', 'branch_id' => $branchID), true);
         $this->data['statistics']   = $this->frontend_model->get('front_cms_home', array('item_type' => 'statistics', 'branch_id' => $branchID), true);
         $this->data['cta']          = $this->frontend_model->get('front_cms_home', array('item_type' => 'cta', 'branch_id' => $branchID), true);
+        $this->data['sliderlist']   = $this->frontend_model->get('front_cms_home', array('item_type' => 'slider', 'branch_id' => $branchID));
         $this->data['title']        = translate('website_page');
         $this->data['sub_page']     = 'frontend/section_home';
         $this->data['main_menu']    = 'frontend';
         $this->load->view('layout/index', $this->data);
+    }
+
+    public function home_slider_save()
+    {
+        if ($_POST) {
+            if (!get_permission('frontend_section', 'is_add') && !get_permission('frontend_slider', 'is_add')) {
+                ajax_access_denied();
+            }
+            $this->form_validation->set_rules('title', translate('title'), 'trim|required');
+            if (empty($_FILES['photo']['name']) && empty($this->input->post('old_photo'))) {
+                $this->form_validation->set_rules('photo', translate('photo'), 'required');
+            }
+            if ($this->form_validation->run() !== false) {
+                $branchID = $this->frontend_model->getBranchID();
+                $post = $this->input->post();
+                $post['branch_id'] = $branchID;
+                if (!isset($post['button_text_1'])) $post['button_text_1'] = '';
+                if (!isset($post['button_url_1'])) $post['button_url_1'] = '';
+                if (!isset($post['button_text_2'])) $post['button_text_2'] = '';
+                if (!isset($post['button_url_2'])) $post['button_url_2'] = '';
+                if (!isset($post['description'])) $post['description'] = '';
+                if (!isset($post['position'])) $post['position'] = 'c-center';
+                $this->frontend_model->save_slider($post);
+                set_alert('success', translate('information_has_been_saved_successfully'));
+                $url = base_url('frontend/section/home' . (is_superadmin_loggedin() ? '?branch_id=' . $branchID : '') . '#slider');
+                $array = array('status' => 'success', 'url' => $url);
+            } else {
+                $error = $this->form_validation->error_array();
+                $array = array('status' => 'fail', 'error' => $error);
+            }
+            echo json_encode($array);
+            exit();
+        }
+    }
+
+    public function home_slider_delete($id = '')
+    {
+        if (!get_permission('frontend_section', 'is_delete') && !get_permission('frontend_slider', 'is_delete')) {
+            access_denied();
+        }
+        $row = $this->db->get_where('front_cms_home', array('id' => $id, 'item_type' => 'slider'))->row_array();
+        if (!empty($row)) {
+            $elements = json_decode($row['elements'], true);
+            $image = !empty($elements['image']) ? $elements['image'] : '';
+            if ($this->db->where(array('id' => $id, 'item_type' => 'slider'))->delete('front_cms_home')) {
+                $destination = './uploads/frontend/slider/';
+                if (!empty($image) && file_exists($destination . $image)) {
+                    @unlink($destination . $image);
+                }
+            }
+        }
+        set_alert('success', translate('information_deleted'));
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function home_wellcome()
