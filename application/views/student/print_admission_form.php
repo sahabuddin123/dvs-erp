@@ -1,3 +1,27 @@
+<?php
+$ci =& get_instance();
+$branch_id = !empty($student['branch_id']) ? $student['branch_id'] : 1;
+$branch_info = (!empty($branch) && is_array($branch)) ? $branch : $ci->db->where('id', $branch_id)->get('branch')->row_array();
+$cms_setting = $ci->db->where('branch_id', $branch_id)->get('front_cms_setting')->row_array();
+
+$inst_name_bn = !empty($branch_info['school_name']) ? $branch_info['school_name'] : (!empty($branch_info['name']) ? $branch_info['name'] : (!empty($global_config['institute_name']) ? $global_config['institute_name'] : 'School'));
+$inst_name_en = !empty($branch_info['school_name']) ? strtoupper($branch_info['school_name']) : (!empty($global_config['institute_name']) ? strtoupper($global_config['institute_name']) : 'SCHOOL');
+$inst_tagline = !empty($cms_setting['site_tagline']) ? $cms_setting['site_tagline'] : (!empty($global_config['tagline']) ? $global_config['tagline'] : '');
+$inst_address = !empty($branch_info['address']) ? $branch_info['address'] : (!empty($global_config['address']) ? $global_config['address'] : '');
+$inst_phone = !empty($branch_info['mobileno']) ? $branch_info['mobileno'] : (!empty($global_config['mobileno']) ? $global_config['mobileno'] : '');
+$inst_email = !empty($branch_info['email']) ? $branch_info['email'] : (!empty($global_config['email']) ? $global_config['email'] : '');
+$inst_web = !empty($cms_setting['url_alias']) && $cms_setting['url_alias'] != '_' ? base_url($cms_setting['url_alias']) : base_url();
+
+$logo_url = (!empty($ci->application_model) && method_exists($ci->application_model, 'getBranchImage')) 
+    ? $ci->application_model->getBranchImage($branch_id, 'printing-logo') 
+    : '';
+if (empty($logo_url) && !empty($cms_setting['logo']) && file_exists(FCPATH . 'uploads/frontend/images/' . $cms_setting['logo'])) {
+    $logo_url = base_url('uploads/frontend/images/' . $cms_setting['logo']);
+}
+if (empty($logo_url)) {
+    $logo_url = base_url('uploads/app_image/printing-logo.png');
+}
+?>
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -346,7 +370,7 @@
     <div class="no-print-bar">
         <div>
             <span style="font-weight: 700; color: #007F3D; font-size: 15px;">
-                <i class="fas fa-file-invoice"></i> ড্রিম ভ্যালি স্কুল - ভর্তি ফরম ও মানি রিসিট
+                <i class="fas fa-file-invoice"></i> <?=html_escape($inst_name_bn)?> - ভর্তি ফরম ও মানি রিসিট
             </span>
             <span class="text-muted" style="margin-left: 10px; font-size: 12px;">(রেজিস্টার নং: <?=html_escape($student['register_no'])?>)</span>
         </div>
@@ -370,18 +394,21 @@
         <table class="school-header-table">
             <tr>
                 <td style="width: 18%; vertical-align: middle; text-align: left;">
-                    <?php
-                    $logo_url = base_url('uploads/app_image/logo.png');
-                    ?>
                     <img src="<?=$logo_url?>" alt="Logo" class="school-logo-img" onerror="this.style.display='none';">
                 </td>
                 <td class="school-info-col" style="width: 64%; vertical-align: middle;">
-                    <h1 class="school-title-bn">ড্রিম ভ্যালি স্কুল</h1>
-                    <h2 class="school-title-en">DREAM VALLEY SCHOOL</h2>
-                    <p class="school-tagline">ইসলামিক কারিকুলাম উইথ তাহফিজুল কুরআন (Islamic Curriculum with Tahfeezul Quran)</p>
+                    <h1 class="school-title-bn"><?=html_escape($inst_name_bn)?></h1>
+                    <?php if (!empty($inst_name_en) && $inst_name_en !== strtoupper($inst_name_bn)): ?>
+                        <h2 class="school-title-en"><?=html_escape($inst_name_en)?></h2>
+                    <?php endif; ?>
+                    <?php if (!empty($inst_tagline)): ?>
+                        <p class="school-tagline"><?=html_escape($inst_tagline)?></p>
+                    <?php endif; ?>
                     <p class="school-contact-line">
-                        খাসেরহাট মেইন রোড, চরবাটা, সুবর্ণচর, নোয়াখালী | মোবাইল: 01716-122899, 01712-886988<br>
-                        ওয়েবসাইট: dreamvalleyschool.com | ইমেইল: dreamvalleyschoolbd@gmail.com
+                        <?=html_escape($inst_address)?>
+                        <?php if (!empty($inst_phone)): ?> | মোবাইল: <?=html_escape($inst_phone)?><?php endif; ?><br>
+                        <?php if (!empty($inst_web)): ?>ওয়েবসাইট: <?=preg_replace('#^https?://#', '', rtrim($inst_web, '/'))?><?php endif; ?>
+                        <?php if (!empty($inst_email)): ?> | ইমেইল: <?=html_escape($inst_email)?><?php endif; ?>
                     </p>
                 </td>
                 <td style="width: 18%; vertical-align: middle; text-align: right;">

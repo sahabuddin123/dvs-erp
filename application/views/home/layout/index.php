@@ -7,8 +7,14 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <meta name="keyword" content="<?php echo !empty($page_data['meta_keyword']) ? $page_data['meta_keyword'] : 'school, college, education, dream valley school'; ?>">
-    <meta name="description" content="<?php echo !empty($page_data['meta_description']) ? $page_data['meta_description'] : 'ড্রিম ভ্যালী স্কুল - যেখানে স্বপ্ন ডানা মেলে'; ?>">
+    <?php
+        $default_inst_name = !empty($global_config['institute_name']) ? $global_config['institute_name'] : (!empty($branch['school_name']) ? $branch['school_name'] : 'School');
+        $site_name = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'application_title', $default_inst_name) : $default_inst_name;
+        $meta_kw = !empty($page_data['meta_keyword']) ? $page_data['meta_keyword'] : 'school, college, education';
+        $meta_desc = !empty($page_data['meta_description']) ? $page_data['meta_description'] : $site_name;
+    ?>
+    <meta name="keyword" content="<?php echo html_escape($meta_kw); ?>">
+    <meta name="description" content="<?php echo html_escape($meta_desc); ?>">
     
     <!-- Favicon -->
     <link rel="shortcut icon" href="<?php echo base_url('assets/images/favicon.png'); ?>">
@@ -16,7 +22,7 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
     <?php 
         $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
         $curr_page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title') : (!empty($page_data['page_title']) ? $page_data['page_title'] : '');
-        $curr_site_title = ($current_lang == 'en') ? 'Dream Valley School' : 'ড্রিম ভ্যালী স্কুল (Dream Valley School)';
+        $curr_site_title = html_escape($site_name);
     ?>
     <title><?php echo (!empty($curr_page_title) ? $curr_page_title . " - " : "") . $curr_site_title; ?></title>
 

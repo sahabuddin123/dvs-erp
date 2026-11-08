@@ -467,11 +467,7 @@ window.getSectionByClass = function(class_id) {
                                 <span class="input-group-text"><i class="fas fa-landmark"></i></span>
                                 <?php
                                 $branchSchoolName = get_type_name_by_id('branch', $branchID, 'school_name');
-                                if (!$is_en && !empty($cms_setting['application_title'])) {
-                                    $displaySchoolName = $cms_setting['application_title'];
-                                } else {
-                                    $displaySchoolName = !empty($branchSchoolName) ? $branchSchoolName : 'Dream Valley School';
-                                }
+                                $displaySchoolName = !empty($branchSchoolName) ? $branchSchoolName : (!empty($cms_setting['application_title']) ? $cms_setting['application_title'] : (!empty($global_config['institute_name']) ? $global_config['institute_name'] : 'School'));
                                 ?>
                                 <input type="text" class="form-control" name="schoolname" value="<?php echo html_escape($displaySchoolName); ?>" readonly />
                             </div>

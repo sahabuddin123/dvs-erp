@@ -2,14 +2,16 @@
 defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
 $v_stats = function_exists('get_frontend_visitor_stats') ? get_frontend_visitor_stats() : ['total' => 672];
-$app_title = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'application_title', ($current_lang == 'en' ? 'Dream Valley School' : 'ড্রিম ভ্যালী স্কুল')) : ($current_lang == 'en' ? 'Dream Valley School' : 'ড্রিম ভ্যালী স্কুল');
-$app_address = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'address', ($current_lang == 'en' ? 'Charbata, Subarnachar, Noakhali' : 'চরবাটা, সুবর্ণচর, নোয়াখালী')) : ($current_lang == 'en' ? 'Charbata, Subarnachar, Noakhali' : 'চরবাটা, সুবর্ণচর, নোয়াখালী');
+$default_inst = !empty($global_config['institute_name']) ? $global_config['institute_name'] : (!empty($branch['school_name']) ? $branch['school_name'] : 'School');
+$app_title = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'application_title', $default_inst) : $default_inst;
+$default_addr = !empty($global_config['address']) ? $global_config['address'] : (!empty($branch['address']) ? $branch['address'] : '');
+$app_address = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'address', $default_addr) : $default_addr;
 $app_tagline = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'site_tagline', '') : '';
-$app_phone = !empty($cms_setting['mobile_no']) ? $cms_setting['mobile_no'] : '+880 1845 746454';
-$app_email = !empty($cms_setting['email']) ? $cms_setting['email'] : 'info@dreamvalleyschool.com';
+$app_phone = !empty($cms_setting['mobile_no']) ? $cms_setting['mobile_no'] : (!empty($global_config['mobileno']) ? $global_config['mobileno'] : (!empty($branch['mobileno']) ? $branch['mobileno'] : ''));
+$app_email = !empty($cms_setting['email']) ? $cms_setting['email'] : (!empty($global_config['institute_email']) ? $global_config['institute_email'] : (!empty($branch['email']) ? $branch['email'] : ''));
 $copyright = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'copyright_text', '') : '';
 if (empty($copyright)) {
-    $copyright = ($current_lang == 'en') ? '© 2026 Dream Valley School. All rights reserved. | Developed by <a href="https://innographixbd.com/" target="_blank" style="color: #60a5fa;">Innographix BD</a>' : '© 2026 Dream Valley School. All rights reserved. | কারিগরি সহায়তায় <a href="https://innographixbd.com/" target="_blank" style="color: #60a5fa;">ইনোগ্রাফিক্স বিডি</a>';
+    $copyright = ($current_lang == 'en') ? '© ' . date('Y') . ' ' . html_escape($app_title) . '. All rights reserved.' : 'স্বত্ব © ' . date('Y') . ' ' . html_escape($app_title) . '। সর্বস্বত্ব সংরক্ষিত।';
 }
 ?>
 
@@ -25,9 +27,11 @@ if (empty($copyright)) {
                     <p style="color: #9ca3af; font-size: 0.9rem; font-style: italic;"><?php echo html_escape($app_tagline); ?></p>
                 <?php } ?>
                 <div class="social-icons">
-                    <a href="<?php echo !empty($cms_setting['facebook_url']) ? $cms_setting['facebook_url'] : 'https://www.facebook.com/dreamvalleyintschool'; ?>" target="_blank"><i class="fab fa-facebook"></i></a>
-                    <a href="<?php echo !empty($cms_setting['linkedin_url']) ? $cms_setting['linkedin_url'] : 'https://www.linkedin.com/'; ?>" target="_blank"><i class="fab fa-linkedin"></i></a>
-                    <a href="<?php echo !empty($cms_setting['youtube_url']) ? $cms_setting['youtube_url'] : 'https://www.youtube.com/'; ?>" target="_blank"><i class="fab fa-youtube"></i></a>
+                    <?php if (!empty($cms_setting['facebook_url'])) { ?><a href="<?php echo html_escape($cms_setting['facebook_url']); ?>" target="_blank"><i class="fab fa-facebook"></i></a><?php } ?>
+                    <?php if (!empty($cms_setting['linkedin_url'])) { ?><a href="<?php echo html_escape($cms_setting['linkedin_url']); ?>" target="_blank"><i class="fab fa-linkedin"></i></a><?php } ?>
+                    <?php if (!empty($cms_setting['youtube_url'])) { ?><a href="<?php echo html_escape($cms_setting['youtube_url']); ?>" target="_blank"><i class="fab fa-youtube"></i></a><?php } ?>
+                    <?php if (!empty($cms_setting['twitter_url'])) { ?><a href="<?php echo html_escape($cms_setting['twitter_url']); ?>" target="_blank"><i class="fab fa-twitter"></i></a><?php } ?>
+                    <?php if (!empty($cms_setting['instagram_url'])) { ?><a href="<?php echo html_escape($cms_setting['instagram_url']); ?>" target="_blank"><i class="fab fa-instagram"></i></a><?php } ?>
                 </div>
             </div>
 

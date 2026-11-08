@@ -160,7 +160,7 @@ $page_subtitle = function_exists('get_lang_field') ? get_lang_field($page_data, 
                             <div class="contact-info-text">
                                 <h5 class="mb-1 fw-bold text-dark"><?php echo ($current_lang == 'en') ? 'Email' : 'ইমেইল'; ?></h5>
                                 <p class="text-muted mb-0">
-                                    <?php echo !empty($cms_setting['email']) ? html_escape($cms_setting['email']) : 'info@dreamvalleyschool.com'; ?>
+                                    <?php echo !empty($cms_setting['email']) ? html_escape($cms_setting['email']) : (!empty($global_config['email']) ? html_escape($global_config['email']) : ''); ?>
                                 </p>
                             </div>
                         </li>
@@ -169,7 +169,7 @@ $page_subtitle = function_exists('get_lang_field') ? get_lang_field($page_data, 
                     <div class="pt-4 border-top">
                         <h6 class="fw-bold mb-3 text-dark"><?php echo ($current_lang == 'en') ? 'Follow Us' : 'আমাদের সাথে যুক্ত থাকুন'; ?></h6>
                         <div class="d-flex gap-2">
-                            <a href="<?php echo !empty($cms_setting['facebook_url']) ? $cms_setting['facebook_url'] : 'https://www.facebook.com/dreamvalleyintschool'; ?>" target="_blank" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; color: #1877f2;">
+                            <a href="<?php echo !empty($cms_setting['facebook_url']) ? html_escape($cms_setting['facebook_url']) : 'https://www.facebook.com/'; ?>" target="_blank" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; color: #1877f2;">
                                 <i class="fab fa-facebook-f"></i>
                             </a>
                             <a href="<?php echo !empty($cms_setting['linkedin_url']) ? $cms_setting['linkedin_url'] : 'https://www.linkedin.com/'; ?>" target="_blank" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; color: #0a66c2;">

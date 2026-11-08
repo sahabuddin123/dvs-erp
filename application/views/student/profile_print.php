@@ -488,15 +488,26 @@ $student_full_name = trim($student['first_name'] . ' ' . $student['last_name']);
 // Photo URL
 $photo_url = get_image_url('student', $student['photo']);
 
-// Branch info
-$branch_name = !empty($branch['name']) ? $branch['name'] : 'ড্রিম ভ্যালি স্কুল';
-$branch_address = !empty($branch['address']) ? $branch['address'] : (!empty($global_config['address']) ? $global_config['address'] : 'খাসেরহাট মেইন রোড, চরবাটা, সুবর্ণচর, নোয়াখালী');
-$branch_phone = !empty($branch['mobileno']) ? $branch['mobileno'] : (!empty($global_config['mobileno']) ? $global_config['mobileno'] : '+88 01716 122 899');
-$branch_email = !empty($branch['email']) ? $branch['email'] : (!empty($global_config['email']) ? $global_config['email'] : 'info@dreamvalleyschool.com');
+// Branch / Institute info
 $ci =& get_instance();
+$branch_id = !empty($student['branch_id']) ? $student['branch_id'] : 1;
+$branch_info = (!empty($branch) && is_array($branch)) ? $branch : $ci->db->where('id', $branch_id)->get('branch')->row_array();
+$cms_set = $ci->db->where('branch_id', $branch_id)->get('front_cms_setting')->row_array();
+
+$branch_name = !empty($branch_info['school_name']) ? $branch_info['school_name'] : (!empty($branch_info['name']) ? $branch_info['name'] : (!empty($global_config['institute_name']) ? $global_config['institute_name'] : 'School'));
+$branch_name_en = !empty($branch_info['school_name']) ? strtoupper($branch_info['school_name']) : (!empty($global_config['institute_name']) ? strtoupper($global_config['institute_name']) : 'SCHOOL');
+$branch_tagline = !empty($cms_set['site_tagline']) ? $cms_set['site_tagline'] : (!empty($global_config['tagline']) ? $global_config['tagline'] : '');
+$branch_address = !empty($branch_info['address']) ? $branch_info['address'] : (!empty($global_config['address']) ? $global_config['address'] : '');
+$branch_phone = !empty($branch_info['mobileno']) ? $branch_info['mobileno'] : (!empty($global_config['mobileno']) ? $global_config['mobileno'] : '');
+$branch_email = !empty($branch_info['email']) ? $branch_info['email'] : (!empty($global_config['email']) ? $global_config['email'] : '');
+$branch_web = !empty($cms_set['url_alias']) && $cms_set['url_alias'] != '_' ? base_url($cms_set['url_alias']) : base_url();
+
 $branch_logo = (!empty($ci->application_model) && method_exists($ci->application_model, 'getBranchImage')) 
-    ? $ci->application_model->getBranchImage($student['branch_id'], 'printing-logo') 
-    : base_url('uploads/app_image/printing-logo.png');
+    ? $ci->application_model->getBranchImage($branch_id, 'printing-logo') 
+    : '';
+if (empty($branch_logo) && !empty($cms_set['logo']) && file_exists(FCPATH . 'uploads/frontend/images/' . $cms_set['logo'])) {
+    $branch_logo = base_url('uploads/frontend/images/' . $cms_set['logo']);
+}
 if (empty($branch_logo)) {
     $branch_logo = base_url('uploads/app_image/printing-logo.png');
 }
@@ -539,12 +550,18 @@ $guardian_name = !empty($parent['name']) ? $parent['name'] : (!empty($father_bn)
                 <img src="<?=$branch_logo?>" class="brand-logo-img" alt="Dream Valley School Logo" onerror="this.onerror=null;this.src='<?=base_url('uploads/app_image/logo.png')?>';">
             </td>
             <td class="brand-info-col">
-                <h1 class="brand-title-bn"><?=$branch_name?></h1>
-                <div class="brand-title-en">DREAM VALLEY SCHOOL</div>
-                <div class="brand-tagline">ইসলামিক কারিকুলাম উইথ তাহফিজুল কুরআন • Islamic Curriculum with Tahfizul Qur'an</div>
+                <h1 class="brand-title-bn"><?=html_escape($branch_name)?></h1>
+                <?php if (!empty($branch_name_en) && $branch_name_en !== strtoupper($branch_name)): ?>
+                    <div class="brand-title-en"><?=html_escape($branch_name_en)?></div>
+                <?php endif; ?>
+                <?php if (!empty($branch_tagline)): ?>
+                    <div class="brand-tagline"><?=html_escape($branch_tagline)?></div>
+                <?php endif; ?>
                 <p class="brand-meta">
-                    <?=$branch_address?><br>
-                    <strong>ফোন:</strong> <?=$branch_phone?> | <strong>ইমেইল:</strong> <?=$branch_email?> | <strong>ওয়েব:</strong> dreamvalleyschool.com
+                    <?=html_escape($branch_address)?><br>
+                    <?php if (!empty($branch_phone)): ?><strong>ফোন:</strong> <?=html_escape($branch_phone)?><?php endif; ?>
+                    <?php if (!empty($branch_email)): ?> | <strong>ইমেইল:</strong> <?=html_escape($branch_email)?><?php endif; ?>
+                    <?php if (!empty($branch_web)): ?> | <strong>ওয়েব:</strong> <?=preg_replace('#^https?://#', '', rtrim($branch_web, '/'))?><?php endif; ?>
                 </p>
                 <div>
                     <span class="brand-dossier-badge">OFFICIAL STUDENT DOSSIER & BIO-DATA (শিক্ষার্থীর পূর্ণাঙ্গ নথি)</span>
@@ -751,7 +768,7 @@ $guardian_name = !empty($parent['name']) ? $parent['name'] : (!empty($father_bn)
             <i class="fas fa-file-alt"></i> নথি ট্র্যাকিং: <strong>DVS-STU-<?=html_escape($student['register_no'])?></strong> | প্রিন্টের সময়: <?=date('d M Y, h:i A')?>
         </div>
         <div style="font-weight: 700; color: #007F3D;">
-            পৃষ্ঠা ১ / ২ (Page 1 of 2) • ড্রিম ভ্যালি স্কুল ইআরপি
+            পৃষ্ঠা ১ / ২ (Page 1 of 2) • <?=html_escape($branch_name)?>
         </div>
     </div>
 </div>
@@ -766,8 +783,8 @@ $guardian_name = !empty($parent['name']) ? $parent['name'] : (!empty($father_bn)
         <div class="page2-logo-title">
             <img src="<?=$branch_logo?>" class="page2-logo-img" alt="Logo" onerror="this.onerror=null;this.src='<?=base_url('uploads/app_image/logo.png')?>';">
             <div>
-                <h3 class="page2-title"><?=$branch_name?></h3>
-                <p class="page2-sub">ইসলামিক কারিকুলাম উইথ তাহফিজুল কুরআন • খাসেরহাট, সুবর্ণচর, নোয়াখালী</p>
+                <h3 class="page2-title"><?=html_escape($branch_name)?></h3>
+                <p class="page2-sub"><?php echo !empty($branch_tagline) ? html_escape($branch_tagline) . ' • ' : ''; ?><?=html_escape($branch_address)?></p>
             </div>
         </div>
         <div class="page2-student-pill">
@@ -986,10 +1003,10 @@ $guardian_name = !empty($parent['name']) ? $parent['name'] : (!empty($father_bn)
     <!-- Page 2 Footer -->
     <div class="page-footer">
         <div>
-            <i class="fas fa-check-circle" style="color: #007F3D;"></i> ড্রিম ভ্যালি স্কুল ইআরপি সিস্টেম দ্বারা কম্পিউটার জেনারেটেড অফিশিয়াল শিক্ষার্থী প্রোফাইল ও নথি।
+            <i class="fas fa-check-circle" style="color: #007F3D;"></i> <?=html_escape($branch_name)?> সিস্টেম দ্বারা কম্পিউটার জেনারেটেড অফিশিয়াল শিক্ষার্থী প্রোফাইল ও নথি।
         </div>
         <div style="font-weight: 700; color: #007F3D;">
-            পৃষ্ঠা ২ / ২ (Page 2 of 2) • ড্রিম ভ্যালি স্কুল
+            পৃষ্ঠা ২ / ২ (Page 2 of 2) • <?=html_escape($branch_name)?>
         </div>
     </div>
 </div>

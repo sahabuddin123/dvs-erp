@@ -1,11 +1,10 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
-$app_title = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'application_title', 'ড্রিম ভ্যালী স্কুল') : 'ড্রিম ভ্যালী স্কুল';
-$app_address = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'address', 'চরবাটা, সুবর্ণচর, নোয়াখালী') : 'চরবাটা, সুবর্ণচর, নোয়াখালী';
+$default_name = !empty($global_config['institute_name']) ? $global_config['institute_name'] : (!empty($branch['school_name']) ? $branch['school_name'] : 'School');
+$app_title = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'application_title', $default_name) : $default_name;
+$default_address = !empty($global_config['address']) ? $global_config['address'] : (!empty($branch['address']) ? $branch['address'] : '');
+$app_address = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'address', $default_address) : $default_address;
 $app_tagline = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'site_tagline') : '';
-if (empty($app_tagline)) {
-    $app_tagline = ($current_lang == 'en') ? 'Where dreams take wing in knowledge,<br>hearts blossom in the light of Quran' : 'স্বপ্ন ডানা মেলুক জ্ঞানের আলোয়,<br>হৃদয় বিকশিত হোক কুরআনের আলোয়';
-}
 $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_frontend_visitor_stats') ? get_frontend_visitor_stats() : ['total' => 672, 'month' => 54, 'today' => 13]);
 ?>
 
@@ -21,9 +20,11 @@ $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_front
         <p class="subtitle" style="font-size: 1.25rem; font-weight: 500; margin-bottom: 12px;">
             <?php echo html_escape($app_address); ?>
         </p>
+        <?php if (!empty($app_tagline)): ?>
         <p class="subtitle" style="font-size: 1.15rem; font-style: italic; line-height: 1.6; margin-bottom: 25px;">
             <?php echo $app_tagline; ?>
         </p>
+        <?php endif; ?>
         <div class="btn-group">
             <a href="<?php echo base_url('admission'); ?>" class="btn btn-primary-hero">
                 <i class="fas fa-edit me-1"></i> <?php echo translate('apply_for_admission'); ?>
@@ -228,7 +229,7 @@ $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_front
         <div class="row align-items-center">
             <div class="col-lg-6 mb-4">
                 <div class="section-title">
-                    <h2><i class="fas fa-hands-praying"></i> <?php echo html_escape(get_lang_field($wellcome, 'title', ($current_lang == 'en' ? 'Welcome to Dream Valley' : 'ড্রিম ভ্যালিতে স্বাগতম'))); ?></h2>
+                    <h2><i class="fas fa-hands-praying"></i> <?php echo html_escape(get_lang_field($wellcome, 'title', ($current_lang == 'en' ? 'Welcome to ' . $app_title : $app_title . ' এ স্বাগতম'))); ?></h2>
                 </div>
                 <div class="text-justify pr-4 lh-lg text-muted" style="font-size: 1.02rem;">
                     <?php 

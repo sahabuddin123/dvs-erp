@@ -2014,27 +2014,62 @@ function get_profile_bg_url()
 
 function get_frontend_logo_url($type = 'light')
 {
-    if ($type === 'dark') {
-        $candidates = [
-            'assets/frontend/dvs/storage/uploads/settings/logo_dark_1781374935.png',
-            'assets/frontend/dvs/storage/uploads/settings/logo_dark_1773127288.png',
-            'assets/frontend/dvs/storage/uploads/settings/logo_dark_1761174935.png',
-            'uploads/app_image/logo.png',
-            'uploads/app_image/logo-1.png'
-        ];
-    } else {
-        $candidates = [
-            'assets/frontend/dvs/storage/uploads/settings/logo_light_1773127288.png',
-            'assets/frontend/dvs/storage/uploads/settings/logo_light_1763242171.png',
-            'uploads/app_image/logo.png',
-            'uploads/app_image/logo-1.png'
-        ];
+    $CI = &get_instance();
+    $branch_id = 1;
+    if (!empty($CI->home_model) && method_exists($CI->home_model, 'getDefaultBranch')) {
+        $branch_id = $CI->home_model->getDefaultBranch();
+    } elseif (!empty($CI->application_model) && method_exists($CI->application_model, 'get_branch_id')) {
+        $branch_id = $CI->application_model->get_branch_id();
     }
-    foreach ($candidates as $cand) {
+
+    // 1. Check CMS setting logo from database
+    if (isset($CI->db) && $CI->db->table_exists('front_cms_setting')) {
+        $setting = $CI->db->select('logo')->where('branch_id', $branch_id)->get('front_cms_setting')->row_array();
+        if (!empty($setting['logo'])) {
+            $logo_file = $setting['logo'];
+            if (file_exists(FCPATH . 'uploads/frontend/images/' . $logo_file)) {
+                return base_url('uploads/frontend/images/' . $logo_file);
+            }
+            if (file_exists(FCPATH . 'uploads/app_image/' . $logo_file)) {
+                return base_url('uploads/app_image/' . $logo_file);
+            }
+        }
+    }
+
+    // 2. Check branch image from application_model
+    if (!empty($CI->application_model) && method_exists($CI->application_model, 'getBranchImage')) {
+        $branch_logo = $CI->application_model->getBranchImage($branch_id, 'logo');
+        if (!empty($branch_logo)) {
+            return $branch_logo;
+        }
+        $print_logo = $CI->application_model->getBranchImage($branch_id, 'printing-logo');
+        if (!empty($print_logo)) {
+            return $print_logo;
+        }
+    }
+
+    // 3. Check standard branch logo filenames
+    $branch_candidates = [
+        "uploads/frontend/images/logo{$branch_id}.png",
+        "uploads/frontend/images/logo{$branch_id}.jpg",
+        "uploads/frontend/images/logo{$branch_id}.jpeg",
+        "uploads/app_image/logo-{$branch_id}.png",
+        "uploads/app_image/logo-{$branch_id}.jpg"
+    ];
+    foreach ($branch_candidates as $cand) {
         if (file_exists(FCPATH . $cand)) {
             return base_url($cand);
         }
     }
+
+    // 4. Default fallbacks
+    if (file_exists(FCPATH . 'uploads/app_image/logo.png')) {
+        return base_url('uploads/app_image/logo.png');
+    }
+    if (file_exists(FCPATH . 'uploads/app_image/logo-1.png')) {
+        return base_url('uploads/app_image/logo-1.png');
+    }
+
     return base_url('uploads/app_image/logo.png');
 }
 

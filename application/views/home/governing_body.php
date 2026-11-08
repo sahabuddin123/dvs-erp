@@ -3,9 +3,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
 $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title', ($current_lang == 'en' ? 'Governing Body' : 'পরিচালনা পর্ষদ')) : (!empty($page_data['page_title']) ? $page_data['page_title'] : 'পরিচালনা পর্ষদ');
 $description = function_exists('get_lang_field') ? get_lang_field($page_data, 'content', '') : (!empty($page_data['content']) ? $page_data['content'] : '');
-// If content has legacy madrasah table or committee list, override with clean DVS introduction
-if (empty($description) || strpos($description, 'সিরাজুল') !== false || strpos($description, 'কমিটি লিস্ট') !== false || strpos($description, 'মাদরাসা') !== false || strpos($description, 'মাদ্রাসা') !== false) {
-    $description = ($current_lang == 'en') ? 'Meet the dedicated governing body and council that guides and governs Dream Valley School.' : 'ড্রিম ভ্যালী স্কুলের নীতি নির্ধারণ, সার্বিক পরিচালনা ও মানসম্মত শিক্ষা নিশ্চিতকরণে আমাদের সম্মানিত পরিচালনা পর্ষদ ও অভিভাবক পরিষদ নিরলসভাবে দায়িত্ব পালন করে আসছেন।';
+$inst_title = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'application_title', (!empty($global_config['institute_name']) ? $global_config['institute_name'] : 'School')) : (!empty($global_config['institute_name']) ? $global_config['institute_name'] : 'School');
+if (empty($description)) {
+    $description = ($current_lang == 'en') ? 'Meet the dedicated governing body and council that guides and governs ' . $inst_title . '.' : $inst_title . '-এর নীতি নির্ধারণ, সার্বিক পরিচালনা ও মানসম্মত শিক্ষা নিশ্চিতকরণে আমাদের সম্মানিত পরিচালনা পর্ষদ ও অভিভাবক পরিষদ নিরলসভাবে দায়িত্ব পালন করে আসছেন।';
 }
 $date_display = !empty($page_data['created_at']) ? date('M d, Y', strtotime($page_data['created_at'])) : 'Jun 24, 2026';
 ?>
@@ -120,7 +120,7 @@ $date_display = !empty($page_data['created_at']) ? date('M d, Y', strtotime($pag
                                                 </span>
                                                 <div class="text-start p-3 rounded" style="background-color: #f8f9fa; border-left: 3px solid var(--primary-color); line-height: 1.8; color: #334155;">
                                                     <i class="fas fa-quote-left text-muted me-2"></i>
-                                                    <?php echo !empty($m_desc) ? nl2br(html_escape($m_desc)) : 'ড্রিম ভ্যালী স্কুল শিক্ষার্থীদের সুনাগরিক ও আদর্শ মানুষ হিসেবে গড়ে তুলতে অঙ্গীকারবদ্ধ।'; ?>
+                                                    <?php echo !empty($m_desc) ? nl2br(html_escape($m_desc)) : html_escape($inst_title) . ' শিক্ষার্থীদের সুনাগরিক ও আদর্শ মানুষ হিসেবে গড়ে তুলতে অঙ্গীকারবদ্ধ।'; ?>
                                                     <i class="fas fa-quote-right text-muted ms-2"></i>
                                                 </div>
                                             </div>
