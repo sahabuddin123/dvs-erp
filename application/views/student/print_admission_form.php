@@ -416,7 +416,9 @@
         $cf_vals = array();
         if (!empty($custom_fields)) {
             foreach ($custom_fields as $cf) {
-                $cf_vals[$cf['custom_field_id']] = $cf['field_value'];
+                $f_id = isset($cf['custom_field_id']) ? $cf['custom_field_id'] : (isset($cf['field_id']) ? $cf['field_id'] : 0);
+                $f_val = isset($cf['field_value']) ? $cf['field_value'] : (isset($cf['value']) ? $cf['value'] : '');
+                $cf_vals[$f_id] = $f_val;
             }
         }
         $name_en = isset($cf_vals[1]) ? $cf_vals[1] : '';

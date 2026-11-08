@@ -158,6 +158,21 @@ function getCustomFields($belong_to, $branchID = '')
     return $fields;
 }
 
+if (!function_exists('get_custom_fields')) {
+    function get_custom_fields($belong_to = 'student', $relid = 0)
+    {
+        $CI = &get_instance();
+        $CI->db->select('cfv.field_id as custom_field_id, cfv.value as field_value, cf.field_label, cf.field_type');
+        $CI->db->from('custom_fields_values as cfv');
+        $CI->db->join('custom_field as cf', 'cf.id = cfv.field_id', 'left');
+        $CI->db->where('cfv.relid', (int)$relid);
+        if (!empty($belong_to)) {
+            $CI->db->where('cf.form_to', $belong_to);
+        }
+        return $CI->db->get()->result_array();
+    }
+}
+
 function get_calculated_age_bangla($birthday, $target_date = null)
 {
     if (empty($birthday) || $birthday == '0000-00-00') {

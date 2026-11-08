@@ -991,7 +991,13 @@ class Student extends Admin_Controller
 
         $branchID = !empty($getStudent['branch_id']) ? $getStudent['branch_id'] : 0;
         $admission_settings = $this->get_admission_settings($branchID);
-        $custom_fields = get_custom_fields('student', $getStudent['id']);
+        if (function_exists('get_custom_fields')) {
+            $custom_fields = get_custom_fields('student', $getStudent['id']);
+        } else {
+            $this->db->select('field_id as custom_field_id, value as field_value');
+            $this->db->where('relid', (int)$getStudent['id']);
+            $custom_fields = $this->db->get('custom_fields_values')->result_array();
+        }
 
         $this->data['student'] = $getStudent;
         $this->data['parent'] = $getParent;
