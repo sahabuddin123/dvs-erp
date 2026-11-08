@@ -54,15 +54,22 @@ if ($cf_student_age)     $placed_cf_ids[] = $cf_student_age['id'];
 // Get English Name and Age for Display
 $student_fullname_en = $cf_student_name_en ? get_custom_field_value($student['id'], $cf_student_name_en['id'], 'student') : '';
 
+$is_bn = (function_exists('get_current_lang') && get_current_lang() === 'bn');
+$cur_lang = $is_bn ? 'bengali' : 'english';
+
 $stu_age_display = 'N/A';
 if (!empty($student['birthday'])) {
 	$bday = new DateTime($student['birthday']);
 	$today = new DateTime('today');
 	$diff = $bday->diff($today);
-	$bn_digits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
-	$years_bn = str_replace(range(0, 9), $bn_digits, $diff->y);
-	$months_bn = str_replace(range(0, 9), $bn_digits, $diff->m);
-	$stu_age_display = $years_bn . ' বছর' . ($diff->m > 0 ? ' ' . $months_bn . ' মাস' : '');
+	if ($is_bn) {
+		$bn_digits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+		$years_bn = str_replace(range(0, 9), $bn_digits, $diff->y);
+		$months_bn = str_replace(range(0, 9), $bn_digits, $diff->m);
+		$stu_age_display = '<span class="font-noto">' . $years_bn . '</span> বছর' . ($diff->m > 0 ? ' <span class="font-noto">' . $months_bn . '</span> মাস' : '');
+	} else {
+		$stu_age_display = $diff->y . ' Years' . ($diff->m > 0 ? ' ' . $diff->m . ' Months' : '');
+	}
 }
 ?>
 <div class="row appear-animation" data-appear-animation="<?=$global_config['animations'] ?>" data-appear-animation-delay="100">
@@ -77,27 +84,31 @@ if (!empty($student['birthday'])) {
 			</div>
 			<div class="col-md-12 col-lg-6 col-xl-6">
 				<h4 style="color: #fff; font-size: 24px; font-weight: 700; margin-top: 5px; margin-bottom: 5px;">
-					<?=$student['first_name'] . ' ' . $student['last_name']?>
-					<?php if (!empty($student_fullname_en)): ?>
-						<span style="color: #fde047; font-size: 15px; font-weight: 600; margin-left: 6px; display: inline-block;">(<?=$student_fullname_en?>)</span>
+					<?php if (!$is_bn && !empty($student_fullname_en)): ?>
+						<?=html_escape($student_fullname_en)?>
+					<?php else: ?>
+						<?=html_escape($student['first_name'] . ' ' . $student['last_name'])?>
+						<?php if ($is_bn && !empty($student_fullname_en)): ?>
+							<span style="color: #fde047; font-size: 15px; font-weight: 600; margin-left: 6px; display: inline-block;">(<?=html_escape($student_fullname_en)?>)</span>
+						<?php endif; ?>
 					<?php endif; ?>
 				</h4>
 				<div style="margin-bottom: 12px;">
-					<span class="badge" style="background: rgba(0,0,0,0.3); color: #fff; font-size: 12px; margin-right: 5px; padding: 5px 10px; border-radius: 4px;"><i class="fas fa-school text-warning"></i> <?=$student['class_name'] . ' ('.$student['section_name'] . ')'?></span>
-					<span class="badge" style="background: rgba(0,0,0,0.3); color: #fff; font-size: 12px; margin-right: 5px; padding: 5px 10px; border-radius: 4px;"><i class="fas fa-hashtag text-warning"></i> <?=translate('roll')?>: <?=(!empty($student['roll']) ? $student['roll'] : 'N/A')?></span>
+					<span class="badge" style="background: rgba(0,0,0,0.3); color: #fff; font-size: 12px; margin-right: 5px; padding: 5px 10px; border-radius: 4px;"><i class="fas fa-school text-warning"></i> <?=dvs_clean_bilingual($student['class_name'], $cur_lang) . ' - ' . dvs_clean_bilingual($student['section_name'], $cur_lang)?></span>
+					<span class="badge" style="background: rgba(0,0,0,0.3); color: #fff; font-size: 12px; margin-right: 5px; padding: 5px 10px; border-radius: 4px;"><i class="fas fa-hashtag text-warning"></i> <?=translate('roll')?>: <?=(!empty($student['roll']) ? ($is_bn ? '<span class="font-noto">'.str_replace(range(0,9), ['০','১','২','৩','৪','৫','৬','৭','৮','৯'], $student['roll']).'</span>' : $student['roll']) : 'N/A')?></span>
 					<span class="badge" style="background: rgba(0,0,0,0.3); color: #fff; font-size: 12px; margin-right: 5px; padding: 5px 10px; border-radius: 4px;"><i class="fas fa-id-badge text-warning"></i> <?=translate('register_no')?>: <?=$student['register_no']?></span>
 					<?php if (!empty($student['category_name'])): ?>
-					<span class="badge" style="background: rgba(0,0,0,0.3); color: #fff; font-size: 12px; padding: 5px 10px; border-radius: 4px;"><i class="fas fa-tag text-warning"></i> <?=$student['category_name']?></span>
+					<span class="badge" style="background: rgba(0,0,0,0.3); color: #fff; font-size: 12px; padding: 5px 10px; border-radius: 4px;"><i class="fas fa-tag text-warning"></i> <?=dvs_clean_bilingual($student['category_name'], $cur_lang)?></span>
 					<?php endif; ?>
 				</div>
 
 				<ul>
 					<li><div class="icon-holder" data-toggle="tooltip" data-original-title="<?=translate('guardian_name')?>"><i class="fas fa-users"></i></div> <?=(!empty($getParent['name']) ? $getParent['name'] : 'N/A'); ?></li>
 					<?php if (!empty($student['birthday'])) { ?>
-					<li><div class="icon-holder" data-toggle="tooltip" data-original-title="<?=translate('birthday')?>"><i class="fas fa-birthday-cake"></i></div> <?=_d($student['birthday']) . ' (' . $stu_age_display . ')'?></li>
+					<li><div class="icon-holder" data-toggle="tooltip" data-original-title="<?=translate('birthday')?>"><i class="fas fa-birthday-cake"></i></div> <?=_d($student['birthday']) . ' - ' . $stu_age_display?></li>
 					<?php } ?>
-					<li><div class="icon-holder" data-toggle="tooltip" data-original-title="<?=translate('class')?>"><i class="fas fa-school"></i></div> <?=$student['class_name'] . ' ('.$student['section_name'] . ')'?></li>
-					<li><div class="icon-holder" data-toggle="tooltip" data-original-title="<?=translate('mobile_no')?>"><i class="fas fa-phone-volume"></i></div> <?=(!empty($student['mobileno']) ? $student['mobileno'] : (!empty($getParent['mobileno']) ? $getParent['mobileno'] . ' (অভিভাবক)' : 'N/A')); ?></li>
+					<li><div class="icon-holder" data-toggle="tooltip" data-original-title="<?=translate('class')?>"><i class="fas fa-school"></i></div> <?=dvs_clean_bilingual($student['class_name'], $cur_lang) . ' - ' . dvs_clean_bilingual($student['section_name'], $cur_lang)?></li>
+					<li><div class="icon-holder" data-toggle="tooltip" data-original-title="<?=translate('mobile_no')?>"><i class="fas fa-phone-volume"></i></div> <?=(!empty($student['mobileno']) ? $student['mobileno'] : (!empty($getParent['mobileno']) ? $getParent['mobileno'] . ($is_bn ? ' - অভিভাবক' : ' - Guardian') : 'N/A')); ?></li>
 					<li><div class="icon-holder" data-toggle="tooltip" data-original-title="<?=translate('email')?>"><i class="far fa-envelope"></i></div> <?=(!empty($student['email']) ? $student['email'] : (!empty($getParent['email']) ? $getParent['email'] : 'N/A')); ?></li>
 					<li><div class="icon-holder" data-toggle="tooltip" data-original-title="<?=translate('present_address')?>"><i class="fas fa-home"></i></div> <?=(!empty($student['current_address']) ? $student['current_address'] : 'N/A'); ?></li>
 				</ul>
@@ -105,26 +116,26 @@ if (!empty($student['birthday'])) {
 			<div class="col-md-12 col-lg-3 col-xl-3 text-right hidden-xs hidden-sm" style="padding-top: 10px;">
 				<div style="margin-bottom: 12px;">
 					<?php if ($student['active'] == 1): ?>
-						<span class="label label-success" style="font-size: 13px; padding: 6px 14px; display: inline-block; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"><i class="fas fa-check-circle"></i> সক্রিয় (Active)</span>
+						<span class="label label-success" style="font-size: 13px; padding: 6px 14px; display: inline-block; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"><i class="fas fa-check-circle"></i> <?=$is_bn ? 'সক্রিয়' : 'Active'?></span>
 					<?php else: ?>
-						<span class="label label-danger" style="font-size: 13px; padding: 6px 14px; display: inline-block; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"><i class="fas fa-times-circle"></i> নিষ্ক্রিয় (Inactive)</span>
+						<span class="label label-danger" style="font-size: 13px; padding: 6px 14px; display: inline-block; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"><i class="fas fa-times-circle"></i> <?=$is_bn ? 'নিষ্ক্রিয়' : 'Inactive'?></span>
 					<?php endif; ?>
 				</div>
 				<div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 12px 14px; text-align: left; color: #fff; margin-bottom: 12px;">
-					<div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85;"><i class="fas fa-clock text-warning"></i> শিক্ষার্থীর বর্তমান বয়স</div>
+					<div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85;"><i class="fas fa-clock text-warning"></i> <?=$is_bn ? 'শিক্ষার্থীর বর্তমান বয়স' : 'Current Student Age'?></div>
 					<div style="font-size: 17px; font-weight: 700; color: #fde047; margin-top: 3px;"><?=$stu_age_display?></div>
 					<?php if (!empty($getParent['mobileno'])): ?>
 					<div style="margin-top: 8px; font-size: 12px; border-top: 1px dashed rgba(255,255,255,0.25); padding-top: 8px;">
-						<i class="fas fa-phone-alt text-warning"></i> অভিভাবক মোবাইল:<br>
+						<i class="fas fa-phone-alt text-warning"></i> <?=$is_bn ? 'অভিভাবকের মোবাইল' : 'Guardian Mobile'?>:<br>
 						<strong style="letter-spacing: 0.5px;"><?=$getParent['mobileno']?></strong>
 					</div>
 					<?php endif; ?>
 				</div>
 				<div>
-					<a href="<?=base_url('student/print_profile/' . (!empty($student['enrollid']) ? $student['enrollid'] : $student['id']))?>" target="_blank" class="btn btn-default btn-sm btn-block" style="font-weight: 600; background: #fff; color: #007F3D; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"><i class="fas fa-print"></i> <?=translate('print')?> / <?=translate('download')?></a>
-					<a href="<?=base_url('student/print_admission_form/' . (!empty($student['enrollid']) ? $student['enrollid'] : $student['id']))?>" target="_blank" class="btn btn-default btn-sm btn-block" style="font-weight: 600; background: #007F3D; color: #fff; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.2); margin-top: 6px;"><i class="fas fa-file-invoice"></i> ভর্তি ফরম ও ফি রশিদ (Admission Form)</a>
+					<a href="<?=base_url('student/print_profile/' . (!empty($student['enrollid']) ? $student['enrollid'] : $student['id']))?>" target="_blank" class="btn btn-default btn-sm btn-block" style="font-weight: 600; background: #fff; color: #007F3D; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"><i class="fas fa-print"></i> <?=$is_bn ? 'প্রিন্ট' : 'Print'?></a>
+					<a href="<?=base_url('student/print_admission_form/' . (!empty($student['enrollid']) ? $student['enrollid'] : $student['id']))?>" target="_blank" class="btn btn-default btn-sm btn-block" style="font-weight: 600; background: #007F3D; color: #fff; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.2); margin-top: 6px;"><i class="fas fa-file-invoice"></i> <?=$is_bn ? 'ভর্তি ফরম ও ফি রশিদ' : 'Admission Form & Fee Receipt'?></a>
 					<?php if (!empty($student['parent_id'])): ?>
-					<a href="<?=base_url('parents/profile/' . $student['parent_id'])?>" target="_blank" class="btn btn-primary btn-sm btn-block" style="font-weight: 600; margin-top: 6px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.3);"><i class="fas fa-user-friends"></i> অভিভাবকের প্রোফাইল</a>
+					<a href="<?=base_url('parents/profile/' . $student['parent_id'])?>" target="_blank" class="btn btn-primary btn-sm btn-block" style="font-weight: 600; margin-top: 6px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.3);"><i class="fas fa-user-friends"></i> <?=$is_bn ? 'অভিভাবকের প্রোফাইল' : 'Parent Profile'?></a>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -230,7 +241,7 @@ if (!empty($student['birthday'])) {
 					<div class="panel-body">
 						<!-- academic details-->
 						<div class="headers-line">
-							<i class="fas fa-school"></i> <?=translate('academic_details')?> (একাডেমিক ও ভর্তি সংক্রান্ত তথ্য)
+							<i class="fas fa-school"></i> <?=$is_bn ? 'একাডেমিক ও ভর্তি সংক্রান্ত তথ্য' : 'Academic & Admission Details'?>
 						</div>
 <?php 
 $roll = $this->student_fields_model->getStatus('roll', $branchID);
@@ -239,7 +250,7 @@ $admission_date = $this->student_fields_model->getStatus('admission_date', $bran
 						<div class="row">
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('academic_year')?> (শিক্ষাবর্ষ) <span class="required">*</span></label>
+									<label class="control-label"><?=$is_bn ? 'শিক্ষাবর্ষ' : 'Academic Year'?> <span class="required">*</span></label>
 									<?php
 										$arrayYear = array("" => translate('select'));
 										$years = $this->db->get('schoolyear')->result();
@@ -255,7 +266,7 @@ $admission_date = $this->student_fields_model->getStatus('admission_date', $bran
 
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('register_no')?> (রেজিস্টার নং) <span class="required">*</span></label>
+									<label class="control-label"><?=$is_bn ? 'রেজিস্টার নম্বর' : 'Register No'?> <span class="required">*</span></label>
 									<input type="text" class="form-control" name="register_no" value="<?=set_value('register_no', $student['register_no'])?>" />
 									<span class="error"><?=form_error('register_no')?></span>
 								</div>
@@ -263,7 +274,7 @@ $admission_date = $this->student_fields_model->getStatus('admission_date', $bran
 <?php if ($roll['status']) { ?>
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('roll')?> (রোল নং)<?php echo $roll['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'রোল নম্বর' : 'Roll'?><?php echo $roll['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<input type="text" class="form-control" name="roll" value="<?=set_value('roll', $student['roll'])?>" />
 									<span class="error"><?=form_error('roll')?></span>
 								</div>
@@ -271,7 +282,7 @@ $admission_date = $this->student_fields_model->getStatus('admission_date', $bran
 <?php } if ($admission_date['status']) { ?>
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('admission_date')?> (ভর্তির তারিখ)<?php echo $admission_date['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'ভর্তির তারিখ' : 'Admission Date'?><?php echo $admission_date['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="far fa-calendar-alt"></i></span>
 										<input type="text" class="form-control" name="admission_date"
@@ -291,7 +302,7 @@ $admission_date = $this->student_fields_model->getStatus('admission_date', $bran
 							<?php if (is_superadmin_loggedin()): ?>
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('branch')?> (শাখা) <span class="required">*</span></label>
+									<label class="control-label"><?=$is_bn ? 'শাখা' : 'Branch'?> <span class="required">*</span></label>
 									<?php
 										$arrayBranch = $this->app_lib->getSelectList('branch');
 										echo form_dropdown("branch_id", $arrayBranch, set_value('branch_id', $student['branch_id']), "class='form-control' id='branch_id'
@@ -303,7 +314,7 @@ $admission_date = $this->student_fields_model->getStatus('admission_date', $bran
 							<?php endif; ?>
 							<div class="col-md-<?=$ac_col?> mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('class')?> (শ্রেণি) <span class="required">*</span></label>
+									<label class="control-label"><?=$is_bn ? 'শ্রেণি' : 'Class'?> <span class="required">*</span></label>
 									<?php
 										$arrayClass = $this->app_lib->getClass($branchID);
 										echo form_dropdown("class_id", $arrayClass, set_value('class_id', $student['class_id']), "class='form-control' id='class_id' 
@@ -314,7 +325,7 @@ $admission_date = $this->student_fields_model->getStatus('admission_date', $bran
 							</div>
 							<div class="col-md-<?=$ac_col?> mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('section')?> (শাখা/বিভাগ) <span class="required">*</span></label>
+									<label class="control-label"><?=$is_bn ? 'বিভাগ' : 'Section'?> <span class="required">*</span></label>
 									<?php
 										$arraySection = $this->app_lib->getSections(set_value('class_id', $student['class_id']));
 										echo form_dropdown("section_id", $arraySection, set_value('section_id', $student['section_id']), "class='form-control' id='section_id'
@@ -326,7 +337,7 @@ $admission_date = $this->student_fields_model->getStatus('admission_date', $bran
 <?php if ($category['status']) { ?>
 							<div class="col-md-<?=$ac_col?> mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('category')?> (ক্যাটাগরি)<?php echo $category['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'ক্যাটাগরি' : 'Category'?><?php echo $category['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<?php
 										$arrayCategory = $this->app_lib->getStudentCategory($branchID);
 										echo form_dropdown("category_id", $arrayCategory, set_value('category_id', $student['category_id']), "class='form-control'
@@ -340,13 +351,20 @@ $admission_date = $this->student_fields_model->getStatus('admission_date', $bran
 						
 						<!-- student details -->
 						<div class="headers-line mt-md">
-							<i class="fas fa-user-check"></i> <?=translate('student_details')?> (শিক্ষার্থীর ব্যক্তিগত তথ্য ও পরিচিতি)
+							<i class="fas fa-user-check"></i> <?=$is_bn ? 'শিক্ষার্থীর ব্যক্তিগত তথ্য ও পরিচিতি' : 'Student Personal Details'?>
 						</div>
 
-						<div class="alert alert-subtle alert-info mb-md" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #007F3D; border-radius: 6px; padding: 12px 16px; color: #166534;">
+						<?php if ($is_bn): ?>
+						<div class="alert alert-subtle alert-info mb-md font-hind" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #007F3D; border-radius: 6px; padding: 12px 16px; color: #166534;">
 							<strong style="color: #007F3D; font-size: 14px;"><i class="fas fa-info-circle"></i> নাম লেখার নির্দেশনা:</strong>
-							<p style="margin: 4px 0 0; font-size: 13px; color: #15803d;">প্রথম দুটি বক্সে শিক্ষার্থীর নাম <strong>বাংলায় (প্রথম অংশ ও শেষ অংশ)</strong> লিখুন এবং পাশের বক্সে <strong>ইংরেজিতে ক্যাপিটাল লেটারে পূর্ণ নাম (Full Name in English)</strong> লিখুন।</p>
+							<p style="margin: 4px 0 0; font-size: 13px; color: #15803d;">প্রথম দুটি বক্সে শিক্ষার্থীর নাম <strong>বাংলায় প্রথম অংশ ও শেষ অংশ</strong> লিখুন এবং পাশের বক্সে <strong>ইংরেজিতে ক্যাপিটাল লেটারে পূর্ণ নাম</strong> লিখুন।</p>
 						</div>
+						<?php else: ?>
+						<div class="alert alert-subtle alert-info mb-md" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #007F3D; border-radius: 6px; padding: 12px 16px; color: #166534;">
+							<strong style="color: #007F3D; font-size: 14px;"><i class="fas fa-info-circle"></i> Name Guidelines:</strong>
+							<p style="margin: 4px 0 0; font-size: 13px; color: #15803d;">Enter student first name and last name in Bengali in first two fields, and full name in capital letters in English in the third field.</p>
+						</div>
+						<?php endif; ?>
 
 <?php
 $last_name = $this->student_fields_model->getStatus('last_name', $branchID);
@@ -358,10 +376,10 @@ $birthday = $this->student_fields_model->getStatus('birthday', $branchID);
 						<div class="row">
 							<div class="col-md-4 mb-sm">
 								<div class="form-group">
-									<label class="control-label">First Name (বাংলায়) / নাম (প্রথম অংশ) <span class="required">*</span></label>
+									<label class="control-label"><?=$is_bn ? 'নামের প্রথম অংশ' : 'First Name'?> <span class="required">*</span></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-user-graduate"></i></span>
-										<input type="text" class="form-control" name="first_name" value="<?=set_value('first_name', $student['first_name'])?>" placeholder="যেমন: মুহাম্মদ / মোহাম্মদ" required />
+										<input type="text" class="form-control" name="first_name" value="<?=set_value('first_name', $student['first_name'])?>" placeholder="<?=$is_bn ? 'যেমন: মুহাম্মদ' : 'e.g. Muhammad'?>" required />
 									</div>
 									<span class="error"><?=form_error('first_name')?></span>
 								</div>
@@ -369,10 +387,10 @@ $birthday = $this->student_fields_model->getStatus('birthday', $branchID);
 
 							<div class="col-md-4 mb-sm">
 								<div class="form-group">
-									<label class="control-label">Last Name (বাংলায়) / নাম (শেষ অংশ)<?php echo $last_name['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'নামের শেষ অংশ' : 'Last Name'?><?php echo $last_name['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-user-graduate"></i></span>
-										<input type="text" class="form-control" name="last_name" value="<?=set_value('last_name', $student['last_name'])?>" placeholder="যেমন: হাসান / আলি" />
+										<input type="text" class="form-control" name="last_name" value="<?=set_value('last_name', $student['last_name'])?>" placeholder="<?=$is_bn ? 'যেমন: হাসান' : 'e.g. Hasan'?>" />
 									</div>
 									<span class="error"><?=form_error('last_name')?></span>
 								</div>
@@ -381,11 +399,11 @@ $birthday = $this->student_fields_model->getStatus('birthday', $branchID);
 							<!-- Custom Field 1: English Full Name -->
 							<?php 
 							if ($cf_student_name_en) {
-								echo render_single_custom_field($cf_student_name_en, 'student', $student['id'], 4, 'ছাত্র-ছাত্রীর পূর্ণ নাম (ইংরেজিতে) / Full Name *', 'e.g. MD. HASAN ALI', 'fas fa-font');
+								echo render_single_custom_field($cf_student_name_en, 'student', $student['id'], 4, ($is_bn ? 'শিক্ষার্থীর পূর্ণ নাম ইংরেজিতে' : 'Student Full Name in English'), 'e.g. MD. HASAN ALI', 'fas fa-font');
 							} else { ?>
 							<div class="col-md-4 mb-sm">
 								<div class="form-group">
-									<label class="control-label">ছাত্র-ছাত্রীর পূর্ণ নাম (ইংরেজিতে) <span class="required">*</span></label>
+									<label class="control-label"><?=$is_bn ? 'শিক্ষার্থীর পূর্ণ নাম ইংরেজিতে' : 'Student Full Name in English'?> <span class="required">*</span></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-font"></i></span>
 										<input type="text" class="form-control" name="custom_fields[student][1]" value="<?=set_value('custom_fields[student][1]', get_custom_field_value($student['id'], 1, 'student'))?>" placeholder="e.g. MD. HASAN ALI" />
@@ -401,11 +419,11 @@ $birthday = $this->student_fields_model->getStatus('birthday', $branchID);
 <?php if ($gender['status']) { ?>
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('gender')?> (লিঙ্গ)<?php echo $gender['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'লিঙ্গ' : 'Gender'?><?php echo $gender['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<?php
 										$arrayGender = array(
-											'male' => translate('male') . ' (ছাত্র)',
-											'female' => translate('female') . ' (ছাত্রী)'
+											'male' => $is_bn ? 'ছাত্র' : 'Male',
+											'female' => $is_bn ? 'ছাত্রী' : 'Female'
 										);
 										echo form_dropdown("gender", $arrayGender, set_value('gender', $student['gender']), "class='form-control'
 										data-plugin-selectTwo data-width='100%' data-minimum-results-for-search='Infinity' ");
@@ -416,7 +434,7 @@ $birthday = $this->student_fields_model->getStatus('birthday', $branchID);
 <?php } if ($blood_group['status']) { ?>
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('blood_group')?> (রক্তের গ্রুপ)<?php echo $blood_group['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'রক্তের গ্রুপ' : 'Blood Group'?><?php echo $blood_group['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<?php
 										$bloodArray = $this->app_lib->getBloodgroup();
 										echo form_dropdown("blood_group", $bloodArray, set_value("blood_group", $student['blood_group']), "class='form-control populate' data-plugin-selectTwo 
@@ -428,7 +446,7 @@ $birthday = $this->student_fields_model->getStatus('birthday', $branchID);
 <?php } if ($birthday['status']) { ?>
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('birthday')?> (জন্ম তারিখ)<?php echo $birthday['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'জন্ম তারিখ' : 'Date of Birth'?><?php echo $birthday['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-birthday-cake"></i></span>
 										<input type="text" class="form-control" name="birthday" id="birthday" value="<?=set_value('birthday', $student['birthday'])?>" data-plugin-datepicker
@@ -441,12 +459,12 @@ $birthday = $this->student_fields_model->getStatus('birthday', $branchID);
 							<!-- Student Age Field (Auto Calculated) -->
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><i class="far fa-clock text-primary"></i> শিক্ষার্থীর বয়স (বাংলায়)</label>
+									<label class="control-label"><i class="far fa-clock text-primary"></i> <?=$is_bn ? 'শিক্ষার্থীর বয়স' : 'Student Age'?></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-calendar-check"></i></span>
-										<input type="text" class="form-control" name="custom_fields[student][<?=$cf_student_age ? $cf_student_age['id'] : 12?>]" id="student_age_display" value="<?=set_value('custom_fields[student]['.($cf_student_age ? $cf_student_age['id'] : 12).']', ($cf_student_age ? get_custom_field_value($student['id'], $cf_student_age['id'], 'student') : $stu_age_display))?>" readonly style="background-color: #f8fafc; font-weight: 600; color: #007F3D;" placeholder="যেমন: ৭ বছর ৬ মাস" />
+										<input type="text" class="form-control" name="custom_fields[student][<?=$cf_student_age ? $cf_student_age['id'] : 12?>]" id="student_age_display" value="<?=set_value('custom_fields[student]['.($cf_student_age ? $cf_student_age['id'] : 12).']', ($cf_student_age ? get_custom_field_value($student['id'], $cf_student_age['id'], 'student') : $stu_age_display))?>" readonly style="background-color: #f8fafc; font-weight: 600; color: #007F3D;" placeholder="<?=$is_bn ? 'যেমন: ৭ বছর ৬ মাস' : 'e.g. 7 Years 6 Months'?>" />
 									</div>
-									<span class="help-block" style="margin-bottom:0; font-size:11px; color:#64748b;">জন্ম তারিখ অনুযায়ী স্বয়ংক্রিয় গণনা হবে</span>
+									<span class="help-block" style="margin-bottom:0; font-size:11px; color:#64748b;"><?=$is_bn ? 'জন্ম তারিখ অনুযায়ী স্বয়ংক্রিয় গণনা হবে' : 'Automatically calculated from date of birth'?></span>
 								</div>
 							</div>
 						</div>
@@ -456,21 +474,21 @@ $birthday = $this->student_fields_model->getStatus('birthday', $branchID);
 							<!-- Custom Field 4: Birth Registration No -->
 							<?php 
 							if ($cf_birth_reg_no) {
-								echo render_single_custom_field($cf_birth_reg_no, 'student', $student['id'], 4, 'জন্ম নিবন্ধন নং (Birth Reg No)', '১৭ ডিজিটের জন্ম নিবন্ধন নম্বর', 'fas fa-certificate');
+								echo render_single_custom_field($cf_birth_reg_no, 'student', $student['id'], 4, ($is_bn ? 'জন্ম নিবন্ধন নম্বর' : 'Birth Registration No'), ($is_bn ? '১৭ ডিজিটের জন্ম নিবন্ধন নম্বর' : '17-digit birth registration number'), 'fas fa-certificate');
 							}
 							?>
 
 							<!-- Custom Field 5: Issue Date -->
 							<?php 
 							if ($cf_issue_date) {
-								echo render_single_custom_field($cf_issue_date, 'student', $student['id'], 4, 'নিবন্ধন ইস্যুর তারিখ (Issue Date)', 'YYYY-MM-DD', 'far fa-calendar-alt');
+								echo render_single_custom_field($cf_issue_date, 'student', $student['id'], 4, ($is_bn ? 'নিবন্ধন ইস্যুর তারিখ' : 'Registration Issue Date'), 'YYYY-MM-DD', 'far fa-calendar-alt');
 							}
 							?>
 
 							<!-- Custom Field 11: Stipend -->
 							<?php 
 							if ($cf_stipend) {
-								echo render_single_custom_field($cf_stipend, 'student', $student['id'], 4, 'উপবৃত্তি প্রাপ্ত কিনা? (Stipend Eligible?)', null, 'fas fa-hand-holding-usd');
+								echo render_single_custom_field($cf_stipend, 'student', $student['id'], 4, ($is_bn ? 'উপবৃত্তি প্রাপ্ত কিনা' : 'Stipend Eligible'), null, 'fas fa-hand-holding-usd');
 							}
 							?>
 						</div>
@@ -486,10 +504,10 @@ $student_email = $this->student_fields_model->getStatus('student_email', $branch
 <?php if ($religion['status']) { ?>
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('religion')?> (ধর্ম)<?php echo $religion['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'ধর্ম' : 'Religion'?><?php echo $religion['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-pray"></i></span>
-										<input type="text" class="form-control" name="religion" value="<?=set_value('religion', $student['religion'])?>" placeholder="যেমন: ইসলাম" />
+										<input type="text" class="form-control" name="religion" value="<?=set_value('religion', $student['religion'])?>" placeholder="<?=$is_bn ? 'যেমন: ইসলাম' : 'e.g. Islam'?>" />
 									</div>
 									<span class="error"><?=form_error('religion')?></span>
 								</div>
@@ -497,10 +515,10 @@ $student_email = $this->student_fields_model->getStatus('student_email', $branch
 <?php } if ($mother_tongue['status']) { ?>
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('mother_tongue')?> (মাতৃভাষা)<?php echo $mother_tongue['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'মাতৃভাষা' : 'Mother Tongue'?><?php echo $mother_tongue['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-language"></i></span>
-										<input type="text" class="form-control" name="mother_tongue" value="<?=set_value('mother_tongue', $student['mother_tongue'])?>" placeholder="যেমন: বাংলা" />
+										<input type="text" class="form-control" name="mother_tongue" value="<?=set_value('mother_tongue', $student['mother_tongue'])?>" placeholder="<?=$is_bn ? 'যেমন: বাংলা' : 'e.g. Bengali'?>" />
 									</div>
 									<span class="error"><?=form_error('mother_tongue')?></span>
 								</div>
@@ -508,7 +526,7 @@ $student_email = $this->student_fields_model->getStatus('student_email', $branch
 <?php } if ($student_mobile_no['status']) { ?>
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('mobile_no')?> (শিক্ষার্থীর মোবাইল নং)<?php echo $student_mobile_no['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'শিক্ষার্থীর মোবাইল নম্বর' : 'Student Mobile No'?><?php echo $student_mobile_no['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-phone-volume"></i></span>
 										<input type="text" class="form-control" name="mobileno" value="<?=set_value('mobileno', $student['mobileno'])?>" placeholder="017xxxxxxxx" />
@@ -519,7 +537,7 @@ $student_email = $this->student_fields_model->getStatus('student_email', $branch
 <?php } if ($student_email['status']) { ?>
 							<div class="col-md-3 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('email')?> (ইমেইল)<?php echo $student_email['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'ইমেইল' : 'Email'?><?php echo $student_email['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="far fa-envelope-open"></i></span>
 										<input type="text" class="form-control" name="email" id="email" value="<?=set_value('email', $student['email'])?>" placeholder="student@example.com" />
@@ -539,16 +557,16 @@ $permanent_address = $this->student_fields_model->getStatus('permanent_address',
 <?php if ($present_address['status']) { ?>
 							<div class="col-md-6 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('present_address')?> (বর্তমান ঠিকানা)<?php echo $present_address['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
-									<textarea name="current_address" rows="2" class="form-control" placeholder="গ্রাম/মহল্লা, ডাকঘর, উপজেলা, জেলা"><?=set_value('current_address', $student['current_address'])?></textarea>
+									<label class="control-label"><?=$is_bn ? 'বর্তমান ঠিকানা' : 'Present Address'?><?php echo $present_address['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<textarea name="current_address" rows="2" class="form-control" placeholder="<?=$is_bn ? 'গ্রাম বা মহল্লা, ডাকঘর, উপজেলা, জেলা' : 'Village, Post Office, Upazila, District'?>"><?=set_value('current_address', $student['current_address'])?></textarea>
 									<span class="error"><?=form_error('current_address')?></span>
 								</div>
 							</div>
 <?php } if ($permanent_address['status']) { ?>
 							<div class="col-md-6 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('permanent_address')?> (স্থায়ী ঠিকানা)<?php echo $permanent_address['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
-									<textarea name="permanent_address" rows="2" class="form-control" placeholder="গ্রাম/মহল্লা, ডাকঘর, উপজেলা, জেলা"><?=set_value('permanent_address', $student['permanent_address'])?></textarea>
+									<label class="control-label"><?=$is_bn ? 'স্থায়ী ঠিকানা' : 'Permanent Address'?><?php echo $permanent_address['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<textarea name="permanent_address" rows="2" class="form-control" placeholder="<?=$is_bn ? 'গ্রাম বা মহল্লা, ডাকঘর, উপজেলা, জেলা' : 'Village, Post Office, Upazila, District'?>"><?=set_value('permanent_address', $student['permanent_address'])?></textarea>
 									<span class="error"><?=form_error('permanent_address')?></span>
 								</div>
 							</div>
@@ -568,7 +586,7 @@ if ($student_photo['status']) {
 ?>
 							<div class="col-md-12 mb-sm">
 								<div class="form-group">
-									<label for="input-file-now"><?=translate('profile_picture')?> (শিক্ষার্থীর ছবি)<?php echo $student_photo['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label for="input-file-now"><?=$is_bn ? 'শিক্ষার্থীর ছবি' : 'Profile Picture'?><?php echo $student_photo['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<input type="file" name="user_photo" class="dropify" data-default-file="<?=get_image_url('student', $student['photo'])?>" />
 									<input type="hidden" name="old_user_photo" value="<?php echo $student['photo']; ?>" />
 								</div>
@@ -579,13 +597,13 @@ if ($student_photo['status']) {
 
 						<!-- login details -->
 						<div class="headers-line mt-md">
-							<i class="fas fa-user-lock"></i> <?=translate('login_details')?> (লগইন তথ্য)
+							<i class="fas fa-user-lock"></i> <?=$is_bn ? 'লগইন তথ্য' : 'Login Details'?>
 						</div>
 
 						<div class="row mb-md">
 							<div class="col-md-12 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('username')?> (ইউজারনেম) <span class="required">*</span></label>
+									<label class="control-label"><?=$is_bn ? 'ইউজারনেম' : 'Username'?> <span class="required">*</span></label>
 									<div class="input-group">
 										<span class="input-group-addon"><i class="far fa-user"></i></span>
 										<input type="text" class="form-control" name="username" id="username" value="<?=set_value('username', $student['username'])?>" />
@@ -597,12 +615,12 @@ if ($student_photo['status']) {
 
 						<!--guardian details-->
 						<div class="headers-line">
-							<i class="fas fa-user-tie"></i> <?=translate('guardian_details')?> (পিতা-মাতা ও অভিভাবকের বিবরণ)
+							<i class="fas fa-user-tie"></i> <?=$is_bn ? 'পিতা-মাতা ও অভিভাবকের বিবরণ' : 'Guardian Details'?>
 						</div>
 						<div class="row mb-md">
 							<div class="col-md-8 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('guardian')?> (তালিকা থেকে অভিভাবক নির্বাচন করুন) <span class="required">*</span></label>
+									<label class="control-label"><?=$is_bn ? 'অভিভাবক নির্বাচন করুন' : 'Select Guardian'?> <span class="required">*</span></label>
 									<?php
 										$arrayParent = $this->app_lib->getSelectByBranch('parent', $branchID);
 										echo form_dropdown("parent_id", $arrayParent, set_value('parent_id', $student['parent_id']), "class='form-control' id='parent_id'
@@ -614,7 +632,7 @@ if ($student_photo['status']) {
 							<div class="col-md-4 mb-sm" style="padding-top: 25px;">
 								<?php if (!empty($student['parent_id'])): ?>
 								<a href="<?=base_url('parents/profile/' . $student['parent_id'])?>" target="_blank" class="btn btn-default btn-block" style="border: 1px solid #cbd5e1; font-weight: 600; padding: 7px 12px;">
-									<i class="fas fa-user-edit text-primary"></i> অভিভাবকের প্রোফাইল সম্পাদনা
+									<i class="fas fa-user-edit text-primary"></i> <?=$is_bn ? 'অভিভাবকের প্রোফাইল সম্পাদনা' : 'Edit Guardian Profile'?>
 								</a>
 								<?php endif; ?>
 							</div>
@@ -625,40 +643,52 @@ if ($student_photo['status']) {
 							<div class="col-md-12">
 								<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 10px;">
 									<h5 style="margin-top: 0; margin-bottom: 12px; font-weight: 700; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
-										<i class="fas fa-info-circle text-success"></i> বর্তমান অভিভাবক ও পিতা-মাতার সংরক্ষিত তথ্য
+										<i class="fas fa-info-circle text-success"></i> <?=$is_bn ? 'বর্তমান অভিভাবক ও পিতা-মাতার সংরক্ষিত তথ্য' : 'Saved Guardian & Parents Information'?>
 									</h5>
 									<div class="row" style="font-size: 13px;">
+										<?php 
+										$father_en = get_custom_field_value($getParent['id'], 2, 'parents');
+										$mother_en = get_custom_field_value($getParent['id'], 3, 'parents');
+										$rel_raw = !empty($getParent['relation']) ? trim($getParent['relation']) : '';
+										$rel_disp = '';
+										if ($rel_raw !== '') {
+											$rel_lower = strtolower($rel_raw);
+											if ($is_bn) {
+												if ($rel_lower === 'father' || $rel_raw === 'পিতা') $rel_disp = 'পিতা';
+												elseif ($rel_lower === 'mother' || $rel_raw === 'মাতা') $rel_disp = 'মাতা';
+												else $rel_disp = $rel_raw;
+											} else {
+												if ($rel_lower === 'father' || $rel_raw === 'পিতা') $rel_disp = 'Father';
+												elseif ($rel_lower === 'mother' || $rel_raw === 'মাতা') $rel_disp = 'Mother';
+												else $rel_disp = ucfirst($rel_raw);
+											}
+										}
+										?>
 										<div class="col-md-4 col-sm-6 mb-xs">
-											<span class="text-muted">পিতার নাম:</span> 
-											<strong><?=(!empty($getParent['father_name']) ? $getParent['father_name'] : '-')?></strong>
-											<?php 
-											$father_en = get_custom_field_value($getParent['id'], 2, 'parents');
-											if (!empty($father_en)) echo ' <span class="text-primary">(' . $father_en . ')</span>';
-											?>
+											<span class="text-muted"><?=$is_bn ? 'পিতার নাম' : 'Father Name'?>:</span> 
+											<strong><?=(!empty($getParent['father_name']) ? ($is_bn ? $getParent['father_name'] : (!empty($father_en) ? $father_en : $getParent['father_name'])) : '-')?></strong>
+											<?php if ($is_bn && !empty($father_en)) echo ' <span class="text-primary font-noto">(' . $father_en . ')</span>'; ?>
 										</div>
 										<div class="col-md-4 col-sm-6 mb-xs">
-											<span class="text-muted">মাতার নাম:</span> 
-											<strong><?=(!empty($getParent['mother_name']) ? $getParent['mother_name'] : '-')?></strong>
-											<?php 
-											$mother_en = get_custom_field_value($getParent['id'], 3, 'parents');
-											if (!empty($mother_en)) echo ' <span class="text-primary">(' . $mother_en . ')</span>';
-											?>
+											<span class="text-muted"><?=$is_bn ? 'মাতার নাম' : 'Mother Name'?>:</span> 
+											<strong><?=(!empty($getParent['mother_name']) ? ($is_bn ? $getParent['mother_name'] : (!empty($mother_en) ? $mother_en : $getParent['mother_name'])) : '-')?></strong>
+											<?php if ($is_bn && !empty($mother_en)) echo ' <span class="text-primary font-noto">(' . $mother_en . ')</span>'; ?>
 										</div>
 										<div class="col-md-4 col-sm-6 mb-xs">
-											<span class="text-muted">প্রধান অভিভাবক:</span> 
+											<span class="text-muted"><?=$is_bn ? 'প্রধান অভিভাবক' : 'Primary Guardian'?>:</span> 
 											<strong><?=(!empty($getParent['name']) ? $getParent['name'] : '-')?></strong>
-											<?=(!empty($getParent['relation']) ? ' (' . $getParent['relation'] . ')' : '')?>
+											<?=(!empty($rel_disp) ? ' (' . $rel_disp . ')' : '')?>
 										</div>
 										<div class="col-md-4 col-sm-6 mb-xs">
-											<span class="text-muted"><i class="fas fa-phone-alt text-warning"></i> মোবাইল:</span> 
-											<strong><?=(!empty($getParent['mobileno']) ? $getParent['mobileno'] : '-')?></strong>
+											<span class="text-muted"><i class="fas fa-phone-alt text-warning"></i> <?=$is_bn ? 'মোবাইল' : 'Mobile'?>:</span> 
+											<strong><?=(!empty($getParent['mobileno']) ? ($is_bn ? '<span class="font-noto">'.str_replace(range(0,9), ['০','১','২','৩','৪','৫','৬','৭','৮','৯'], $getParent['mobileno']).'</span>' : $getParent['mobileno']) : '-')?></strong>
 										</div>
 										<div class="col-md-4 col-sm-6 mb-xs">
-											<span class="text-muted">পেশা:</span> 
-											<strong><?=(!empty($getParent['occupation']) ? $getParent['occupation'] : '-')?></strong>
+											<span class="text-muted"><?=$is_bn ? 'পেশা' : 'Occupation'?>:</span> 
+											<strong><?=(!empty($getParent['occupation']) ? ($is_bn ? $getParent['occupation'] : ($getParent['occupation'] === 'ব্যবসা' ? 'Business' : ($getParent['occupation'] === 'চাকরি' ? 'Job' : $getParent['occupation']))) : '-')?></strong>
 										</div>
 										<div class="col-md-4 col-sm-6 mb-xs">
-											<span class="text-muted">ঠিকানা:</span> 
+											<span class="text-muted"><?=$is_bn ? 'ঠিকানা' : 'Address'?>:</span> 
 											<strong><?=(!empty($getParent['address']) ? $getParent['address'] : '-')?></strong>
 										</div>
 									</div>
@@ -670,7 +700,7 @@ if ($student_photo['status']) {
 <?php if (moduleIsEnabled('transport')) { ?>
 						<!-- transport details -->
 						<div class="headers-line">
-							<i class="fas fa-bus-alt"></i> <?=translate('transport_details')?>
+							<i class="fas fa-bus-alt"></i> <?=$is_bn ? 'পরিবহন সুবিধা' : 'Transport Details'?>
 						</div>
 						<div class="row">
 							<div class="col-md-4 mb-sm">
@@ -730,7 +760,7 @@ $transport_results = $this->transport_fees_model->getStudentTransportFeesByEnrol
 					<?php if (moduleIsEnabled('hostel')) { ?>
 						<!-- hostel details -->
 						<div class="headers-line">
-							<i class="fas fa-hotel"></i> <?=translate('hostel_details')?>
+							<i class="fas fa-hotel"></i> <?=$is_bn ? 'হোস্টেল সুবিধা' : 'Hostel Details'?>
 						</div>
 
 						<div class="row mb-md">
@@ -762,19 +792,19 @@ if ($previous_school_details['status']) {
 ?>
 						<!-- previous school details -->
 						<div class="headers-line">
-							<i class="fas fa-bezier-curve"></i> <?=translate('previous_school_details')?>
+							<i class="fas fa-bezier-curve"></i> <?=$is_bn ? 'পূর্ববর্তী বিদ্যালয়ের বিবরণ' : 'Previous School Details'?>
 						</div>
 						<div class="row">
 							<div class="col-md-6 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('school_name')?><?php echo $previous_school_details['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'বিদ্যালয়ের নাম' : 'School Name'?><?php echo $previous_school_details['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<input type="text" class="form-control" name="school_name" value="<?=set_value('school_name', $previous_details['school_name'])?>" />
 									<span class="error"><?=form_error('school_name')?></span>
 								</div>
 							</div>
 							<div class="col-md-6 mb-sm">
 								<div class="form-group">
-									<label class="control-label"><?=translate('qualification')?><?php echo $previous_school_details['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
+									<label class="control-label"><?=$is_bn ? 'শিক্ষাগত যোগ্যতা' : 'Qualification'?><?php echo $previous_school_details['required'] == 1 ? ' <span class="required">*</span>' : ''; ?></label>
 									<input type="text" class="form-control" name="qualification" value="<?=set_value('qualification', $previous_details['qualification'])?>" />
 									<span class="error"><?=form_error('qualification')?></span>
 								</div>
@@ -783,7 +813,7 @@ if ($previous_school_details['status']) {
 						<div class="row mb-lg">
 							<div class="col-md-12">
 								<div class="form-group">
-									<label class="control-label"><?=translate('remarks')?></label>
+									<label class="control-label"><?=$is_bn ? 'মন্তব্য' : 'Remarks'?></label>
 									<textarea name="previous_remarks" rows="2" class="form-control"><?=set_value('previous_remarks', $previous_details['remarks'])?></textarea>
 								</div>
 							</div>
@@ -1324,9 +1354,9 @@ if (empty($empty_table)) {
 										<td><?php echo $getParent['mother_name']?></td>
 									</tr>
 									<tr>
-										<th>পিতার মোবাইল (Father's Mobile)</th>
+										<th><?=$is_bn ? 'পিতার মোবাইল' : 'Father Mobile'?></th>
 										<td><?php echo !empty($getParent['father_mobileno']) ? $getParent['father_mobileno'] : 'N/A'?></td>
-										<th>মাতার মোবাইল (Mother's Mobile)</th>
+										<th><?=$is_bn ? 'মাতার মোবাইল' : 'Mother Mobile'?></th>
 										<td><?php echo !empty($getParent['mother_mobileno']) ? $getParent['mother_mobileno'] : 'N/A'?></td>
 									</tr>
 									<tr>
@@ -1356,13 +1386,13 @@ if (empty($empty_table)) {
 										<td colspan="3" height="80px;"><?php echo $getParent['address']?></td>
 									</tr>
 									<tr>
-										<th>পিতার ছবি (Father's Photo)</th>
+										<th><?=$is_bn ? 'পিতার ছবি' : 'Father Photo'?></th>
 										<td><img class="img-border" width="100" height="100" src="<?=get_image_url('parent', !empty($getParent['father_photo']) ? $getParent['father_photo'] : 'defualt.png')?>"></td>
-										<th>মাতার ছবি (Mother's Photo)</th>
+										<th><?=$is_bn ? 'মাতার ছবি' : 'Mother Photo'?></th>
 										<td><img class="img-border" width="100" height="100" src="<?=get_image_url('parent', !empty($getParent['mother_photo']) ? $getParent['mother_photo'] : 'defualt.png')?>"></td>
 									</tr>
 									<tr>
-										<th>অভিভাবকের ছবি (Guardian's Photo)</th>
+										<th><?=$is_bn ? 'অভিভাবকের ছবি' : 'Guardian Photo'?></th>
 										<td colspan="3"><img class="img-border" width="100" height="100" src="<?=get_image_url('parent', !empty($getParent['photo']) ? $getParent['photo'] : 'defualt.png')?>"></td>
 									</tr>
 								</tbody>
@@ -1765,19 +1795,28 @@ if (empty($empty_table)) {
 		if (days < 0) { months--; }
 		if (months < 0) { years--; months += 12; }
 		if (years < 0) return '';
-		var enDigits = ['0','1','2','3','4','5','6','7','8','9'];
-		var bnDigits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
-		var toBn = function(num) {
-			return String(num).split('').map(function(ch) {
-				var idx = enDigits.indexOf(ch);
-				return idx !== -1 ? bnDigits[idx] : ch;
-			}).join('');
-		};
-		var res = [];
-		if (years > 0) res.push(toBn(years) + ' বছর');
-		if (months > 0) res.push(toBn(months) + ' মাস');
-		if (res.length === 0 && days > 0) res.push(toBn(days) + ' দিন');
-		return res.length > 0 ? res.join(' ') : '০ বছর';
+		var isBn = <?php echo $is_bn ? 'true' : 'false'; ?>;
+		if (isBn) {
+			var enDigits = ['0','1','2','3','4','5','6','7','8','9'];
+			var bnDigits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+			var toBn = function(num) {
+				return String(num).split('').map(function(ch) {
+					var idx = enDigits.indexOf(ch);
+					return idx !== -1 ? bnDigits[idx] : ch;
+				}).join('');
+			};
+			var res = [];
+			if (years > 0) res.push(toBn(years) + ' বছর');
+			if (months > 0) res.push(toBn(months) + ' মাস');
+			if (res.length === 0 && days > 0) res.push(toBn(days) + ' দিন');
+			return res.length > 0 ? res.join(' ') : '০ বছর';
+		} else {
+			var res = [];
+			if (years > 0) res.push(years + (years === 1 ? ' Year' : ' Years'));
+			if (months > 0) res.push(months + (months === 1 ? ' Month' : ' Months'));
+			if (res.length === 0 && days > 0) res.push(days + (days === 1 ? ' Day' : ' Days'));
+			return res.length > 0 ? res.join(' ') : '0 Years';
+		}
 	}
 
 	$(document).ready(function() {

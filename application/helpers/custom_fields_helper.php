@@ -74,11 +74,73 @@ function render_custom_Fields($belongs_to, $branch_id = null, $edit_id = false, 
 function dropdownField($default, $value)
 {
 	$options = explode(',', $default);
-	$input = '<option value="">Select</option>';
+	$is_en = (function_exists('get_current_lang') && get_current_lang() === 'en');
+	$input = '<option value="">' . translate('select') . '</option>';
 	foreach ($options as $option_key => $option_value) {
-		$input .= '<option value="' . slugify($option_value) . '" '. (slugify($option_value) == $value ? 'selected' : '') .'>' . ucfirst($option_value) . '</option>';
+		$trim_val = trim($option_value);
+		$disp_val = $trim_val;
+		if ($is_en) {
+			if ($trim_val === 'হ্যা' || $trim_val === 'হ্যাঁ') $disp_val = 'Yes';
+			elseif ($trim_val === 'না') $disp_val = 'No';
+		} else {
+			if (strtolower($trim_val) === 'yes') $disp_val = 'হ্যাঁ';
+			elseif (strtolower($trim_val) === 'no') $disp_val = 'না';
+		}
+		$input .= '<option value="' . slugify($trim_val) . '" '. (slugify($trim_val) == $value ? 'selected' : '') .'>' . $disp_val . '</option>';
 	}
 	return $input;
+}
+
+if (!function_exists('get_custom_field_label_by_lang')) {
+    function get_custom_field_label_by_lang($label)
+    {
+        $is_en = (function_exists('get_current_lang') && get_current_lang() === 'en');
+        $clean_label = trim((string)$label);
+        
+        $map = array(
+            'ছাত্র-ছাত্রীর পূর্ণ নাম (ইংরেজিতে) / Full Name' => array('en' => 'Student Full Name in English', 'bn' => 'শিক্ষার্থীর পূর্ণ নাম ইংরেজিতে'),
+            'ছাত্র-ছাত্রীর পূর্ণ নাম (ইংরেজিতে) / Full Name *' => array('en' => 'Student Full Name in English', 'bn' => 'শিক্ষার্থীর পূর্ণ নাম ইংরেজিতে'),
+            'ছাত্র-ছাত্রীর পূর্ণ নাম (ইংরেজিতে)' => array('en' => 'Student Full Name in English', 'bn' => 'শিক্ষার্থীর পূর্ণ নাম ইংরেজিতে'),
+            'ছাত্র-ছাত্রীর পূর্ণ নাম' => array('en' => 'Student Full Name', 'bn' => 'শিক্ষার্থীর পূর্ণ নাম'),
+            'পিতার নাম (ইংরেজিতে)' => array('en' => 'Father Name in English', 'bn' => 'পিতার নাম ইংরেজিতে'),
+            'পিতার নাম (বাংলায়)' => array('en' => 'Father Name in Bengali', 'bn' => 'পিতার নাম বাংলায়'),
+            'পিতার নাম' => array('en' => 'Father Name', 'bn' => 'পিতার নাম'),
+            'মাতার নাম (ইংরেজিতে)' => array('en' => 'Mother Name in English', 'bn' => 'মাতার নাম ইংরেজিতে'),
+            'মাতার নাম (বাংলায়)' => array('en' => 'Mother Name in Bengali', 'bn' => 'মাতার নাম বাংলায়'),
+            'মাতার নাম' => array('en' => 'Mother Name', 'bn' => 'মাতার নাম'),
+            'জন্ম নিবন্ধন নং (Birth Reg No)' => array('en' => 'Birth Registration No', 'bn' => 'জন্ম নিবন্ধন নম্বর'),
+            'জন্ম নিবন্ধন নং' => array('en' => 'Birth Registration No', 'bn' => 'জন্ম নিবন্ধন নম্বর'),
+            'জন্ম নিবন্ধন নম্বর' => array('en' => 'Birth Registration No', 'bn' => 'জন্ম নিবন্ধন নম্বর'),
+            'ইস্যুর তারিখ' => array('en' => 'Registration Issue Date', 'bn' => 'নিবন্ধন ইস্যুর তারিখ'),
+            'নিবন্ধন ইস্যুর তারিখ (Issue Date)' => array('en' => 'Registration Issue Date', 'bn' => 'নিবন্ধন ইস্যুর তারিখ'),
+            'নিবন্ধন ইস্যুর তারিখ' => array('en' => 'Registration Issue Date', 'bn' => 'নিবন্ধন ইস্যুর তারিখ'),
+            'উপবৃত্তি প্রাপ্ত কিনা? (Stipend Eligible?)' => array('en' => 'Stipend Eligible', 'bn' => 'উপবৃত্তি সুবিধা'),
+            'উপবৃত্তি প্রাপ্ত কিনা?' => array('en' => 'Stipend Eligible', 'bn' => 'উপবৃত্তি সুবিধা'),
+            'উপবৃত্তি প্রাপ্ত কিনা' => array('en' => 'Stipend Eligible', 'bn' => 'উপবৃত্তি সুবিধা'),
+            'শিক্ষার্থীর বয়স (বাংলায়)' => array('en' => 'Student Age', 'bn' => 'শিক্ষার্থীর বর্তমান বয়স'),
+            'শিক্ষার্থীর বয়স' => array('en' => 'Student Age', 'bn' => 'শিক্ষার্থীর বর্তমান বয়স'),
+            'অভিভাবকের বাৎসরিক আয় (বাংলায়)' => array('en' => 'Guardian Annual Income', 'bn' => 'অভিভাবকের বাৎসরিক আয়'),
+            'অভিভাবকের বাৎসরিক আয়' => array('en' => 'Guardian Annual Income', 'bn' => 'অভিভাবকের বাৎসরিক আয়'),
+            'পূর্ণ নাম (বাংলায়)' => array('en' => 'Full Name', 'bn' => 'পূর্ণ নাম'),
+            'পূর্ণ নাম' => array('en' => 'Full Name', 'bn' => 'পূর্ণ নাম'),
+            'এনআইডি/জন্ম নিবন্ধন নং' => array('en' => 'NID or Birth Registration No', 'bn' => 'এনআইডি বা জন্ম নিবন্ধন নম্বর'),
+            'চাকুরীতে প্রথম যোগদানের তারিখ' => array('en' => 'First Joining Date', 'bn' => 'চাকুরীতে প্রথম যোগদানের তারিখ'),
+            'প্রথম এমপিওভূক্তির তারিখ' => array('en' => 'First MPO Date', 'bn' => 'প্রথম এমপিওভুক্তির তারিখ'),
+            'বর্তমান পদে এমপিওভূক্তির তারিখ' => array('en' => 'Current Post MPO Date', 'bn' => 'বর্তমান পদে এমপিওভুক্তির তারিখ'),
+            'এমপিও কোড' => array('en' => 'MPO Code', 'bn' => 'এমপিও কোড'),
+            'বেতন স্কেল' => array('en' => 'Pay Scale', 'bn' => 'বেতন স্কেল')
+        );
+
+        if (isset($map[$clean_label])) {
+            return $is_en ? $map[$clean_label]['en'] : $map[$clean_label]['bn'];
+        }
+
+        if (function_exists('dvs_clean_bilingual')) {
+            return dvs_clean_bilingual($clean_label, $is_en ? 'english' : 'bengali');
+        }
+
+        return $clean_label;
+    }
 }
 
 function getCustomFields($belong_to, $branchID = '')
@@ -417,7 +479,8 @@ function render_single_custom_field($field, $belongs_to = 'student', $edit_id = 
     if (empty($field)) {
         return '';
     }
-    $fieldLabel = !empty($custom_label) ? $custom_label : ucfirst($field['field_label']);
+    $rawLabel = !empty($custom_label) ? $custom_label : ucfirst($field['field_label']);
+    $fieldLabel = function_exists('get_custom_field_label_by_lang') ? get_custom_field_label_by_lang($rawLabel) : $rawLabel;
     $fieldType = $field['field_type'];
     $bsColumn = !empty($override_col) ? $override_col : (!empty($field['bs_column']) ? $field['bs_column'] : 4);
     $required = $field['required'];
@@ -500,7 +563,8 @@ function render_single_online_custom_field($field, $belongs_to = 'student', $edi
     if (empty($field) || (isset($field['fstatus']) && $field['fstatus'] == 0)) {
         return '';
     }
-    $fieldLabel = !empty($custom_label) ? $custom_label : ucfirst($field['field_label']);
+    $rawLabel = !empty($custom_label) ? $custom_label : ucfirst($field['field_label']);
+    $fieldLabel = function_exists('get_custom_field_label_by_lang') ? get_custom_field_label_by_lang($rawLabel) : $rawLabel;
     $fieldType = $field['field_type'];
     $bsColumn = !empty($override_col) ? $override_col : (!empty($field['bs_column']) ? $field['bs_column'] : 4);
     $required = $field['required'];
