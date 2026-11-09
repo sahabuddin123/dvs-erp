@@ -256,12 +256,7 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
         .page-header p.text-white,
         .page-header .text-white-50,
         .page-header .text-white:not(.btn):not(.badge) { color: #64748b !important; }
-        .page-header .breadcrumb-item,
-        .page-header .breadcrumb-item a,
-        .page-header .breadcrumb-item a.text-white-50,
-        .page-header .breadcrumb-item a.text-white { color: #64748b !important; }
-        .page-header .breadcrumb-item.active,
-        .page-header .breadcrumb-item.active.text-white { color: var(--dark-color, #c79f22) !important; font-weight: 600; }
+        .page-header .breadcrumb { display: none !important; }
         .page-header .page-header-icon { color: #273142 !important; }
         <?php else: ?>
         .page-header {

@@ -468,13 +468,6 @@ $custom_content = function_exists('get_lang_field') ? get_lang_field($page_data,
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <nav aria-label="breadcrumb" class="mb-2">
-                    <ol class="breadcrumb mb-0" style="background: transparent; padding: 0;">
-                        <li class="breadcrumb-item"><a href="<?php echo base_url(); ?>" class="text-muted text-decoration-none"><i class="fas fa-home"></i> <?php echo $is_en ? 'Home' : 'হোম'; ?></a></li>
-                        <li class="breadcrumb-item"><a href="<?php echo base_url('about'); ?>" class="text-muted text-decoration-none"><?php echo $is_en ? 'About Us' : 'আমাদের সম্পর্কে'; ?></a></li>
-                        <li class="breadcrumb-item active" style="color: var(--dark-color, #c79f22); font-weight: 500;" aria-current="page"><?php echo html_escape($page_title); ?></li>
-                    </ol>
-                </nav>
                 <h1 class="page-header-title fw-bold mb-1"><?php echo html_escape($page_title); ?></h1>
                 <p class="text-muted mb-0 d-none d-md-block" style="font-size: 0.95rem;">
                     <?php echo $header_subtitle; ?>
