@@ -269,6 +269,9 @@ class Event extends Admin_Controller
             if ($this->form_validation->run() !== false) {
                 //save information in the database file
                 $data['name'] = $this->input->post('type_name');
+                if ($this->input->post('type_name_en') !== null) {
+                    $data['name_en'] = $this->input->post('type_name_en');
+                }
                 $data['icon'] = $this->input->post('event_icon');
                 $data['branch_id'] = $this->application_model->get_branch_id();
                 $this->db->insert('event_types', $data);
@@ -293,6 +296,9 @@ class Event extends Admin_Controller
             if ($this->form_validation->run() !== false) {
                 //save information in the database file
                 $data['name'] = $this->input->post('type_name');
+                if ($this->input->post('type_name_en') !== null) {
+                    $data['name_en'] = $this->input->post('type_name_en');
+                }
                 $data['icon'] = $this->input->post('event_icon');
                 $data['branch_id'] = $this->application_model->get_branch_id();
                 $this->db->where('id', $this->input->post('type_id'));

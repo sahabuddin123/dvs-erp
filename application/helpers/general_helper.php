@@ -1650,6 +1650,17 @@ function get_activeChildren_id()
 function get_type_name_by_id($table, $type_id = '', $field = 'name')
 {
     $CI = &get_instance();
+    if ($table == 'event_types' && !empty($type_id)) {
+        $row = $CI->db->from('event_types')->where('id', $type_id)->limit(1)->get()->row_array();
+        if (!empty($row)) {
+            if ($field == 'name') {
+                return function_exists('get_lang_field') ? get_lang_field($row, 'name') : $row['name'];
+            }
+            if (isset($row[$field])) {
+                return $row[$field];
+            }
+        }
+    }
     $get = $CI->db->select($field)->from($table)->where('id', $type_id)->limit(1)->get()->row_array();
     if (empty($get) || !isset($get[$field])) {
         return '';

@@ -489,7 +489,17 @@ document.addEventListener('DOMContentLoaded', function(){
             <?php 
             foreach ($events as $event) {
                 $ev_title = get_lang_field($event, 'title');
-                $ev_type = get_lang_field($event, 'type', ($current_lang == 'en' ? 'Event' : 'ইভেন্ট'));
+                $ev_type = '';
+                if (!empty($event['type'])) {
+                    if (is_numeric($event['type'])) {
+                        $ev_type = get_type_name_by_id('event_types', $event['type']);
+                    } else {
+                        $ev_type = get_lang_field($event, 'type');
+                    }
+                }
+                if (empty($ev_type)) {
+                    $ev_type = ($current_lang == 'en' ? 'Event' : 'ইভেন্ট');
+                }
                 
                 if (!empty($event['start_date'])) {
                     if ($current_lang == 'en') {

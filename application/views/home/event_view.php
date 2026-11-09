@@ -53,13 +53,12 @@ $page_title = !empty($ev_title) ? $ev_title : (($current_lang == 'en') ? 'Event 
                             <span>
                                 <i class="fas fa-tag text-warning me-1"></i>
                                 <?php
-                                    $ev_type_txt = function_exists('get_lang_field') ? get_lang_field($event, 'type') : '';
-                                    if (!empty($ev_type_txt)) {
-                                        echo html_escape($ev_type_txt);
-                                    } elseif ($event['type'] != 'holiday'){
-                                        echo get_type_name_by_id('event_types', $event['type']);
+                                    if ($event['type'] == 'holiday') {
+                                        echo translate('holiday');
+                                    } elseif (is_numeric($event['type'])) {
+                                        echo html_escape(get_type_name_by_id('event_types', $event['type']));
                                     } else {
-                                        echo translate('holiday'); 
+                                        echo html_escape(function_exists('get_lang_field') ? get_lang_field($event, 'type') : $event['type']);
                                     }
                                 ?>
                             </span>

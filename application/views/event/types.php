@@ -23,6 +23,11 @@
 						<input type="text" class="form-control" name="type_name" value="<?=set_value('type_name')?>" />
 						<span class="error"><?=form_error('type_name')?></span>
 					</div>
+					<div class="form-group">
+						<label class="control-label"><?=translate('name')?> (English)</label>
+						<input type="text" class="form-control" name="type_name_en" value="<?=set_value('type_name_en')?>" />
+						<span class="error"><?=form_error('type_name_en')?></span>
+					</div>
 					<div class="form-group mb-xs">
 						<div class="radio-custom radio-success radio-inline">
 							<input type="radio" value="bullhorn" checked name="event_icon" id="bullhorn">
@@ -109,11 +114,17 @@
 								<td><?php echo $count++;?></td>
 								<td><?php echo $row['branch_name']; ?></td>
 								<td><i class="text-xl fas fa-<?=html_escape($row['icon'])?>"></i></td>
-								<td><?php echo $row['name']; ?></td>
+								<td>
+									<strong><?php echo html_escape($row['name']); ?></strong>
+									<?php if (!empty($row['name_en'])): ?>
+										<br><small class="text-muted"><?php echo html_escape($row['name_en']); ?></small>
+									<?php endif; ?>
+								</td>
 								<td>
 								<?php if (get_permission('event_type', 'is_edit')): ?>
 									<!-- update link -->
 									<a class="btn btn-default btn-circle icon evt_modal" href="javascript:void(0);" data-id="<?=$row['id']?>" data-name="<?=$row['name']?>"
+									data-name_en="<?=html_escape(!empty($row['name_en']) ? $row['name_en'] : '')?>"
 									data-branch="<?=$row['branch_id']?>" data-icon="<?=$row['icon']?>">
 										<i class="fas fa-pen-nib"></i>
 									</a>
@@ -160,6 +171,11 @@
 				<div class="form-group mb-md">
 					<label class="control-label"><?=translate('name')?> <span class="required">*</span></label>
 					<input type="text" class="form-control" name="type_name" id="ename" value="" />
+					<span class="error"></span>
+				</div>
+				<div class="form-group mb-md">
+					<label class="control-label"><?=translate('name')?> (English)</label>
+					<input type="text" class="form-control" name="type_name_en" id="ename_en" value="" />
 					<span class="error"></span>
 				</div>
 					<div class="form-group mb-xs">
@@ -225,10 +241,12 @@
 		$('.evt_modal').on('click', function() {
 			var id = $(this).data('id');
 			var name = $(this).data('name');
+			var name_en = $(this).data('name_en') || '';
 			var icon = $(this).data('icon');
 			var branch = $(this).data('branch'); 
 			$('#etype_id').val(id);
 			$('#ename').val(name);
+			$('#ename_en').val(name_en);
 			$(".frm-submit input[name=event_icon][value=" + icon + "]").prop('checked', true);
             if ($('#ebranch_id').length) {
                 $('#ebranch_id').val(branch).trigger('change');

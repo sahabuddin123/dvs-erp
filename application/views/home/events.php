@@ -56,6 +56,21 @@ $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'pa
                     </div>
                     <div class="card-body p-4 d-flex flex-column justify-content-between">
                         <div>
+                            <?php
+                            $card_type = '';
+                            if (!empty($value['type'])) {
+                                if (is_numeric($value['type'])) {
+                                    $card_type = get_type_name_by_id('event_types', $value['type']);
+                                } else {
+                                    $card_type = function_exists('get_lang_field') ? get_lang_field($value, 'type') : $value['type'];
+                                }
+                            }
+                            if (!empty($card_type)):
+                            ?>
+                                <span class="badge text-white mb-2" style="background-color: var(--primary-color);">
+                                    <i class="fas fa-tag me-1"></i> <?php echo html_escape($card_type); ?>
+                                </span>
+                            <?php endif; ?>
                             <h5 class="card-title fw-bold mb-2">
                                 <a href="<?php echo base_url("home/event_view/" . $value['id']); ?>" class="text-decoration-none" style="color: #1e293b;">
                                     <?php echo html_escape($ev_title); ?>
