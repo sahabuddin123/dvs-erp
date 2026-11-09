@@ -61,7 +61,19 @@ class Founder extends Admin_Controller
 
         $branchID = $this->frontend_model->getBranchID();
 
-        if ($_POST) {
+        // Handle POST search filter fallback if JS was disabled
+        if (isset($_POST['search'])) {
+            $branchID = $this->input->post('branch_id');
+            redirect(base_url('frontend/founder' . (!empty($branchID) ? '?branch_id=' . $branchID : '')));
+        }
+
+        // Default to branch 1 if superadmin has not selected any branch
+        if (empty($branchID)) {
+            $defaultBranch = $this->db->select('id')->limit(1)->get('branch')->row();
+            $branchID = $defaultBranch ? $defaultBranch->id : 1;
+        }
+
+        if ($_POST && !isset($_POST['search'])) {
             $this->validation_rules();
             if ($this->form_validation->run() !== false) {
                 $post = $this->input->post();
@@ -109,7 +121,10 @@ class Founder extends Admin_Controller
                 'vendor/ckeditor/ckeditor.js',
             ],
         ];
-        $this->data['founderlist'] = $this->db->where('branch_id', $branchID)->order_by('position', 'asc')->order_by('id', 'asc')->get('founder')->result_array();
+        if (!empty($branchID)) {
+            $this->db->where('branch_id', $branchID);
+        }
+        $this->data['founderlist'] = $this->db->order_by('position', 'asc')->order_by('id', 'asc')->get('founder')->result_array();
         $this->data['title'] = translate('founders');
         $this->data['sub_page'] = 'frontend/founder';
         $this->data['main_menu'] = 'frontend';

@@ -1,32 +1,5 @@
 <?php if (is_superadmin_loggedin()): ?>
-	<section class="panel">
-		<header class="panel-heading">
-			<h4 class="panel-title"><?=translate('select_ground')?></h4>
-		</header>
-		<?php echo form_open($this->uri->uri_string(), array('class' => 'validate'));?>
-		<div class="panel-body">
-			<div class="row mb-sm">
-				<div class="col-md-offset-3 col-md-6">
-					<div class="form-group">
-						<label class="control-label"><?=translate('branch')?> <span class="required">*</span></label>
-						<?php
-							$arrayBranch = $this->app_lib->getSelectList('branch');
-							echo form_dropdown("branch_id", $arrayBranch, set_value('branch_id', $branch_id), "class='form-control' data-plugin-selectTwo
-							data-width='100%' data-minimum-results-for-search='Infinity'");
-						?>
-					</div>
-				</div>
-			</div>
-		</div>
-		<footer class="panel-footer">
-			<div class="row">
-				<div class="col-md-offset-3 col-md-2">
-					<button class="btn btn-default btn-block" type="submit" name="search"><i class="fas fa-filter"></i> <?=translate('filter')?></button>
-				</div>
-			</div>
-		</footer>
-		<?php echo form_close();?>
-	</section>
+	<?php $this->load->view('frontend/branch_select'); ?>
 <?php endif; ?>
 
 <section class="panel">

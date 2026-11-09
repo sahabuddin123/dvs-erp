@@ -115,8 +115,6 @@ assets/frontend/dvs/img/*.pdf
 *.bak
 *.swp
 *~
-run_migration.php
-/run_migration.php
 favicon.ico
 /favicon.ico
 
