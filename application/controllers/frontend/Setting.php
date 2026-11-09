@@ -56,6 +56,7 @@ class Setting extends Admin_Controller
                 'address_en'           => 'TEXT NULL DEFAULT NULL',
                 'footer_about_text_en' => 'TEXT NULL DEFAULT NULL',
                 'copyright_text_en'    => 'TEXT NULL DEFAULT NULL',
+                'header_quick_buttons' => 'TEXT NULL DEFAULT NULL',
             );
             $old_debug = $this->db->db_debug;
             $this->db->db_debug = FALSE;
@@ -150,6 +151,28 @@ class Setting extends Admin_Controller
                     'pinterest_url' => $this->input->post('pinterest_url'),
                     'instagram_url' => $this->input->post('instagram_url'),
                 );
+
+                // Process Header Quick Buttons JSON
+                $raw_buttons = $this->input->post('quick_buttons');
+                $cleaned_buttons = array();
+                if (is_array($raw_buttons)) {
+                    foreach ($raw_buttons as $btn) {
+                        $text = trim($btn['text'] ?? '');
+                        $text_en = trim($btn['text_en'] ?? '');
+                        $url = trim($btn['url'] ?? '');
+                        if (!empty($text) || !empty($text_en) || !empty($url)) {
+                            $cleaned_buttons[] = array(
+                                'text' => $text,
+                                'text_en' => $text_en,
+                                'url' => $url,
+                                'icon' => trim(!empty($btn['icon']) ? $btn['icon'] : 'fas fa-link'),
+                                'target' => (!empty($btn['target']) && $btn['target'] == '_blank') ? '_blank' : '_self',
+                                'status' => isset($btn['status']) ? intval($btn['status']) : 1,
+                            );
+                        }
+                    }
+                }
+                $cms_setting['header_quick_buttons'] = json_encode($cleaned_buttons, JSON_UNESCAPED_UNICODE);
 
                 $upload_dir = './uploads/frontend/images/';
                 if (!is_dir($upload_dir)) {

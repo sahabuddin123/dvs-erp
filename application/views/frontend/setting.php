@@ -161,6 +161,88 @@
 							<span class="help-block" style="font-size:12px; color:#6b7280;"><?=translate('configurable_page_header_and_body_background_image') ?? 'Configurable background image for frontend page headers and banners.'?></span>
 						</div>
 					</div>
+
+					<!-- Header Quick Buttons Section -->
+					<div class="form-group" style="background: #f8fafc; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding-top: 20px; padding-bottom: 20px;">
+						<label class="col-md-3 control-label">
+							<strong>হেডার কুইক বাটনসমূহ</strong><br>
+							<small class="text-muted">লোগোর ডানপাশে প্রদর্শিত বাটনসমূহ (Add, Edit, Remove, Link)</small>
+						</label>
+						<div class="col-md-9">
+							<?php
+								$raw_saved_btns = !empty($setting['header_quick_buttons']) ? $setting['header_quick_buttons'] : '';
+								$saved_buttons = !empty($raw_saved_btns) ? json_decode($raw_saved_btns, true) : null;
+								if ($saved_buttons === null) {
+									$saved_buttons = array(
+										array('text' => 'পরিচালকের বাণী', 'text_en' => "Director's Message", 'url' => 'message-founder/1', 'icon' => 'fas fa-user-tie', 'target' => '_self', 'status' => 1),
+										array('text' => 'ক্যারিয়ার', 'text_en' => 'Career', 'url' => 'career', 'icon' => 'fas fa-briefcase', 'target' => '_self', 'status' => 1)
+									);
+								}
+							?>
+							<div class="table-responsive">
+								<table class="table table-bordered table-hover table-condensed bg-white" id="tblHeaderButtons" style="margin-bottom: 10px;">
+									<thead>
+										<tr style="background: #edf2f7; font-size: 12px;">
+											<th width="20%">বাটন টেক্সট (বাংলা)</th>
+											<th width="20%">বাটন টেক্সট (English)</th>
+											<th width="24%">লিংক / URL</th>
+											<th width="15%">আইকন (FontAwesome)</th>
+											<th width="11%">টার্গেট</th>
+											<th width="10%">স্ট্যাটাস</th>
+											<th width="5%" class="text-center">মুছুন</th>
+										</tr>
+									</thead>
+									<tbody id="quickButtonsContainer">
+										<!-- Rendered via PHP and managed with JS -->
+										<?php if (!empty($saved_buttons)): 
+											foreach ($saved_buttons as $idx => $btn): 
+										?>
+										<tr class="btn-row">
+											<td>
+												<input type="text" name="quick_buttons[<?php echo $idx; ?>][text]" value="<?php echo html_escape($btn['text'] ?? ''); ?>" class="form-control input-sm" placeholder="যেমন: পরিচালকের বাণী" />
+											</td>
+											<td>
+												<input type="text" name="quick_buttons[<?php echo $idx; ?>][text_en]" value="<?php echo html_escape($btn['text_en'] ?? ''); ?>" class="form-control input-sm" placeholder="e.g. Director's Message" />
+											</td>
+											<td>
+												<input type="text" name="quick_buttons[<?php echo $idx; ?>][url]" value="<?php echo html_escape($btn['url'] ?? ''); ?>" class="form-control input-sm" placeholder="e.g. message-founder/1 বা career" />
+											</td>
+											<td>
+												<input type="text" name="quick_buttons[<?php echo $idx; ?>][icon]" value="<?php echo html_escape($btn['icon'] ?? 'fas fa-link'); ?>" class="form-control input-sm" placeholder="fas fa-user-tie" />
+											</td>
+											<td>
+												<select name="quick_buttons[<?php echo $idx; ?>][target]" class="form-control input-sm">
+													<option value="_self" <?php echo (isset($btn['target']) && $btn['target'] == '_self') ? 'selected' : ''; ?>>Same Tab</option>
+													<option value="_blank" <?php echo (isset($btn['target']) && $btn['target'] == '_blank') ? 'selected' : ''; ?>>New Tab</option>
+												</select>
+											</td>
+											<td>
+												<select name="quick_buttons[<?php echo $idx; ?>][status]" class="form-control input-sm">
+													<option value="1" <?php echo (!isset($btn['status']) || $btn['status'] == 1) ? 'selected' : ''; ?>>Active</option>
+													<option value="0" <?php echo (isset($btn['status']) && $btn['status'] == 0) ? 'selected' : ''; ?>>Inactive</option>
+												</select>
+											</td>
+											<td class="text-center align-middle">
+												<button type="button" class="btn btn-danger btn-xs btn-remove-hbtn" title="মুছে ফেলুন">
+													<i class="fas fa-trash-alt"></i>
+												</button>
+											</td>
+										</tr>
+										<?php endforeach; endif; ?>
+									</tbody>
+								</table>
+							</div>
+							
+							<div class="d-flex justify-content-between align-items-center">
+								<button type="button" class="btn btn-default btn-sm" id="btnAddHeaderBtn" style="font-weight: 600;">
+									<i class="fas fa-plus-circle text-success"></i> + নতুন বাটন যোগ করুন
+								</button>
+								<span class="help-block text-muted" style="font-size: 11px; margin-top: 5px;">
+									<i class="fas fa-info-circle text-info"></i> ওয়েবসাইটের ভেতরের পেজের জন্য আপেক্ষিক লিংক (যেমন: <code>message-founder/1</code>, <code>career</code>, <code>admission</code>) অথবা পূর্ণাঙ্গ লিংক দিতে পারেন।
+								</span>
+							</div>
+						</div>
+					</div>
 					<div class="form-group">
 						<label class="col-md-3 control-label"><?php echo translate('address'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-6">
@@ -401,6 +483,26 @@
 		$('#recaptcha_site_key').hide(); 
 		$('#recaptcha_secret_key').hide(); 
 	<?php } ?>
+
+	// Header Quick Buttons Repeater
+	var nextBtnIdx = <?php echo !empty($saved_buttons) ? count($saved_buttons) : 0; ?>;
+	$('#btnAddHeaderBtn').on('click', function() {
+		var rowHtml = '<tr class="btn-row">' +
+			'<td><input type="text" name="quick_buttons[' + nextBtnIdx + '][text]" class="form-control input-sm" placeholder="যেমন: পরিচালকের বাণী" /></td>' +
+			'<td><input type="text" name="quick_buttons[' + nextBtnIdx + '][text_en]" class="form-control input-sm" placeholder="e.g. Director\'s Message" /></td>' +
+			'<td><input type="text" name="quick_buttons[' + nextBtnIdx + '][url]" class="form-control input-sm" placeholder="e.g. message-founder/1" /></td>' +
+			'<td><input type="text" name="quick_buttons[' + nextBtnIdx + '][icon]" value="fas fa-link" class="form-control input-sm" placeholder="fas fa-link" /></td>' +
+			'<td><select name="quick_buttons[' + nextBtnIdx + '][target]" class="form-control input-sm"><option value="_self">Same Tab</option><option value="_blank">New Tab</option></select></td>' +
+			'<td><select name="quick_buttons[' + nextBtnIdx + '][status]" class="form-control input-sm"><option value="1">Active</option><option value="0">Inactive</option></select></td>' +
+			'<td class="text-center align-middle"><button type="button" class="btn btn-danger btn-xs btn-remove-hbtn" title="মুছে ফেলুন"><i class="fas fa-trash-alt"></i></button></td>' +
+			'</tr>';
+		$('#quickButtonsContainer').append(rowHtml);
+		nextBtnIdx++;
+	});
+
+	$(document).on('click', '.btn-remove-hbtn', function() {
+		$(this).closest('tr').remove();
+	});
 </script>
 
 <?php endif; ?>

@@ -84,13 +84,33 @@ $app_email = !empty($cms_setting['email']) ? $cms_setting['email'] : (!empty($gl
                 </div>
             </div>
             <div class="col-lg-4 text-end">
-                <div class="quick-buttons">
-                    <button class="btn-quick" onclick="location.href = '<?php echo base_url('message-founder/1'); ?>'">
-                        <i class="fas fa-user-tie me-1"></i> <?php echo translate('directors_message'); ?>
-                    </button>
-                    <button class="btn-quick ms-2" onclick="location.href = '<?php echo base_url('career'); ?>'">
-                        <i class="fas fa-briefcase me-1"></i> <?php echo translate('career'); ?>
-                    </button>
+                <div class="quick-buttons d-flex justify-content-end align-items-center flex-wrap gap-2">
+                    <?php 
+                    $header_btns = !empty($cms_setting['header_quick_buttons']) ? json_decode($cms_setting['header_quick_buttons'], true) : null;
+                    if ($header_btns === null) {
+                        $header_btns = array(
+                            array('text' => 'পরিচালকের বাণী', 'text_en' => "Director's Message", 'url' => 'message-founder/1', 'icon' => 'fas fa-user-tie', 'target' => '_self', 'status' => 1),
+                            array('text' => 'ক্যারিয়ার', 'text_en' => 'Career', 'url' => 'career', 'icon' => 'fas fa-briefcase', 'target' => '_self', 'status' => 1)
+                        );
+                    }
+                    if (!empty($header_btns)):
+                        foreach ($header_btns as $hb):
+                            if (isset($hb['status']) && intval($hb['status']) === 0) continue;
+                            $hb_text = ($current_lang == 'en' && !empty($hb['text_en'])) ? $hb['text_en'] : (!empty($hb['text']) ? $hb['text'] : ($hb['text_en'] ?? ''));
+                            if (empty($hb_text)) continue;
+                            $hb_icon = !empty($hb['icon']) ? $hb['icon'] : 'fas fa-link';
+                            $hb_target = (!empty($hb['target']) && $hb['target'] == '_blank') ? 'target="_blank" rel="noopener noreferrer"' : '';
+                            $hb_url = trim($hb['url'] ?? '');
+                            if (preg_match('#^https?://#i', $hb_url)) {
+                                $btn_href = $hb_url;
+                            } else {
+                                $btn_href = base_url($hb_url);
+                            }
+                    ?>
+                        <a href="<?php echo $btn_href; ?>" <?php echo $hb_target; ?> class="btn-quick text-decoration-none">
+                            <i class="<?php echo html_escape($hb_icon); ?> me-1"></i> <?php echo html_escape($hb_text); ?>
+                        </a>
+                    <?php endforeach; endif; ?>
                 </div>
             </div>
         </div>
@@ -355,7 +375,27 @@ if (substr($current_uri, 0, 4) === 'cms/') {
                     <?php endif; ?>
                 <?php endforeach; endif; ?>
 
+                <?php if (!empty($header_btns)): ?>
                 <li class="nav-item mt-3 pt-3 border-top">
+                    <div class="d-flex flex-wrap gap-2">
+                        <?php foreach ($header_btns as $hb):
+                            if (isset($hb['status']) && intval($hb['status']) === 0) continue;
+                            $hb_text = ($current_lang == 'en' && !empty($hb['text_en'])) ? $hb['text_en'] : (!empty($hb['text']) ? $hb['text'] : ($hb['text_en'] ?? ''));
+                            if (empty($hb_text)) continue;
+                            $hb_icon = !empty($hb['icon']) ? $hb['icon'] : 'fas fa-link';
+                            $hb_target = (!empty($hb['target']) && $hb['target'] == '_blank') ? 'target="_blank" rel="noopener noreferrer"' : '';
+                            $hb_url = trim($hb['url'] ?? '');
+                            $btn_href = preg_match('#^https?://#i', $hb_url) ? $hb_url : base_url($hb_url);
+                        ?>
+                            <a href="<?php echo $btn_href; ?>" <?php echo $hb_target; ?> class="btn btn-sm btn-outline-success flex-fill text-center py-2" style="border-radius: 8px;">
+                                <i class="<?php echo html_escape($hb_icon); ?> me-1"></i> <?php echo html_escape($hb_text); ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </li>
+                <?php endif; ?>
+
+                <li class="nav-item mt-2">
                     <?php if (!is_loggedin()) { ?>
                         <a class="btn btn-primary w-100" style="background: var(--primary-color); border: none;" href="<?php echo base_url('authentication'); ?>">
                             <i class="fas fa-user-lock me-2"></i> <?php echo translate('login'); ?>
