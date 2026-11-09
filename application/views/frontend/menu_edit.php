@@ -1,6 +1,7 @@
 <?php
 	$branch_id 		= '';
 	$title 			= '';
+	$title_en 		= '';
 	$parent_menu 	= '';
 	$parent_id 		= 0;
 	$publish 		= true;
@@ -19,6 +20,11 @@
 		} else {
 			$title = $menu['title'];
 		}
+		if (!empty($query->name_en)) {
+			$title_en = $query->name_en;
+		} else {
+			$title_en = !empty($menu['title_en']) ? $menu['title_en'] : '';
+		}
 		if (!empty($query->invisible)) {
 			if ($query->invisible !== 0) {
 				$publish = false;
@@ -32,6 +38,7 @@
 	} else {
 		$branch_id 	= $menu['branch_id'];
 		$title 		= $menu['title'];
+		$title_en 	= !empty($menu['title_en']) ? $menu['title_en'] : '';
 		$publish 	= $menu['publish'];
 		$parent_id 	= $menu['parent_id'];
 		if (!is_superadmin_loggedin()) {
@@ -77,9 +84,16 @@
 					</div>
 				<?php endif; ?>
 				<div class="form-group">
-					<label class="col-md-3 control-label"><?php echo translate('title'); ?> <span class="required">*</span></label>
+					<label class="col-md-3 control-label"><?php echo translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 					<div class="col-md-6">
 						<input type="text" class="form-control" name="title" value="<?php echo set_value('title', $title); ?>" />
+						<span class="error"></span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-3 control-label"><?php echo translate('title'); ?> (English)</label>
+					<div class="col-md-6">
+						<input type="text" class="form-control" name="title_en" value="<?php echo set_value('title_en', $title_en); ?>" placeholder="Menu Title in English" />
 						<span class="error"></span>
 					</div>
 				</div>

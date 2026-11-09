@@ -232,7 +232,8 @@ if (substr($current_uri, 0, 4) === 'cms/') {
             <ul class="navbar-nav mx-auto align-items-center">
                 <?php if (!empty($main_menu)): foreach ($main_menu as $item): 
                     $has_sub = !empty($item['submenu']);
-                    $item_icon = get_dvs_menu_icon($item['alias'] ?? '', $item['title']);
+                    $item_title = get_lang_field($item, 'title');
+                    $item_icon = get_dvs_menu_icon($item['alias'] ?? '', $item_title);
                     
                     // Determine active state
                     $is_item_active = false;
@@ -255,17 +256,18 @@ if (substr($current_uri, 0, 4) === 'cms/') {
                     <?php if ($has_sub): ?>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle <?php echo $active_class; ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="<?php echo $item_icon; ?> me-1"></i> <?php echo html_escape($item['title']); ?>
+                                <i class="<?php echo $item_icon; ?> me-1"></i> <?php echo html_escape($item_title); ?>
                             </a>
                             <ul class="dropdown-menu shadow border-0">
                                 <?php foreach ($item['submenu'] as $sub): 
-                                    $sub_icon = get_dvs_menu_icon($sub['alias'] ?? '', $sub['title']);
+                                    $sub_title = get_lang_field($sub, 'title');
+                                    $sub_icon = get_dvs_menu_icon($sub['alias'] ?? '', $sub_title);
                                     $sub_active = (!empty($sub['alias']) && ($current_uri === $sub['alias'] || strpos($current_uri, $sub['alias']) !== false)) ? 'active' : '';
                                     $sub_target = !empty($sub['open_new_tab']) ? 'target="_blank" rel="noopener noreferrer"' : '';
                                 ?>
                                     <li>
                                         <a class="dropdown-item <?php echo $sub_active; ?>" href="<?php echo $sub['url']; ?>" <?php echo $sub_target; ?>>
-                                            <i class="<?php echo $sub_icon; ?> me-2 text-success"></i> <?php echo html_escape($sub['title']); ?>
+                                            <i class="<?php echo $sub_icon; ?> me-2 text-success"></i> <?php echo html_escape($sub_title); ?>
                                         </a>
                                     </li>
                                 <?php endforeach; ?>
@@ -274,7 +276,7 @@ if (substr($current_uri, 0, 4) === 'cms/') {
                     <?php else: ?>
                         <li class="nav-item">
                             <a class="nav-link <?php echo $active_class; ?>" href="<?php echo $item['url']; ?>" <?php echo $target; ?>>
-                                <i class="<?php echo $item_icon; ?> me-1"></i> <?php echo html_escape($item['title']); ?>
+                                <i class="<?php echo $item_icon; ?> me-1"></i> <?php echo html_escape($item_title); ?>
                             </a>
                         </li>
                     <?php endif; ?>
@@ -295,7 +297,8 @@ if (substr($current_uri, 0, 4) === 'cms/') {
             <ul class="navbar-nav">
                 <?php if (!empty($main_menu)): foreach ($main_menu as $item): 
                     $has_sub = !empty($item['submenu']);
-                    $item_icon = get_dvs_menu_icon($item['alias'] ?? '', $item['title']);
+                    $item_title = get_lang_field($item, 'title');
+                    $item_icon = get_dvs_menu_icon($item['alias'] ?? '', $item_title);
                     
                     $is_item_active = false;
                     if (empty($item['alias'])) {
@@ -317,18 +320,19 @@ if (substr($current_uri, 0, 4) === 'cms/') {
                     <?php if ($has_sub): ?>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle <?php echo $active_class; ?>" href="#" role="button" data-bs-toggle="collapse" data-bs-target="#mobileSub_<?php echo $item['id']; ?>" aria-expanded="<?php echo $is_item_active ? 'true' : 'false'; ?>">
-                                <i class="<?php echo $item_icon; ?> me-2"></i> <?php echo html_escape($item['title']); ?>
+                                <i class="<?php echo $item_icon; ?> me-2"></i> <?php echo html_escape($item_title); ?>
                             </a>
                             <div class="collapse <?php echo $is_item_active ? 'show' : ''; ?>" id="mobileSub_<?php echo $item['id']; ?>">
                                 <ul class="nav flex-column ms-3">
                                     <?php foreach ($item['submenu'] as $sub): 
-                                        $sub_icon = get_dvs_menu_icon($sub['alias'] ?? '', $sub['title']);
+                                        $sub_title = get_lang_field($sub, 'title');
+                                        $sub_icon = get_dvs_menu_icon($sub['alias'] ?? '', $sub_title);
                                         $sub_active = (!empty($sub['alias']) && ($current_uri === $sub['alias'] || strpos($current_uri, $sub['alias']) !== false)) ? 'active' : '';
                                         $sub_target = !empty($sub['open_new_tab']) ? 'target="_blank" rel="noopener noreferrer"' : '';
                                     ?>
                                         <li class="nav-item">
                                             <a class="nav-link py-1 <?php echo $sub_active; ?>" href="<?php echo $sub['url']; ?>" <?php echo $sub_target; ?>>
-                                                <i class="<?php echo $sub_icon; ?> me-2 text-success"></i> <?php echo html_escape($sub['title']); ?>
+                                                <i class="<?php echo $sub_icon; ?> me-2 text-success"></i> <?php echo html_escape($sub_title); ?>
                                             </a>
                                         </li>
                                     <?php endforeach; ?>
@@ -338,7 +342,7 @@ if (substr($current_uri, 0, 4) === 'cms/') {
                     <?php else: ?>
                         <li class="nav-item">
                             <a class="nav-link <?php echo $active_class; ?>" href="<?php echo $item['url']; ?>" <?php echo $target; ?>>
-                                <i class="<?php echo $item_icon; ?> me-2"></i> <?php echo html_escape($item['title']); ?>
+                                <i class="<?php echo $item_icon; ?> me-2"></i> <?php echo html_escape($item_title); ?>
                             </a>
                         </li>
                     <?php endif; ?>

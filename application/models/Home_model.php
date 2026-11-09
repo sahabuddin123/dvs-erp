@@ -257,7 +257,7 @@ class Home_model extends MY_Model
 
         }
 
-        $this->db->select('front_cms_menu.*,if(mv.name is null, front_cms_menu.title, mv.name) as title,if(mv.parent_id is null, front_cms_menu.parent_id, mv.parent_id) as parent_id,if(mv.ordering is null, front_cms_menu.ordering, mv.ordering) as ordering,mv.invisible');
+        $this->db->select('front_cms_menu.*,if(mv.name is null, front_cms_menu.title, mv.name) as title,if(mv.name_en is null or mv.name_en = "", front_cms_menu.title_en, mv.name_en) as title_en,if(mv.parent_id is null, front_cms_menu.parent_id, mv.parent_id) as parent_id,if(mv.ordering is null, front_cms_menu.ordering, mv.ordering) as ordering,mv.invisible');
 
         $this->db->from('front_cms_menu');
 
@@ -301,6 +301,7 @@ class Home_model extends MY_Model
                     $value['submenu'][] = array(
                         'id' => $value2['id'],
                         'title' => $value2['title'],
+                        'title_en' => !empty($value2['title_en']) ? $value2['title_en'] : '',
                         'alias' => $value2['alias'],
                         'ordering' => $value2['ordering'],
                         'open_new_tab' => $value2['open_new_tab'],

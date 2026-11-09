@@ -26,6 +26,7 @@ class Menu extends Admin_Controller
             $this->form_validation->set_rules('branch_id', translate('branch'), 'required');
         }
         $this->form_validation->set_rules('title', translate('title'), 'trim|required|callback_unique_title');
+        $this->form_validation->set_rules('title_en', 'Title (English)', 'trim');
         $this->form_validation->set_rules('position', translate('position'), 'trim|required|numeric');
         if ($this->input->post('external_url')) {
             $this->form_validation->set_rules('external_link', 'External Link', 'trim|required');

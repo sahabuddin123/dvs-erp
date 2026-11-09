@@ -48,6 +48,7 @@ class Frontend_model extends MY_Model
     public function save_menus($data)
     {
         $title = $data['title'];
+        $title_en = isset($data['title_en']) ? trim($data['title_en']) : '';
         $slug = strtolower(str_replace(' ', '-', $title));
         $publish = isset($data['publish']) ? 1 : 0;
         $new_tab = isset($data['new_tab']) ? 1 : 0;
@@ -56,6 +57,7 @@ class Frontend_model extends MY_Model
         $parent_id = isset($data['parent_id']) ? $data['parent_id'] : 0;
         $menu_data = array(
             'title' => $title,
+            'title_en' => $title_en,
             'alias' => $slug,
             'ordering' => $data['position'],
             'open_new_tab' => $new_tab,
@@ -63,17 +65,18 @@ class Frontend_model extends MY_Model
             'ext_url_address' => $external_link,
             'parent_id' => $parent_id,
             'publish' => $publish,
-            'branch_id' => $this->application_model->get_branch_id(),
+            'branch_id' => !empty($data['branch_id']) ? $data['branch_id'] : $this->application_model->get_branch_id(),
             'system' => 0,
         );
 
         if (isset($data['menu_id']) && !empty($data['menu_id'])) {
             $isSystem = $this->db->get_where('front_cms_menu', array('id' => $data['menu_id']))->row()->system;
             if ($isSystem == 1) {
-                $branch_id = $this->application_model->get_branch_id();
+                $branch_id = !empty($data['branch_id']) ? $data['branch_id'] : $this->application_model->get_branch_id();
                 $query = $this->db->select('id')->from("front_cms_menu_visible")->where(array('menu_id' => $data['menu_id'], 'branch_id' => $branch_id))->get();
                 $arraySysMenu = array(
                     'name' => $title, 
+                    'name_en' => $title_en,
                     'invisible' => (isset($data['publish']) ? 0 : 1), 
                     'menu_id' => $data['menu_id'], 
                     'ordering' => $data['position'], 
@@ -200,7 +203,7 @@ class Frontend_model extends MY_Model
         $mainMenu = array();
         $subMenu = array();
         $mergeMenu = array();
-        $this->db->select('front_cms_menu.*,if(mv.name is null, front_cms_menu.title, mv.name) as title, if(mv.parent_id is null, front_cms_menu.parent_id, mv.parent_id) as parent_id, if(mv.ordering is null, front_cms_menu.ordering, mv.ordering) as ordering,mv.invisible');
+        $this->db->select('front_cms_menu.*,if(mv.name is null, front_cms_menu.title, mv.name) as title, if(mv.name_en is null or mv.name_en = "", front_cms_menu.title_en, mv.name_en) as title_en, if(mv.parent_id is null, front_cms_menu.parent_id, mv.parent_id) as parent_id, if(mv.ordering is null, front_cms_menu.ordering, mv.ordering) as ordering,mv.invisible');
         $this->db->from('front_cms_menu');
         $this->db->join('front_cms_menu_visible as mv', 'mv.menu_id = front_cms_menu.id and mv.branch_id = ' . $branchID, 'left');
         $this->db->order_by('front_cms_menu.ordering', 'asc');

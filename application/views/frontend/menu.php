@@ -69,7 +69,7 @@ if (!empty($branch_id)) {
 								echo "Has Been Added";
 							}
 							?></td>
-							<td><?php echo strip_tags($row['title']); ?></td>
+							<td><?php echo strip_tags($row['title']); ?><?php if(!empty($row['title_en'])) { echo '<br><small class="text-muted">EN: ' . html_escape($row['title_en']) . '</small>'; } ?></td>
 							<td><?php echo $row['ordering']; ?></td>
 							<td><?php
 							 if (!empty($row['submenu'])) {
@@ -120,7 +120,7 @@ if (!empty($branch_id)) {
 							<td></td>
 							<td></td>
 							<td></td>
-							<td><i class="fas fa-angle-double-right"></i> <?php echo $value['title'] ?></td>
+							<td><i class="fas fa-angle-double-right"></i> <?php echo strip_tags($value['title']); ?><?php if(!empty($value['title_en'])) { echo '<br><small class="text-muted ms-3">EN: ' . html_escape($value['title_en']) . '</small>'; } ?></td>
 							<td>
 		                        <div class="material-switch ml-xs">
 		                            <input class="switch_menu" id="switch_<?php echo $value['id']; ?>" data-menu-id="<?php echo $value['id']; ?>" name="sw_menu<?php echo $value['id']; ?>" type="checkbox" <?php echo $publish; ?> />
@@ -164,9 +164,16 @@ if (!empty($branch_id)) {
 						</div>
 					<?php endif; ?>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('title'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-6">
 							<input type="text" class="form-control" name="title" value="<?php echo set_value('title'); ?>" />
+							<span class="error"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('title'); ?> (English)</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="title_en" value="<?php echo set_value('title_en'); ?>" placeholder="Menu Title in English" />
 							<span class="error"></span>
 						</div>
 					</div>
