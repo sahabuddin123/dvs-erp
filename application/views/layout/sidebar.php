@@ -143,7 +143,7 @@
                                                         $sub_page == 'frontend/section_contact' ||
                                                             $sub_page == 'frontend/section_about' ||
                                                                 $sub_page == 'frontend/section_services') echo 'nav-active'; ?>">
-                                <a href="<?php echo base_url('frontend/section/index'); ?>">
+                                <a href="<?php echo base_url('frontend/section/home' . (is_superadmin_loggedin() ? '?branch_id=1' : '')); ?>">
                                     <span><i class="fas fa-caret-right" aria-hidden="true"></i><?php echo translate('home_page_settings'); ?></span>
                                 </a>
                             </li>

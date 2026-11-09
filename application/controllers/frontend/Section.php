@@ -46,6 +46,9 @@ class Section extends Admin_Controller
     public function home()
     {
         $branchID                   = $this->frontend_model->getBranchID();
+        if (empty($branchID)) {
+            $branchID = 1;
+        }
         $this->data['branch_id']    = $branchID;
         $this->data['wellcome']     = $this->frontend_model->get('front_cms_home', array('item_type' => 'wellcome', 'branch_id' => $branchID), true);
         $this->data['home_seo']     = $this->frontend_model->get('front_cms_home_seo', array('branch_id' => $branchID), true);
@@ -122,14 +125,38 @@ class Section extends Admin_Controller
                 ajax_access_denied();
             }
             $branchID = $this->frontend_model->getBranchID();
+            if (empty($branchID)) {
+                $branchID = $this->input->post('branch_id');
+                if (empty($branchID)) {
+                    $branchID = 1;
+                }
+            }
             $this->form_validation->set_rules('wel_title', 'Title', 'trim|required');
-            $this->form_validation->set_rules('subtitle', 'Subtitle', 'trim|required');
+            $this->form_validation->set_rules('subtitle', 'Subtitle', 'trim');
             $this->form_validation->set_rules('description', 'Description', 'trim|required');
-            $this->form_validation->set_rules('photo', translate('photo'), 'callback_photoHandleUpload[photo]');
-            if (isset($_FILES["photo"]) && empty($_FILES["photo"]['name']) && empty($_POST['old_photo'])) {
-                $this->form_validation->set_rules('photo', translate('photo'), 'required');
+            if (!empty($_FILES["photo"]['name'])) {
+                $this->form_validation->set_rules('photo', translate('photo'), 'callback_photoHandleUpload[photo]');
             }
             if ($this->form_validation->run() == true) {
+                $remove_photo = ($this->input->post('remove_photo') == '1') || (empty($this->input->post('old_photo')) && empty($_FILES['photo']['name']));
+                $img_name = '';
+                $destination = './uploads/frontend/home_page/';
+                $prev_image = $this->input->post('old_photo');
+
+                if ($remove_photo) {
+                    if (!empty($prev_image) && file_exists($destination . $prev_image)) {
+                        @unlink($destination . $prev_image);
+                    }
+                    foreach (['jpg', 'png', 'jpeg', 'webp'] as $test_ext) {
+                        if (file_exists($destination . 'wellcome' . $branchID . '.' . $test_ext)) {
+                            @unlink($destination . 'wellcome' . $branchID . '.' . $test_ext);
+                        }
+                    }
+                    $img_name = '';
+                } else {
+                    $img_name = $this->uploadImage('wellcome' . $branchID, 'home_page');
+                }
+
                 // save information in the database
                 $arrayWellcome = array(
                     'branch_id' => $branchID,
@@ -141,12 +168,13 @@ class Section extends Admin_Controller
                     'description' => $this->input->post('description'),
                     'description_en' => $this->input->post('description_en'),
                     'color1' => $this->input->post('title_text_color'),
-                    'elements' => json_encode(array('image' => $this->uploadImage('wellcome' . $branchID, 'home_page'))),
+                    'elements' => json_encode(array('image' => $img_name)),
                 );
                 // save information in the database
                 $this->saveHome('wellcome', $branchID, $arrayWellcome);
                 set_alert('success', translate('information_has_been_saved_successfully'));
-                $array = array('status' => 'success');
+                $url = base_url('frontend/section/home' . (is_superadmin_loggedin() ? '?branch_id=' . $branchID : '') . '#welcome');
+                $array = array('status' => 'success', 'url' => $url);
             } else {
                 $error = $this->form_validation->error_array();
                 $array = array('status' => 'fail', 'error' => $error);

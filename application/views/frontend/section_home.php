@@ -63,6 +63,7 @@ if (empty($elements)) {
 				<div class="tab-content">
 					<div class="tab-pane active" id="welcome">
 						<?php echo form_open_multipart('frontend/section/home_wellcome' . get_request_url(), array('class' => 'form-horizontal frm-submit-data')); ?>
+							<input type="hidden" name="branch_id" value="<?php echo $branch_id; ?>">
 							<div class="form-group">
 								<label class="col-md-3 control-label"><?php echo translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 								<div class="col-md-7">
@@ -77,7 +78,7 @@ if (empty($elements)) {
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-md-3 control-label"><?php echo translate('subtitle'); ?> (বাংলা) <span class="required">*</span></label>
+								<label class="col-md-3 control-label"><?php echo translate('subtitle'); ?> (বাংলা)</label>
 								<div class="col-md-7">
 									<input type="text" class="form-control" name="subtitle" value="<?php echo set_value('subtitle', $wellcome['subtitle']); ?>" />
 									<span class="error"></span>
@@ -103,7 +104,7 @@ if (empty($elements)) {
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-md-3 control-label"><?php echo translate('photo'); ?> <span class="required">*</span></label>
+								<label class="col-md-3 control-label"><?php echo translate('photo'); ?></label>
 								<div class="col-md-4">
 									<?php
 										$well_img_val = !empty($well_ele['image']) ? $well_ele['image'] : '';
@@ -126,6 +127,10 @@ if (empty($elements)) {
 									?>
 									<input type="hidden" name="old_photo" value="<?php echo html_escape($well_img_val); ?>">
 									<input type="file" name="photo" class="dropify" data-height="150" <?php if (!empty($well_preview_url)) { ?>data-default-file="<?php echo $well_preview_url; ?>"<?php } ?> data-allowed-file-extensions="jpg jpeg png gif webp" />
+									<div class="checkbox-custom checkbox-default mt-xs">
+										<input type="checkbox" name="remove_photo" id="remove_welcome_photo" value="1">
+										<label for="remove_welcome_photo"><?php echo (isset($current_lang) && $current_lang == 'en' ? 'Remove current photo' : 'বর্তমান ছবি মুছে ফেলুন'); ?></label>
+									</div>
 									<span class="error"></span>
 								</div>
 							</div>
@@ -649,4 +654,12 @@ if (empty($elements)) {
 	if (window.location.hash) {
 		$('.nav-tabs a[href="' + window.location.hash + '"]').tab('show');
 	}
+
+	$(document).ready(function() {
+		var drEvent = $('.dropify').dropify();
+		drEvent.on('dropify.afterClear', function(event, element){
+			$('input[name="old_photo"]').val('');
+			$('#remove_welcome_photo').prop('checked', true);
+		});
+	});
 </script>

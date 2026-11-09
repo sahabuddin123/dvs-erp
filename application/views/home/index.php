@@ -455,18 +455,32 @@ document.addEventListener('DOMContentLoaded', function(){
                     }
                 }
             }
+            if (!empty($wellcome_img_url)) {
+                $real_path = str_replace(base_url(), FCPATH, $wellcome_img_url);
+                if (file_exists($real_path) && filesize($real_path) == 6806) {
+                    $wellcome_img_url = '';
+                }
+            }
             $col_width = !empty($wellcome_img_url) ? 'col-lg-6' : 'col-lg-12';
+            $wel_title_color = !empty($wellcome['color1']) ? $wellcome['color1'] : 'var(--primary-color)';
             ?>
             <div class="<?php echo $col_width; ?> mb-4">
-                <div class="section-title">
-                    <h2><i class="fas fa-hands-praying"></i> <?php echo html_escape(get_lang_field($wellcome, 'title', ($current_lang == 'en' ? 'Welcome' : 'স্বাগতম'))); ?></h2>
+                <div class="welcome-section-title mb-4">
+                    <h2 style="color: <?php echo $wel_title_color; ?>; font-weight: 700; font-size: 2.2rem; display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+                        <i class="fas fa-hands-praying" style="color: <?php echo $wel_title_color; ?>; font-size: 2rem;"></i>
+                        <span><?php echo html_escape(get_lang_field($wellcome, 'title', ($current_lang == 'en' ? 'Welcome' : 'স্বাগতম'))); ?></span>
+                    </h2>
+                    <div style="margin-left: 50px; margin-bottom: 12px;">
+                        <div style="width: 50px; height: 3px; background-color: <?php echo $wel_title_color; ?>; border-radius: 2px;"></div>
+                        <div style="width: 50px; height: 3px; background-color: #f59e0b; border-radius: 2px; margin-top: 3px;"></div>
+                    </div>
                     <?php 
                     $welcome_sub = get_lang_field($wellcome, 'subtitle');
                     if (!empty($welcome_sub)): ?>
-                        <p class="text-muted fw-semibold" style="font-size: 1.1rem;"><?php echo html_escape($welcome_sub); ?></p>
+                        <p class="text-muted fw-semibold mb-0" style="font-size: 1.15rem; margin-top: 8px;"><?php echo html_escape($welcome_sub); ?></p>
                     <?php endif; ?>
                 </div>
-                <div class="text-justify pr-4 lh-lg text-muted" style="font-size: 1.02rem;">
+                <div class="text-justify lh-lg text-muted" style="font-size: 1.05rem; line-height: 1.9;">
                     <?php 
                     $welcome_text = get_lang_field($wellcome, 'description');
                     echo nl2br(strip_tags($welcome_text));
