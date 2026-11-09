@@ -39,8 +39,10 @@ class Content extends Admin_Controller
                 $arrayData = array(
                     'branch_id' => $this->application_model->get_branch_id(),
                     'page_title' => $this->input->post('title'),
+                    'page_title_en' => $this->input->post('title_en'),
                     'menu_id' => $this->input->post('menu_id'),
                     'content' => $this->input->post('content', false),
+                    'content_en' => $this->input->post('content_en', false),
                     'banner_image' => $this->content_model->uploadBanner('page_' . $this->input->post('menu_id'), 'banners'),
                     'meta_description' => $this->input->post('meta_description'),
                     'meta_keyword' => $this->input->post('meta_keyword'),
@@ -85,8 +87,10 @@ class Content extends Admin_Controller
                 $arrayData = array(
                     'branch_id' => $this->application_model->get_branch_id(),
                     'page_title' => $this->input->post('title'),
+                    'page_title_en' => $this->input->post('title_en'),
                     'menu_id' => $this->input->post('menu_id'),
                     'content' => $this->input->post('content', false),
+                    'content_en' => $this->input->post('content_en', false),
                     'banner_image' => $this->content_model->uploadBanner('page_' . $this->input->post('menu_id'), 'banners'),
                     'meta_description' => $this->input->post('meta_description'),
                     'meta_keyword' => $this->input->post('meta_keyword'),

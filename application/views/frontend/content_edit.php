@@ -26,9 +26,16 @@
 						</div>
 					<?php endif; ?>
 					<div class="form-group <?php if (form_error('title')) echo 'has-error'; ?>">
-						<label class="col-md-3 control-label"><?php echo translate('page') . " " . translate('title'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('page') . " " . translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-8">
 							<input type="text" class="form-control" name="title" value="<?php echo set_value('title', $content['page_title']); ?>" />
+							<span class="error"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('page') . " " . translate('title'); ?> (English)</label>
+						<div class="col-md-8">
+							<input type="text" class="form-control" name="title_en" value="<?php echo set_value('title_en', !empty($content['page_title_en']) ? $content['page_title_en'] : ''); ?>" placeholder="Page title in English..." />
 							<span class="error"></span>
 						</div>
 					</div>
@@ -49,9 +56,16 @@
 						</div>
 					</div>
 					<div class="form-group <?php if (form_error('content')) echo 'has-error'; ?>">
-						<label  class="col-md-3 control-label"><?php echo translate('content'); ?> <span class="required">*</span></label>
+						<label  class="col-md-3 control-label"><?php echo translate('content'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-8">
 							<textarea class="summernote" name="content"><?php echo set_value('content', $content['content']); ?></textarea>
+							<span class="error"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label  class="col-md-3 control-label"><?php echo translate('content'); ?> (English)</label>
+						<div class="col-md-8">
+							<textarea class="summernote" name="content_en"><?php echo set_value('content_en', !empty($content['content_en']) ? $content['content_en'] : ''); ?></textarea>
 							<span class="error"></span>
 						</div>
 					</div>

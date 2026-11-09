@@ -36,7 +36,12 @@
 <?php if (is_superadmin_loggedin()): ?>
 							<td><?php echo $row['branch_name'];?></td>
 <?php endif; ?>
-							<td><?php echo $row['page_title']; ?></td>
+							<td>
+								<strong><?php echo html_escape($row['page_title']); ?></strong>
+								<?php if (!empty($row['page_title_en'])): ?>
+									<br><small class="text-muted"><i class="fas fa-language"></i> <?php echo html_escape($row['page_title_en']); ?></small>
+								<?php endif; ?>
+							</td>
 							<td><?php echo $row['menu_title']; ?></td>
 							<td><a href="<?php echo base_url($row['url_alias'] . '/page/'. $row['alias']); ?>" target="_blank"><?php echo base_url($row['url_alias'] . '/page/'. $row['alias']); ?></a></td>
 							<td class="min-w-xs">
@@ -74,9 +79,16 @@
 						</div>
 					<?php endif; ?>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('page') . " " . translate('title'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('page') . " " . translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-8">
 							<input type="text" class="form-control" name="title" value="<?php echo set_value('title'); ?>" />
+							<span class="error"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('page') . " " . translate('title'); ?> (English)</label>
+						<div class="col-md-8">
+							<input type="text" class="form-control" name="title_en" value="<?php echo set_value('title_en'); ?>" placeholder="Page title in English..." />
 							<span class="error"></span>
 						</div>
 					</div>
@@ -101,9 +113,16 @@
 						</div>
 					</div>
 					<div class="form-group <?php if (form_error('content')) echo 'has-error'; ?>">
-						<label  class="col-md-3 control-label"><?php echo translate('content'); ?> <span class="required">*</span></label>
+						<label  class="col-md-3 control-label"><?php echo translate('content'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-8">
 							<textarea class="summernote" name="content" id="editor"><?php echo set_value('content'); ?></textarea>
+							<span class="error"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label  class="col-md-3 control-label"><?php echo translate('content'); ?> (English)</label>
+						<div class="col-md-8">
+							<textarea class="summernote" name="content_en" id="editor_en"><?php echo set_value('content_en'); ?></textarea>
 							<span class="error"></span>
 						</div>
 					</div>
