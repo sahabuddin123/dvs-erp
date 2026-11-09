@@ -1,15 +1,33 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
 $default_name = !empty($global_config['institute_name']) ? $global_config['institute_name'] : (!empty($branch['school_name']) ? $branch['school_name'] : 'School');
-$app_title = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'application_title', $default_name) : $default_name;
 $default_address = !empty($global_config['address']) ? $global_config['address'] : (!empty($branch['address']) ? $branch['address'] : '');
-$app_address = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'address', $default_address) : $default_address;
-$app_tagline = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'site_tagline') : '';
+
+$hero_elements = !empty($hero_sec['elements']) ? json_decode($hero_sec['elements'], true) : [];
+$app_title = !empty($hero_sec) && !empty($hero_sec['title']) ? get_lang_field($hero_sec, 'title', $default_name) : (function_exists('get_lang_field') ? get_lang_field($cms_setting, 'application_title', $default_name) : $default_name);
+$app_address = !empty($hero_sec) && !empty($hero_sec['subtitle']) ? get_lang_field($hero_sec, 'subtitle', $default_address) : (function_exists('get_lang_field') ? get_lang_field($cms_setting, 'address', $default_address) : $default_address);
+$app_tagline = !empty($hero_sec) && !empty($hero_sec['description']) ? get_lang_field($hero_sec, 'description', '') : (function_exists('get_lang_field') ? get_lang_field($cms_setting, 'site_tagline') : '');
+
+$hero_btn_1_text = !empty($hero_elements['hero_btn_1_text']) ? $hero_elements['hero_btn_1_text'] : translate('apply_for_admission');
+$hero_btn_1_url = !empty($hero_elements['hero_btn_1_url']) ? base_url($hero_elements['hero_btn_1_url']) : base_url('admission');
+$hero_btn_2_text = !empty($hero_elements['hero_btn_2_text']) ? $hero_elements['hero_btn_2_text'] : translate('our_history');
+$hero_btn_2_url = !empty($hero_elements['hero_btn_2_url']) ? base_url($hero_elements['hero_btn_2_url']) : base_url('about');
+
+$qb_1_text = !empty($hero_elements['quick_btn_1_text']) ? $hero_elements['quick_btn_1_text'] : translate('latest_notice');
+$qb_1_url = !empty($hero_elements['quick_btn_1_url']) ? base_url($hero_elements['quick_btn_1_url']) : base_url('notice');
+$qb_2_text = !empty($hero_elements['quick_btn_2_text']) ? $hero_elements['quick_btn_2_text'] : translate('exam_results');
+$qb_2_url = !empty($hero_elements['quick_btn_2_url']) ? base_url($hero_elements['quick_btn_2_url']) : base_url('exam_results');
+$qb_3_text = !empty($hero_elements['quick_btn_3_text']) ? $hero_elements['quick_btn_3_text'] : translate('online_application');
+$qb_3_url = !empty($hero_elements['quick_btn_3_url']) ? base_url($hero_elements['quick_btn_3_url']) : base_url('admission');
+$qb_4_text = !empty($hero_elements['quick_btn_4_text']) ? $hero_elements['quick_btn_4_text'] : translate('career_portal');
+$qb_4_url = !empty($hero_elements['quick_btn_4_url']) ? base_url($hero_elements['quick_btn_4_url']) : base_url('career');
+
 $v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_frontend_visitor_stats') ? get_frontend_visitor_stats() : ['total' => 0, 'month' => 0, 'today' => 0]);
 $branchID_active = !empty($branchID) ? $branchID : 1;
 ?>
 
 <!-- Hero Section -->
+<?php if (!isset($hero_sec['active']) || $hero_sec['active'] == 1): ?>
 <section class="hero-section">
     <div class="hero-overlay">
         <h1>
@@ -26,11 +44,11 @@ $branchID_active = !empty($branchID) ? $branchID : 1;
         </p>
         <?php endif; ?>
         <div class="btn-group">
-            <a href="<?php echo base_url('admission'); ?>" class="btn btn-primary-hero">
-                <i class="fas fa-edit me-1"></i> <?php echo translate('apply_for_admission'); ?>
+            <a href="<?php echo $hero_btn_1_url; ?>" class="btn btn-primary-hero">
+                <i class="fas fa-edit me-1"></i> <?php echo html_escape($hero_btn_1_text); ?>
             </a>
-            <a href="<?php echo base_url('about'); ?>" class="btn btn-outline-light-custom">
-                <i class="fas fa-book-open me-1"></i> <?php echo translate('our_history'); ?>
+            <a href="<?php echo $hero_btn_2_url; ?>" class="btn btn-outline-light-custom">
+                <i class="fas fa-book-open me-1"></i> <?php echo html_escape($hero_btn_2_text); ?>
             </a>
         </div>
     </div>
@@ -41,35 +59,43 @@ $branchID_active = !empty($branchID) ? $branchID : 1;
     <div class="container">
         <div class="row g-3">
             <div class="col-6 col-md-3">
-                <a href="<?php echo base_url('notice'); ?>" class="btn-highlight btn-blue">
-                    <i class="fas fa-bullhorn me-1"></i> <span><?php echo translate('latest_notice'); ?></span>
+                <a href="<?php echo $qb_1_url; ?>" class="btn-highlight btn-blue">
+                    <i class="fas fa-bullhorn me-1"></i> <span><?php echo html_escape($qb_1_text); ?></span>
                 </a>
             </div>
             <div class="col-6 col-md-3">
-                <a href="<?php echo base_url('exam_results'); ?>" class="btn-highlight btn-green">
-                    <i class="fas fa-check-circle me-1"></i> <span><?php echo translate('exam_results'); ?></span>
+                <a href="<?php echo $qb_2_url; ?>" class="btn-highlight btn-green">
+                    <i class="fas fa-check-circle me-1"></i> <span><?php echo html_escape($qb_2_text); ?></span>
                 </a>
             </div>
             <div class="col-6 col-md-3">
-                <a href="<?php echo base_url('admission'); ?>" class="btn-highlight btn-orange">
-                    <i class="fas fa-edit me-1"></i> <span><?php echo translate('online_application'); ?></span>
+                <a href="<?php echo $qb_3_url; ?>" class="btn-highlight btn-orange">
+                    <i class="fas fa-edit me-1"></i> <span><?php echo html_escape($qb_3_text); ?></span>
                 </a>
             </div>
             <div class="col-6 col-md-3">
-                <a href="<?php echo base_url('career'); ?>" class="btn-highlight btn-red">
-                    <i class="fas fa-briefcase me-1"></i> <span><?php echo translate('career_portal'); ?></span>
+                <a href="<?php echo $qb_4_url; ?>" class="btn-highlight btn-red">
+                    <i class="fas fa-briefcase me-1"></i> <span><?php echo html_escape($qb_4_text); ?></span>
                 </a>
             </div>
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- Slider and Notice Board Section -->
+<?php 
+$show_notice_board = (!isset($notice_sec['active']) || $notice_sec['active'] == 1);
+$slider_col = $show_notice_board ? 'col-lg-8' : 'col-lg-12';
+$notice_ele = !empty($notice_sec['elements']) ? json_decode($notice_sec['elements'], true) : [];
+$notice_limit = !empty($notice_ele['limit']) ? intval($notice_ele['limit']) : 5;
+$notice_title = !empty($notice_sec) ? get_lang_field($notice_sec, 'title', translate('notice_board')) : translate('notice_board');
+?>
 <section class="slider-notice-section py-4">
     <div class="container">
         <div class="row g-4 align-items-stretch">
             <!-- Left: Dynamic Admin Sliders -->
-            <div class="col-lg-8">
+            <div class="<?php echo $slider_col; ?>">
                 <div class="slider-container rounded overflow-hidden shadow-sm h-100" style="border: 1px solid #e2e8f0; height: 460px;">
                     <div class="owl-carousel owl-theme h-100" id="homeSlider">
                         <?php 
@@ -120,19 +146,20 @@ $branchID_active = !empty($branchID) ? $branchID : 1;
             </div>
 
             <!-- Right: Notice Board -->
+            <?php if ($show_notice_board): ?>
             <div class="col-lg-4">
                 <div class="notice-board bg-white rounded shadow-sm d-flex flex-column justify-content-between h-100" style="padding: 24px 28px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); height: 460px;">
                     <div>
                         <div class="border-bottom pb-2 mb-2" style="border-bottom: 3px solid var(--primary-color) !important;">
                             <h4 class="mb-0" style="color: var(--primary-color); font-weight: 700; font-size: 1.25rem;">
-                                <i class="fas fa-clipboard-list me-2"></i> <?php echo translate('notice_board'); ?>
+                                <i class="fas fa-clipboard-list me-2"></i> <?php echo html_escape($notice_title); ?>
                             </h4>
                         </div>
                         <div class="notice-list">
                             <?php 
-                            $board_notices = $this->db->where('branch_id', $branchID_active)->where('show_web', 1)->order_by('id', 'desc')->limit(5)->get('front_cms_news_list')->result_array();
+                            $board_notices = $this->db->where('branch_id', $branchID_active)->where('show_web', 1)->order_by('id', 'desc')->limit($notice_limit)->get('front_cms_news_list')->result_array();
                             if (empty($board_notices)) {
-                                $board_notices = $this->db->where('show_web', 1)->order_by('id', 'desc')->limit(5)->get('front_cms_news_list')->result_array();
+                                $board_notices = $this->db->where('show_web', 1)->order_by('id', 'desc')->limit($notice_limit)->get('front_cms_news_list')->result_array();
                             }
                             if (!empty($board_notices)) {
                                 foreach ($board_notices as $bn) { 
@@ -161,14 +188,16 @@ $branchID_active = !empty($branchID) ? $branchID : 1;
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
 
-<!-- Leadership Messages (নেতৃত্বের বার্তা - Only if real founders are added by admin) -->
+<!-- Leadership Messages (নেতৃত্বের বার্তা - Controlled by Home Page Settings > Leadership tab) -->
 <?php
+$leadership_is_active = (!isset($leadership_sec['active']) || $leadership_sec['active'] == 1);
 $db_leaders = [];
-if ($this->db->table_exists('founder')) {
+if ($leadership_is_active && $this->db->table_exists('founder')) {
     $db_leaders = $this->db->where('branch_id', $branchID_active)->where('active', 1)->order_by('position', 'asc')->get('founder')->result_array();
     if (empty($db_leaders) && isset($this->home_model) && method_exists($this->home_model, 'ensure_demo_founders')) {
         $this->home_model->ensure_demo_founders($branchID_active);
@@ -176,18 +205,23 @@ if ($this->db->table_exists('founder')) {
     }
 }
 if (!empty($db_leaders)) {
+    $leadership_title = !empty($leadership_sec) ? get_lang_field($leadership_sec, 'title', ($current_lang == 'en' ? 'Messages from Leadership' : 'নেতৃত্বের বার্তা')) : (($current_lang == 'en') ? 'Messages from Leadership' : 'নেতৃত্বের বার্তা');
+    $leadership_sub = !empty($leadership_sec) ? get_lang_field($leadership_sec, 'subtitle', '') : '';
 ?>
 <section class="leadership-section py-5" style="background-color: #f8fafc;">
     <div class="container">
         <div class="leadership-section-title mb-4">
             <h2 style="color: var(--primary-color); font-weight: 700; font-size: 2.2rem; display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
                 <i class="fas fa-comments" style="color: var(--primary-color); font-size: 2rem;"></i>
-                <span><?php echo ($current_lang == 'en') ? 'Messages from Leadership' : 'নেতৃত্বের বার্তা'; ?></span>
+                <span><?php echo html_escape($leadership_title); ?></span>
             </h2>
             <div style="margin-left: 50px;">
                 <div style="width: 50px; height: 3px; background-color: var(--primary-color); border-radius: 2px;"></div>
                 <div style="width: 50px; height: 3px; background-color: #f59e0b; border-radius: 2px; margin-top: 3px;"></div>
             </div>
+            <?php if (!empty($leadership_sub)): ?>
+                <p class="text-muted fw-semibold mb-0" style="font-size: 1rem; margin-top: 8px; margin-left: 50px;"><?php echo html_escape($leadership_sub); ?></p>
+            <?php endif; ?>
         </div>
 
         <div class="row g-4 justify-content-center">
@@ -243,21 +277,25 @@ if (!empty($db_leaders)) {
 
 <!-- Our Teachers Section (Controlled by Home Page Settings > Teachers tab active flag) -->
 <?php
-$teachers_is_active = !empty($teachers) && isset($teachers['active']) && $teachers['active'] == 1;
+$teachers_is_active = (!isset($teachers['active']) || $teachers['active'] == 1);
 if ($teachers_is_active && !empty($teachers_list)) {
-    $teachers_title = !empty($teachers['title']) ? $teachers['title'] : (($current_lang == 'en') ? 'Our Teachers' : 'আমাদের শিক্ষকবৃন্দ');
+    $teachers_title = !empty($teachers) ? get_lang_field($teachers, 'title', (($current_lang == 'en') ? 'Our Teachers' : 'শিক্ষকমণ্ডলী')) : (($current_lang == 'en') ? 'Our Teachers' : 'শিক্ষকমণ্ডলী');
+    $teachers_sub = !empty($teachers) ? get_lang_field($teachers, 'subtitle', '') : '';
 ?>
 <section class="teachers-section py-5" id="teachers-section" style="background-color: #f8fafc;">
     <div class="container">
         <div class="teachers-section-title mb-4">
             <h2 style="color: #007F3D; font-weight: 700; font-size: 2.2rem; display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
-                <i class="fas fa-comments" style="color: #007F3D; font-size: 2rem;"></i>
+                <i class="fas fa-chalkboard-teacher" style="color: #007F3D; font-size: 2rem;"></i>
                 <span><?php echo html_escape($teachers_title); ?></span>
             </h2>
             <div style="margin-left: 50px;">
                 <div style="width: 50px; height: 3px; background-color: #007F3D; border-radius: 2px;"></div>
                 <div style="width: 50px; height: 3px; background-color: #f59e0b; border-radius: 2px; margin-top: 3px;"></div>
             </div>
+            <?php if (!empty($teachers_sub)): ?>
+                <p class="text-muted fw-semibold mb-0" style="font-size: 1rem; margin-top: 8px; margin-left: 50px;"><?php echo html_escape($teachers_sub); ?></p>
+            <?php endif; ?>
         </div>
 
         <div class="row justify-content-center g-4">
@@ -503,13 +541,20 @@ document.addEventListener('DOMContentLoaded', function(){
 </section>
 <?php } ?>
 
-<!-- Latest Events Section (Only if real events exist for this branch) -->
-<?php if (!empty($events)) { ?>
+<!-- Latest Events Section (Controlled by Home Page Settings > Latest Events tab) -->
+<?php 
+$events_is_active = (!isset($events_sec['active']) || $events_sec['active'] == 1);
+if ($events_is_active && !empty($events)) { 
+    $events_title = !empty($events_sec) ? get_lang_field($events_sec, 'title', ($current_lang == 'en' ? 'Latest Events' : 'সর্বশেষ ইভেন্ট')) : (($current_lang == 'en') ? 'Latest Events' : 'সর্বশেষ ইভেন্ট');
+    $events_sub = !empty($events_sec) ? get_lang_field($events_sec, 'subtitle', ($current_lang == 'en' ? 'Stay informed about our upcoming programs, examinations and events.' : 'আমাদের যাবতীয় আসন্ন অনুষ্ঠান, পরীক্ষা ও কার্যক্রম সম্পর্কে অবগত থাকুন।')) : (($current_lang == 'en') ? 'Stay informed about our upcoming programs, examinations and events.' : 'আমাদের যাবতীয় আসন্ন অনুষ্ঠান, পরীক্ষা ও কার্যক্রম সম্পর্কে অবগত থাকুন।');
+?>
 <section class="news-section">
     <div class="container">
         <div class="section-title">
-            <h2><i class="fas fa-newspaper"></i> <?php echo ($current_lang == 'en') ? 'Latest Events' : 'সর্বশেষ ইভেন্ট'; ?></h2>
-            <p><?php echo ($current_lang == 'en') ? 'Stay informed about our upcoming programs, examinations and events.' : 'আমাদের যাবতীয় আসন্ন অনুষ্ঠান, পরীক্ষা ও কার্যক্রম সম্পর্কে অবগত থাকুন।'; ?></p>
+            <h2><i class="fas fa-newspaper"></i> <?php echo html_escape($events_title); ?></h2>
+            <?php if (!empty($events_sub)): ?>
+                <p><?php echo html_escape($events_sub); ?></p>
+            <?php endif; ?>
         </div>
 
         <div class="news-slider row" id="newsCardsContainer">
@@ -578,13 +623,20 @@ document.addEventListener('DOMContentLoaded', function(){
 </section>
 <?php } ?>
 
-<!-- Video Gallery Section (Only if real videos exist for this branch) -->
-<?php if (!empty($video_list)) { ?>
+<!-- Video Gallery Section (Controlled by Home Page Settings > Video Gallery tab) -->
+<?php 
+$video_is_active = (!isset($video_sec['active']) || $video_sec['active'] == 1);
+if ($video_is_active && !empty($video_list)) { 
+    $video_title = !empty($video_sec) ? get_lang_field($video_sec, 'title', translate('video_gallery')) : translate('video_gallery');
+    $video_sub = !empty($video_sec) ? get_lang_field($video_sec, 'subtitle', translate('browse_video_gallery')) : translate('browse_video_gallery');
+?>
 <section class="video-gallery-section py-5 bg-white" id="video-gallery-section">
     <div class="container">
         <div class="section-title">
-            <h2><i class="fas fa-video"></i> <?php echo translate('video_gallery'); ?></h2>
-            <p><?php echo translate('browse_video_gallery'); ?></p>
+            <h2><i class="fas fa-video"></i> <?php echo html_escape($video_title); ?></h2>
+            <?php if (!empty($video_sub)): ?>
+                <p><?php echo html_escape($video_sub); ?></p>
+            <?php endif; ?>
         </div>
 
         <div class="row g-4">
@@ -690,13 +742,20 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 <?php } ?>
 
-<!-- Photo Gallery Section (Only if real photos exist for this branch) -->
-<?php if (!empty($gallery_list)) { ?>
+<!-- Photo Gallery Section (Controlled by Home Page Settings > Photo Gallery tab) -->
+<?php 
+$gallery_is_active = (!isset($gallery_sec['active']) || $gallery_sec['active'] == 1);
+if ($gallery_is_active && !empty($gallery_list)) { 
+    $gallery_title = !empty($gallery_sec) ? get_lang_field($gallery_sec, 'title', translate('photo_gallery')) : translate('photo_gallery');
+    $gallery_sub = !empty($gallery_sec) ? get_lang_field($gallery_sec, 'subtitle', translate('see_moments_captured')) : translate('see_moments_captured');
+?>
 <section class="gallery-section py-5" style="background-color: #f8fafc;">
     <div class="container">
         <div class="section-title">
-            <h2><i class="fas fa-image"></i> <?php echo translate('photo_gallery'); ?></h2>
-            <p><?php echo translate('see_moments_captured'); ?></p>
+            <h2><i class="fas fa-image"></i> <?php echo html_escape($gallery_title); ?></h2>
+            <?php if (!empty($gallery_sub)): ?>
+                <p><?php echo html_escape($gallery_sub); ?></p>
+            <?php endif; ?>
         </div>
 
         <div class="row g-4 gallery-container">
@@ -739,11 +798,17 @@ document.addEventListener('DOMContentLoaded', function(){
 <?php } ?>
 
 <!-- Achievements and Statistics (Only if active in Home Page Settings > Statistics) -->
-<?php if (!empty($statistics) && (!isset($statistics['active']) || $statistics['active'] == 1)) { ?>
+<?php if (!empty($statistics) && (!isset($statistics['active']) || $statistics['active'] == 1)) { 
+    $stat_title = get_lang_field($statistics, 'title', translate('our_achievements_statistics'));
+    $stat_sub = get_lang_field($statistics, 'subtitle', '');
+?>
 <section class="achievements-section py-5 bg-white">
     <div class="container">
         <div class="section-title">
-            <h2><i class="fas fa-star"></i> <?php echo html_escape(get_lang_field($statistics, 'title', translate('our_achievements_statistics'))); ?></h2>
+            <h2><i class="fas fa-star"></i> <?php echo html_escape($stat_title); ?></h2>
+            <?php if (!empty($stat_sub)): ?>
+                <p><?php echo html_escape($stat_sub); ?></p>
+            <?php endif; ?>
         </div>
         
         <?php 

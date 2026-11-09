@@ -102,9 +102,8 @@ class Home extends Frontend_Controller
 
         $this->data['features'] = $this->home_model->getCmsHome('features', $branchID, 1, false);
 
-        $this->data['wellcome'] = $this->home_model->getCmsHome('wellcome', $branchID);
-
-        $this->data['teachers'] = $this->home_model->getCmsHome('teachers', $branchID);
+        $this->data['wellcome'] = $this->home_model->getCmsHome('wellcome', $branchID, null);
+        $this->data['teachers'] = $this->home_model->getCmsHome('teachers', $branchID, null);
 
         $teachers_list = [];
         $has_cms_teachers = false;
@@ -147,7 +146,19 @@ class Home extends Frontend_Controller
 
         $this->data['cta_box'] = $this->home_model->getCmsHome('cta', $branchID);
 
-        $this->data['statistics'] = $this->home_model->getCmsHome('statistics', $branchID);
+        $this->data['statistics'] = $this->home_model->getCmsHome('statistics', $branchID, null);
+
+        $this->data['hero_sec'] = $this->home_model->getCmsHome('hero', $branchID, null);
+
+        $this->data['notice_sec'] = $this->home_model->getCmsHome('notice', $branchID, null);
+
+        $this->data['leadership_sec'] = $this->home_model->getCmsHome('leadership', $branchID, null);
+
+        $this->data['events_sec'] = $this->home_model->getCmsHome('events', $branchID, null);
+
+        $this->data['video_sec'] = $this->home_model->getCmsHome('video_gallery', $branchID, null);
+
+        $this->data['gallery_sec'] = $this->home_model->getCmsHome('gallery', $branchID, null);
 
         $this->data['notices'] = $this->home_model->getLatestNewsList($branchID, array('limit' => 10));
 

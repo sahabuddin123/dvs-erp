@@ -77,35 +77,22 @@ class Home_model extends MY_Model
 
 
     public function getCmsHome($item_type, $branch_id, $active = 1, $single = true)
-
     {
-
         $this->db->select('*');
-
         $this->db->from('front_cms_home');
-
-        $this->db->where('active', $active);
-
-        $this->db->where('branch_id', $branch_id);
-
-        $this->db->where('item_type', $item_type);
-
-        $query = $this->db->get();
-
-        if ($single == true) {
-
-            $method = "row_array";
-
-        } else {
-
-            $this->db->order_by("id", "asc");
-
-            $method = "result_array";
-
+        if ($active !== null && $active !== false && $active !== '') {
+            $this->db->where('active', $active);
         }
-
+        $this->db->where('branch_id', $branch_id);
+        $this->db->where('item_type', $item_type);
+        $query = $this->db->get();
+        if ($single == true) {
+            $method = "row_array";
+        } else {
+            $this->db->order_by("id", "asc");
+            $method = "result_array";
+        }
         return $query->$method();
-
     }
 
 

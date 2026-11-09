@@ -58,6 +58,21 @@ class Section extends Admin_Controller
         $this->data['statistics']   = $this->frontend_model->get('front_cms_home', array('item_type' => 'statistics', 'branch_id' => $branchID), true);
         $this->data['cta']          = $this->frontend_model->get('front_cms_home', array('item_type' => 'cta', 'branch_id' => $branchID), true);
         $this->data['sliderlist']   = $this->frontend_model->get('front_cms_home', array('item_type' => 'slider', 'branch_id' => $branchID));
+        $this->data['hero_sec']     = $this->frontend_model->get('front_cms_home', array('item_type' => 'hero', 'branch_id' => $branchID), true);
+        $this->data['notice_sec']   = $this->frontend_model->get('front_cms_home', array('item_type' => 'notice', 'branch_id' => $branchID), true);
+        $this->data['leadership_sec']= $this->frontend_model->get('front_cms_home', array('item_type' => 'leadership', 'branch_id' => $branchID), true);
+        $this->data['events_sec']   = $this->frontend_model->get('front_cms_home', array('item_type' => 'events', 'branch_id' => $branchID), true);
+        $this->data['video_sec']    = $this->frontend_model->get('front_cms_home', array('item_type' => 'video_gallery', 'branch_id' => $branchID), true);
+        $this->data['gallery_sec']  = $this->frontend_model->get('front_cms_home', array('item_type' => 'gallery', 'branch_id' => $branchID), true);
+
+        // Previews for section tabs
+        $this->data['notices_list']  = $this->db->where('branch_id', $branchID)->order_by('id', 'desc')->limit(5)->get('front_cms_news_list')->result_array();
+        $this->data['leaders_list']  = $this->db->where('branch_id', $branchID)->order_by('position', 'asc')->get('founder')->result_array();
+        $this->data['teachers_list'] = $this->db->where('branch_id', $branchID)->order_by('position', 'asc')->get('teacher')->result_array();
+        $this->data['events_list']   = $this->db->where('branch_id', $branchID)->order_by('id', 'desc')->limit(5)->get('event')->result_array();
+        $this->data['videos_list']   = $this->db->where('branch_id', $branchID)->where('file_type', 'video')->order_by('id', 'desc')->limit(6)->get('front_cms_gallery_content')->result_array();
+        $this->data['photos_list']   = $this->db->where('branch_id', $branchID)->where('file_type', 'image')->order_by('id', 'desc')->limit(6)->get('front_cms_gallery_content')->result_array();
+
         $this->data['title']        = translate('website_page');
         $this->data['sub_page']     = 'frontend/section_home';
         $this->data['main_menu']    = 'frontend';
@@ -192,36 +207,228 @@ class Section extends Admin_Controller
             }
 
             $branchID = $this->frontend_model->getBranchID();
-            $this->form_validation->set_rules('tea_title', 'Title', 'trim|required');
-            $this->form_validation->set_rules('tea_description', 'Description', 'trim|required');
-            $this->form_validation->set_rules('photo', translate('photo'), 'callback_photoHandleUpload[photo]');
-            if (isset($_FILES["photo"]) && empty($_FILES["photo"]['name']) && empty($_POST['old_photo'])) {
-                $this->form_validation->set_rules('photo', translate('photo'), 'required');
+            if (empty($branchID)) {
+                $branchID = $this->input->post('branch_id') ?: 1;
             }
+            $this->form_validation->set_rules('tea_title', 'Title', 'trim|required');
             if ($this->form_validation->run() == true) {
                 // save information in the database
                 $arrayTeacher = array(
                     'branch_id' => $branchID,
                     'title' => $this->input->post('tea_title'),
-                    'description' => $this->input->post('tea_description'),
+                    'title_en' => $this->input->post('tea_title_en'),
+                    'subtitle' => $this->input->post('subtitle'),
+                    'subtitle_en' => $this->input->post('subtitle_en'),
                     'active' => (isset($_POST['isvisible']) ? 1 : 0),
-                    'elements' => json_encode(array(
-                        'teacher_start' => $this->input->post('teacher_start'),
-                        'image' => $this->uploadImage('featured-parallax' . $branchID, 'home_page')
-                    )),
-                    'color1' => $this->input->post('title_text_color'),
-                    'color2' => $this->input->post('description_text_color'),
                 );
 
                 // save information in the database
                 $this->saveHome('teachers', $branchID, $arrayTeacher);
                 set_alert('success', translate('information_has_been_saved_successfully'));
-                $array = array('status' => 'success');
+                $url = base_url('frontend/section/home' . (is_superadmin_loggedin() ? '?branch_id=' . $branchID : '') . '#teachers');
+                echo json_encode(array('status' => 'success', 'url' => $url));
             } else {
                 $error = $this->form_validation->error_array();
-                $array = array('status' => 'fail', 'error' => $error);
+                echo json_encode(array('status' => 'fail', 'error' => $error));
             }
-            echo json_encode($array);
+        }
+    }
+
+    public function home_notice()
+    {
+        if ($_POST) {
+            if (!get_permission('frontend_section', 'is_add')) {
+                ajax_access_denied();
+            }
+            $branchID = $this->frontend_model->getBranchID();
+            if (empty($branchID)) {
+                $branchID = $this->input->post('branch_id') ?: 1;
+            }
+            $this->form_validation->set_rules('notice_title', 'Title', 'trim|required');
+            if ($this->form_validation->run() == true) {
+                $arrayNotice = array(
+                    'branch_id' => $branchID,
+                    'title' => $this->input->post('notice_title'),
+                    'title_en' => $this->input->post('notice_title_en'),
+                    'subtitle' => $this->input->post('subtitle'),
+                    'subtitle_en' => $this->input->post('subtitle_en'),
+                    'active' => (isset($_POST['isvisible']) ? 1 : 0),
+                    'elements' => json_encode(array('limit' => intval($this->input->post('notice_limit') ?: 5))),
+                );
+                $this->saveHome('notice', $branchID, $arrayNotice);
+                set_alert('success', translate('information_has_been_saved_successfully'));
+                $url = base_url('frontend/section/home' . (is_superadmin_loggedin() ? '?branch_id=' . $branchID : '') . '#notice');
+                echo json_encode(array('status' => 'success', 'url' => $url));
+            } else {
+                echo json_encode(array('status' => 'fail', 'error' => $this->form_validation->error_array()));
+            }
+        }
+    }
+
+    public function home_leadership()
+    {
+        if ($_POST) {
+            if (!get_permission('frontend_section', 'is_add')) {
+                ajax_access_denied();
+            }
+            $branchID = $this->frontend_model->getBranchID();
+            if (empty($branchID)) {
+                $branchID = $this->input->post('branch_id') ?: 1;
+            }
+            $this->form_validation->set_rules('lead_title', 'Title', 'trim|required');
+            if ($this->form_validation->run() == true) {
+                $arrayLeadership = array(
+                    'branch_id' => $branchID,
+                    'title' => $this->input->post('lead_title'),
+                    'title_en' => $this->input->post('lead_title_en'),
+                    'subtitle' => $this->input->post('subtitle'),
+                    'subtitle_en' => $this->input->post('subtitle_en'),
+                    'active' => (isset($_POST['isvisible']) ? 1 : 0),
+                );
+                $this->saveHome('leadership', $branchID, $arrayLeadership);
+                set_alert('success', translate('information_has_been_saved_successfully'));
+                $url = base_url('frontend/section/home' . (is_superadmin_loggedin() ? '?branch_id=' . $branchID : '') . '#leadership');
+                echo json_encode(array('status' => 'success', 'url' => $url));
+            } else {
+                echo json_encode(array('status' => 'fail', 'error' => $this->form_validation->error_array()));
+            }
+        }
+    }
+
+    public function home_events()
+    {
+        if ($_POST) {
+            if (!get_permission('frontend_section', 'is_add')) {
+                ajax_access_denied();
+            }
+            $branchID = $this->frontend_model->getBranchID();
+            if (empty($branchID)) {
+                $branchID = $this->input->post('branch_id') ?: 1;
+            }
+            $this->form_validation->set_rules('events_title', 'Title', 'trim|required');
+            if ($this->form_validation->run() == true) {
+                $arrayEvents = array(
+                    'branch_id' => $branchID,
+                    'title' => $this->input->post('events_title'),
+                    'title_en' => $this->input->post('events_title_en'),
+                    'subtitle' => $this->input->post('subtitle'),
+                    'subtitle_en' => $this->input->post('subtitle_en'),
+                    'active' => (isset($_POST['isvisible']) ? 1 : 0),
+                );
+                $this->saveHome('events', $branchID, $arrayEvents);
+                set_alert('success', translate('information_has_been_saved_successfully'));
+                $url = base_url('frontend/section/home' . (is_superadmin_loggedin() ? '?branch_id=' . $branchID : '') . '#events');
+                echo json_encode(array('status' => 'success', 'url' => $url));
+            } else {
+                echo json_encode(array('status' => 'fail', 'error' => $this->form_validation->error_array()));
+            }
+        }
+    }
+
+    public function home_video_gallery()
+    {
+        if ($_POST) {
+            if (!get_permission('frontend_section', 'is_add')) {
+                ajax_access_denied();
+            }
+            $branchID = $this->frontend_model->getBranchID();
+            if (empty($branchID)) {
+                $branchID = $this->input->post('branch_id') ?: 1;
+            }
+            $this->form_validation->set_rules('vid_title', 'Title', 'trim|required');
+            if ($this->form_validation->run() == true) {
+                $arrayVideo = array(
+                    'branch_id' => $branchID,
+                    'title' => $this->input->post('vid_title'),
+                    'title_en' => $this->input->post('vid_title_en'),
+                    'subtitle' => $this->input->post('subtitle'),
+                    'subtitle_en' => $this->input->post('subtitle_en'),
+                    'active' => (isset($_POST['isvisible']) ? 1 : 0),
+                );
+                $this->saveHome('video_gallery', $branchID, $arrayVideo);
+                set_alert('success', translate('information_has_been_saved_successfully'));
+                $url = base_url('frontend/section/home' . (is_superadmin_loggedin() ? '?branch_id=' . $branchID : '') . '#video_gallery');
+                echo json_encode(array('status' => 'success', 'url' => $url));
+            } else {
+                echo json_encode(array('status' => 'fail', 'error' => $this->form_validation->error_array()));
+            }
+        }
+    }
+
+    public function home_gallery()
+    {
+        if ($_POST) {
+            if (!get_permission('frontend_section', 'is_add')) {
+                ajax_access_denied();
+            }
+            $branchID = $this->frontend_model->getBranchID();
+            if (empty($branchID)) {
+                $branchID = $this->input->post('branch_id') ?: 1;
+            }
+            $this->form_validation->set_rules('gal_title', 'Title', 'trim|required');
+            if ($this->form_validation->run() == true) {
+                $arrayGallery = array(
+                    'branch_id' => $branchID,
+                    'title' => $this->input->post('gal_title'),
+                    'title_en' => $this->input->post('gal_title_en'),
+                    'subtitle' => $this->input->post('subtitle'),
+                    'subtitle_en' => $this->input->post('subtitle_en'),
+                    'active' => (isset($_POST['isvisible']) ? 1 : 0),
+                );
+                $this->saveHome('gallery', $branchID, $arrayGallery);
+                set_alert('success', translate('information_has_been_saved_successfully'));
+                $url = base_url('frontend/section/home' . (is_superadmin_loggedin() ? '?branch_id=' . $branchID : '') . '#gallery');
+                echo json_encode(array('status' => 'success', 'url' => $url));
+            } else {
+                echo json_encode(array('status' => 'fail', 'error' => $this->form_validation->error_array()));
+            }
+        }
+    }
+
+    public function home_hero()
+    {
+        if ($_POST) {
+            if (!get_permission('frontend_section', 'is_add')) {
+                ajax_access_denied();
+            }
+            $branchID = $this->frontend_model->getBranchID();
+            if (empty($branchID)) {
+                $branchID = $this->input->post('branch_id') ?: 1;
+            }
+            $this->form_validation->set_rules('hero_title', 'Title', 'trim|required');
+            if ($this->form_validation->run() == true) {
+                $elements = array(
+                    'hero_btn_1_text' => $this->input->post('hero_btn_1_text'),
+                    'hero_btn_1_url' => $this->input->post('hero_btn_1_url'),
+                    'hero_btn_2_text' => $this->input->post('hero_btn_2_text'),
+                    'hero_btn_2_url' => $this->input->post('hero_btn_2_url'),
+                    'quick_btn_1_text' => $this->input->post('quick_btn_1_text'),
+                    'quick_btn_1_url' => $this->input->post('quick_btn_1_url'),
+                    'quick_btn_2_text' => $this->input->post('quick_btn_2_text'),
+                    'quick_btn_2_url' => $this->input->post('quick_btn_2_url'),
+                    'quick_btn_3_text' => $this->input->post('quick_btn_3_text'),
+                    'quick_btn_3_url' => $this->input->post('quick_btn_3_url'),
+                    'quick_btn_4_text' => $this->input->post('quick_btn_4_text'),
+                    'quick_btn_4_url' => $this->input->post('quick_btn_4_url'),
+                );
+                $arrayHero = array(
+                    'branch_id' => $branchID,
+                    'title' => $this->input->post('hero_title'),
+                    'title_en' => $this->input->post('hero_title_en'),
+                    'subtitle' => $this->input->post('subtitle'),
+                    'subtitle_en' => $this->input->post('subtitle_en'),
+                    'description' => $this->input->post('tagline'),
+                    'description_en' => $this->input->post('tagline_en'),
+                    'active' => (isset($_POST['isvisible']) ? 1 : 0),
+                    'elements' => json_encode($elements),
+                );
+                $this->saveHome('hero', $branchID, $arrayHero);
+                set_alert('success', translate('information_has_been_saved_successfully'));
+                $url = base_url('frontend/section/home' . (is_superadmin_loggedin() ? '?branch_id=' . $branchID : '') . '#hero');
+                echo json_encode(array('status' => 'success', 'url' => $url));
+            } else {
+                echo json_encode(array('status' => 'fail', 'error' => $this->form_validation->error_array()));
+            }
         }
     }
 
@@ -299,35 +506,25 @@ class Section extends Admin_Controller
             }
 
             $branchID = $this->frontend_model->getBranchID();
-            $this->form_validation->set_rules('sta_title', 'Title', 'trim|required');
-            $this->form_validation->set_rules('sta_description', 'Description', 'trim|required');
-            for ($i=1; $i < 5; $i++) { 
-                $this->form_validation->set_rules('widget_title_' . $i, 'Widget Title', 'trim|required');
-                $this->form_validation->set_rules('widget_icon_' . $i, 'Widget Icon', 'trim|required');
-                $this->form_validation->set_rules('statistics_type_' . $i, 'Statistics Type', 'trim|required');
+            if (empty($branchID)) {
+                $branchID = $this->input->post('branch_id') ?: 1;
             }
+            $this->form_validation->set_rules('sta_title', 'Title', 'trim|required');
             if ($this->form_validation->run() == true) {
-                // save information in the database
-                $elements = array();
-                $elements['image'] = $this->uploadImage('counter-parallax' . $branchID, 'home_page');
-                for ($i=1; $i < 5; $i++) {
-                    $elements['widget_title_' . $i] = $this->input->post('widget_title_' . $i);
-                    $elements['widget_icon_' . $i] = $this->input->post('widget_icon_' . $i);
-                    $elements['type_' . $i] = $this->input->post('statistics_type_' . $i);
-                }
                 $arrayServices = array(
                     'branch_id' => $branchID,
                     'title' => $this->input->post('sta_title'),
-                    'color1' => $this->input->post('title_text_color'),
-                    'color2' => $this->input->post('description_text_color'),
+                    'title_en' => $this->input->post('sta_title_en'),
+                    'subtitle' => $this->input->post('subtitle'),
+                    'subtitle_en' => $this->input->post('subtitle_en'),
                     'active' => (isset($_POST['isvisible']) ? 1 : 0),
                     'description' => $this->input->post('sta_description'),
-                    'elements' => json_encode($elements),
                 );
                 // save information in the database
                 $this->saveHome('statistics', $branchID, $arrayServices);
                 set_alert('success', translate('information_has_been_saved_successfully'));
-                $array = array('status' => 'success');
+                $url = base_url('frontend/section/home' . (is_superadmin_loggedin() ? '?branch_id=' . $branchID : '') . '#statistics');
+                $array = array('status' => 'success', 'url' => $url);
             } else {
                 $error = $this->form_validation->error_array();
                 $array = array('status' => 'fail', 'error' => $error);
@@ -383,6 +580,9 @@ class Section extends Admin_Controller
                 ajax_access_denied();
             }
             $branchID = $this->frontend_model->getBranchID();
+            if (empty($branchID)) {
+                $branchID = $this->input->post('branch_id') ?: 1;
+            }
             $this->form_validation->set_rules('page_title', 'Page Title', 'trim|required');
             if ($this->form_validation->run() == true) {
                 // save information in the database
@@ -401,7 +601,8 @@ class Section extends Admin_Controller
                     $this->db->insert('front_cms_home_seo', $arraySeo);
                 }
                 set_alert('success', translate('information_has_been_saved_successfully'));
-                $array = array('status' => 'success');
+                $url = base_url('frontend/section/home' . (is_superadmin_loggedin() ? '?branch_id=' . $branchID : '') . '#options');
+                $array = array('status' => 'success', 'url' => $url);
             } else {
                 $error = $this->form_validation->error_array();
                 $array = array('status' => 'fail', 'error' => $error); 
