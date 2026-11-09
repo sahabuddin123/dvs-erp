@@ -1510,6 +1510,14 @@ class Home extends Frontend_Controller
         $branchID = $this->home_model->getDefaultBranch();
         $this->data['branchID'] = $branchID;
 
+        // Required by layout/index.php to avoid "Undefined variable $page_data"
+        $this->data['page_data'] = array(
+            'page_title'       => 'ক্লাস রুটিন',
+            'page_title_en'    => 'Class Routine',
+            'meta_keyword'     => 'class routine, timetable, schedule, class schedule, madrasah',
+            'meta_description' => 'View the class routine and timetable. Filter by class and section.',
+        );
+
         // Get Classes for this branch
         $this->data['classes'] = $this->db->select('id, name')
             ->where('branch_id', $branchID)

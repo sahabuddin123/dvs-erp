@@ -195,6 +195,7 @@ $route['(:any)/contact'] = 'home/contact';
 $route['(:any)/admit_card'] = 'home/admit_card';
 $route['(:any)/exam_results'] = 'home/exam_results';
 $route['(:any)/certificates'] = 'home/certificates';
+$route['(:any)/page/class-routine'] = 'home/class_routine';
 $route['(:any)/page/(:any)'] = 'home/page/$2';
 $route['(:any)/gallery_view/(:any)'] = 'home/gallery_view/$2';
 $route['(:any)/event_view/(:num)'] = 'home/event_view/$2';
