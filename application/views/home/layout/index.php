@@ -16,6 +16,16 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
     <meta name="keyword" content="<?php echo html_escape($meta_kw); ?>">
     <meta name="description" content="<?php echo html_escape($meta_desc); ?>">
     
+    <!-- Open Graph / Social Sharing Meta Tags -->
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="<?php echo html_escape($site_name); ?>">
+    <meta property="og:title" content="<?php echo html_escape(!empty($page_data['page_title']) ? $page_data['page_title'] : $site_name); ?>">
+    <meta property="og:description" content="<?php echo html_escape($meta_desc); ?>">
+    <meta property="og:url" content="<?php echo current_url(); ?>">
+    <?php if (!empty($page_data['meta_image'])): ?>
+    <meta property="og:image" content="<?php echo html_escape($page_data['meta_image']); ?>">
+    <?php endif; ?>
+    
     <!-- Favicon -->
     <link rel="shortcut icon" href="<?php echo base_url('assets/images/favicon.png'); ?>">
     <link rel="icon" type="image/png" href="<?php echo base_url('assets/images/favicon.png'); ?>">

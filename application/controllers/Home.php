@@ -383,8 +383,14 @@ class Home extends Frontend_Controller
         }
 
         $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
+        $notice_title = function_exists('get_lang_field') ? get_lang_field($event, 'title') : (!empty($event['title']) ? $event['title'] : 'Notice');
+        $notice_desc = function_exists('get_lang_field') ? get_lang_field($event, 'description') : (!empty($event['description']) ? $event['description'] : '');
 
-        $page_data['page_title'] = ($current_lang == 'en') ? 'Notice Details' : 'নোটিশ বিস্তারিত';
+        $page_data['page_title'] = $notice_title;
+        $page_data['meta_description'] = mb_substr(strip_tags($notice_desc), 0, 200, 'UTF-8');
+        if (!empty($event['image'])) {
+            $page_data['meta_image'] = base_url('uploads/frontend/news/' . $event['image']);
+        }
 
         $this->data['page_data'] = $page_data;
 
