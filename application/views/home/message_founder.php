@@ -19,7 +19,7 @@ if ($current_lang == 'en') {
 
 // Resolve Image
 $img_file = !empty($founder['image']) ? $founder['image'] : '';
-$img_src = base_url('uploads/app_image/defualt.png');
+$img_src = base_url('uploads/app_image/default.png');
 if (!empty($img_file) && file_exists(FCPATH . 'uploads/frontend/founder/' . $img_file)) {
     $img_src = base_url('uploads/frontend/founder/' . $img_file);
 }

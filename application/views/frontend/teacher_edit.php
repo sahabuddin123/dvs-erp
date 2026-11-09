@@ -97,7 +97,14 @@
 				<label class="col-md-3 control-label">Image</label>
 				<div class="col-md-4">
 					<input type="file" name="image" class="dropify" data-height="160" data-default-file="<?php echo $current_img_url; ?>" data-allowed-file-extensions="jpg jpeg png gif webp" />
-					<span class="text-muted small">Accepted formats: JPEG, PNG, JPG, GIF, WEBP (Max 2MB). Leave blank to keep current image.</span>
+					<input type="hidden" name="remove_image" id="remove_image" value="0" />
+					<span class="text-muted small">Accepted formats: JPEG, PNG, JPG, GIF, WEBP (Max 2MB). Click Remove (✕) to remove image and show default avatar.</span>
+					<?php if (!empty($teacher['image'])): ?>
+					<div class="checkbox-custom checkbox-danger mt-xs">
+						<input type="checkbox" name="remove_image_chk" id="remove_image_chk" value="1" />
+						<label for="remove_image_chk" class="text-danger"><i class="fas fa-trash-alt"></i> বর্তমান ছবি মুছে ফেলুন (মুছে ফেললে সিস্টেমের ডিফল্ট ছবি দেখাবে)</label>
+					</div>
+					<?php endif; ?>
 					<span class="error"></span>
 				</div>
 			</div>
@@ -134,7 +141,25 @@
 <script type="text/javascript">
 $(document).ready(function() {
     if ($.fn.dropify) {
-        $('.dropify').dropify();
+        var drEvent = $('.dropify').dropify();
+        drEvent.on('dropify.afterClear', function(event, element) {
+            $('#remove_image').val('1');
+            $('#remove_image_chk').prop('checked', true);
+        });
+        drEvent.on('dropify.fileReady', function(event, element) {
+            $('#remove_image').val('0');
+            $('#remove_image_chk').prop('checked', false);
+        });
+        $('#remove_image_chk').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#remove_image').val('1');
+                if ($('.dropify').data('dropify')) {
+                    $('.dropify').data('dropify').clearElement();
+                }
+            } else {
+                $('#remove_image').val('0');
+            }
+        });
     }
     if (typeof CKEDITOR !== 'undefined') {
         if ($('#teacher_edit_message').length) {

@@ -187,10 +187,10 @@
 					</div>
 
 					<div class="form-group">
-						<label class="col-md-3 control-label">Image <span class="required">*</span></label>
+						<label class="col-md-3 control-label">Image</label>
 						<div class="col-md-4">
-							<input type="file" name="image" class="dropify" data-height="160" data-allowed-file-extensions="jpg jpeg png gif webp" required />
-							<span class="text-muted small">Accepted formats: JPEG, PNG, JPG, GIF, WEBP (Max 2MB)</span>
+							<input type="file" name="image" class="dropify" data-height="160" data-allowed-file-extensions="jpg jpeg png gif webp" />
+							<span class="text-muted small">Accepted formats: JPEG, PNG, JPG, GIF, WEBP (Max 2MB). Optional (system default image will be used if left blank).</span>
 							<span class="error"></span>
 						</div>
 					</div>

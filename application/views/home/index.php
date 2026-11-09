@@ -188,7 +188,7 @@ if (!empty($db_leaders)) {
                 $count = count($db_leaders);
                 foreach ($db_leaders as $index => $leader) { 
                     $img_file = !empty($leader['image']) ? $leader['image'] : '';
-                    $img_src = base_url('uploads/app_image/defualt.png');
+                    $img_src = base_url('uploads/app_image/default.png');
                     if (!empty($img_file) && file_exists(FCPATH . 'uploads/frontend/founder/' . $img_file)) {
                         $img_src = base_url('uploads/frontend/founder/' . $img_file);
                     }

@@ -188,7 +188,19 @@ class Teacher extends Admin_Controller
                 $post = $this->input->post();
                 $branch_id = is_superadmin_loggedin() && !empty($post['branch_id']) ? $post['branch_id'] : $teacher['branch_id'];
 
-                $image_name = $this->upload_teacher_image($teacher['image']);
+                $remove_image = ($this->input->post('remove_image') == '1' || $this->input->post('remove_image_chk') == '1');
+
+                if (!empty($_FILES['image']['name'])) {
+                    $image_name = $this->upload_teacher_image($teacher['image']);
+                } elseif ($remove_image) {
+                    $destination = FCPATH . 'uploads/frontend/teacher/';
+                    if (!empty($teacher['image']) && file_exists($destination . $teacher['image'])) {
+                        @unlink($destination . $teacher['image']);
+                    }
+                    $image_name = '';
+                } else {
+                    $image_name = !empty($teacher['image']) ? $teacher['image'] : '';
+                }
 
                 $name = $post['name'];
                 $name_bn = !empty($post['name_bn']) ? $post['name_bn'] : (!empty($teacher['name_bn']) ? $teacher['name_bn'] : $name);

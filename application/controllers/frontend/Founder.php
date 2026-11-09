@@ -149,7 +149,19 @@ class Founder extends Admin_Controller
                 $post = $this->input->post();
                 $branch_id = is_superadmin_loggedin() && !empty($post['branch_id']) ? $post['branch_id'] : $founder['branch_id'];
 
-                $image_name = $this->upload_founder_image($founder['image']);
+                $remove_image = ($this->input->post('remove_image') == '1' || $this->input->post('remove_image_chk') == '1');
+
+                if (!empty($_FILES['image']['name'])) {
+                    $image_name = $this->upload_founder_image($founder['image']);
+                } elseif ($remove_image) {
+                    $destination = FCPATH . 'uploads/frontend/founder/';
+                    if (!empty($founder['image']) && file_exists($destination . $founder['image'])) {
+                        @unlink($destination . $founder['image']);
+                    }
+                    $image_name = '';
+                } else {
+                    $image_name = !empty($founder['image']) ? $founder['image'] : '';
+                }
 
                 $update_data = [
                     'branch_id'      => $branch_id,
@@ -162,7 +174,7 @@ class Founder extends Admin_Controller
                     'position'       => !empty($post['position']) ? (int)$post['position'] : 1,
                     'message_bn'     => !empty($post['message_bn']) ? $post['message_bn'] : '',
                     'message_en'     => !empty($post['message_en']) ? $post['message_en'] : '',
-                    'image'          => !empty($image_name) ? $image_name : $founder['image'],
+                    'image'          => $image_name,
                     'active'         => isset($post['active']) ? 1 : 0,
                     'updated_at'     => date('Y-m-d H:i:s'),
                 ];
