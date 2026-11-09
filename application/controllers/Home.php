@@ -1725,6 +1725,54 @@ class Home extends Frontend_Controller
 
 
 
+    public function principle_message()
+
+    {
+
+        $branchID = $this->home_model->getDefaultBranch();
+
+        $this->db->select('front_cms_menu.title as menu_title,front_cms_menu.alias,front_cms_pages.*');
+
+        $this->db->from('front_cms_menu');
+
+        $this->db->join('front_cms_pages', 'front_cms_pages.menu_id = front_cms_menu.id', 'left');
+
+        $this->db->where('front_cms_menu.alias', 'principle-message');
+
+        $this->db->where('front_cms_menu.publish', 1);
+
+        $getData = $this->db->get()->row_array();
+
+
+
+        if (empty($getData)) {
+
+            $getData = $this->db->get_where('front_cms_pages', array('menu_id' => 19))->row_array();
+
+            if (empty($getData)) {
+
+                $getData = $this->db->get_where('front_cms_pages', array('id' => 4))->row_array();
+
+            }
+
+        }
+
+
+
+        $this->data['branchID'] = !empty($getData['branch_id']) ? $getData['branch_id'] : $branchID;
+
+        $this->data['page_data'] = $getData;
+
+        $this->data['active_menu'] = 'principle-message';
+
+        $this->data['main_contents'] = $this->load->view('home/principle_message', $this->data, true);
+
+        $this->load->view('home/layout/index', $this->data);
+
+    }
+
+
+
     public function governing_body()
 
     {
@@ -1915,6 +1963,14 @@ class Home extends Frontend_Controller
         if ($alias == 'history') {
 
             $this->history();
+
+            return;
+
+        }
+
+        if ($alias == 'principle-message' || $alias == 'principal-message' || $alias == 'superintendent-message') {
+
+            $this->principle_message();
 
             return;
 
