@@ -112,7 +112,7 @@ window.getSectionByClass = function(class_id) {
 
     <!-- Wave Shape -->
     <svg class="page-header-wave" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 70" preserveAspectRatio="none">
-        <path fill="#007F3D" fill-opacity="1" d="M0,32L60,42.7C120,53,240,75,360,69.3C480,64,600,32,720,21.3C840,11,960,21,1080,26.7C1200,32,1320,32,1380,32L1440,32L1440,70L1380,70C1320,70,1200,70,1080,70C960,70,840,70,720,70C600,70,480,70,360,70C240,70,120,70,60,70L0,70Z"></path>
+        <path fill="var(--primary-color)" fill-opacity="1" d="M0,32L60,42.7C120,53,240,75,360,69.3C480,64,600,32,720,21.3C840,11,960,21,1080,26.7C1200,32,1320,32,1380,32L1440,32L1440,70L1380,70C1320,70,1200,70,1080,70C960,70,840,70,720,70C600,70,480,70,360,70C240,70,120,70,60,70L0,70Z"></path>
     </svg>
 </div>
 
@@ -120,7 +120,7 @@ window.getSectionByClass = function(class_id) {
 <div class="container my-5 main-container">
     <div class="row mb-4 align-items-center">
         <div class="col-sm-6 mb-2 mb-sm-0">
-            <span class="badge" style="background: rgba(0, 127, 61, 0.1); color: var(--primary-color); font-size: 14px; padding: 8px 14px; font-weight: 600;">
+            <span class="badge" style="background: #f1f5f9; color: var(--primary-color); border: 1px solid #e2e8f0; font-size: 14px; padding: 8px 14px; font-weight: 600;">
                 <i class="fas fa-clock me-1"></i> <?php echo $is_en ? 'Academic Session: ' . date('Y') : 'শিক্ষাবর্ষ: ' . date('Y'); ?>
             </span>
         </div>
@@ -129,7 +129,7 @@ window.getSectionByClass = function(class_id) {
                 <i class="fas fa-clipboard-check me-2"></i> <?php echo $is_en ? 'Check Admission Status' : 'ভর্তির অবস্থা যাচাই করুন'; ?>
             </button>
             <?php if (!empty($page_data['application_form_file'])) { ?>
-                <a class="btn btn-outline-success ms-2 px-3 py-2" style="border-radius: 6px;" href="<?php echo base_url('home/download_application_form/' . rtrim(strtr(base64_encode($branchID), '+/', '-_'), '=')); ?>">
+                <a class="btn ms-2 px-3 py-2" style="border-radius: 6px; border: 1px solid var(--primary-color); color: var(--primary-color);" href="<?php echo base_url('home/download_application_form/' . rtrim(strtr(base64_encode($branchID), '+/', '-_'), '=')); ?>">
                     <i class="fas fa-download me-1"></i> <?php echo $is_en ? 'Download Form' : 'ফরম ডাউনলোড'; ?>
                 </a> 
             <?php } ?>
@@ -147,7 +147,8 @@ window.getSectionByClass = function(class_id) {
             margin-bottom: 30px;
         }
         .online-wizard-header {
-            background: linear-gradient(135deg, #007F3D 0%, #005f2e 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, rgba(0,0,0,0.15) 100%);
+            background-color: var(--primary-color);
             color: #fff;
             padding: 22px 25px 18px;
         }
@@ -194,7 +195,7 @@ window.getSectionByClass = function(class_id) {
             transition: background 0.3s ease;
         }
         .online-step-item.completed:not(:last-child):after {
-            background: #007F3D;
+            background: var(--primary-color);
         }
         .online-step-badge {
             width: 44px;
@@ -213,16 +214,17 @@ window.getSectionByClass = function(class_id) {
             box-shadow: 0 2px 6px rgba(0,0,0,0.06);
         }
         .online-step-item.active .online-step-badge {
-            background: #007F3D;
-            border-color: #007F3D;
+            background: var(--primary-color);
+            border-color: var(--primary-color);
             color: #fff;
-            box-shadow: 0 0 0 4px rgba(0, 127, 61, 0.2);
+            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.12);
             transform: scale(1.08);
         }
         .online-step-item.completed .online-step-badge {
-            background: #10b981;
-            border-color: #10b981;
+            background: var(--primary-color);
+            border-color: var(--primary-color);
             color: #fff;
+            opacity: 0.9;
         }
         .online-step-label {
             margin-top: 8px;
@@ -235,7 +237,7 @@ window.getSectionByClass = function(class_id) {
             display: block;
         }
         .online-step-item.active .online-step-label .step-main {
-            color: #007F3D;
+            color: var(--primary-color);
         }
         .online-step-label .step-sub {
             color: #94a3b8;
@@ -251,7 +253,7 @@ window.getSectionByClass = function(class_id) {
         }
         .online-progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #007F3D 0%, #10b981 100%);
+            background: var(--primary-color);
             width: 25%;
             transition: width 0.4s ease;
         }
@@ -270,7 +272,7 @@ window.getSectionByClass = function(class_id) {
             color: #1e293b;
         }
         .online-pane-title h5 i {
-            color: #007F3D;
+            color: var(--primary-color);
             margin-right: 8px;
         }
         .online-pane-title p {
@@ -304,15 +306,15 @@ window.getSectionByClass = function(class_id) {
             padding: 9px 24px;
             font-weight: 600;
             color: #fff;
-            background: #007F3D;
+            background: var(--primary-color);
             border: none;
-            box-shadow: 0 3px 8px rgba(0, 127, 61, 0.3);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
             transition: all 0.2s;
         }
         .btn-online-next:hover {
-            background: #005f2e;
+            filter: brightness(0.9);
             color: #fff;
-            box-shadow: 0 4px 12px rgba(0, 127, 61, 0.4);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
         .btn-online-submit {
             border-radius: 6px;
@@ -320,31 +322,32 @@ window.getSectionByClass = function(class_id) {
             font-weight: 700;
             font-size: 15px;
             color: #fff;
-            background: linear-gradient(135deg, #007F3D 0%, #059669 100%);
+            background: var(--primary-color);
             border: none;
-            box-shadow: 0 4px 14px rgba(0, 127, 61, 0.4);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
             transition: all 0.2s;
         }
         .btn-online-submit:hover {
-            background: linear-gradient(135deg, #005f2e 0%, #047857 100%);
-            box-shadow: 0 6px 18px rgba(0, 127, 61, 0.5);
+            filter: brightness(0.9);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
         }
         .online-card-highlight {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid var(--primary-color);
             border-radius: 8px;
             padding: 14px 18px;
             margin-bottom: 20px;
         }
         .online-card-highlight h6 {
             margin: 0 0 4px;
-            color: #166534;
+            color: var(--primary-color);
             font-weight: 700;
             font-size: 13.5px;
         }
         .online-card-highlight p {
             margin: 0;
-            color: #15803d;
+            color: #475569;
             font-size: 12.5px;
         }
         .online-summary-box {
@@ -363,7 +366,7 @@ window.getSectionByClass = function(class_id) {
             margin-bottom: 12px;
         }
         .online-summary-title i {
-            color: #007F3D;
+            color: var(--primary-color);
             margin-right: 6px;
         }
         .online-summary-table {
@@ -1099,7 +1102,7 @@ window.getSectionByClass = function(class_id) {
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <div class="form-group">
-                            <label class="form-label fw-semibold"><i class="fas fa-camera text-success"></i> <?php echo $is_en ? "Father's Photo" : 'পিতার ছবি'; ?></label>
+                            <label class="form-label fw-semibold"><i class="fas fa-camera" style="color: var(--primary-color);"></i> <?php echo $is_en ? "Father's Photo" : 'পিতার ছবি'; ?></label>
                             <input type="file" class="form-control" name="father_photo" id="fatherPhoto" accept=".jpg,.jpeg,.png,.bmp" />
                             <small class="text-muted"><?php echo $is_en ? 'Allowed: JPG, PNG, JPEG. Max 2MB.' : 'অনুমোদিত: JPG, PNG, JPEG। সর্বোচ্চ ২MB'; ?></small>
                             <span class="error text-danger"><?php echo form_error('father_photo'); ?></span>
@@ -1107,7 +1110,7 @@ window.getSectionByClass = function(class_id) {
                     </div>
                     <div class="col-md-4 mb-3">
                         <div class="form-group">
-                            <label class="form-label fw-semibold"><i class="fas fa-camera text-success"></i> <?php echo $is_en ? "Mother's Photo" : 'মাতার ছবি'; ?></label>
+                            <label class="form-label fw-semibold"><i class="fas fa-camera" style="color: var(--primary-color);"></i> <?php echo $is_en ? "Mother's Photo" : 'মাতার ছবি'; ?></label>
                             <input type="file" class="form-control" name="mother_photo" id="motherPhoto" accept=".jpg,.jpeg,.png,.bmp" />
                             <small class="text-muted"><?php echo $is_en ? 'Allowed: JPG, PNG, JPEG. Max 2MB.' : 'অনুমোদিত: JPG, PNG, JPEG। সর্বোচ্চ ২MB'; ?></small>
                             <span class="error text-danger"><?php echo form_error('mother_photo'); ?></span>
@@ -1115,7 +1118,7 @@ window.getSectionByClass = function(class_id) {
                     </div>
                     <div class="col-md-4 mb-3">
                         <div class="form-group">
-                            <label class="form-label fw-semibold"><i class="fas fa-camera text-success"></i> <?php echo $is_en ? 'Guardian Photo' : 'অভিভাবকের ছবি'; ?><?php echo (isset($guardian_photo['required']) && $guardian_photo['required'] == 1) ? ' <span class="required text-danger">*</span>' : ''; ?></label>
+                            <label class="form-label fw-semibold"><i class="fas fa-camera" style="color: var(--primary-color);"></i> <?php echo $is_en ? 'Guardian Photo' : 'অভিভাবকের ছবি'; ?><?php echo (isset($guardian_photo['required']) && $guardian_photo['required'] == 1) ? ' <span class="required text-danger">*</span>' : ''; ?></label>
                             <input type="file" class="form-control" name="guardian_photo" id="guardianPhoto" accept=".jpg,.jpeg,.png,.bmp" <?php echo (isset($guardian_photo['required']) && $guardian_photo['required'] == 1) ? 'required' : ''; ?> />
                             <small class="text-muted"><?php echo $is_en ? 'Allowed: JPG, PNG, JPEG. Max 2MB.' : 'অনুমোদিত: JPG, PNG, JPEG। সর্বোচ্চ ২MB'; ?></small>
                             <span class="error text-danger"><?php echo form_error('guardian_photo'); ?></span>
@@ -1154,7 +1157,7 @@ window.getSectionByClass = function(class_id) {
                 ?>
                 <div class="card mb-4 border" style="border-radius: 8px;">
                     <div class="card-header bg-light py-2">
-                        <h6 class="mb-0 fw-bold"><i class="fas fa-history text-success me-2"></i> <?php echo $is_en ? 'Previous School Details' : 'পূর্ববর্তী বিদ্যালয়ের তথ্য'; ?></h6>
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-history me-2" style="color: var(--primary-color);"></i> <?php echo $is_en ? 'Previous School Details' : 'পূর্ববর্তী বিদ্যালয়ের তথ্য'; ?></h6>
                     </div>
                     <div class="card-body p-3">
                         <div class="row">
@@ -1198,7 +1201,7 @@ window.getSectionByClass = function(class_id) {
                 ?>
                 <div class="card mb-4 border" style="border-radius: 8px;">
                     <div class="card-header bg-light py-2">
-                        <h6 class="mb-0 fw-bold"><i class="far fa-file-archive text-success me-2"></i> <?php echo $is_en ? 'Upload Documents' : 'প্রয়োজনীয় কাগজপত্র আপলোড'; ?></h6>
+                        <h6 class="mb-0 fw-bold"><i class="far fa-file-archive me-2" style="color: var(--primary-color);"></i> <?php echo $is_en ? 'Upload Documents' : 'প্রয়োজনীয় কাগজপত্র আপলোড'; ?></h6>
                     </div>
                     <div class="card-body p-3">
                         <div class="form-group">
@@ -1291,7 +1294,7 @@ window.getSectionByClass = function(class_id) {
                         <div class="card-header bg-light" id="faq1">
                             <h6 class="mb-0">
                                 <a class="text-decoration-none text-dark fw-bold" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="cursor: pointer;">
-                                    <i class="fas fa-chevron-down me-1 text-success"></i> <?php echo $page_data['terms_conditions_title']; ?>
+                                    <i class="fas fa-chevron-down me-1" style="color: var(--primary-color);"></i> <?php echo $page_data['terms_conditions_title']; ?>
                                 </a>
                             </h6>
                         </div>
@@ -1337,7 +1340,7 @@ window.getSectionByClass = function(class_id) {
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <?php echo form_open('home/checkAdmissionStatus', array('class' => 'frm-submit-data')); ?>
-            <div class="modal-header bg-success text-white">
+            <div class="modal-header text-white" style="background: var(--primary-color);">
                 <h5 class="modal-title fw-bold" id="exampleModalLabel">
                     <i class="fas fa-search me-2"></i> <?php echo $is_en ? 'Check Admission Status' : 'ভর্তির আবেদনের অবস্থা যাচাই'; ?>
                 </h5>
@@ -1355,7 +1358,7 @@ window.getSectionByClass = function(class_id) {
             </div>
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo $is_en ? 'Close' : 'বন্ধ করুন'; ?></button>
-                <button type="submit" data-loading-text="<i class='fas fa-spinner fa-spin'></i> <?php echo $is_en ? 'Checking...' : 'যাচাই হচ্ছে...'; ?>" class="btn btn-success">
+                <button type="submit" data-loading-text="<i class='fas fa-spinner fa-spin'></i> <?php echo $is_en ? 'Checking...' : 'যাচাই হচ্ছে...'; ?>" class="btn text-white" style="background: var(--primary-color); border-color: var(--primary-color);">
                     <i class="fas fa-check me-1"></i> <?php echo $is_en ? 'Check Now' : 'এখনই দেখুন'; ?>
                 </button>
             </div>
