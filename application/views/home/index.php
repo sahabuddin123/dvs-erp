@@ -250,11 +250,11 @@ if (!empty($db_leaders)) {
                                     style="width: 100px; height: 110px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                             </div>
                             <div class="flex-grow-1">
-                                <h4 class="mb-1" style="color: #b91c1c; font-weight: 700; font-size: 1.15rem;">
+                                <h4 class="mb-1" style="color: var(--primary-color); font-weight: 700; font-size: 1.15rem;">
                                     <?php echo html_escape($leader_name); ?>
                                 </h4>
                                 <div class="mb-3">
-                                    <span class="badge" style="background-color: #ef4444; color: #fff; font-size: 0.78rem; font-weight: 500; border-radius: 4px; padding: 4px 8px;">
+                                    <span class="badge" style="background-color: var(--primary-color); color: #fff; font-size: 0.78rem; font-weight: 500; border-radius: 4px; padding: 4px 8px;">
                                         <?php echo html_escape($leader_desig); ?>
                                     </span>
                                 </div>
@@ -283,14 +283,35 @@ if ($teachers_is_active && !empty($teachers_list)) {
     $teachers_sub = !empty($teachers) ? get_lang_field($teachers, 'subtitle', '') : '';
 ?>
 <section class="teachers-section py-5" id="teachers-section" style="background-color: #f8fafc;">
+    <style>
+        .btn-teacher-msg {
+            background-color: var(--primary-color) !important;
+            color: #ffffff !important;
+            border: none !important;
+            transition: background-color 0.25s ease, transform 0.2s ease !important;
+        }
+        .btn-teacher-msg:hover {
+            background-color: var(--hover-color) !important;
+            color: #ffffff !important;
+            transform: translateY(-1px);
+        }
+        .teacher-card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+        .teacher-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.08) !important;
+            border-color: rgba(0,0,0,0.12) !important;
+        }
+    </style>
     <div class="container">
         <div class="teachers-section-title mb-4">
-            <h2 style="color: #007F3D; font-weight: 700; font-size: 2.2rem; display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
-                <i class="fas fa-chalkboard-teacher" style="color: #007F3D; font-size: 2rem;"></i>
+            <h2 style="color: var(--primary-color); font-weight: 700; font-size: 2.2rem; display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+                <i class="fas fa-chalkboard-teacher" style="color: var(--primary-color); font-size: 2rem;"></i>
                 <span><?php echo html_escape($teachers_title); ?></span>
             </h2>
             <div style="margin-left: 50px;">
-                <div style="width: 50px; height: 3px; background-color: #007F3D; border-radius: 2px;"></div>
+                <div style="width: 50px; height: 3px; background-color: var(--primary-color); border-radius: 2px;"></div>
                 <div style="width: 50px; height: 3px; background-color: #f59e0b; border-radius: 2px; margin-top: 3px;"></div>
             </div>
             <?php if (!empty($teachers_sub)): ?>
@@ -320,21 +341,21 @@ if ($teachers_is_active && !empty($teachers_list)) {
                 }
             ?>
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <div class="teacher-card text-center h-100 p-4" style="background: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; flex-direction: column; align-items: center; justify-content: space-between; transition: transform 0.25s ease, box-shadow 0.25s ease;">
+                    <div class="teacher-card text-center h-100 p-4" style="background: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
                         <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
                             <div style="width: 130px; height: 130px; border-radius: 8px; overflow: hidden; background: #f1f5f9; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
                                 <img src="<?php echo $t_img_url; ?>" alt="<?php echo html_escape($t_name); ?>" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
-                            <h4 style="color: #007F3D; font-weight: 700; font-size: 1.15rem; margin-bottom: 4px;"><?php echo html_escape($t_name); ?></h4>
+                            <h4 style="color: var(--primary-color); font-weight: 700; font-size: 1.15rem; margin-bottom: 4px;"><?php echo html_escape($t_name); ?></h4>
                             <p style="color: #64748b; font-size: 0.92rem; margin-bottom: 8px; font-weight: 500;"><?php echo html_escape(!empty($t_designation) ? $t_designation : $t_title); ?></p>
                             <?php if (!empty($t_subject)): ?>
-                                <span class="badge" style="background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; font-size: 0.8rem; font-weight: 600; padding: 4px 10px; margin-bottom: 12px;"><?php echo html_escape($t_subject); ?></span>
+                                <span class="badge" style="background-color: #f1f5f9; color: var(--primary-color); border: 1px solid rgba(0,0,0,0.08); font-size: 0.8rem; font-weight: 600; padding: 4px 10px; margin-bottom: 12px; border-radius: 4px;"><?php echo html_escape($t_subject); ?></span>
                             <?php endif; ?>
                         </div>
 
                         <div style="width: 100%; margin-top: 15px;">
-                            <button type="button" class="btn btn-teacher-msg w-100 text-white" 
-                                style="background-color: #007F3D; font-weight: 600; font-size: 0.9rem; padding: 8px 16px; border-radius: 4px; border: none; transition: background 0.2s;"
+                            <button type="button" class="btn btn-teacher-msg w-100" 
+                                style="padding: 8px 16px; border-radius: 4px; font-weight: 600; font-size: 0.9rem;"
                                 data-bs-toggle="modal" data-bs-target="#teacherModal"
                                 data-name="<?php echo html_escape($t_name); ?>"
                                 data-designation="<?php echo html_escape($t_designation); ?>"
@@ -358,7 +379,7 @@ if ($teachers_is_active && !empty($teachers_list)) {
 <div class="modal fade" id="teacherModal" tabindex="-1" aria-labelledby="teacherModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" style="border-radius: 10px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-            <div class="modal-header text-white" style="background-color: #007F3D; padding: 16px 24px;">
+            <div class="modal-header text-white" style="background-color: var(--primary-color); padding: 16px 24px;">
                 <h5 class="modal-title fw-bold" id="teacherModalLabel" style="font-size: 1.15rem; color: #fff;">
                     <i class="fas fa-chalkboard-teacher me-2"></i> <span id="modalTeacherName">Teacher Profile</span>
                 </h5>
@@ -370,18 +391,18 @@ if ($teachers_is_active && !empty($teachers_list)) {
                         <img id="modalTeacherImg" src="" alt="Teacher Photo" class="img-fluid rounded shadow-sm" style="max-height: 180px; width: 160px; object-fit: cover; border: 2px solid #e2e8f0;">
                     </div>
                     <div class="col-sm-8">
-                        <h4 id="modalTeacherFullName" class="fw-bold mb-1" style="color: #007F3D;"></h4>
+                        <h4 id="modalTeacherFullName" class="fw-bold mb-1" style="color: var(--primary-color);"></h4>
                         <p id="modalTeacherDesig" class="text-muted fw-semibold mb-2" style="font-size: 1rem;"></p>
-                        <p class="mb-2"><span class="badge" style="background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; font-size: 0.85rem;" id="modalTeacherSubject"></span></p>
+                        <p class="mb-2"><span class="badge" style="background-color: #f1f5f9; color: var(--primary-color); border: 1px solid rgba(0,0,0,0.08); font-size: 0.85rem;" id="modalTeacherSubject"></span></p>
                         <div id="modalTeacherContact" class="small text-muted mt-2">
-                            <span id="modalTeacherPhone" class="me-3" style="display:none;"><i class="fas fa-phone-alt me-1 text-success"></i> <span></span></span>
-                            <span id="modalTeacherEmail" style="display:none;"><i class="fas fa-envelope me-1 text-success"></i> <span></span></span>
+                            <span id="modalTeacherPhone" class="me-3" style="display:none;"><i class="fas fa-phone-alt me-1" style="color: var(--primary-color);"></i> <span></span></span>
+                            <span id="modalTeacherEmail" style="display:none;"><i class="fas fa-envelope me-1" style="color: var(--primary-color);"></i> <span></span></span>
                         </div>
                     </div>
                 </div>
                 <hr style="border-color: #e2e8f0;">
                 <div class="teacher-bio-content mt-3">
-                    <h6 class="fw-bold text-dark mb-2"><i class="fas fa-comment-dots text-success me-1"></i> <?php echo translate('message'); ?> / Bio:</h6>
+                    <h6 class="fw-bold text-dark mb-2"><i class="fas fa-comment-dots me-1" style="color: var(--primary-color);"></i> <?php echo translate('message'); ?> / Bio:</h6>
                     <div id="modalTeacherMessage" class="text-muted lh-base" style="font-size: 0.98rem; max-height: 300px; overflow-y: auto; padding: 12px; background: #f8fafc; border-radius: 6px;"></div>
                 </div>
             </div>
@@ -500,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 }
             }
             $col_width = !empty($wellcome_img_url) ? 'col-lg-6' : 'col-lg-12';
-            $wel_title_color = !empty($wellcome['color1']) ? $wellcome['color1'] : 'var(--primary-color)';
+            $wel_title_color = (!empty($wellcome['color1']) && strtolower(trim($wellcome['color1'])) !== '#fff' && strtolower(trim($wellcome['color1'])) !== '#ffffff') ? $wellcome['color1'] : 'var(--primary-color)';
             ?>
             <div class="<?php echo $col_width; ?> mb-4">
                 <div class="welcome-section-title mb-4">
