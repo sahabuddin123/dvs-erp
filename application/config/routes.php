@@ -182,6 +182,7 @@ $route['notice-details/(:any)'] = 'home/news_view/$1';
 $route['(:any)/notice-details/(:any)'] = 'home/news_view/$2';
 $route['gallery-details/(:any)'] = 'home/gallery_view/$1';
 $route['(:any)/gallery-details/(:any)'] = 'home/gallery_view/$2';
+$route['page/class-routine'] = 'home/class_routine';
 $route['page/(:any)'] = 'home/page/$1';
 $route['gallery_view/(:any)'] = 'home/gallery_view/$1';
 $route['event_view/(:num)'] = 'home/event_view/$1';
