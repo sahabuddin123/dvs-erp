@@ -29,6 +29,9 @@ $branchID_active = !empty($branchID) ? $branchID : 1;
 <!-- Hero Section -->
 <?php if (!isset($hero_sec['active']) || $hero_sec['active'] == 1): ?>
 <section class="hero-section">
+      <video autoplay muted loop playsinline>
+        <source src="<?php echo base_url('assets/frontend/videos/school.mp4'); ?>" type="video/mp4">
+    </video>
     <div class="hero-overlay">
         <h1>
             <?php echo html_escape($app_title); ?>

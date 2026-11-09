@@ -2146,10 +2146,14 @@ function get_lang_field($row, $field, $default = '')
 }
 
 
-function get_frontend_visitor_stats($branch_id = null)
+function get_frontend_visitor_stats($branch_id = null, $force_track = false)
 {
+    static $cached_stats = null;
+    if ($cached_stats !== null && !$force_track) {
+        return $cached_stats;
+    }
+
     $CI = &get_instance();
-    $ip = $CI->input->ip_address();
     $today = date('Y-m-d');
     $this_month = date('Y-m');
 
@@ -2161,43 +2165,96 @@ function get_frontend_visitor_stats($branch_id = null)
         }
     }
 
-    $total_tracked = 0;
-    $today_count = 0;
-    $month_count = 0;
+    // Determine if we should track this request as a frontend visitor
+    // Do NOT track background CLI/cron, AJAX requests, or Admin panel requests
+    $is_admin = ($CI instanceof Admin_Controller || (isset($CI->router) && strpos((string)$CI->router->fetch_directory(), 'admin') !== false));
+    $is_ajax = (isset($CI->input) && $CI->input->is_ajax_request());
+    $is_cli = is_cli();
+    $should_track = (!$is_admin && !$is_ajax && !$is_cli);
 
-    if (!empty($ip) && $CI->db->table_exists('front_cms_visitor_stats')) {
-        $exists = $CI->db->get_where('front_cms_visitor_stats', [
-            'ip_address' => $ip,
-            'visit_date' => $today
-        ])->row_array();
+    if ($should_track && $CI->db->table_exists('front_cms_visitor_stats')) {
+        $ip = $CI->input->ip_address();
+        $user_agent = substr((string)$CI->input->user_agent(), 0, 255);
 
-        if (!$exists) {
+        // Visitor token from Cookie or Session (identifies unique visitor device/browser)
+        $cookie_name = 'dvs_visitor_token';
+        $visitor_token = '';
+        if (!empty($_COOKIE[$cookie_name])) {
+            $visitor_token = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$_COOKIE[$cookie_name]);
+        }
+        if (empty($visitor_token) && isset($CI->session) && $CI->session->has_userdata('dvs_visitor_token')) {
+            $visitor_token = $CI->session->userdata('dvs_visitor_token');
+        }
+        if (empty($visitor_token)) {
+            $visitor_token = md5(uniqid('dvs_', true) . $ip . microtime());
+            if (isset($CI->session)) {
+                $CI->session->set_userdata('dvs_visitor_token', $visitor_token);
+            }
+            if (!headers_sent()) {
+                @setcookie($cookie_name, $visitor_token, time() + 31536000, '/', '', false, true);
+            }
+        }
+
+        // Check if this visitor was already tracked today
+        $existing = null;
+        if (!empty($visitor_token) && $CI->db->field_exists('visitor_token', 'front_cms_visitor_stats')) {
+            $existing = $CI->db->where('visit_date', $today)
+                               ->where('visitor_token', $visitor_token)
+                               ->get('front_cms_visitor_stats')
+                               ->row_array();
+        }
+
+        // Fallback only if visitor_token is empty: check matching exact IP + User Agent combination
+        if (!$existing && empty($visitor_token) && !empty($ip) && !empty($user_agent) && $CI->db->field_exists('user_agent', 'front_cms_visitor_stats')) {
+            $existing = $CI->db->where('visit_date', $today)
+                               ->where('ip_address', $ip)
+                               ->where('user_agent', $user_agent)
+                               ->get('front_cms_visitor_stats')
+                               ->row_array();
+        }
+
+        if (!$existing) {
+            // Auto count: new visitor on this day!
             $insert_data = [
-                'ip_address' => $ip,
+                'ip_address' => !empty($ip) ? $ip : '127.0.0.1',
                 'visit_date' => $today,
                 'created_at' => date('Y-m-d H:i:s')
             ];
             if ($CI->db->field_exists('branch_id', 'front_cms_visitor_stats')) {
                 $insert_data['branch_id'] = $branch_id;
             }
+            if ($CI->db->field_exists('visitor_token', 'front_cms_visitor_stats')) {
+                $insert_data['visitor_token'] = $visitor_token;
+            }
+            if ($CI->db->field_exists('user_agent', 'front_cms_visitor_stats')) {
+                $insert_data['user_agent'] = $user_agent;
+            }
             if ($CI->db->field_exists('page_views', 'front_cms_visitor_stats')) {
                 $insert_data['page_views'] = 1;
             }
             $CI->db->insert('front_cms_visitor_stats', $insert_data);
         } else {
+            // Already counted as a visitor today: update page views
             if ($CI->db->field_exists('page_views', 'front_cms_visitor_stats')) {
-                $CI->db->set('page_views', 'page_views+1', FALSE);
-                $CI->db->where('id', $exists['id']);
+                $CI->db->set('page_views', 'page_views + 1', FALSE);
+                $CI->db->where('id', $existing['id']);
                 $CI->db->update('front_cms_visitor_stats');
             }
         }
+    }
 
+    // Calculate database tracked totals
+    $total_tracked = 0;
+    $today_count = 0;
+    $month_count = 0;
+
+    if ($CI->db->table_exists('front_cms_visitor_stats')) {
         $total_tracked = $CI->db->count_all('front_cms_visitor_stats');
         $today_count = $CI->db->where('visit_date', $today)->count_all_results('front_cms_visitor_stats');
         $month_count = $CI->db->like('visit_date', $this_month, 'after')->count_all_results('front_cms_visitor_stats');
     }
 
-    // Dynamic initial/baseline counts retrieved directly from the database table front_cms_home
+    // Baselines from front_cms_home (initial counts)
     $baseline_total = 0;
     $baseline_month = 0;
     $baseline_today = 0;
@@ -2212,16 +2269,22 @@ function get_frontend_visitor_stats($branch_id = null)
             if (isset($ele['initial_total_visitors'])) {
                 $baseline_total = intval($ele['initial_total_visitors']);
             }
-            if (isset($ele['initial_month_visitors'])) {
+
+            // Month baseline applies to the setup month only
+            $init_month_date = isset($ele['initial_month_date']) ? $ele['initial_month_date'] : '2026-11';
+            if ($this_month == $init_month_date && isset($ele['initial_month_visitors'])) {
                 $baseline_month = intval($ele['initial_month_visitors']);
             }
-            if (isset($ele['initial_today_visitors'])) {
+
+            // Today baseline applies to initial setup day only; new days auto-count purely from live visits
+            $init_today_date = isset($ele['initial_today_date']) ? $ele['initial_today_date'] : '2026-11-09';
+            if ($today == $init_today_date && isset($ele['initial_today_visitors'])) {
                 $baseline_today = intval($ele['initial_today_visitors']);
             }
         }
     }
 
-    return [
+    $cached_stats = [
         'total' => $baseline_total + $total_tracked,
         'month' => $baseline_month + $month_count,
         'today' => $baseline_today + $today_count,
@@ -2229,6 +2292,8 @@ function get_frontend_visitor_stats($branch_id = null)
         'db_tracked_month' => $month_count,
         'db_tracked_today' => $today_count,
     ];
+
+    return $cached_stats;
 }
 
 // --------------------------------------------------

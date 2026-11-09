@@ -231,6 +231,11 @@ class Frontend_Controller extends MY_Controller
         $this->data['branchID'] = $branchID;
         $this->data['main_menu'] = $this->home_model->menuList('', $branchID);
 
+        // Auto count frontend visitors for all frontend pages and share stats
+        if (function_exists('get_frontend_visitor_stats')) {
+            $this->data['visitor_stats'] = get_frontend_visitor_stats($branchID);
+        }
+
         // Ensure frontend default language is always Bengali (bn) unless explicitly chosen
         if (!$this->session->has_userdata('frontend_lang')) {
             $this->session->set_userdata('frontend_lang', 'bn');

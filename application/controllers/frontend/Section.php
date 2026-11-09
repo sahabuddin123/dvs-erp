@@ -516,6 +516,8 @@ class Section extends Admin_Controller
                     'initial_total_visitors' => intval($this->input->post('initial_total_visitors')),
                     'initial_month_visitors' => intval($this->input->post('initial_month_visitors')),
                     'initial_today_visitors' => intval($this->input->post('initial_today_visitors')),
+                    'initial_today_date' => date('Y-m-d'),
+                    'initial_month_date' => date('Y-m'),
                     'academic_passed' => intval($this->input->post('academic_passed')),
                     'academic_gpa5' => intval($this->input->post('academic_gpa5')),
                 );
