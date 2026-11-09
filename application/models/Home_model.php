@@ -670,31 +670,133 @@ class Home_model extends MY_Model
 
 
     public function getLatestEventList($branchID='', $params = [])
-
     {
-
         $this->db->where('branch_id', $branchID);
-
         $this->db->where('status', 1);
-
         $this->db->where('show_web', 1);
-
         $this->db->order_by('start_date', 'desc');
 
         if (!empty($params['start']) && !empty($params['limit'])) {
-
             $this->db->limit($params['limit'], $params['start']);
-
         } elseif (empty($params['start']) && !empty($params['limit'])) {
-
             $this->db->limit($params['limit']);
-
         }
 
         $q = $this->db->get('event')->result_array();
 
-        return $q;
+        if (empty($q)) {
+            $this->ensure_demo_events($branchID);
+            $this->db->where('branch_id', $branchID);
+            $this->db->where('status', 1);
+            $this->db->where('show_web', 1);
+            $this->db->order_by('start_date', 'desc');
 
+            if (!empty($params['start']) && !empty($params['limit'])) {
+                $this->db->limit($params['limit'], $params['start']);
+            } elseif (empty($params['start']) && !empty($params['limit'])) {
+                $this->db->limit($params['limit']);
+            }
+            $q = $this->db->get('event')->result_array();
+        }
+
+        return $q;
+    }
+
+    public function ensure_demo_events($branchID = 1)
+    {
+        if (empty($branchID)) {
+            $branchID = 1;
+        }
+
+        if (!$this->db->table_exists('event')) {
+            return;
+        }
+
+        $count = $this->db->where('branch_id', $branchID)->count_all_results('event');
+        if ($count > 0) {
+            return;
+        }
+
+        if (!$this->db->field_exists('title_en', 'event')) {
+            $this->load->dbforge();
+            $this->dbforge->add_column('event', [
+                'title_en' => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => TRUE, 'after' => 'title'],
+                'remark_en' => ['type' => 'TEXT', 'null' => TRUE, 'after' => 'remark'],
+                'type_en' => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => TRUE, 'after' => 'type']
+            ]);
+        }
+
+        $session_id = 7;
+        if (function_exists('get_session_id')) {
+            $s_val = get_session_id();
+            if (!empty($s_val)) {
+                $session_id = $s_val;
+            }
+        }
+
+        $demo_events = [
+            [
+                'branch_id' => $branchID,
+                'title' => 'বার্ষিক ক্রীড়া প্রতিযোগিতা ও সাংস্কৃতিক অনুষ্ঠান',
+                'title_en' => 'Annual Sports Competition & Cultural Program',
+                'type' => 'বার্ষিক প্রতিযোগিতা',
+                'type_en' => 'Annual Competition',
+                'remark' => '<p>মাদ্রাসার সকল শিক্ষার্থীদের আনন্দের সাথে জানানো যাচ্ছে যে, আগামী ১৫ই নভেম্বর মাদ্রাসা মাঠে বার্ষিক ক্রীড়া প্রতিযোগিতা ও সাংস্কৃতিক অনুষ্ঠান অনুষ্ঠিত হবে। দৌড়, হাই জাম্প, লং জাম্প, যেমন খুশি তেমন সাজো সহ বিভিন্ন আকর্ষণীয় ইভেন্টে শিক্ষার্থীরা অংশগ্রহণ করতে পারবে। সকল শিক্ষার্থীকে নির্ধারিত সময়ে উপস্থিত থাকার জন্য আহ্বান জানানো হচ্ছে।</p>',
+                'remark_en' => '<p>All students of the madrasah are cordially informed that the Annual Sports Competition and Cultural Program will be held on November 15 at the madrasah grounds. Students can participate in various exciting events including sprint, high jump, long jump, and dress as you like. All students are requested to be present at the scheduled time.</p>',
+                'start_date' => '2026-11-15',
+                'end_date' => '2026-11-16',
+                'image' => '5hMJasdzo9ywqzCMgWDKotpc00a7l8RsTtCWNRFY.jpg',
+                'audition' => '1',
+                'selected_list' => '',
+                'status' => 1,
+                'show_web' => 1,
+                'session_id' => $session_id,
+                'created_by' => 1,
+                'created_at' => date('Y-m-d H:i:s')
+            ],
+            [
+                'branch_id' => $branchID,
+                'title' => 'জাতীয় কেরাত, হিফজ ও হামদ-নাত প্রতিযোগিতা',
+                'title_en' => 'National Qirat, Hifz & Hamd-Naat Competition',
+                'type' => 'ইসলামিক প্রতিযোগিতা',
+                'type_en' => 'Islamic Competition',
+                'remark' => '<p>চর হাসান ইসলামিয়া দাখিল মাদ্রাসার উদ্যোগে আগামী ২৫শে নভেম্বর হিফজুল কোরআন, সুললিত কণ্ঠে কেরাত ও হামদ-নাত প্রতিযোগিতা অনুষ্ঠিত হবে। প্রতিযোগিতায় বিজয়ী শিক্ষার্থীদের মাঝে আকর্ষণীয় পুরস্কার ও সনদপত্র বিতরণ করা হবে। ইচ্ছুক শিক্ষার্থীদের নিজ নিজ শ্রেণি শিক্ষকের নিকট আগামী ২০শে নভেম্বরের মধ্যে নাম তালিকাভুক্ত করতে হবে।</p>',
+                'remark_en' => '<p>Under the initiative of Char Hasan Islamia Dakhil Madrasah, a National Qirat, Hifz, and Hamd-Naat Competition will be held on November 25. Attractive prizes and certificates will be distributed among the winners. Interested students must register their names with their respective class teachers by November 20.</p>',
+                'start_date' => '2026-11-25',
+                'end_date' => '2026-11-25',
+                'image' => 'Bgs8Aeyj6Lmz6KWiJX0G9vfnmijhg26a7CiOTlRe.png',
+                'audition' => '1',
+                'selected_list' => '',
+                'status' => 1,
+                'show_web' => 1,
+                'session_id' => $session_id,
+                'created_by' => 1,
+                'created_at' => date('Y-m-d H:i:s')
+            ],
+            [
+                'branch_id' => $branchID,
+                'title' => 'বার্ষিক পরীক্ষার ফলাফল প্রকাশ ও কৃতি শিক্ষার্থী সংবর্ধনা',
+                'title_en' => 'Annual Examination Result Publication & Meritorious Student Reception',
+                'type' => 'একাডেমিক সম্মেলন',
+                'type_en' => 'Academic Conference',
+                'remark' => '<p>মাদ্রাসার বার্ষিক পরীক্ষার ফলাফল প্রকাশ, মেধা তালিকায় স্থানপ্রাপ্ত কৃতি শিক্ষার্থীদের সংবর্ধনা এবং অভিভাবক সমাবেশ আগামী ৫ই ডিসেম্বর সকাল ১০টায় মাদ্রাসা অডিটোরিয়ামে অনুষ্ঠিত হবে। অনুষ্ঠানে প্রধান অতিথি হিসেবে উপস্থিত থাকবেন বিশিষ্ট শিক্ষাবিদ ও স্থানীয় গণ্যমান্য ব্যক্তিবর্গ। সকল অভিভাবক ও শুভানুধ্যায়ীদের যথাসময়ে উপস্থিত হয়ে অনুষ্ঠানটি সফল করার বিনীত অনুরোধ করা হলো।</p>',
+                'remark_en' => '<p>The publication of annual examination results, meritorious student reception, and parents meeting will be held on December 5 at 10:00 AM in the madrasah auditorium. Eminent educationists and local dignitaries will be present as chief guests. All parents and well-wishers are cordially requested to attend on time to make the event a success.</p>',
+                'start_date' => '2026-12-05',
+                'end_date' => '2026-12-05',
+                'image' => 'Mno2PfUN00OsT7ROoqUxOimoQHqqNetXAgIDM87W.jpg',
+                'audition' => '1',
+                'selected_list' => '',
+                'status' => 1,
+                'show_web' => 1,
+                'session_id' => $session_id,
+                'created_by' => 1,
+                'created_at' => date('Y-m-d H:i:s')
+            ]
+        ];
+
+        foreach ($demo_events as $event) {
+            $this->db->insert('event', $event);
+        }
     }
 
 }

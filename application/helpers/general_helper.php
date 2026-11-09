@@ -2117,7 +2117,13 @@ function get_lang_field($row, $field, $default = '')
         if (!empty($row[$field])) {
             return $row[$field];
         }
+        if (!empty($row[$field . '_bn'])) {
+            return $row[$field . '_bn'];
+        }
     } else {
+        if (!empty($row[$field . '_bn'])) {
+            return $row[$field . '_bn'];
+        }
         if (!empty($row[$field])) {
             return $row[$field];
         }

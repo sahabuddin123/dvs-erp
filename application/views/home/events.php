@@ -42,12 +42,14 @@ $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'pa
             $url_alias = !empty($cms_setting['url_alias']) ? $cms_setting['url_alias'] : 'home';
             if (!empty($results)) {
                 foreach ($results as $key => $value) {
+                    $ev_title = function_exists('get_lang_field') ? get_lang_field($value, 'title') : $value['title'];
+                    $ev_remark = function_exists('get_lang_field') ? get_lang_field($value, 'remark') : $value['remark'];
                     $event_img = !empty($value['image']) ? base_url('uploads/frontend/events/' . $value['image']) : base_url('uploads/frontend/events/defualt.png');
             ?>
             <div class="col-sm-12 col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm border-0" style="border-radius: 10px; overflow: hidden; transition: all 0.3s ease;">
                     <div class="position-relative" style="height: 200px; overflow: hidden; background: #e2e8f0;">
-                        <img src="<?php echo $event_img; ?>" alt="<?php echo html_escape($value['title']); ?>" class="w-100 h-100" style="object-fit: cover;">
+                        <img src="<?php echo $event_img; ?>" alt="<?php echo html_escape($ev_title); ?>" class="w-100 h-100" style="object-fit: cover;">
                         <span class="badge position-absolute top-0 end-0 m-3 shadow-sm" style="background-color: var(--primary-color) !important;">
                             <i class="fas fa-calendar-check me-1"></i> <?php echo _d($value['start_date']); ?>
                         </span>
@@ -56,14 +58,14 @@ $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'pa
                         <div>
                             <h5 class="card-title fw-bold mb-2">
                                 <a href="<?php echo base_url("home/event_view/" . $value['id']); ?>" class="text-decoration-none" style="color: #1e293b;">
-                                    <?php echo html_escape($value['title']); ?>
+                                    <?php echo html_escape($ev_title); ?>
                                 </a>
                             </h5>
                             <div class="small text-muted mb-3">
                                 <span><i class="fas fa-calendar-day me-1"></i> <?php echo _d($value['start_date']); ?> - <?php echo _d($value['end_date']); ?></span>
                             </div>
                             <p class="card-text text-muted" style="font-size: 0.95rem;">
-                                <?php echo mb_strimwidth(strip_tags($value['remark']), 0, 100, "..."); ?>
+                                <?php echo mb_strimwidth(strip_tags($ev_remark), 0, 100, "..."); ?>
                             </p>
                         </div>
                         <div class="mt-3 pt-3 border-top">

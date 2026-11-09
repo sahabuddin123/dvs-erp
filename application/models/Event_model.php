@@ -27,6 +27,16 @@ class Event_model extends MY_Model
             'status' => 1,
         );
 
+        if ($this->input->post('title_en') !== null) {
+            $arrayEvent['title_en'] = $this->input->post('title_en');
+        }
+        if ($this->input->post('remarks_en') !== null) {
+            $arrayEvent['remark_en'] = $this->input->post('remarks_en');
+        }
+        if ($this->input->post('type_en') !== null) {
+            $arrayEvent['type_en'] = $this->input->post('type_en');
+        }
+
         if (isset($data['id']) && !empty($data['id'])) {
             $this->db->where('id', $data['id']);
             $this->db->update('event', $arrayEvent);

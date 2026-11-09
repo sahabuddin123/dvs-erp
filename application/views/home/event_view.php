@@ -1,7 +1,8 @@
 <?php 
 defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
-$page_title = !empty($event['title']) ? $event['title'] : (($current_lang == 'en') ? 'Event Details' : 'ইভেন্ট বিস্তারিত');
+$ev_title = function_exists('get_lang_field') ? get_lang_field($event, 'title') : (!empty($event['title']) ? $event['title'] : '');
+$page_title = !empty($ev_title) ? $ev_title : (($current_lang == 'en') ? 'Event Details' : 'ইভেন্ট বিস্তারিত');
 ?>
 
 <!-- Page Header (DVS Match) -->
@@ -38,21 +39,24 @@ $page_title = !empty($event['title']) ? $event['title'] : (($current_lang == 'en
                 <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px; overflow: hidden;">
                     <?php if (!empty($event['image'])) { ?>
                         <div class="text-center bg-dark" style="max-height: 450px; overflow: hidden;">
-                            <img src="<?=base_url('uploads/frontend/events/' . $event['image'] )?>" alt="<?php echo html_escape($event['title']); ?>" class="img-fluid w-100" style="object-fit: contain; max-height: 450px;">
+                            <img src="<?=base_url('uploads/frontend/events/' . $event['image'] )?>" alt="<?php echo html_escape($ev_title); ?>" class="img-fluid w-100" style="object-fit: contain; max-height: 450px;">
                         </div>
                     <?php } ?>
                     <div class="card-body p-4 p-md-5">
-                        <h2 class="fw-bold mb-3" style="color: #1e293b;"><?php echo html_escape($event['title']); ?></h2>
+                        <h2 class="fw-bold mb-3" style="color: #1e293b;"><?php echo html_escape($ev_title); ?></h2>
                         
                         <div class="d-flex flex-wrap gap-3 py-2 mb-4 border-bottom text-muted small">
-                            <span><i class="far fa-calendar-alt text-success me-1"></i> <?php echo _d($event['start_date']); ?> To <?php echo _d($event['end_date']); ?></span>
+                            <span><i class="far fa-calendar-alt text-success me-1"></i> <?php echo _d($event['start_date']); ?> <?php echo ($current_lang == 'en' ? 'To' : 'থেকে'); ?> <?php echo _d($event['end_date']); ?></span>
                             <?php if (!empty($event['created_by'])) { ?>
-                                <span><i class="far fa-user text-primary me-1"></i> By <?=get_type_name_by_id('staff', $event['created_by'], 'name')?></span>
+                                <span><i class="far fa-user text-primary me-1"></i> <?=($current_lang == 'en' ? 'By' : 'কর্তৃক')?> <?=get_type_name_by_id('staff', $event['created_by'], 'name')?></span>
                             <?php } ?>
                             <span>
                                 <i class="fas fa-tag text-warning me-1"></i>
                                 <?php
-                                    if ($event['type'] != 'holiday'){
+                                    $ev_type_txt = function_exists('get_lang_field') ? get_lang_field($event, 'type') : '';
+                                    if (!empty($ev_type_txt)) {
+                                        echo html_escape($ev_type_txt);
+                                    } elseif ($event['type'] != 'holiday'){
                                         echo get_type_name_by_id('event_types', $event['type']);
                                     } else {
                                         echo translate('holiday'); 
@@ -88,12 +92,13 @@ $page_title = !empty($event['title']) ? $event['title'] : (($current_lang == 'en
                                 }
                                 $subtxt = " (" . implode(', ', $array) . ")";
                             }
-                            echo "<div class='alert alert-light border py-2 px-3 mb-4'><strong>Event For:</strong> " . translate($audition) . $subtxt . "</div>";
+                            $for_label = ($current_lang == 'en') ? 'Event For:' : 'উদ্দিষ্ট অংশগ্রহণকারী:';
+                            echo "<div class='alert alert-light border py-2 px-3 mb-4'><strong>$for_label</strong> " . translate($audition) . $subtxt . "</div>";
                         }
                         ?>
 
                         <div class="event-details-content lh-lg" style="color: #334155; font-size: 1.05rem;">
-                            <?php echo $event['remark']; ?>
+                            <?php echo function_exists('get_lang_field') ? get_lang_field($event, 'remark') : $event['remark']; ?>
                         </div>
                     </div>
                 </div>
@@ -110,30 +115,27 @@ $page_title = !empty($event['title']) ? $event['title'] : (($current_lang == 'en
                     <div class="card-body p-3">
                         <ul class="list-unstyled mb-0">
                             <?php
-                            $start_date = date('Y-m-d', strtotime("+2 day"));
-                            $end_date = date('Y-m-d', strtotime("-4 day"));
                             $this->db->limit(6);
-                            $this->db->where('start_date >=', $end_date);
-                            $this->db->where('start_date <=', $start_date);
                             $this->db->where('branch_id', $branchID);
                             $this->db->where('status', 1);
                             $this->db->where('show_web', 1);
-                            $this->db->order_by("id", "desc");
+                            $this->db->order_by("start_date", "desc");
                             $q = $this->db->get('event');
                             if ($q->num_rows() > 0) {
                                 $result = $q->result_array();
                                 foreach ($result as $key => $value) {
+                                    $rec_title = function_exists('get_lang_field') ? get_lang_field($value, 'title') : $value['title'];
                             ?>
                             <li class="py-2 border-bottom">
                                 <a href="<?=base_url('home/event_view/' . $value['id'] )?>" class="text-decoration-none fw-semibold" style="color: #1e293b;">
-                                    <?php echo html_escape($value['title']); ?>
+                                    <?php echo html_escape($rec_title); ?>
                                 </a>
                                 <div class="text-muted small mt-1">
                                     <i class="far fa-clock me-1"></i> <?php echo get_nicetime($value['created_at']); ?>
                                 </div>
                             </li>
                             <?php } } else { ?>
-                                <li class="text-muted text-center py-3">No recent events</li>
+                                <li class="text-muted text-center py-3"><?php echo ($current_lang == 'en' ? 'No recent events' : 'কোনো সাম্প্রতিক ইভেন্ট নেই'); ?></li>
                             <?php } ?>
                         </ul>
                     </div>

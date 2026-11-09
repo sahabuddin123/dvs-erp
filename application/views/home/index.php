@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="container">
         <div class="section-title">
             <h2><i class="fas fa-newspaper"></i> <?php echo ($current_lang == 'en') ? 'Latest Events' : 'সর্বশেষ ইভেন্ট'; ?></h2>
-            <p><?php echo translate('stay_informed_events'); ?></p>
+            <p><?php echo ($current_lang == 'en') ? 'Stay informed about our upcoming programs, examinations and events.' : 'আমাদের যাবতীয় আসন্ন অনুষ্ঠান, পরীক্ষা ও কার্যক্রম সম্পর্কে অবগত থাকুন।'; ?></p>
         </div>
 
         <div class="news-slider row" id="newsCardsContainer">
@@ -490,7 +490,22 @@ document.addEventListener('DOMContentLoaded', function(){
             foreach ($events as $event) {
                 $ev_title = get_lang_field($event, 'title');
                 $ev_type = get_lang_field($event, 'type', ($current_lang == 'en' ? 'Event' : 'ইভেন্ট'));
-                $ev_date = !empty($event['start_date']) ? date('F d, Y', strtotime($event['start_date'])) : '';
+                
+                if (!empty($event['start_date'])) {
+                    if ($current_lang == 'en') {
+                        $ev_date = date('F d, Y', strtotime($event['start_date']));
+                    } else {
+                        $en_months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                        $bn_months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+                        $en_digits = ['0','1','2','3','4','5','6','7','8','9'];
+                        $bn_digits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+                        $d_str = date('d F, Y', strtotime($event['start_date']));
+                        $ev_date = str_replace($en_digits, $bn_digits, str_replace($en_months, $bn_months, $d_str));
+                    }
+                } else {
+                    $ev_date = '';
+                }
+
                 $ev_img = !empty($event['image']) ? $event['image'] : '';
                 $ev_img_url = base_url('uploads/app_image/default.png');
                 if (!empty($ev_img) && file_exists(FCPATH . 'uploads/frontend/events/' . $ev_img)) {
@@ -507,8 +522,8 @@ document.addEventListener('DOMContentLoaded', function(){
                             <h4 class="fw-bold mb-2 fs-5" style="color: #1e293b;"><?php echo html_escape($ev_title); ?></h4>
                             <small class="text-muted"><i class="fas fa-calendar me-1"></i> <?php echo $ev_date; ?></small>
                             <br><br>
-                            <a href="<?php echo base_url('events'); ?>" class="read-more text-decoration-none fw-semibold" style="color: var(--primary-color);">
-                                <i class="fas fa-arrow-right"></i> <?php echo translate('event_details'); ?>
+                            <a href="<?php echo base_url('home/event_view/' . $event['id']); ?>" class="read-more text-decoration-none fw-semibold" style="color: var(--primary-color);">
+                                <i class="fas fa-arrow-right"></i> <?php echo ($current_lang == 'en') ? 'Event Details' : 'বিস্তারিত পড়ুন'; ?>
                             </a>
                         </div>
                     </div>
@@ -519,7 +534,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="text-center mt-4">
             <a href="<?php echo base_url('events'); ?>" class="btn"
                 style="background-color: var(--primary-color); color: white; border: none; padding: 12px 40px; font-weight: 600; border-radius: 6px;">
-                <i class="fas fa-arrow-right"></i> <?php echo translate('view_more_events'); ?>
+                <i class="fas fa-arrow-right"></i> <?php echo ($current_lang == 'en') ? 'View All Events' : 'সকল ইভেন্ট দেখুন'; ?>
             </a>
         </div>
     </div>
