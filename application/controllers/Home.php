@@ -1785,7 +1785,11 @@ class Home extends Frontend_Controller
 
         $this->db->join('front_cms_pages', 'front_cms_pages.menu_id = front_cms_menu.id', 'left');
 
-        $this->db->where('front_cms_menu.alias', 'governing-body');
+        $this->db->group_start();
+        $this->db->where('front_cms_menu.alias', 'committee');
+        $this->db->or_where('front_cms_menu.alias', 'governing-body');
+        $this->db->or_where('front_cms_menu.alias', 'governing_body');
+        $this->db->group_end();
 
         $this->db->where('front_cms_menu.publish', 1);
 
@@ -1807,11 +1811,16 @@ class Home extends Frontend_Controller
 
 
 
-        // Fetch governing body members dynamically from front_cms_testimonial
+        // Fetch founders dynamically from founder table
+        $this->db->order_by('position', 'asc');
+        $this->db->order_by('id', 'asc');
+        $this->db->where('active', 1);
+        $members = $this->db->get('founder')->result_array();
 
-        $this->db->order_by('rank', 'asc');
-
-        $members = $this->db->get_where('front_cms_testimonial', array('branch_id' => $branchID))->result_array();
+        if (empty($members)) {
+            $this->db->order_by('rank', 'asc');
+            $members = $this->db->get_where('front_cms_testimonial', array('branch_id' => $branchID))->result_array();
+        }
 
 
 

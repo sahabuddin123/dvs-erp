@@ -105,3 +105,4 @@ if (strpos($full_message, 'col-md-6') !== false) {
         </div>
     </div>
 </div>
+
