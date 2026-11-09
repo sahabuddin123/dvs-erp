@@ -355,44 +355,55 @@ class Home_model extends MY_Model
 
 
 
-    public function getExamList($branchID = '', $classID = '', $sectionID = '')
-
+    public function getExamList($branchID = '', $classID = '', $sectionID = '', $onlyPublished = false)
     {
-
         $sessionID = get_session_id();
-
         $this->db->select('exam.id,exam.name,exam.term_id');
-
         $this->db->from('timetable_exam');
-
-        $this->db->join('exam', 'exam.id = timetable_exam.exam_id', 'left');
-
+        $this->db->join('exam', 'exam.id = timetable_exam.exam_id', 'inner');
         if (!empty($classID)) {
-
             $this->db->where('timetable_exam.class_id', $classID);
-
         }
-
         if (!empty($sectionID)) {
-
             $this->db->where('timetable_exam.section_id', $sectionID);
-
         }
-
         $this->db->where('exam.status', 1);
-
-        $this->db->where('exam.publish_result', 1);
-
+        if ($onlyPublished) {
+            $this->db->where('exam.publish_result', 1);
+        }
         $this->db->where('timetable_exam.branch_id', $branchID);
-
         $this->db->where('timetable_exam.session_id', $sessionID);
-
         $this->db->group_by('timetable_exam.exam_id');
-
         $result = $this->db->get()->result_array();
 
-        return $result;
+        if (empty($result)) {
+            // Fallback 1: active exams for current branch and session in exam table
+            $this->db->select('exam.id, exam.name, exam.term_id');
+            $this->db->from('exam');
+            $this->db->where('exam.branch_id', $branchID);
+            $this->db->where('exam.session_id', $sessionID);
+            $this->db->where('exam.status', 1);
+            if ($onlyPublished) {
+                $this->db->where('exam.publish_result', 1);
+            }
+            $this->db->order_by('exam.id', 'asc');
+            $result = $this->db->get()->result_array();
+        }
 
+        if (empty($result)) {
+            // Fallback 2: any active exams for the branch regardless of session mismatch
+            $this->db->select('exam.id, exam.name, exam.term_id');
+            $this->db->from('exam');
+            $this->db->where('exam.branch_id', $branchID);
+            $this->db->where('exam.status', 1);
+            if ($onlyPublished) {
+                $this->db->where('exam.publish_result', 1);
+            }
+            $this->db->order_by('exam.id', 'desc');
+            $result = $this->db->get()->result_array();
+        }
+
+        return $result;
     }
 
 

@@ -8,6 +8,9 @@
 	<div class="col-md-9">
 		<section class="panel">
 			<header class="panel-heading">
+				<a href="<?php echo base_url('home/admit_card'); ?>" target="_blank" class="btn btn-default btn-xs pull-right">
+					<i class="fas fa-external-link-alt"></i> <?php echo translate('preview_page'); ?>
+				</a>
 				<h4 class="panel-title"><?=translate('admit_card')?></h4>
 			</header>
 			<?php echo form_open_multipart($this->uri->uri_string() . get_request_url(), array('class' => 'form-horizontal form-bordered frm-submit-data')); ?>

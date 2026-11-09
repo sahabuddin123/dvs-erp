@@ -1275,103 +1275,86 @@ class Home extends Frontend_Controller
 
 
     public function admitCardprintFn()
-
     {
-
         if ($_POST) {
-
             $this->load->model('card_manage_model');
-
             $this->load->model('timetable_model');
-
             $this->load->library('ciqrcode', array('cacheable' => false));
 
-            $this->form_validation->set_rules('exam_id', translate('exam'), 'trim|required');
+            $current_lang = function_exists('get_current_lang') ? get_current_lang() : ($this->session->userdata('frontend_lang') ? $this->session->userdata('frontend_lang') : 'bn');
 
-            $this->form_validation->set_rules('register_no', translate('register_no'), 'trim|required');
+            $this->form_validation->set_rules('exam_id', ($current_lang == 'en' ? 'Examination' : 'পরীক্ষা'), 'trim|required');
+            $this->form_validation->set_rules('register_no', ($current_lang == 'en' ? 'Register No' : 'রেজিস্টার নম্বর'), 'trim|required');
 
             if ($this->form_validation->run() == true) {
-
-                //get all QR Code file
-
+                // Delete temporary QR Code files (preserve index.html security file)
                 $files = glob('uploads/qr_code/*');
-
                 foreach ($files as $file) {
-
-                    if (is_file($file)) {
-
-                        unlink($file); //delete file
-
+                    if (is_file($file) && basename($file) !== 'index.html') {
+                        @unlink($file);
                     }
-
                 }
 
-                $registerNo = $this->input->post('register_no');
-
-
+                // Support both Bangla and English numerals for Register No
+                $raw_reg = trim($this->input->post('register_no'));
+                $bn_digits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+                $en_digits = ['0','1','2','3','4','5','6','7','8','9'];
+                $registerNo = str_replace($bn_digits, $en_digits, $raw_reg);
 
                 $sessionID = get_session_id();        
-
-                $this->db->select('e.id');
-
+                $this->db->select('e.id, s.first_name, s.last_name, s.register_no, e.session_id');
                 $this->db->from('enroll as e');
-
                 $this->db->join('student as s', "e.student_id = s.id", 'inner');
-
-                $this->db->where('e.session_id', $sessionID);
-
+                $this->db->group_start();
                 $this->db->where('s.register_no', $registerNo);
-
+                $this->db->or_where('s.register_no', 'CHIDM' . $registerNo);
+                $this->db->group_end();
                 $this->db->where('s.active', 1);
-
+                // Prioritize current session if enrolled, else latest enrollment session
+                $this->db->order_by("(CASE WHEN e.session_id = '{$sessionID}' THEN 1 ELSE 2 END)", 'ASC', false);
+                $this->db->order_by('e.id', 'DESC');
                 $userID = $this->db->get()->row_array();
 
                 if (empty($userID)) {
-
-                    $array = array('status' => '0', 'error' => "Register No Not Found.");
-
-                    echo json_encode($array);
-
+                    $error_msg = ($current_lang == 'en')
+                        ? "No active student found with Register No '{$raw_reg}' for the current academic session."
+                        : "প্রদত্ত রেজিস্টার নম্বর '{$raw_reg}'-এর কোনো সক্রিয় শিক্ষার্থী বর্তমান শিক্ষাবর্ষে পাওয়া যায়নি।";
+                    echo json_encode(array('status' => '0', 'error' => $error_msg));
                     exit();
-
                 }
 
                 $templateID = $this->input->post('templete_id');
+                $template = null;
+                if (!empty($templateID)) {
+                    $template = $this->card_manage_model->get('card_templete', array('id' => $templateID), true);
+                }
+                if (empty($template)) {
+                    // Fallback to active admit card template (card_type = 2, user_type = 1)
+                    $template = $this->db->where('card_type', 2)->where('user_type', 1)->order_by('id', 'desc')->get('card_templete')->row_array();
+                }
 
-                if (empty($templateID) || $templateID == 0) {
-
-                    $array = array('status' => '0', 'error' => "No Default Template Set.");
-
-                    echo json_encode($array);
-
+                if (empty($template)) {
+                    $error_msg = ($current_lang == 'en') 
+                        ? "No Admit Card template configured. Please set a template in the admin panel." 
+                        : "প্রবেশপত্রের কোনো টেমপ্লেট নির্ধারিত নেই। অনুগ্রহ করে অ্যাডমিন প্যানেল থেকে টেমপ্লেট সেট করুন।";
+                    echo json_encode(array('status' => '0', 'error' => $error_msg));
                     exit();
-
                 }
 
                 $this->data['exam_id'] = $this->input->post('exam_id');
-
                 $this->data['userID'] = $userID;
-
-                $this->data['template'] = $this->card_manage_model->get('card_templete', array('id' => $templateID), true);
-
+                $this->data['template'] = $template;
                 $this->data['print_date'] = date('Y-m-d');
 
                 $card_data = $this->load->view('home/admitCardprintFn', $this->data, true);
-
                 $array = array('status' => 'success', 'card_data' => $card_data);
-
             } else {
-
                 $error = $this->form_validation->error_array();
-
                 $array = array('status' => 'fail', 'error' => $error);
-
             }
-
             echo json_encode($array);
-
+            exit();
         }
-
     }
 
 
