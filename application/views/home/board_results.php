@@ -24,7 +24,7 @@ function to_bn_number($num) {
 
 .page-header-icon {
     font-size: 5rem;
-    color: rgba(255, 255, 255, 0.85);
+    color: #273142;
 }
 
 /* Tab Switcher */
@@ -389,13 +389,13 @@ function to_bn_number($num) {
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-8">
-                    <span class="badge bg-white text-dark mb-2 px-3 py-2 fw-semibold" style="border-radius: 30px; font-size: 0.82rem;">
-                        <i class="fas fa-award text-success me-1"></i> <?php echo $is_en ? 'Madrasah Board Results' : 'মাদরাসা শিক্ষা বোর্ড ফলাফল'; ?>
+                    <span class="badge mb-2 px-3 py-2 fw-semibold" style="background-color: rgba(var(--primary-rgb, 0, 127, 61), 0.1); color: var(--primary-color); border-radius: 30px; font-size: 0.82rem;">
+                        <i class="fas fa-award me-1"></i> <?php echo $is_en ? 'Madrasah Board Results' : 'মাদরাসা শিক্ষা বোর্ড ফলাফল'; ?>
                     </span>
-                    <h1 class="page-header-title text-white mb-2" style="font-weight: 800; font-size: 2.2rem;">
+                    <h1 class="page-header-title mb-2" style="font-weight: 800; font-size: 2.2rem;">
                         <?php echo html_escape($title); ?>
                     </h1>
-                    <p class="text-white-50 mb-0" style="font-size: 0.98rem; max-width: 620px;">
+                    <p class="text-muted mb-0" style="font-size: 0.98rem; max-width: 620px;">
                         <?php echo html_escape($description); ?>
                     </p>
                 </div>

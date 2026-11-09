@@ -1935,3 +1935,24 @@
             opacity: 0.8;
             color: #273142;
         }
+        .page-header .page-header-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+        }
+        .page-header .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 0.5rem;
+        }
+        .page-header .breadcrumb-item a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .page-header .breadcrumb-item a:hover {
+            color: var(--primary-color, #007F3D);
+        }
+        .page-header .breadcrumb-item.active {
+            color: var(--dark-color, #c79f22);
+            font-weight: 600;
+        }

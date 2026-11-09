@@ -247,12 +247,33 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
         }
 
         .page-header-wave path { fill: var(--primary-color) !important; }
-        <?php if (!empty($cms_setting['page_background'])): ?>
+        <?php if (empty($cms_setting['page_background'])): ?>
+        /* DVS Clean White Theme Defensive Header Styles */
+        .page-header { background: #fff !important; }
+        .page-header .page-header-title { color: var(--dark-color, #c79f22) !important; }
+        .page-header .page-header-subtitle,
+        .page-header p.text-white-50,
+        .page-header p.text-white,
+        .page-header .text-white-50,
+        .page-header .text-white:not(.btn):not(.badge) { color: #64748b !important; }
+        .page-header .breadcrumb-item,
+        .page-header .breadcrumb-item a,
+        .page-header .breadcrumb-item a.text-white-50,
+        .page-header .breadcrumb-item a.text-white { color: #64748b !important; }
+        .page-header .breadcrumb-item.active,
+        .page-header .breadcrumb-item.active.text-white { color: var(--dark-color, #c79f22) !important; font-weight: 600; }
+        .page-header .page-header-icon { color: #273142 !important; }
+        <?php else: ?>
         .page-header {
             background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.55)), url('<?=base_url("uploads/frontend/images/" . $cms_setting["page_background"])?>') !important;
             background-size: cover !important;
             background-position: center !important;
         }
+        .page-header .page-header-title { color: #fff !important; }
+        .page-header .page-header-subtitle { color: rgba(255,255,255,0.85) !important; }
+        .page-header .breadcrumb-item a { color: rgba(255,255,255,0.75) !important; }
+        .page-header .breadcrumb-item.active { color: #fff !important; font-weight: 600; }
+        .page-header .page-header-icon { color: rgba(255,255,255,0.85) !important; }
         <?php endif; ?>
     </style>
 </head>

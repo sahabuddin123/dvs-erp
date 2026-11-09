@@ -21,7 +21,7 @@ $subtitle = function_exists('get_lang_field')
 
 .page-header-icon {
     font-size: 5rem;
-    color: rgba(255, 255, 255, 0.85);
+    color: #273142;
 }
 
 /* Verification Search Card */
@@ -257,12 +257,12 @@ $subtitle = function_exists('get_lang_field')
             <div class="col-lg-8">
                 <nav aria-label="breadcrumb" class="mb-2">
                     <ol class="breadcrumb mb-0" style="background: transparent; padding: 0;">
-                        <li class="breadcrumb-item"><a href="<?php echo base_url(); ?>" class="text-white-50 text-decoration-none"><i class="fas fa-home"></i> <?php echo $is_en ? 'Home' : 'হোম'; ?></a></li>
-                        <li class="breadcrumb-item active text-white" aria-current="page"><?php echo html_escape($title); ?></li>
+                        <li class="breadcrumb-item"><a href="<?php echo base_url(); ?>" class="text-muted text-decoration-none"><i class="fas fa-home"></i> <?php echo $is_en ? 'Home' : 'হোম'; ?></a></li>
+                        <li class="breadcrumb-item active" style="color: var(--dark-color, #c79f22); font-weight: 500;" aria-current="page"><?php echo html_escape($title); ?></li>
                     </ol>
                 </nav>
-                <h1 class="page-header-title text-white fw-bold mb-1"><?php echo html_escape($title); ?></h1>
-                <p class="text-white-50 mb-0 d-none d-md-block" style="font-size: 0.95rem;">
+                <h1 class="page-header-title fw-bold mb-1"><?php echo html_escape($title); ?></h1>
+                <p class="text-muted mb-0 d-none d-md-block" style="font-size: 0.95rem;">
                     <?php echo html_escape($subtitle); ?>
                 </p>
             </div>

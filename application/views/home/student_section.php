@@ -11,7 +11,7 @@ $page_title = $section_name;
         <div class="row align-items-center">
             <div class="col-lg-7">
                 <h1 class="page-header-title"><?php echo html_escape($page_title); ?></h1>
-                <p class="text-white opacity-80 mb-0 mt-2">
+                <p class="text-muted mb-0 mt-2">
                     <?php echo ($current_lang == 'en') ? 'Enrolled students in this section' : 'এই শাখার সকল শ্রেণির শিক্ষার্থীবৃন্দ'; ?>
                 </p>
             </div>

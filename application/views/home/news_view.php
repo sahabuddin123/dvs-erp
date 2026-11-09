@@ -32,7 +32,7 @@ $prefix = !empty($cms_setting['url_alias']) ? $cms_setting['url_alias'] . '/' : 
 
 .page-header-icon {
     font-size: 5rem;
-    color: rgba(255, 255, 255, 0.85);
+    color: #273142;
 }
 
 /* Notice Card Container */
@@ -326,17 +326,17 @@ $prefix = !empty($cms_setting['url_alias']) ? $cms_setting['url_alias'] . '/' : 
 
 <div class="notice-detail-page">
     <!-- Page Header (DVS Match) -->
-    <div class="page-header" style="background: var(--header-bg);">
+    <div class="page-header">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-8">
-                    <span class="badge bg-white text-dark mb-2 px-3 py-2 fw-semibold" style="border-radius: 30px; font-size: 0.82rem;">
-                        <i class="fas fa-bullhorn text-success me-1"></i> <?php echo $is_en ? 'Notice Board' : 'মাদরাসা নোটিশ বোর্ড'; ?>
+                    <span class="badge mb-2 px-3 py-2 fw-semibold" style="background-color: rgba(var(--primary-rgb, 0, 127, 61), 0.1); color: var(--primary-color); border-radius: 30px; font-size: 0.82rem;">
+                        <i class="fas fa-bullhorn me-1"></i> <?php echo $is_en ? 'Notice Board' : 'মাদরাসা নোটিশ বোর্ড'; ?>
                     </span>
-                    <h1 class="page-header-title text-white mb-2" style="font-weight: 800; font-size: 2.1rem;">
+                    <h1 class="page-header-title mb-2" style="font-weight: 800; font-size: 2.1rem;">
                         <?php echo html_escape($page_title); ?>
                     </h1>
-                    <p class="text-white-50 mb-0" style="font-size: 0.95rem;">
+                    <p class="text-muted mb-0" style="font-size: 0.95rem;">
                         <i class="far fa-calendar-alt me-1 text-warning"></i>
                         <?php echo $is_en ? 'Published on ' . $display_date : 'প্রকাশের তারিখ: ' . $display_date; ?>
                     </p>

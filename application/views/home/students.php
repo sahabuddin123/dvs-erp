@@ -10,7 +10,7 @@ $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'pa
         <div class="row align-items-center">
             <div class="col-lg-7">
                 <h1 class="page-header-title"><?php echo html_escape($page_title); ?></h1>
-                <p class="text-white opacity-80 mb-0 mt-2">
+                <p class="text-muted mb-0 mt-2">
                     <?php echo ($current_lang == 'en') ? 'Browse enrolled students across various school sections' : 'বিদ্যালয়ের বিভিন্ন শাখার শিক্ষার্থীদের তালিকা ও তথ্য'; ?>
                 </p>
             </div>

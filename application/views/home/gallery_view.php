@@ -128,16 +128,16 @@ $page_subtitle = $is_en ? 'Photo Album & Media Collection' : 'আলোকচি
             <div class="col-lg-8">
                 <nav aria-label="breadcrumb" class="mb-2">
                     <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
-                        <li class="breadcrumb-item"><a href="<?php echo base_url(); ?>" class="text-white text-decoration-none opacity-75"><i class="fas fa-home me-1"></i> <?php echo $is_en ? 'Home' : 'হোম'; ?></a></li>
-                        <li class="breadcrumb-item"><a href="<?php echo base_url('gallery'); ?>" class="text-white text-decoration-none opacity-75"><?php echo $is_en ? 'Photo Gallery' : 'ফটো গ্যালারি'; ?></a></li>
-                        <li class="breadcrumb-item active text-white" aria-current="page"><?php echo html_escape($album_title); ?></li>
+                        <li class="breadcrumb-item"><a href="<?php echo base_url(); ?>" class="text-muted text-decoration-none"><i class="fas fa-home me-1"></i> <?php echo $is_en ? 'Home' : 'হোম'; ?></a></li>
+                        <li class="breadcrumb-item"><a href="<?php echo base_url('gallery'); ?>" class="text-muted text-decoration-none"><?php echo $is_en ? 'Photo Gallery' : 'ফটো গ্যালারি'; ?></a></li>
+                        <li class="breadcrumb-item active" style="color: var(--dark-color, #c79f22); font-weight: 500;" aria-current="page"><?php echo html_escape($album_title); ?></li>
                     </ol>
                 </nav>
                 <h1 class="page-header-title"><?php echo html_escape($album_title); ?></h1>
                 <p class="page-header-subtitle text-muted mb-0 mt-2"><?php echo html_escape($page_subtitle); ?></p>
             </div>
             <div class="col-lg-4 d-none d-lg-block text-end">
-                <a href="<?php echo base_url('gallery'); ?>" class="btn btn-outline-light px-4 py-2" style="border-radius: 30px; font-weight: 600;">
+                <a href="<?php echo base_url('gallery'); ?>" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 30px; font-weight: 600;">
                     <i class="fas fa-arrow-left me-2"></i> <?php echo $is_en ? 'All Albums' : 'সকল অ্যালবাম'; ?>
                 </a>
             </div>
