@@ -2146,39 +2146,88 @@ function get_lang_field($row, $field, $default = '')
 }
 
 
-function get_frontend_visitor_stats()
+function get_frontend_visitor_stats($branch_id = null)
 {
     $CI = &get_instance();
     $ip = $CI->input->ip_address();
     $today = date('Y-m-d');
     $this_month = date('Y-m');
 
+    if (empty($branch_id)) {
+        if (isset($CI->home_model) && method_exists($CI->home_model, 'getDefaultBranch')) {
+            $branch_id = $CI->home_model->getDefaultBranch();
+        } else {
+            $branch_id = 1;
+        }
+    }
+
     $total_tracked = 0;
     $today_count = 0;
     $month_count = 0;
 
     if (!empty($ip) && $CI->db->table_exists('front_cms_visitor_stats')) {
-        $exists = $CI->db->get_where('front_cms_visitor_stats', ['ip_address' => $ip, 'visit_date' => $today])->row_array();
+        $exists = $CI->db->get_where('front_cms_visitor_stats', [
+            'ip_address' => $ip,
+            'visit_date' => $today
+        ])->row_array();
+
         if (!$exists) {
-            $CI->db->insert('front_cms_visitor_stats', [
+            $insert_data = [
                 'ip_address' => $ip,
                 'visit_date' => $today,
                 'created_at' => date('Y-m-d H:i:s')
-            ]);
+            ];
+            if ($CI->db->field_exists('branch_id', 'front_cms_visitor_stats')) {
+                $insert_data['branch_id'] = $branch_id;
+            }
+            if ($CI->db->field_exists('page_views', 'front_cms_visitor_stats')) {
+                $insert_data['page_views'] = 1;
+            }
+            $CI->db->insert('front_cms_visitor_stats', $insert_data);
+        } else {
+            if ($CI->db->field_exists('page_views', 'front_cms_visitor_stats')) {
+                $CI->db->set('page_views', 'page_views+1', FALSE);
+                $CI->db->where('id', $exists['id']);
+                $CI->db->update('front_cms_visitor_stats');
+            }
         }
+
         $total_tracked = $CI->db->count_all('front_cms_visitor_stats');
         $today_count = $CI->db->where('visit_date', $today)->count_all_results('front_cms_visitor_stats');
         $month_count = $CI->db->like('visit_date', $this_month, 'after')->count_all_results('front_cms_visitor_stats');
     }
 
-    $baseline_total = 672;
-    $baseline_month = 54;
-    $baseline_today = 13;
+    // Dynamic initial/baseline counts retrieved directly from the database table front_cms_home
+    $baseline_total = 0;
+    $baseline_month = 0;
+    $baseline_today = 0;
+
+    if ($CI->db->table_exists('front_cms_home')) {
+        $stat_row = $CI->db->where('item_type', 'statistics')
+                           ->where('branch_id', $branch_id)
+                           ->get('front_cms_home')
+                           ->row_array();
+        if (!empty($stat_row) && !empty($stat_row['elements'])) {
+            $ele = json_decode($stat_row['elements'], true);
+            if (isset($ele['initial_total_visitors'])) {
+                $baseline_total = intval($ele['initial_total_visitors']);
+            }
+            if (isset($ele['initial_month_visitors'])) {
+                $baseline_month = intval($ele['initial_month_visitors']);
+            }
+            if (isset($ele['initial_today_visitors'])) {
+                $baseline_today = intval($ele['initial_today_visitors']);
+            }
+        }
+    }
 
     return [
         'total' => $baseline_total + $total_tracked,
         'month' => $baseline_month + $month_count,
         'today' => $baseline_today + $today_count,
+        'db_tracked_total' => $total_tracked,
+        'db_tracked_month' => $month_count,
+        'db_tracked_today' => $today_count,
     ];
 }
 

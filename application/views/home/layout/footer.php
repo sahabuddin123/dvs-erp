@@ -1,7 +1,8 @@
 <?php 
 defined('BASEPATH') or exit('No direct script access allowed'); 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
-$v_stats = function_exists('get_frontend_visitor_stats') ? get_frontend_visitor_stats() : ['total' => 672];
+$branchID_active = !empty($branchID) ? $branchID : (!empty($branch_id) ? $branch_id : 1);
+$v_stats = !empty($visitor_stats) ? $visitor_stats : (function_exists('get_frontend_visitor_stats') ? get_frontend_visitor_stats($branchID_active) : ['total' => 0]);
 $default_inst = !empty($global_config['institute_name']) ? $global_config['institute_name'] : (!empty($branch['school_name']) ? $branch['school_name'] : 'School');
 $app_title = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'application_title', $default_inst) : $default_inst;
 $default_addr = !empty($global_config['address']) ? $global_config['address'] : (!empty($branch['address']) ? $branch['address'] : '');

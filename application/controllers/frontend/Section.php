@@ -511,6 +511,13 @@ class Section extends Admin_Controller
             }
             $this->form_validation->set_rules('sta_title', 'Title', 'trim|required');
             if ($this->form_validation->run() == true) {
+                $elements = array(
+                    'initial_total_visitors' => intval($this->input->post('initial_total_visitors')),
+                    'initial_month_visitors' => intval($this->input->post('initial_month_visitors')),
+                    'initial_today_visitors' => intval($this->input->post('initial_today_visitors')),
+                    'academic_passed' => intval($this->input->post('academic_passed')),
+                    'academic_gpa5' => intval($this->input->post('academic_gpa5')),
+                );
                 $arrayServices = array(
                     'branch_id' => $branchID,
                     'title' => $this->input->post('sta_title'),
@@ -519,6 +526,7 @@ class Section extends Admin_Controller
                     'subtitle_en' => $this->input->post('subtitle_en'),
                     'active' => (isset($_POST['isvisible']) ? 1 : 0),
                     'description' => $this->input->post('sta_description'),
+                    'elements' => json_encode($elements),
                 );
                 // save information in the database
                 $this->saveHome('statistics', $branchID, $arrayServices);

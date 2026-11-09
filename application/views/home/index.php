@@ -801,6 +801,9 @@ if ($gallery_is_active && !empty($gallery_list)) {
 <?php if (!empty($statistics) && (!isset($statistics['active']) || $statistics['active'] == 1)) { 
     $stat_title = get_lang_field($statistics, 'title', translate('our_achievements_statistics'));
     $stat_sub = get_lang_field($statistics, 'subtitle', '');
+    $stat_elements = !empty($statistics['elements']) ? json_decode($statistics['elements'], true) : [];
+    $academic_passed = isset($stat_elements['academic_passed']) ? $stat_elements['academic_passed'] : 0;
+    $academic_gpa5 = isset($stat_elements['academic_gpa5']) ? $stat_elements['academic_gpa5'] : 0;
 ?>
 <section class="achievements-section py-5 bg-white">
     <div class="container">
@@ -877,13 +880,13 @@ if ($gallery_is_active && !empty($gallery_list)) {
                         <div class="col-md-4 text-center mb-3 mb-md-0">
                             <div style="background-color: #dcfce7; border-radius: 8px; padding: 20px;">
                                 <small class="text-muted d-block mb-1" style="font-size: 0.85rem; font-weight: 500;"><?php echo translate('passed'); ?></small>
-                                <h4 style="color: #10b981; font-weight: 700; margin-bottom: 0;">0</h4>
+                                <h4 style="color: #10b981; font-weight: 700; margin-bottom: 0;"><?php echo html_escape($academic_passed); ?></h4>
                             </div>
                         </div>
                         <div class="col-md-4 text-center">
                             <div style="background-color: #ede9fe; border-radius: 8px; padding: 20px;">
                                 <small class="text-muted d-block mb-1" style="font-size: 0.85rem; font-weight: 500;">GPA- 5</small>
-                                <h4 style="color: #8b5cf6; font-weight: 700; margin-bottom: 0;">0</h4>
+                                <h4 style="color: #8b5cf6; font-weight: 700; margin-bottom: 0;"><?php echo html_escape($academic_gpa5); ?></h4>
                             </div>
                         </div>
                     </div>

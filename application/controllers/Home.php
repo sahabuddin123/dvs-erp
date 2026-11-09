@@ -170,7 +170,7 @@ class Home extends Frontend_Controller
 
         $this->data['page_data'] = $this->home_model->get('front_cms_home_seo', array('branch_id' => $branchID), true);
 
-        $this->data['visitor_stats'] = function_exists('get_frontend_visitor_stats') ? get_frontend_visitor_stats() : ['total' => 672, 'month' => 54, 'today' => 13];
+        $this->data['visitor_stats'] = function_exists('get_frontend_visitor_stats') ? get_frontend_visitor_stats($branchID) : ['total' => 0, 'month' => 0, 'today' => 0];
 
         $this->data['main_contents'] = $this->load->view('home/index', $this->data, true);
 

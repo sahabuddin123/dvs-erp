@@ -20,6 +20,7 @@ if (empty($video_sec)) $video_sec = array('title' => 'ভিডিও গ্য�
 if (empty($gallery_sec)) $gallery_sec = array('title' => 'ফটো গ্যালারি', 'title_en' => 'Photo Gallery', 'subtitle' => '', 'subtitle_en' => '', 'active' => 1);
 
 if (empty($statistics)) $statistics = array('title' => 'আমাদের অর্জন ও পরিসংখ্যান', 'title_en' => 'Our Achievements & Statistics', 'subtitle' => '', 'subtitle_en' => '', 'active' => 1);
+$stat_ele = !empty($statistics['elements']) ? json_decode($statistics['elements'], true) : array();
 
 if (empty($hero_sec)) $hero_sec = array('title' => '', 'title_en' => '', 'subtitle' => '', 'subtitle_en' => '', 'description' => '', 'description_en' => '', 'active' => 1, 'elements' => '');
 $hero_ele = !empty($hero_sec['elements']) ? json_decode($hero_sec['elements'], true) : array();
@@ -734,7 +735,7 @@ if (empty($home_seo)) $home_seo = array('page_title' => '', 'meta_keyword' => ''
 					<!-- 9. ACHIEVEMENTS & STATISTICS TAB -->
 					<div class="tab-pane" id="statistics">
 						<div class="alert alert-info">
-							<i class="fas fa-info-circle"></i> হোমপেজের "আমাদের অর্জন ও পরিসংখ্যান" সেকশনে লাইভ ইআরপি কাউন্টার (মোট শিক্ষার্থী, শ্রেণীকক্ষ, শাখা, শিক্ষক ও পরিদর্শনকারী সংখ্যা) স্বয়ংক্রিয়ভাবে প্রদর্শিত হয়। এখান থেকে সেকশন শিরোনাম ও সক্রিয় অবস্থা নির্ধারণ করুন।
+							<i class="fas fa-info-circle"></i> হোমপেজের "আমাদের অর্জন ও পরিসংখ্যান" সেকশনে লাইভ ইআরপি কাউন্টার এবং পরিদর্শনকারী সংখ্যা ডাটাবেস থেকে ডাইনামিক ভাবে প্রদর্শিত হয়। এখান থেকে শিরোনাম, পরিদর্শনকারী প্রাথমিক সংখ্যা ও একাডেমিক পারফরম্যান্স ফলাফল কাস্টমাইজ করুন।
 						</div>
 						<?php echo form_open('frontend/section/home_statistics' . get_request_url(), array('class' => 'form-horizontal frm-submit-data')); ?>
 							<input type="hidden" name="branch_id" value="<?php echo $branch_id; ?>">
@@ -763,6 +764,68 @@ if (empty($home_seo)) $home_seo = array('page_title' => '', 'meta_keyword' => ''
 									<input type="text" class="form-control" name="subtitle_en" value="<?php echo set_value('subtitle_en', isset($statistics['subtitle_en']) ? $statistics['subtitle_en'] : ''); ?>" />
 								</div>
 							</div>
+
+							<div class="form-group">
+								<div class="col-md-7 col-md-offset-3">
+									<h5 class="text-primary font-weight-bold" style="border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-top: 15px; margin-bottom: 15px;">
+										<i class="fas fa-eye text-primary"></i> পরিদর্শনকারীদের পরিসংখ্যান কনফিগারেশন (Visitor Statistics - ডাটাবেস)
+									</h5>
+									<?php
+										$v_live = function_exists('get_frontend_visitor_stats') ? get_frontend_visitor_stats($branch_id) : [];
+										$init_tot = isset($stat_ele['initial_total_visitors']) ? $stat_ele['initial_total_visitors'] : 672;
+										$init_mon = isset($stat_ele['initial_month_visitors']) ? $stat_ele['initial_month_visitors'] : 54;
+										$init_tod = isset($stat_ele['initial_today_visitors']) ? $stat_ele['initial_today_visitors'] : 13;
+									?>
+									<p class="text-muted small">
+										<i class="fas fa-database text-success"></i> ডাটাবেস লাইভ ট্র্যাকিং: মোট <strong><?php echo !empty($v_live['db_tracked_total']) ? $v_live['db_tracked_total'] : 0; ?></strong> জন | ওয়েবসাইটে প্রদর্শিত হচ্ছে: মোট <strong><?php echo !empty($v_live['total']) ? $v_live['total'] : $init_tot; ?></strong> জন, চলতি মাসে <strong><?php echo !empty($v_live['month']) ? $v_live['month'] : $init_mon; ?></strong> জন, আজকে <strong><?php echo !empty($v_live['today']) ? $v_live['today'] : $init_tod; ?></strong> জন।
+									</p>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label class="col-md-3 control-label">প্রাথমিক মোট পরিদর্শনকারী</label>
+								<div class="col-md-3">
+									<input type="number" class="form-control" name="initial_total_visitors" value="<?php echo $init_tot; ?>" min="0" />
+									<small class="text-muted">ডাটাবেস ট্র্যাকের সাথে যোগ হবে</small>
+								</div>
+								<label class="col-md-2 control-label">এই মাসের প্রাথমিক</label>
+								<div class="col-md-2">
+									<input type="number" class="form-control" name="initial_month_visitors" value="<?php echo $init_mon; ?>" min="0" />
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label class="col-md-3 control-label">আজকের প্রাথমিক পরিদর্শনকারী</label>
+								<div class="col-md-3">
+									<input type="number" class="form-control" name="initial_today_visitors" value="<?php echo $init_tod; ?>" min="0" />
+								</div>
+							</div>
+
+							<div class="form-group">
+								<div class="col-md-7 col-md-offset-3">
+									<h5 class="text-success font-weight-bold" style="border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-top: 15px; margin-bottom: 15px;">
+										<i class="fas fa-graduation-cap text-success"></i> একাডেমিক পারফরম্যান্স কনফিগারেশন (Academic Performance - ডাটাবেস)
+									</h5>
+									<?php 
+										$acad_pass = isset($stat_ele['academic_passed']) ? $stat_ele['academic_passed'] : 0;
+										$acad_g5 = isset($stat_ele['academic_gpa5']) ? $stat_ele['academic_gpa5'] : 0;
+									?>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label class="col-md-3 control-label">পাসকৃত শিক্ষার্থী সংখ্যা</label>
+								<div class="col-md-3">
+									<input type="number" class="form-control" name="academic_passed" value="<?php echo $acad_pass; ?>" min="0" />
+									<small class="text-muted">হোমপেজে "পাস করেছেন" ঘরে দেখাবে</small>
+								</div>
+								<label class="col-md-2 control-label">GPA- 5 প্রাপ্ত সংখ্যা</label>
+								<div class="col-md-2">
+									<input type="number" class="form-control" name="academic_gpa5" value="<?php echo $acad_g5; ?>" min="0" />
+									<small class="text-muted">হোমপেজে "GPA- 5" ঘরে দেখাবে</small>
+								</div>
+							</div>
+
 							<div class="form-group">
 								<label class="col-md-3 control-label">Show Website</label>
 								<div class="col-md-4">
