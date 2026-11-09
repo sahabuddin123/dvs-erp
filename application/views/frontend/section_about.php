@@ -36,23 +36,44 @@ if (empty($elements)) {
 					<div class="tab-pane active" id="about">
 						<?php echo form_open_multipart('frontend/section/aboutSave' . get_request_url(), array('class' => 'form-horizontal form-bordered frm-submit-data')); ?>
 							<div class="form-group">
-								<label class="col-md-2 control-label"><?php echo translate('title'); ?> <span class="required">*</span></label>
+								<label class="col-md-2 control-label"><?php echo translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 								<div class="col-md-9">
 									<input type="text" class="form-control" name="title" value="<?php echo set_value('title', $about['title']); ?>" />
 									<span class="error"></span>
 								</div>
 							</div>
 							<div class="form-group mt-md">
-								<label class="col-md-2 control-label"><?php echo translate('subtitle'); ?> <span class="required">*</span></label>
+								<label class="col-md-2 control-label"><?php echo translate('title'); ?> (English)</label>
+								<div class="col-md-9">
+									<input type="text" class="form-control" name="title_en" value="<?php echo set_value('title_en', !empty($about['title_en']) ? $about['title_en'] : ''); ?>" placeholder="Title in English..." />
+									<span class="error"></span>
+								</div>
+							</div>
+							<div class="form-group mt-md">
+								<label class="col-md-2 control-label"><?php echo translate('subtitle'); ?> (বাংলা) <span class="required">*</span></label>
 								<div class="col-md-9">
 									<input type="text" class="form-control" name="subtitle" value="<?php echo set_value('subtitle', $about['subtitle']); ?>" />
 									<span class="error"></span>
 								</div>
 							</div>
 							<div class="form-group mt-md">
-								<label class="col-md-2 control-label"><?php echo translate('content'); ?> <span class="required">*</span></label>
+								<label class="col-md-2 control-label"><?php echo translate('subtitle'); ?> (English)</label>
+								<div class="col-md-9">
+									<input type="text" class="form-control" name="subtitle_en" value="<?php echo set_value('subtitle_en', !empty($about['subtitle_en']) ? $about['subtitle_en'] : ''); ?>" placeholder="Subtitle in English..." />
+									<span class="error"></span>
+								</div>
+							</div>
+							<div class="form-group mt-md">
+								<label class="col-md-2 control-label"><?php echo translate('content'); ?> (বাংলা) <span class="required">*</span></label>
 								<div class="col-md-9">
 									<textarea name="content" class="summernote"><?php echo set_value('content', $about['content']); ?></textarea>
+									<span class="error"></span>
+								</div>
+							</div>
+							<div class="form-group mt-md">
+								<label class="col-md-2 control-label"><?php echo translate('content'); ?> (English)</label>
+								<div class="col-md-9">
+									<textarea name="content_en" class="summernote"><?php echo set_value('content_en', !empty($about['content_en']) ? $about['content_en'] : ''); ?></textarea>
 									<span class="error"></span>
 								</div>
 							</div>
@@ -146,9 +167,16 @@ if (empty($elements)) {
 					<div class="tab-pane" id="option">
 						<?php echo form_open_multipart('frontend/section/aboutOptionsSave' . get_request_url(), array('class' => 'form-horizontal form-bordered frm-submit-data')); ?>
 							<div class="form-group <?php if (form_error('page_title')) echo 'has-error'; ?>">
-								<label class="col-md-2 control-label"><?php echo translate('page') . " " . translate('title'); ?> <span class="required">*</span></label>
+								<label class="col-md-2 control-label"><?php echo translate('page') . " " . translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 								<div class="col-md-9">
 									<input type="text" class="form-control" name="page_title" value="<?php echo set_value('page_title', $about['page_title']); ?>" />
+									<span class="error"></span>
+								</div>
+							</div>
+							<div class="form-group mt-md">
+								<label class="col-md-2 control-label"><?php echo translate('page') . " " . translate('title'); ?> (English)</label>
+								<div class="col-md-9">
+									<input type="text" class="form-control" name="page_title_en" value="<?php echo set_value('page_title_en', !empty($about['page_title_en']) ? $about['page_title_en'] : ''); ?>" placeholder="Page title in English..." />
 									<span class="error"></span>
 								</div>
 							</div>

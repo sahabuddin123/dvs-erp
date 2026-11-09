@@ -782,11 +782,17 @@ class Section extends Admin_Controller
                 // save information in the database
                 $arrayData = array(
                     'title' => $this->input->post('title'),
+                    'title_en' => $this->input->post('title_en'),
                     'subtitle' => $this->input->post('subtitle'),
+                    'subtitle_en' => $this->input->post('subtitle_en'),
                     'content' => $this->input->post('content', false),
-                    'about_image' => $this->uploadImage('about' . $branchID, 'about'),
+                    'content_en' => $this->input->post('content_en', false),
                     'branch_id' => $branchID,
                 );
+                $about_img = $this->uploadImage('about' . $branchID, 'about');
+                if (!empty($about_img)) {
+                    $arrayData['about_image'] = $about_img;
+                }
                 $this->db->where('branch_id', $branchID);
                 $get = $this->db->get('front_cms_about');
                 if ($get->num_rows() > 0) {
@@ -891,10 +897,14 @@ class Section extends Admin_Controller
                 // save information in the database
                 $arrayData = array(
                     'page_title' => $this->input->post('page_title'),
+                    'page_title_en' => $this->input->post('page_title_en'),
                     'meta_description'  => $this->input->post('meta_description'),
                     'meta_keyword' => $this->input->post('meta_keyword'),
-                    'banner_image' => $this->uploadImage('about' . $branchID, 'banners'),
                 );
+                $banner_img = $this->uploadImage('about' . $branchID, 'banners');
+                if (!empty($banner_img)) {
+                    $arrayData['banner_image'] = $banner_img;
+                }
                 $this->db->where('branch_id', $branchID);
                 $get = $this->db->get('front_cms_about');
                 if ($get->num_rows() > 0) {
