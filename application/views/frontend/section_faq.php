@@ -20,17 +20,31 @@
 					<div class="tab-pane active" id="about">
 						<?php echo form_open('frontend/section/faqSave' . get_request_url(), array('class' => 'form-horizontal frm-submit')); ?>
 							<div class="form-group mt-md">
-								<label class="col-md-2 control-label"><?php echo translate('title'); ?> <span class="required">*</span></label>
+								<label class="col-md-2 control-label"><?php echo translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 								<div class="col-md-9">
 									<input type="text" class="form-control" name="title" value="<?php echo set_value('title', $faq['title']); ?>" />
 									<span class="error"><?php echo form_error('title'); ?></span>
 								</div>
 							</div>
+							<div class="form-group">
+								<label class="col-md-2 control-label"><?php echo translate('title'); ?> (English)</label>
+								<div class="col-md-9">
+									<input type="text" class="form-control" name="title_en" value="<?php echo set_value('title_en', !empty($faq['title_en']) ? $faq['title_en'] : ''); ?>" placeholder="Title in English..." />
+									<span class="error"><?php echo form_error('title_en'); ?></span>
+								</div>
+							</div>
 							<div class="form-group mt-md">
-								<label class="col-md-2 control-label"><?php echo translate('description'); ?> <span class="required">*</span></label>
+								<label class="col-md-2 control-label"><?php echo translate('description'); ?> (বাংলা) <span class="required">*</span></label>
 								<div class="col-md-9 mb-lg">
 									<textarea name="description" class="summernote"><?php echo set_value('description', $faq['description']); ?></textarea>
 									<span class="error"><?php echo form_error('description'); ?></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-md-2 control-label"><?php echo translate('description'); ?> (English)</label>
+								<div class="col-md-9 mb-lg">
+									<textarea name="description_en" class="summernote"><?php echo set_value('description_en', !empty($faq['description_en']) ? $faq['description_en'] : ''); ?></textarea>
+									<span class="error"><?php echo form_error('description_en'); ?></span>
 								</div>
 							</div>
 							<footer class="panel-footer mt-lg">
@@ -47,9 +61,16 @@
 					<div class="tab-pane" id="options">
 						<?php echo form_open_multipart('frontend/section/faqOptionSave' .  get_request_url(), array('class' => 'form-horizontal frm-submit-data')); ?>
 							<div class="form-group mt-md">
-								<label class="col-md-2 control-label"><?php echo translate('page') . " " .  translate('_title'); ?> <span class="required">*</span></label>
+								<label class="col-md-2 control-label"><?php echo translate('page') . " " .  translate('_title'); ?> (বাংলা) <span class="required">*</span></label>
 								<div class="col-md-8">
 									<input type="text" class="form-control" name="page_title" value="<?php echo set_value('page_title', $faq['page_title']); ?>" />
+									<span class="error"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-md-2 control-label"><?php echo translate('page') . " " .  translate('_title'); ?> (English)</label>
+								<div class="col-md-8">
+									<input type="text" class="form-control" name="page_title_en" value="<?php echo set_value('page_title_en', !empty($faq['page_title_en']) ? $faq['page_title_en'] : ''); ?>" placeholder="Page title in English..." />
 									<span class="error"></span>
 								</div>
 							</div>

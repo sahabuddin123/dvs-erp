@@ -34,7 +34,12 @@
 <?php if (is_superadmin_loggedin()): ?>
 							<td><?php echo $row['branch_name'];?></td>
 <?php endif; ?>
-							<td><?php echo $row['title']; ?></td>
+							<td>
+								<?php echo html_escape($row['title']); ?>
+								<?php if (!empty($row['title_en'])): ?>
+									<br><small class="text-muted"><i class="fas fa-language"></i> EN: <?php echo html_escape($row['title_en']); ?></small>
+								<?php endif; ?>
+							</td>
 							<td class="min-w-xs">
 								<?php if (get_permission('frontend_faq', 'is_edit')) { ?>
 								<a href="<?php echo base_url('frontend/faq/edit/' . $row['id']); ?>" class="btn btn-default btn-circle icon" data-toggle="tooltip" data-original-title="<?php echo translate('edit'); ?>"> 
@@ -67,16 +72,30 @@
 					</div>
 				<?php endif; ?>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('title'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-7">
 							<input type="text" class="form-control" name="title" value="<?php echo set_value('title'); ?>" />
 							<span class="error"></span>
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('description'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('title'); ?> (English)</label>
+						<div class="col-md-7">
+							<input type="text" class="form-control" name="title_en" value="<?php echo set_value('title_en'); ?>" placeholder="Question in English..." />
+							<span class="error"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('description'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-7">
 							<textarea name="description" class="summernote"><?php echo set_value('description'); ?></textarea>
+							<span class="error"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('description'); ?> (English)</label>
+						<div class="col-md-7">
+							<textarea name="description_en" class="summernote"><?php echo set_value('description_en'); ?></textarea>
 							<span class="error"></span>
 						</div>
 					</div>

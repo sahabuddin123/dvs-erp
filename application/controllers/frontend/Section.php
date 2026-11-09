@@ -949,7 +949,9 @@ class Section extends Admin_Controller
                 $arrayData = array(
                     'branch_id' => $branchID,
                     'title' => $this->input->post('title'),
+                    'title_en' => $this->input->post('title_en'),
                     'description' => $this->input->post('description', false),
+                    'description_en' => $this->input->post('description_en', false),
                 );
                 $this->db->where('branch_id', $branchID);
                 $get = $this->db->get('front_cms_faq');
@@ -986,6 +988,7 @@ class Section extends Admin_Controller
                 // save information in the database
                 $arrayData = array(
                     'page_title' => $this->input->post('page_title'),
+                    'page_title_en' => $this->input->post('page_title_en'),
                     'meta_description' => $this->input->post('meta_description'),
                     'meta_keyword' => $this->input->post('meta_keyword'),
                     'banner_image' => $this->uploadImage('faq' . $branchID, 'banners'),

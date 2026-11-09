@@ -26,16 +26,30 @@
 					</div>
 				<?php endif; ?>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('title'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-7">
 							<input type="text" class="form-control" name="title" value="<?php echo $faq['title']?>" />
 							<span class="error"></span>
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('description'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('title'); ?> (English)</label>
+						<div class="col-md-7">
+							<input type="text" class="form-control" name="title_en" value="<?php echo !empty($faq['title_en']) ? $faq['title_en'] : ''; ?>" placeholder="Question in English..." />
+							<span class="error"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('description'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-7">
 							<textarea name="description" class="summernote"><?php echo $faq['description']; ?></textarea>
+							<span class="error"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('description'); ?> (English)</label>
+						<div class="col-md-7">
+							<textarea name="description_en" class="summernote"><?php echo !empty($faq['description_en']) ? $faq['description_en'] : ''; ?></textarea>
 							<span class="error"></span>
 						</div>
 					</div>

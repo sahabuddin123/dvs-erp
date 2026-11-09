@@ -2,9 +2,16 @@
 defined('BASEPATH') or exit('No direct script access allowed'); 
 
 $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
-$page_header_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title', ($current_lang == 'en' ? 'Frequently Asked Questions (FAQ)' : 'সচরাচর জিজ্ঞাসা (FAQ)')) : (!empty($page_data['page_title']) ? $page_data['page_title'] : (($current_lang == 'en') ? 'Frequently Asked Questions' : 'সচরাচর জিজ্ঞাসা'));
-$intro_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'title', ($current_lang == 'en' ? 'Common Questions & Answers' : 'সচরাচর জিজ্ঞাসা ও উত্তর')) : (!empty($page_data['title']) ? $page_data['title'] : (($current_lang == 'en') ? 'Common Questions & Answers' : 'সচরাচর জিজ্ঞাসা ও উত্তর'));
-$intro_desc = function_exists('get_lang_field') ? get_lang_field($page_data, 'description', '') : (!empty($page_data['description']) ? $page_data['description'] : '');
+
+if ($current_lang == 'en') {
+    $page_header_title = !empty($page_data['page_title_en']) ? $page_data['page_title_en'] : 'Frequently Asked Questions';
+    $intro_title = !empty($page_data['title_en']) ? $page_data['title_en'] : 'Frequently Asked Questions';
+    $intro_desc = !empty($page_data['description_en']) ? $page_data['description_en'] : '<p>Find answers to common questions regarding admissions, academics, and campus facilities.</p>';
+} else {
+    $page_header_title = !empty($page_data['page_title']) ? $page_data['page_title'] : 'সচরাচর জিজ্ঞাসা';
+    $intro_title = !empty($page_data['title']) ? $page_data['title'] : 'সচরাচর জিজ্ঞাসা';
+    $intro_desc = !empty($page_data['description']) ? $page_data['description'] : '<p>সচরাচর সাধারণ জিজ্ঞাসা বা আপনাদের কমন প্রশ্ন গুলো এবং তার উত্তর তুলে ধরা হলো।</p>';
+}
 
 $app_phone = !empty($cms_setting['mobile_no']) ? $cms_setting['mobile_no'] : (!empty($global_config['mobileno']) ? $global_config['mobileno'] : '');
 $app_email = !empty($cms_setting['email']) ? $cms_setting['email'] : (!empty($global_config['institute_email']) ? $global_config['institute_email'] : '');
@@ -29,38 +36,6 @@ $en_digits = ['0','1','2','3','4','5','6','7','8','9'];
     
     .faq-container {
         max-width: 980px;
-    }
-
-    /* Page Header Overrides */
-    .faq-header-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(var(--primary-rgb, 220, 33, 19), 0.08);
-        color: var(--primary-color);
-        padding: 6px 14px;
-        border-radius: 50px;
-        font-size: 0.88rem;
-        font-weight: 600;
-        margin-bottom: 10px;
-    }
-
-    .faq-header-icon-box {
-        width: 100px;
-        height: 100px;
-        border-radius: 24px;
-        background: linear-gradient(135deg, rgba(var(--primary-rgb, 220, 33, 19), 0.12) 0%, rgba(var(--primary-rgb, 220, 33, 19), 0.03) 100%);
-        border: 2px dashed rgba(var(--primary-rgb, 220, 33, 19), 0.25);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--primary-color);
-        font-size: 2.75rem;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.04);
-        transition: all 0.3s ease;
-    }
-    .faq-header-icon-box:hover {
-        transform: rotate(6deg) scale(1.05);
     }
 
     /* Search Card */
@@ -343,21 +318,12 @@ $en_digits = ['0','1','2','3','4','5','6','7','8','9'];
 <div class="page-header">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-8">
-                <div class="faq-header-pill">
-                    <i class="fas fa-question-circle"></i> 
-                    <?php echo ($current_lang == 'en') ? 'Help Center & Common Queries' : 'প্রশ্নোত্তর ও হেল্প সেন্টার'; ?>
-                </div>
+            <div class="col-lg-7 col-md-8">
                 <h1 class="page-header-title"><?php echo html_escape($page_header_title); ?></h1>
-                <p class="text-muted mb-0" style="font-size: 1.05rem;">
-                    <?php echo ($current_lang == 'en') 
-                        ? 'Find answers to common questions regarding admissions, academics, and campus facilities.' 
-                        : 'চর হাসান ইসলামিয়া দাখিল মাদরাসার ভর্তি, শিক্ষা কার্যক্রম ও পরিবেশ সংক্রান্ত প্রয়োজনীয় তথ্যের সহজ সমাধান।'; ?>
-                </p>
             </div>
-            <div class="col-lg-4 d-none d-lg-block text-end">
-                <div class="faq-header-icon-box">
-                    <i class="fas fa-comments-question-check"></i>
+            <div class="col-lg-5 col-md-4 d-none d-md-block text-end">
+                <div class="display-1 opacity-80 page-header-icon">
+                    <i class="fas fa-question-circle"></i>
                 </div>
             </div>
         </div>
@@ -408,19 +374,19 @@ $en_digits = ['0','1','2','3','4','5','6','7','8','9'];
                         <?php echo ($current_lang == 'en') ? 'All Questions' : 'সবগুলো প্রশ্ন'; ?> 
                         <span class="badge bg-white text-dark ms-1 rounded-pill" style="font-size: 0.75rem;"><?php echo count($faq_list); ?></span>
                     </span>
-                    <span class="faq-chip" data-filter="ভর্তি">
+                    <span class="faq-chip" data-filter="<?php echo ($current_lang == 'en') ? 'admission' : 'ভর্তি'; ?>">
                         <i class="fas fa-user-graduate me-1"></i> 
                         <?php echo ($current_lang == 'en') ? 'Admission' : 'ভর্তি সংক্রান্ত'; ?>
                     </span>
-                    <span class="faq-chip" data-filter="সুযোগ">
+                    <span class="faq-chip" data-filter="<?php echo ($current_lang == 'en') ? 'facilit' : 'সুযোগ'; ?>">
                         <i class="fas fa-gift me-1"></i> 
                         <?php echo ($current_lang == 'en') ? 'Facilities' : 'সুযোগ-সুবিধা'; ?>
                     </span>
-                    <span class="faq-chip" data-filter="খেলাধুলা">
+                    <span class="faq-chip" data-filter="<?php echo ($current_lang == 'en') ? 'sport' : 'খেলাধুলা'; ?>">
                         <i class="fas fa-futbol me-1"></i> 
                         <?php echo ($current_lang == 'en') ? 'Sports & Playground' : 'খেলাধুলা ও মাঠ'; ?>
                     </span>
-                    <span class="faq-chip" data-filter="সরকারী">
+                    <span class="faq-chip" data-filter="<?php echo ($current_lang == 'en') ? 'mpo' : 'সরকারী'; ?>">
                         <i class="fas fa-landmark me-1"></i> 
                         <?php echo ($current_lang == 'en') ? 'Recognition' : 'স্বীকৃতি ও এমপিও'; ?>
                     </span>
@@ -437,6 +403,8 @@ $en_digits = ['0','1','2','3','4','5','6','7','8','9'];
                     $num_bn = str_replace($en_digits, $bn_digits, sprintf('%02d', $key + 1));
                     $num_display = ($current_lang == 'en') ? sprintf('%02d', $key + 1) : $num_bn;
                     $item_id = 'faq_' . $key;
+                    $item_title = ($current_lang == 'en' && !empty($value['title_en'])) ? $value['title_en'] : $value['title'];
+                    $item_desc = ($current_lang == 'en' && !empty($value['description_en'])) ? $value['description_en'] : $value['description'];
             ?>
             <div class="accordion-item faq-item" data-faq-index="<?php echo $key; ?>">
                 <h2 class="accordion-header" id="heading<?php echo $key; ?>">
@@ -447,7 +415,7 @@ $en_digits = ['0','1','2','3','4','5','6','7','8','9'];
                             aria-expanded="<?php echo $is_first ? 'true' : 'false'; ?>" 
                             aria-controls="collapse<?php echo $key; ?>">
                         <span class="faq-num-pill"><?php echo $num_display; ?></span>
-                        <span class="faq-question-title"><?php echo html_escape($value['title']); ?></span>
+                        <span class="faq-question-title"><?php echo html_escape($item_title); ?></span>
                         <span class="faq-arrow-icon"><i class="fas fa-chevron-down"></i></span>
                     </button>
                 </h2>
@@ -461,7 +429,7 @@ $en_digits = ['0','1','2','3','4','5','6','7','8','9'];
                             <span><?php echo ($current_lang == 'en') ? 'Verified Answer' : 'মাদ্রাসার উত্তর'; ?>:</span>
                         </div>
                         <div class="faq-answer-content">
-                            <?php echo $value['description']; ?>
+                            <?php echo $item_desc; ?>
                         </div>
                     </div>
                 </div>

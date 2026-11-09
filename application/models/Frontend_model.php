@@ -164,6 +164,12 @@ class Frontend_model extends MY_Model
             'description' => $data['description'],
             'branch_id' => $this->application_model->get_branch_id()
         );
+        if (isset($data['title_en'])) {
+            $faq_data['title_en'] = $data['title_en'];
+        }
+        if (isset($data['description_en'])) {
+            $faq_data['description_en'] = $data['description_en'];
+        }
         if (isset($data['faq_id']) && !empty($data['faq_id'])) {
             $this->db->where('id', $data['faq_id']);
             $this->db->update('front_cms_faq_list', $faq_data);
