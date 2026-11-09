@@ -38,7 +38,7 @@ $published_date_formatted = date('F j, Y', $date_timestamp);
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-white py-3">
                         <div class="d-md-flex justify-content-between align-items-center">
-                            <h3 class="mb-md-0 mb-2 fw-bold" style="color: #1e293b;"><?php echo html_escape($event['title']); ?></h3>
+                            <h3 class="mb-md-0 mb-2 fw-bold" style="color: #1e293b;"><?php echo html_escape(get_lang_field($event, 'title')); ?></h3>
                             <div>
                                 <span class="badge p-2 me-2 text-white" style="background-color: var(--dark-color); border-radius: 6px; font-weight: 500;">
                                     <i class="fas fa-newspaper me-1"></i> <?php echo ($current_lang == 'en') ? 'Notice' : 'নোটিশ'; ?>
@@ -53,12 +53,12 @@ $published_date_formatted = date('F j, Y', $date_timestamp);
                         <div class="post-content mb-4" id="description">
                             <?php if (!empty($event['image'])) { ?>
                                 <p class="text-center mb-4">
-                                    <img src="<?php echo base_url('uploads/frontend/news/' . $event['image']); ?>" alt="<?php echo html_escape($event['title']); ?>" class="img-fluid" style="border: 1px solid #dee2e6; border-radius: 6px; padding: 8px; max-height: 650px; background: #fff;">
+                                    <img src="<?php echo base_url('uploads/frontend/news/' . $event['image']); ?>" alt="<?php echo html_escape(get_lang_field($event, 'title')); ?>" class="img-fluid" style="border: 1px solid #dee2e6; border-radius: 6px; padding: 8px; max-height: 650px; background: #fff;">
                                     <br>
                                 </p>
                             <?php } ?>
                             <div class="lh-lg" style="color: #334155; font-size: 1.05rem;">
-                                <?php echo $event['description']; ?>
+                                <?php echo get_lang_field($event, 'description'); ?>
                             </div>
                         </div>
                         <div class="row mt-4 pt-3 border-top">

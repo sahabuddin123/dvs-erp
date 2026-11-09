@@ -78,7 +78,7 @@ $page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'pa
                         <div class="d-md-flex justify-content-between align-items-center mb-2">
                             <h4 class="notice-title mb-1 fw-bold">
                                 <a href="<?php echo $notice_url; ?>" class="text-decoration-none">
-                                    <?php echo html_escape($row['title']); ?>
+                                    <?php echo html_escape(get_lang_field($row, 'title')); ?>
                                 </a>
                             </h4>
                             <span class="notice-dates text-muted" style="font-size: 0.9rem;">
