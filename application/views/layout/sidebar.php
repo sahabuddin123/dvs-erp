@@ -107,6 +107,7 @@
                         if (get_permission('frontend_setting', 'is_view') ||
                             get_permission('frontend_menu', 'is_view') ||
                             get_permission('frontend_section', 'is_view') ||
+                            get_permission('frontend_contact_message', 'is_view') ||
                             get_permission('manage_page', 'is_view') ||
                             get_permission('frontend_slider', 'is_view') ||
                             get_permission('frontend_founder', 'is_view') ||
@@ -211,6 +212,17 @@
                             <li class="<?php if ($sub_page == 'frontend/news' || $sub_page == 'frontend/news_edit') echo 'nav-active'; ?>">
                                 <a href="<?php echo base_url('frontend/news/index'); ?>">
                                     <span><i class="fas fa-caret-right"></i><?php echo translate('news'); ?></span>
+                                </a>
+                            </li>
+                            <?php } if(get_permission('frontend_contact_message', 'is_view') || get_permission('frontend_section', 'is_view') || is_superadmin_loggedin()){ 
+                                $unread_contact_count = $this->db->where('status', 0)->count_all_results('front_cms_contact_messages');
+                            ?>
+                            <li class="<?php if ($sub_page == 'frontend/contact_messages') echo 'nav-active'; ?>">
+                                <a href="<?php echo base_url('frontend/contact_messages'); ?>">
+                                    <span><i class="fas fa-caret-right"></i><?php echo translate('contact_messages') . ' / বার্তা'; ?></span>
+                                    <?php if ($unread_contact_count > 0): ?>
+                                        <span class="badge label label-danger" style="margin-left: 5px;"><?php echo $unread_contact_count; ?></span>
+                                    <?php endif; ?>
                                 </a>
                             </li>
                             <?php } ?>

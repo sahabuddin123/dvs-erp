@@ -70,6 +70,7 @@ class Mailer
             if ($getConfig->protocol == 'smtp') {
                 $mail->isSMTP();
                 $mail->SMTPDebug = SMTP::DEBUG_OFF;
+                $mail->Timeout = 3;
                 $mail->Host = trim($getConfig->smtp_host);
                 $mail->Port = (int)trim($getConfig->smtp_port);
                 if (!empty($getConfig->smtp_encryption)) {

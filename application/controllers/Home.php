@@ -1105,130 +1105,153 @@ class Home extends Frontend_Controller
 
 
 
-    public function contact()
-
+    public function refresh_contact_captcha()
     {
+        $num1 = rand(1, 9);
+        $num2 = rand(1, 9);
+        $sum = $num1 + $num2;
+        $this->session->set_userdata('contact_math_captcha', $sum);
 
+        $bn_digits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+        $en_digits = ['0','1','2','3','4','5','6','7','8','9'];
+        $num1_bn = str_replace($en_digits, $bn_digits, (string)$num1);
+        $num2_bn = str_replace($en_digits, $bn_digits, (string)$num2);
+
+        header('Content-Type: application/json');
+        echo json_encode(array(
+            'status' => 'success',
+            'num1' => $num1,
+            'num2' => $num2,
+            'question_en' => "$num1 + $num2 = ?",
+            'question_bn' => "$num1_bn + $num2_bn = ?"
+        ));
+        exit;
+    }
+
+    public function contact()
+    {
         $branchID = $this->home_model->getDefaultBranch();
-
-        $captcha = $this->data['cms_setting']['captcha_status'];
-
-        if ($captcha == 'enable') {
-
-            $this->load->library('recaptcha', array('site_key' => $this->data['cms_setting']['recaptcha_site_key'], 'secret_key' => $this->data['cms_setting']['recaptcha_secret_key']));
-
-            $this->data['recaptcha'] = array(
-
-                'widget' => $this->recaptcha->getWidget(),
-
-                'script' => $this->recaptcha->getScriptTag(),
-
-            );
-
-        }
-
-
+        $current_lang = function_exists('get_current_lang') ? get_current_lang() : ($this->session->userdata('frontend_lang') ? $this->session->userdata('frontend_lang') : 'bn');
 
         if ($_POST) {
+            $ip = $this->input->ip_address();
 
-            $this->form_validation->set_rules('name', 'Name', 'trim|required');
-
-            $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
-
-            $this->form_validation->set_rules('phoneno', 'Phone', 'trim|required');
-
-            $this->form_validation->set_rules('subject', 'Subject', 'trim|required');
-
-            $this->form_validation->set_rules('message', 'Message', 'trim|required');
-
-            if ($captcha == 'enable') {
-
-                $this->form_validation->set_rules('g-recaptcha-response', 'Captcha', 'trim|required');
-
+            // 1. Anti-Spam Rate Limiting: Cooldown check (minimum 30s gap between submissions)
+            $last_submit = $this->session->userdata('last_contact_submit_time');
+            if (!empty($last_submit) && (time() - $last_submit) < 30) {
+                $remaining = 30 - (time() - $last_submit);
+                $error_msg = ($current_lang == 'en')
+                    ? "Please wait {$remaining} seconds before submitting another message."
+                    : "দয়া করে অপেক্ষা করুন! আপনি খুব ঘনঘন বার্তা পাঠাচ্ছেন। আরো {$remaining} সেকেন্ড পর আবার চেষ্টা করুন।";
+                $this->session->set_flashdata('msg_error', $error_msg);
+                redirect(current_url());
+                return;
             }
+
+            // 2. Anti-Spam Rate Limiting: Max 5 submissions per IP per hour
+            $one_hour_ago = date('Y-m-d H:i:s', strtotime('-1 hour'));
+            $recent_count = $this->db->where('ip_address', $ip)
+                ->where('created_at >=', $one_hour_ago)
+                ->count_all_results('front_cms_contact_messages');
+
+            if ($recent_count >= 5) {
+                $error_msg = ($current_lang == 'en')
+                    ? 'You have reached the maximum allowed messages (5 per hour) from your IP. Please try again later.'
+                    : 'নিরাপত্তাজনিত কারণে আপনার আইপি থেকে প্রতি ঘণ্টায় সর্বোচ্চ ৫টি বার্তা পাঠানো যাবে। অনুগ্রহ করে কিছুক্ষণ পর চেষ্টা করুন।';
+                $this->session->set_flashdata('msg_error', $error_msg);
+                redirect(current_url());
+                return;
+            }
+
+            // 3. Form fields validation
+            $this->form_validation->set_rules('name', ($current_lang == 'en' ? 'Full Name' : 'পূর্ণ নাম'), 'trim|required|min_length[2]|max_length[100]');
+            $this->form_validation->set_rules('email', ($current_lang == 'en' ? 'Email Address' : 'ইমেইল ঠিকানা'), 'trim|required|valid_email|max_length[100]');
+            $this->form_validation->set_rules('phoneno', ($current_lang == 'en' ? 'Phone Number' : 'ফোন নম্বর'), 'trim|required|min_length[6]|max_length[25]');
+            $this->form_validation->set_rules('subject', ($current_lang == 'en' ? 'Subject' : 'বিষয়'), 'trim|required|min_length[2]|max_length[200]');
+            $this->form_validation->set_rules('message', ($current_lang == 'en' ? 'Message' : 'বার্তা'), 'trim|required|min_length[5]|max_length[3000]');
+            $this->form_validation->set_rules('math_captcha', ($current_lang == 'en' ? 'Security Captcha' : 'নিরাপত্তা ক্যাপচা'), 'trim|required');
 
             if ($this->form_validation->run() !== false) {
+                // 4. Validate Math Captcha (support both Bangla and English digits)
+                $raw_captcha = trim($this->input->post('math_captcha'));
+                $bn_digits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+                $en_digits = ['0','1','2','3','4','5','6','7','8','9'];
+                $normalized_captcha = str_replace($bn_digits, $en_digits, $raw_captcha);
+                $user_captcha = is_numeric($normalized_captcha) ? (int)$normalized_captcha : -999;
+                $session_captcha = $this->session->userdata('contact_math_captcha');
 
-                if ($captcha == 'enable') {
-
-                    $captchaResponse = $this->recaptcha->verifyResponse($this->input->post('g-recaptcha-response'));
-
-                } else {
-
-                    $captchaResponse = array('success' => true);
-
+                if ($session_captcha === null || $user_captcha !== (int)$session_captcha) {
+                    $error_msg = ($current_lang == 'en') 
+                        ? 'Incorrect captcha answer! Please solve the math verification correctly.' 
+                        : 'ক্যাপচা গণনা সঠিক হয়নি! দয়া করে সঠিক যোগফলটি লিখুন।';
+                    $this->session->set_flashdata('msg_error', $error_msg);
+                    redirect(current_url());
+                    return;
                 }
 
-                if ($captchaResponse['success'] == true) {
+                // 5. Save message to database
+                $messageData = array(
+                    'branch_id'   => $branchID,
+                    'name'        => $this->input->post('name', true),
+                    'email'       => $this->input->post('email', true),
+                    'phone'       => $this->input->post('phoneno', true),
+                    'subject'     => $this->input->post('subject', true),
+                    'message'     => $this->input->post('message', true),
+                    'ip_address'  => $ip,
+                    'user_agent'  => substr($this->input->user_agent(), 0, 255),
+                    'status'      => 0, // unread
+                    'created_at'  => date('Y-m-d H:i:s'),
+                );
+                $this->db->insert('front_cms_contact_messages', $messageData);
 
-                    $name = $this->input->post('name');
+                // Update session cooldown and reset captcha to prevent replay
+                $this->session->set_userdata('last_contact_submit_time', time());
+                $this->session->unset_userdata('contact_math_captcha');
 
-                    $email = $this->input->post('email');
-
-                    $phoneno = $this->input->post('phoneno');
-
-                    $subject = $this->input->post('subject');
-
-                    $message = $this->input->post('message');
-
-                    $msg = '<h3>Sender Information</h3>';
-
-                    $msg .= '<br><br><b>Name: </b> ' . $name;
-
-                    $msg .= '<br><br><b>Email: </b> ' . $email;
-
-                    $msg .= '<br><br><b>Phone: </b> ' . $phoneno;
-
-                    $msg .= '<br><br><b>Subject: </b> ' . $subject;
-
-                    $msg .= '<br><br><b>Message: </b> ' . $message;
-
-                    $data = array(
-
-                        'branch_id' => $branchID,
-
-                        'recipient' => $this->data['cms_setting']['receive_contact_email'],
-
-                        'subject' => 'Contact Form Email',
-
-                        'message' => $msg,
-
-                    );
-
-                    $send = $this->mailer->send($data, true);
-
-                    if ($send == true) {
-
-                        $this->session->set_flashdata('msg_success', 'Message Successfully Sent. We will contact you shortly.');
-
-                    } else {
-
-                        $this->session->set_flashdata('msg_error',  'Message Not Successfully Sent. Error - ' . $send);
-
+                // 6. Attempt optional email notification (failsafe)
+                if (!empty($this->data['cms_setting']['receive_contact_email'])) {
+                    try {
+                        $emailMsg = "<h3>নতুন যোগাযোগ বার্তা (চর হাসান ইসলামিয়া দাখিল মাদরাসা)</h3>"
+                                  . "<p><b>প্রেরকের নাম:</b> " . html_escape($messageData['name']) . "</p>"
+                                  . "<p><b>ইমেইল:</b> " . html_escape($messageData['email']) . "</p>"
+                                  . "<p><b>ফোন নম্বর:</b> " . html_escape($messageData['phone']) . "</p>"
+                                  . "<p><b>বিষয়:</b> " . html_escape($messageData['subject']) . "</p>"
+                                  . "<p><b>বার্তা:</b><br>" . nl2br(html_escape($messageData['message'])) . "</p>"
+                                  . "<p><small>IP: {$ip} | Date: " . date('d M Y, h:i A') . "</small></p>";
+                        $mailData = array(
+                            'branch_id' => $branchID,
+                            'recipient' => $this->data['cms_setting']['receive_contact_email'],
+                            'subject'   => 'Contact Inquiry: ' . $messageData['subject'],
+                            'message'   => $emailMsg,
+                        );
+                        @$this->mailer->send($mailData, true);
+                    } catch (\Exception $e) {
+                        // Email server may not be configured in local environment; message is safely recorded in DB.
                     }
-
-                } else {
-
-                    $error = 'Captcha is invalid';
-
-                    $this->session->set_flashdata('error', $error);
-
                 }
 
-                redirect(base_url('home/contact'));
-
+                $success_msg = ($current_lang == 'en')
+                    ? 'Your message has been sent successfully! We will get in touch with you shortly.'
+                    : 'আপনার বার্তাটি সফলভাবে পাঠানো হয়েছে! আমাদের প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন।';
+                $this->session->set_flashdata('msg_success', $success_msg);
+                redirect(current_url());
+                return;
+            } else {
+                $this->session->set_flashdata('msg_error', validation_errors());
             }
-
         }
 
+        // Generate Math Captcha numbers
+        $num1 = rand(1, 9);
+        $num2 = rand(1, 9);
+        $this->session->set_userdata('contact_math_captcha', ($num1 + $num2));
+        $this->data['captcha_num1'] = $num1;
+        $this->data['captcha_num2'] = $num2;
+
         $this->data['branchID'] = $branchID;
-
         $this->data['page_data'] = $this->home_model->get('front_cms_contact', array('branch_id' => $branchID), true);
-
         $this->data['main_contents'] = $this->load->view('home/contact', $this->data, true);
-
         $this->load->view('home/layout/index', $this->data);
-
     }
 
 

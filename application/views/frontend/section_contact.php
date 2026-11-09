@@ -8,6 +8,14 @@
 	<div class="col-md-9">
 		<section class="panel">
 			<div class="tabs-custom">
+				<div class="pull-right" style="margin: 6px 15px 0 0;">
+					<a href="<?php echo base_url('frontend/contact_messages'); ?>" class="btn btn-primary btn-sm">
+						<i class="fas fa-envelope-open-text"></i> <?php echo translate('contact_messages') . ' / বার্তা তালিকা'; ?>
+					</a>
+					<a href="<?php echo base_url('home/contact'); ?>" target="_blank" class="btn btn-default btn-sm ml-xs">
+						<i class="fas fa-external-link-alt"></i> <?php echo translate('preview_page'); ?>
+					</a>
+				</div>
 				<ul class="nav nav-tabs">
 					<li class="active">
 						<a href="#contact" data-toggle="tab"><?php echo translate('contact'); ?></a>
@@ -78,8 +86,28 @@
 							<div class="form-group mt-md">
 								<label class="col-md-2 control-label"><?php echo translate('map_iframe'); ?> <span class="required">*</span></label>
 								<div class="col-md-8">
-									<textarea name="map_iframe" class="form-control" rows="4"><?php echo set_value('map_iframe', $contact['map_iframe']); ?></textarea>
+									<textarea name="map_iframe" id="admin_map_iframe" class="form-control" rows="4" placeholder="https://www.google.com/maps/embed?... অথবা <iframe src='...'></iframe>"><?php echo set_value('map_iframe', $contact['map_iframe']); ?></textarea>
+									<span class="help-block text-muted">
+										<i class="fas fa-info-circle text-info"></i> গুগল ম্যাপস (Google Maps) থেকে "Share -> Embed a map" থেকে প্রাপ্ত সম্পূর্ণ <code>&lt;iframe&gt;</code> ট্যাগ অথবা শুধু <code>src</code> লিঙ্ক দিন। ওয়েবসাইট ভিজিটররা সরাসরি এই ম্যাপ দেখতে পাবেন।
+									</span>
 									<span class="error"></span>
+									<?php 
+										$preview_raw = !empty($contact['map_iframe']) ? trim($contact['map_iframe']) : '';
+										$preview_src = '';
+										if (preg_match('/src=["\']([^"\']+)["\']/i', $preview_raw, $p_matches)) {
+											$preview_src = $p_matches[1];
+										} elseif (!empty($preview_raw)) {
+											$preview_src = $preview_raw;
+										}
+										if (!empty($preview_src)):
+									?>
+									<div class="mt-md" style="border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0;">
+										<div style="background: #f1f5f9; padding: 6px 12px; font-weight: bold; font-size: 12px; color: #475569;">
+											<i class="fas fa-map-marked-alt text-primary"></i> বর্তমান ম্যাপ প্রিভিউ (Live Map Preview):
+										</div>
+										<iframe src="<?php echo html_escape($preview_src); ?>" width="100%" height="220" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+									</div>
+									<?php endif; ?>
 								</div>
 							</div>
 							<footer class="panel-footer mt-lg">
