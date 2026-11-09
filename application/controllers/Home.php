@@ -1524,6 +1524,13 @@ class Home extends Frontend_Controller
             ->order_by('id', 'asc')
             ->get('class')->result_array();
 
+        // Get all Sections for this branch (static, shown first in filter)
+        $this->data['sections'] = $this->db->select('section.id, section.name')
+            ->from('section')
+            ->where('section.branch_id', $branchID)
+            ->order_by('section.id', 'asc')
+            ->get()->result_array();
+
         // Filter inputs
         $class_id   = $this->input->get_post('class_id', true);
         $section_id = $this->input->get_post('section_id', true);
@@ -1589,6 +1596,13 @@ class Home extends Frontend_Controller
             ->where('branch_id', $branchID)
             ->order_by('id', 'asc')
             ->get('class')->result_array();
+
+        // Get all Sections for this branch (static, shown first in filter)
+        $this->data['sections'] = $this->db->select('section.id, section.name')
+            ->from('section')
+            ->where('section.branch_id', $branchID)
+            ->order_by('section.id', 'asc')
+            ->get()->result_array();
 
         // Handle search / filter
         $exam_id = $this->input->get_post('exam_id', true);

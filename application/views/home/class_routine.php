@@ -194,11 +194,33 @@ $days_label = $is_en
             <form method="GET" action="">
                 <div class="row align-items-end" style="gap-y:12px;">
 
-                    <!-- Class -->
+                    <!-- Section (static, shown FIRST) -->
+                    <div class="col-md-4 col-sm-6 mb-3">
+                        <div class="form-group mb-0">
+                            <label><i class="fas fa-layer-group me-1"></i> <?php echo $is_en ? 'Section' : 'সেকশন'; ?></label>
+                            <select name="section_id" id="cr_section_id" class="form-control">
+                                <option value=""><?php echo $is_en ? '— All Sections —' : '— সকল সেকশন —'; ?></option>
+                                <?php if (!empty($sections)): foreach ($sections as $sec): ?>
+                                    <?php
+                                        $sname = html_escape($sec['name']);
+                                        if (function_exists('dvs_clean_bilingual')) {
+                                            $sname = dvs_clean_bilingual($sec['name'], $is_en ? 'english' : 'bengali');
+                                        }
+                                    ?>
+                                    <option value="<?php echo $sec['id']; ?>"
+                                        <?php echo ($selected_section == $sec['id']) ? 'selected' : ''; ?>>
+                                        <?php echo $sname; ?>
+                                    </option>
+                                <?php endforeach; endif; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Class (shown SECOND) -->
                     <div class="col-md-4 col-sm-6 mb-3">
                         <div class="form-group mb-0">
                             <label><i class="fas fa-graduation-cap me-1"></i> <?php echo $is_en ? 'Class' : 'শ্রেণি'; ?> <span style="color:red;">*</span></label>
-                            <select name="class_id" id="cr_class_id" class="form-control" required onchange="crLoadSections(this.value)">
+                            <select name="class_id" id="cr_class_id" class="form-control" required>
                                 <option value=""><?php echo $is_en ? '— Select Class —' : '— শ্রেণি নির্বাচন করুন —'; ?></option>
                                 <?php if (!empty($classes)): foreach ($classes as $cls): ?>
                                     <option value="<?php echo $cls['id']; ?>"
@@ -210,35 +232,6 @@ $days_label = $is_en
                                             }
                                             echo $cname;
                                         ?>
-                                    </option>
-                                <?php endforeach; endif; ?>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Section (dynamic) -->
-                    <div class="col-md-4 col-sm-6 mb-3">
-                        <div class="form-group mb-0">
-                            <label><i class="fas fa-layer-group me-1"></i> <?php echo $is_en ? 'Section' : 'সেকশন'; ?></label>
-                            <select name="section_id" id="cr_section_id" class="form-control">
-                                <option value=""><?php echo $is_en ? '— All Sections —' : '— সকল সেকশন —'; ?></option>
-                                <?php
-                                // Pre-fill sections if class is already selected
-                                if (!empty($selected_class)):
-                                    $pre_sections = $this->db->select('sections_allocation.section_id, section.name')
-                                        ->from('sections_allocation')
-                                        ->join('section','section.id = sections_allocation.section_id','left')
-                                        ->where('sections_allocation.class_id', $selected_class)
-                                        ->get()->result_array();
-                                    foreach ($pre_sections as $sec):
-                                        $sname = html_escape($sec['name']);
-                                        if (function_exists('dvs_clean_bilingual')) {
-                                            $sname = dvs_clean_bilingual($sec['name'], $is_en ? 'english' : 'bengali');
-                                        }
-                                ?>
-                                    <option value="<?php echo $sec['section_id']; ?>"
-                                        <?php echo ($selected_section == $sec['section_id']) ? 'selected' : ''; ?>>
-                                        <?php echo $sname; ?>
                                     </option>
                                 <?php endforeach; endif; ?>
                             </select>
@@ -388,22 +381,3 @@ $days_label = $is_en
 
 </div>
 
-<script>
-function crLoadSections(classId) {
-    var $sec = document.getElementById('cr_section_id');
-    $sec.innerHTML = '<option value=""><?php echo $is_en ? "— Loading... —" : "— লোড হচ্ছে... —"; ?></option>';
-    if (!classId) {
-        $sec.innerHTML = '<option value=""><?php echo $is_en ? "— All Sections —" : "— সকল সেকশন —"; ?></option>';
-        return;
-    }
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '<?php echo base_url("home/getSectionByClass"); ?>', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            $sec.innerHTML = '<option value=""><?php echo $is_en ? "— All Sections —" : "— সকল সেকশন —"; ?></option>' + xhr.responseText;
-        }
-    };
-    xhr.send('class_id=' + encodeURIComponent(classId));
-}
-</script>
