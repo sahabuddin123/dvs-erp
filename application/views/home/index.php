@@ -179,8 +179,15 @@ if (!empty($db_leaders)) {
 ?>
 <section class="leadership-section py-5" style="background-color: #f8fafc;">
     <div class="container">
-        <div class="section-title mb-4">
-            <h2><i class="fas fa-comments"></i> <?php echo ($current_lang == 'en') ? 'Messages from Leadership' : 'নেতৃত্বের বার্তা'; ?></h2>
+        <div class="leadership-section-title mb-4">
+            <h2 style="color: var(--primary-color); font-weight: 700; font-size: 2.2rem; display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+                <i class="fas fa-comments" style="color: var(--primary-color); font-size: 2rem;"></i>
+                <span><?php echo ($current_lang == 'en') ? 'Messages from Leadership' : 'নেতৃত্বের বার্তা'; ?></span>
+            </h2>
+            <div style="margin-left: 50px;">
+                <div style="width: 50px; height: 3px; background-color: var(--primary-color); border-radius: 2px;"></div>
+                <div style="width: 50px; height: 3px; background-color: #f59e0b; border-radius: 2px; margin-top: 3px;"></div>
+            </div>
         </div>
 
         <div class="row g-4 justify-content-center">
