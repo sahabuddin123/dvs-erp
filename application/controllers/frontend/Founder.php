@@ -16,10 +16,12 @@ class Founder extends Admin_Controller
             $this->db->query("CREATE TABLE IF NOT EXISTS `founder` (
               `id` int(11) NOT NULL AUTO_INCREMENT,
               `branch_id` int(11) NOT NULL DEFAULT 1,
+              `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `name_bn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `name_en` varchar(255) DEFAULT NULL,
               `title_bn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `title_en` varchar(255) DEFAULT NULL,
+              `designation` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `designation_bn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `designation_en` varchar(255) DEFAULT NULL,
               `position` int(11) NOT NULL DEFAULT 1,
@@ -84,10 +86,12 @@ class Founder extends Admin_Controller
 
                 $insert_data = [
                     'branch_id'      => $post['branch_id'],
+                    'name'           => !empty($post['name_bn']) ? $post['name_bn'] : $post['name_en'],
                     'name_bn'        => $post['name_bn'],
                     'name_en'        => $post['name_en'],
                     'title_bn'       => !empty($post['title_bn']) ? $post['title_bn'] : '',
                     'title_en'       => !empty($post['title_en']) ? $post['title_en'] : '',
+                    'designation'    => !empty($post['designation_bn']) ? $post['designation_bn'] : (!empty($post['title_bn']) ? $post['title_bn'] : (!empty($post['designation_en']) ? $post['designation_en'] : '')),
                     'designation_bn' => !empty($post['designation_bn']) ? $post['designation_bn'] : '',
                     'designation_en' => !empty($post['designation_en']) ? $post['designation_en'] : '',
                     'position'       => !empty($post['position']) ? (int)$post['position'] : 1,
@@ -165,10 +169,12 @@ class Founder extends Admin_Controller
 
                 $update_data = [
                     'branch_id'      => $branch_id,
+                    'name'           => !empty($post['name_bn']) ? $post['name_bn'] : $post['name_en'],
                     'name_bn'        => $post['name_bn'],
                     'name_en'        => $post['name_en'],
                     'title_bn'       => !empty($post['title_bn']) ? $post['title_bn'] : '',
                     'title_en'       => !empty($post['title_en']) ? $post['title_en'] : '',
+                    'designation'    => !empty($post['designation_bn']) ? $post['designation_bn'] : (!empty($post['title_bn']) ? $post['title_bn'] : (!empty($post['designation_en']) ? $post['designation_en'] : '')),
                     'designation_bn' => !empty($post['designation_bn']) ? $post['designation_bn'] : '',
                     'designation_en' => !empty($post['designation_en']) ? $post['designation_en'] : '',
                     'position'       => !empty($post['position']) ? (int)$post['position'] : 1,

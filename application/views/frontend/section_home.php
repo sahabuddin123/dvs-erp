@@ -395,13 +395,19 @@ if (empty($home_seo)) $home_seo = array('page_title' => '', 'meta_keyword' => ''
 							<tbody>
 								<?php if (!empty($leaders_list)): foreach ($leaders_list as $ldr): 
 									$ldr_img = !empty($ldr['image']) && file_exists(FCPATH . 'uploads/frontend/founder/' . $ldr['image']) ? base_url('uploads/frontend/founder/' . $ldr['image']) : base_url('uploads/app_image/default.png');
+									$ldr_name_bn = !empty($ldr['name_bn']) ? $ldr['name_bn'] : (!empty($ldr['name']) ? $ldr['name'] : '');
+									$ldr_name_en = !empty($ldr['name_en']) ? $ldr['name_en'] : '';
+									$ldr_name_display = !empty($ldr_name_bn) ? $ldr_name_bn : $ldr_name_en;
+									$ldr_desig = !empty($ldr['designation_bn']) ? $ldr['designation_bn'] : (!empty($ldr['designation']) ? $ldr['designation'] : (!empty($ldr['title_bn']) ? $ldr['title_bn'] : (!empty($ldr['designation_en']) ? $ldr['designation_en'] : '')));
+									$ldr_pos = isset($ldr['position']) ? $ldr['position'] : 1;
+									$ldr_active = (!empty($ldr['active']) && $ldr['active'] == 1);
 								?>
 								<tr>
 									<td><img src="<?php echo $ldr_img; ?>" style="width: 45px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
-									<td><strong><?php echo html_escape($ldr['name']); ?></strong><?php if (!empty($ldr['name_en'])) echo ' <span class="text-muted">(' . html_escape($ldr['name_en']) . ')</span>'; ?></td>
-									<td><span class="label label-primary"><?php echo html_escape($ldr['designation']); ?></span></td>
-									<td><?php echo $ldr['position']; ?></td>
-									<td><span class="label label-<?php echo ($ldr['active'] == 1) ? 'success' : 'default'; ?>"><?php echo ($ldr['active'] == 1) ? 'সক্রিয়' : 'লুকানো'; ?></span></td>
+									<td><strong><?php echo html_escape($ldr_name_display); ?></strong><?php if (!empty($ldr_name_en) && $ldr_name_en !== $ldr_name_display) echo ' <span class="text-muted">(' . html_escape($ldr_name_en) . ')</span>'; ?></td>
+									<td><span class="label label-primary"><?php echo html_escape($ldr_desig); ?></span></td>
+									<td><?php echo $ldr_pos; ?></td>
+									<td><span class="label label-<?php echo $ldr_active ? 'success' : 'default'; ?>"><?php echo $ldr_active ? 'সক্রিয়' : 'লুকানো'; ?></span></td>
 									<td><a href="<?php echo base_url('frontend/founder/edit/' . $ldr['id']); ?>" class="btn btn-default btn-xs"><i class="fas fa-pen-nib"></i> এডিট</a></td>
 								</tr>
 								<?php endforeach; else: ?>
@@ -483,14 +489,19 @@ if (empty($home_seo)) $home_seo = array('page_title' => '', 'meta_keyword' => ''
 							<tbody>
 								<?php if (!empty($teachers_list)): foreach ($teachers_list as $t_item): 
 									$t_img = !empty($t_item['image']) && file_exists(FCPATH . 'uploads/frontend/teacher/' . $t_item['image']) ? base_url('uploads/frontend/teacher/' . $t_item['image']) : base_url('uploads/app_image/default.png');
+									$t_name = !empty($t_item['name_bn']) ? $t_item['name_bn'] : (!empty($t_item['name']) ? $t_item['name'] : (!empty($t_item['name_en']) ? $t_item['name_en'] : ''));
+									$t_desig = !empty($t_item['designation_bn']) ? $t_item['designation_bn'] : (!empty($t_item['designation']) ? $t_item['designation'] : (!empty($t_item['title']) ? $t_item['title'] : ''));
+									$t_subj = !empty($t_item['subject_bn']) ? $t_item['subject_bn'] : (!empty($t_item['subject']) ? $t_item['subject'] : '');
+									$t_pos = isset($t_item['position']) ? $t_item['position'] : 1;
+									$t_show = (!empty($t_item['show_on_homepage']) && $t_item['show_on_homepage'] == 1);
 								?>
 								<tr>
 									<td><img src="<?php echo $t_img; ?>" style="width: 45px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
-									<td><strong><?php echo html_escape($t_item['name']); ?></strong></td>
-									<td><?php echo html_escape($t_item['designation']); ?></td>
-									<td><?php echo html_escape($t_item['subject']); ?></td>
-									<td><?php echo $t_item['position']; ?></td>
-									<td><span class="label label-<?php echo ($t_item['show_on_homepage'] == 1) ? 'success' : 'default'; ?>"><?php echo ($t_item['show_on_homepage'] == 1) ? 'হোমপেজে সক্রিয়' : 'লুকানো'; ?></span></td>
+									<td><strong><?php echo html_escape($t_name); ?></strong></td>
+									<td><?php echo html_escape($t_desig); ?></td>
+									<td><?php echo html_escape($t_subj); ?></td>
+									<td><?php echo $t_pos; ?></td>
+									<td><span class="label label-<?php echo $t_show ? 'success' : 'default'; ?>"><?php echo $t_show ? 'হোমপেজে সক্রিয়' : 'লুকানো'; ?></span></td>
 									<td><a href="<?php echo base_url('frontend/teacher/edit/' . $t_item['id']); ?>" class="btn btn-default btn-xs"><i class="fas fa-pen-nib"></i> এডিট</a></td>
 								</tr>
 								<?php endforeach; else: ?>
@@ -566,11 +577,15 @@ if (empty($home_seo)) $home_seo = array('page_title' => '', 'meta_keyword' => ''
 								</tr>
 							</thead>
 							<tbody>
-								<?php if (!empty($events_list)): foreach ($events_list as $ev): ?>
+								<?php if (!empty($events_list)): foreach ($events_list as $ev): 
+									$ev_title = !empty($ev['title']) ? $ev['title'] : '';
+									$ev_date = !empty($ev['start_date']) ? date('d M, Y', strtotime($ev['start_date'])) : '';
+									$ev_type = !empty($ev['type']) ? (is_numeric($ev['type']) ? get_type_name_by_id('event_types', $ev['type']) : $ev['type']) : '';
+								?>
 								<tr>
-									<td><strong><?php echo html_escape($ev['title']); ?></strong></td>
-									<td><?php echo date('d M, Y', strtotime($ev['start_date'])); ?></td>
-									<td><span class="label label-info"><?php echo is_numeric($ev['type']) ? get_type_name_by_id('event_types', $ev['type']) : $ev['type']; ?></span></td>
+									<td><strong><?php echo html_escape($ev_title); ?></strong></td>
+									<td><?php echo $ev_date; ?></td>
+									<td><span class="label label-info"><?php echo html_escape($ev_type); ?></span></td>
 								</tr>
 								<?php endforeach; else: ?>
 								<tr><td colspan="3" class="text-center text-muted">কোনো ইভেন্ট পাওয়া যায়নি।</td></tr>
