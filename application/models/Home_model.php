@@ -841,5 +841,76 @@ class Home_model extends MY_Model
         }
     }
 
+    public function ensure_demo_founders($branchID = 1)
+    {
+        if (empty($branchID)) {
+            $branchID = 1;
+        }
+
+        if (!$this->db->table_exists('founder')) {
+            return;
+        }
+
+        $count = $this->db->where('branch_id', $branchID)->count_all_results('founder');
+        if ($count > 0) {
+            return;
+        }
+
+        $demo_founders = [
+            [
+                'branch_id' => $branchID,
+                'name_bn' => 'আব্দুল মান্নান',
+                'name_en' => 'Abdul Mannan',
+                'title_bn' => 'সভাপতি',
+                'title_en' => 'President',
+                'designation_bn' => 'সভাপতি',
+                'designation_en' => 'President',
+                'position' => 1,
+                'message_bn' => '<p>বিসমিল্লাহির রাহমানির রাহিম।</p><p>চর হাসান ইসলামিয়া দাখিল মাদ্রাসা একটি ঐতিহ্যবাহী ও দ্বীনি শিক্ষার অন্যতম বাতিঘর হিসেবে এই অঞ্চলের শিক্ষার্থীদের মাঝে শিক্ষার আলো ছড়িয়ে দিয়ে আসছে। আমাদের মূল লক্ষ্য ও উদ্দেশ্য হলো শিক্ষার্থীদের সহীহ ইসলামিক জ্ঞান ও আধুনিক শিক্ষার সমন্বয়ে এমনভাবে গড়ে তোলা, যাতে তারা সৎ, দেশপ্রেমিক এবং আদর্শ নাগরিক হিসেবে সমাজে অবদান রাখতে পারে।</p><p>মাদ্রাসার শিক্ষার গুণগত মান উন্নয়ন, শৃঙ্খলা বজায় রাখা এবং পরিকাঠামোগত প্রসারে পরিচালনা পরিষদ নিরলসভাবে কাজ করে যাচ্ছে। সকল শিক্ষক, শিক্ষার্থী, অভিভাবক এবং শুভানুধ্যায়ীদের আন্তরিক সহযোগিতা ও দোয়ার জন্য কৃতজ্ঞতা প্রকাশ করছি। আল্লাহ সুবহানাহু ওয়া তাআলা আমাদের এই প্রচেষ্টাকে কবুল করুন। আমিন।</p>',
+                'message_en' => '<p>Bismillahir Rahmanir Rahim.</p><p>Char Hasan Islamia Dakhil Madrasah has been spreading the light of knowledge among the students of this region as a revered lighthouse of Islamic and modern education. Our core mission is to nurture students with a harmonious blend of authentic Islamic values and contemporary modern knowledge, empowering them to become honest, patriotic, and responsible citizens.</p><p>The Governing Body is working tirelessly to enhance academic quality, uphold discipline, and expand institutional infrastructure. We express our heartfelt gratitude to all teachers, students, parents, and well-wishers for their sincere support and prayers. May Almighty Allah accept all our noble endeavors. Ameen.</p>',
+                'image' => 'cKnOAg3AGny28G9DRD1pf2AdVa3hRpRBsvgPYcX7.jpg',
+                'active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ],
+            [
+                'branch_id' => $branchID,
+                'name_bn' => 'মোঃ জাহাঙ্গীর',
+                'name_en' => 'Md. Jahangir',
+                'title_bn' => 'সদস্য সচিব',
+                'title_en' => 'Member Secretary',
+                'designation_bn' => 'সদস্য সচিব',
+                'designation_en' => 'Member Secretary',
+                'position' => 2,
+                'message_bn' => '<p>বিসমিল্লাহির রাহমানির রাহিম।</p><p>শিক্ষাই জাতির মেরুদণ্ড, আর নৈতিকতা সমৃদ্ধ দ্বীনি শিক্ষা হলো ইহকাল ও পরকালের মুক্তির পথ। চর হাসান ইসলামিয়া দাখিল মাদ্রাসার সার্বিক উন্নয়ন, সুষ্ঠু প্রশাসনিক ব্যবস্থাপনা এবং একাডেমিক কার্যক্রম নিয়মিত তদারকিতে সদস্য সচিব হিসেবে আমি আন্তরিকভাবে প্রতিশ্রুতিবদ্ধ।</p><p>আমাদের সম্মানিত শিক্ষকদের নিষ্ঠা এবং পরিচালনা পরিষদের সুপরিকল্পিত নির্দেশনায় প্রতিষ্ঠানটি প্রতিনিয়ত সাফল্যের পথে এগিয়ে চলেছে। শিক্ষার্থীদের পড়াশোনার উপযুক্ত পরিবেশ নিশ্চিতকরণ ও মাদ্রাসার সার্বিক অগ্রগতিতে আমরা সর্বদা তৎপর। অভিভাবকবৃন্দের কাছে আমাদের বিনীত অনুরোধ, আপনারা আপনাদের সন্তানদের নিয়মিত উপস্থিতি ও পড়াশোনার প্রতি যত্নশীল থাকবেন।</p>',
+                'message_en' => '<p>Bismillahir Rahmanir Rahim.</p><p>Education is the backbone of a nation, and value-based Islamic education is the pathway to prosperity in this life and the hereafter. As Member Secretary, I am deeply committed to the overall development, efficient administrative management, and continuous academic excellence of Char Hasan Islamia Dakhil Madrasah.</p><p>With the dedication of our esteemed teachers and the strategic guidance of the Governing Body, the madrasah is consistently marching towards success. We remain devoted to ensuring a peaceful, well-equipped learning atmosphere. We cordially request all parents to guide and monitor their children\'s regular attendance and studies.</p>',
+                'image' => 'aRWyGlsIQwnY9sNe8X9mhdyYWIy29evvmD4e1RaD.jpg',
+                'active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ],
+            [
+                'branch_id' => $branchID,
+                'name_bn' => 'মোঃ আবদুল হক',
+                'name_en' => 'Md. Abdul Haque',
+                'title_bn' => 'দাতা সদস্য',
+                'title_en' => 'Donor Member',
+                'designation_bn' => 'দাতা সদস্য',
+                'designation_en' => 'Donor Member',
+                'position' => 3,
+                'message_bn' => '<p>বিসমিল্লাহির রাহমানির রাহিম।</p><p>চর হাসান ইসলামিয়া দাখিল মাদ্রাসার সাথে জড়িত থাকতে পেরে আমি নিজেকে অত্যন্ত সৌভাগ্যবান মনে করি। দ্বীনি শিক্ষার প্রসার এবং এলাকার ভবিষ্যৎ প্রজন্মকে সঠিক পথের দিশা দেওয়ার লক্ষ্যেই আমাদের এই ক্ষুদ্র অবদান।</p><p>একটি প্রতিষ্ঠান তখনই সফলতার স্বর্ণশিখরে পৌঁছায় যখন সমাজের সর্বস্তরের মানুষ একে আপন করে নেয়। এই মাদ্রাসার প্রতিটি শিক্ষার্থী যেন কুরআন-সুন্নাহর আলোকে নিজেকে আলোকিত করে জাতির কল্যাণে নিয়োজিত হতে পারে, এটাই আমার আন্তরিক প্রত্যাশা। আসুন, আমরা সবাই ঐক্যবদ্ধভাবে প্রতিষ্ঠানটির উন্নয়নে অগ্রণী ভূমিকা পালন করি।</p>',
+                'message_en' => '<p>Bismillahir Rahmanir Rahim.</p><p>I feel truly honored and blessed to be associated with Char Hasan Islamia Dakhil Madrasah. This revered institution was founded with the noble objective of disseminating Islamic knowledge and empowering future generations with righteous education. Our humble contributions are made solely for the pleasure of Almighty Allah and for guiding our community toward light.</p><p>An institution achieves remarkable heights when people from all walks of life embrace and support it as their own. It is my earnest hope that every student of this madrasah enlightens their life through the teachings of the Quran and Sunnah and dedicates themselves to the service of humanity. Let us all come together to propel this institution to greater glory.</p>',
+                'image' => 'yPgOckzU4JGSDMKFvho1hGvXGL3gTlz6Zi9IqrXT.jpg',
+                'active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]
+        ];
+
+        foreach ($demo_founders as $founder) {
+            $this->db->insert('founder', $founder);
+        }
+    }
+
 }
 

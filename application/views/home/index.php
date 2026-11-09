@@ -170,13 +170,17 @@ $branchID_active = !empty($branchID) ? $branchID : 1;
 $db_leaders = [];
 if ($this->db->table_exists('founder')) {
     $db_leaders = $this->db->where('branch_id', $branchID_active)->where('active', 1)->order_by('position', 'asc')->get('founder')->result_array();
+    if (empty($db_leaders) && isset($this->home_model) && method_exists($this->home_model, 'ensure_demo_founders')) {
+        $this->home_model->ensure_demo_founders($branchID_active);
+        $db_leaders = $this->db->where('branch_id', $branchID_active)->where('active', 1)->order_by('position', 'asc')->get('founder')->result_array();
+    }
 }
 if (!empty($db_leaders)) {
 ?>
 <section class="leadership-section py-5" style="background-color: #f8fafc;">
     <div class="container">
         <div class="section-title mb-4">
-            <h2><i class="fas fa-comments"></i> <?php echo translate('messages_from_leadership'); ?></h2>
+            <h2><i class="fas fa-comments"></i> <?php echo ($current_lang == 'en') ? 'Messages from Leadership' : 'নেতৃত্বের বার্তা'; ?></h2>
         </div>
 
         <div class="row g-4 justify-content-center">
@@ -189,7 +193,7 @@ if (!empty($db_leaders)) {
                         $img_src = base_url('uploads/frontend/founder/' . $img_file);
                     }
 
-                    $col_class = ($count % 2 != 0 && $index == ($count - 1)) ? "col-lg-6 col-md-8 mx-auto" : "col-lg-6 col-md-6";
+                    $col_class = ($count == 3) ? "col-lg-4 col-md-6" : (($count % 2 != 0 && $index == ($count - 1)) ? "col-lg-6 col-md-8 mx-auto" : "col-lg-6 col-md-6");
                     
                     $leader_name = function_exists('get_lang_field') ? get_lang_field($leader, 'name') : (!empty($leader['name_bn']) ? $leader['name_bn'] : $leader['name_en']);
                     $leader_desig = function_exists('get_lang_field') ? get_lang_field($leader, 'designation') : (!empty($leader['designation_bn']) ? $leader['designation_bn'] : $leader['designation_en']);
@@ -215,7 +219,7 @@ if (!empty($db_leaders)) {
                                 </div>
                                 <div>
                                     <a href="<?php echo base_url('message-founder/' . $leader['id']); ?>" class="btn btn-sm text-white" style="background-color: #d97706; font-weight: 600; padding: 5px 16px; border-radius: 4px; font-size: 13px; text-decoration: none;">
-                                        <?php echo translate('read_full_message'); ?>
+                                        <?php echo ($current_lang == 'en') ? 'Read Full Message' : 'পুরো বার্তা পড়ুন'; ?>
                                     </a>
                                 </div>
                             </div>
