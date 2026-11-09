@@ -15,6 +15,7 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
     ?>
     <meta name="keyword" content="<?php echo html_escape($meta_kw); ?>">
     <meta name="description" content="<?php echo html_escape($meta_desc); ?>">
+    <link rel="canonical" href="<?php echo current_url(); ?>">
     
     <!-- Open Graph / Social Sharing Meta Tags -->
     <meta property="og:type" content="article">
@@ -25,6 +26,14 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
     <?php if (!empty($page_data['meta_image'])): ?>
     <meta property="og:image" content="<?php echo html_escape($page_data['meta_image']); ?>">
     <?php endif; ?>
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo html_escape(!empty($page_data['page_title']) ? $page_data['page_title'] : $site_name); ?>">
+    <meta name="twitter:description" content="<?php echo html_escape($meta_desc); ?>">
+    <?php if (!empty($page_data['meta_image'])): ?>
+    <meta name="twitter:image" content="<?php echo html_escape($page_data['meta_image']); ?>">
+    <?php endif; ?>
     
     <!-- Favicon -->
     <link rel="shortcut icon" href="<?php echo base_url('assets/images/favicon.png'); ?>">
@@ -33,8 +42,64 @@ $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
         $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
         $curr_page_title = function_exists('get_lang_field') ? get_lang_field($page_data, 'page_title') : (!empty($page_data['page_title']) ? $page_data['page_title'] : '');
         $curr_site_title = html_escape($site_name);
+        $full_page_title = (!empty($curr_page_title) ? $curr_page_title . " - " : "") . $curr_site_title;
     ?>
-    <title><?php echo (!empty($curr_page_title) ? $curr_page_title . " - " : "") . $curr_site_title; ?></title>
+    <title><?php echo $full_page_title; ?></title>
+
+    <!-- Schema.org Structured Data (JSON-LD for Search Engines & AI Crawlers) -->
+    <?php
+        $schema_phone = !empty($cms_setting['mobile_no']) ? $cms_setting['mobile_no'] : (!empty($global_config['mobileno']) ? $global_config['mobileno'] : '+8801727770321');
+        $schema_email = !empty($cms_setting['email']) ? $cms_setting['email'] : (!empty($global_config['institute_email']) ? $global_config['institute_email'] : 'charhasan1996@gmail.com');
+        $schema_address = function_exists('get_lang_field') ? get_lang_field($cms_setting, 'address', 'গ্রাম: চর হাসান, পো: পশ্চিম চর জব্বর, সুবর্ণচর, নোয়াখালী') : 'গ্রাম: চর হাসান, পো: পশ্চিম চর জব্বর, সুবর্ণচর, নোয়াখালী';
+        $schema_logo = !empty($cms_setting['logo']) ? base_url('uploads/frontend/images/' . $cms_setting['logo']) : base_url('assets/images/favicon.png');
+        
+        $json_ld = [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => ['EducationalOrganization', 'School'],
+                    '@id' => base_url('#organization'),
+                    'name' => 'চর হাসান ইসলামিয়া দাখিল মাদরাসা',
+                    'alternateName' => ['Char Hasan Islamia Dakhil Madrasah', 'CHIDM', 'ড্রিম ভ্যালি স্কুল', 'Dream Valley School'],
+                    'url' => base_url(),
+                    'logo' => [
+                        '@type' => 'ImageObject',
+                        'url' => $schema_logo
+                    ],
+                    'telephone' => $schema_phone,
+                    'email' => $schema_email,
+                    'address' => [
+                        '@type' => 'PostalAddress',
+                        'streetAddress' => $schema_address,
+                        'addressLocality' => 'Subarnachar',
+                        'addressRegion' => 'Noakhali',
+                        'addressCountry' => 'BD'
+                    ],
+                    'foundingDate' => '1996'
+                ],
+                [
+                    '@type' => 'WebPage',
+                    '@id' => current_url() . '#webpage',
+                    'url' => current_url(),
+                    'name' => $full_page_title,
+                    'description' => $meta_desc,
+                    'inLanguage' => ['bn', 'en'],
+                    'isPartOf' => [
+                        '@type' => 'WebSite',
+                        '@id' => base_url('#website'),
+                        'name' => $site_name,
+                        'url' => base_url()
+                    ]
+                ]
+            ]
+        ];
+        if (!empty($cms_setting['facebook_url'])) {
+            $json_ld['@graph'][0]['sameAs'] = [$cms_setting['facebook_url']];
+        }
+    ?>
+    <script type="application/ld+json">
+    <?php echo json_encode($json_ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT); ?>
+    </script>
 
     <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">

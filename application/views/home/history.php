@@ -33,10 +33,6 @@ $content = function_exists('get_lang_field') ? get_lang_field($page_data, 'conte
             <div class="col-lg-10">
                 <div class="card shadow-sm mb-5">
                     <div class="card-body p-4 p-md-5">
-                        <div class="section-title mb-4 text-center">
-                            <h2><?php echo html_escape($page_title); ?></h2>
-                        </div>
-
                         <div class="row mb-5">
                             <div class="col-md-12" id="details">
                                 <?php if (strpos($content, 'history-content') !== false) { ?>
