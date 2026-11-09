@@ -1505,6 +1505,54 @@ class Home extends Frontend_Controller
         }
     }
 
+    public function class_routine()
+    {
+        $branchID = $this->home_model->getDefaultBranch();
+        $this->data['branchID'] = $branchID;
+
+        // Get Classes for this branch
+        $this->data['classes'] = $this->db->select('id, name')
+            ->where('branch_id', $branchID)
+            ->order_by('id', 'asc')
+            ->get('class')->result_array();
+
+        // Filter inputs
+        $class_id   = $this->input->get_post('class_id', true);
+        $section_id = $this->input->get_post('section_id', true);
+
+        $is_searched = (isset($_GET['class_id']) || isset($_POST['class_id']));
+
+        $this->data['selected_class']   = $class_id;
+        $this->data['selected_section'] = $section_id;
+        $this->data['is_searched']      = $is_searched;
+        $this->data['timetables']       = array();
+
+        if (!empty($class_id)) {
+            $session_id = get_session_id();
+            $where = array(
+                'timetable_class.branch_id'  => $branchID,
+                'timetable_class.class_id'   => $class_id,
+                'timetable_class.session_id' => $session_id,
+            );
+            if (!empty($section_id)) {
+                $where['timetable_class.section_id'] = $section_id;
+            }
+            $this->db->select('timetable_class.*, subject.name as subject_name, section.name as section_name, staff.name as teacher_name');
+            $this->db->from('timetable_class');
+            $this->db->join('subject', 'subject.id = timetable_class.subject_id', 'left');
+            $this->db->join('section', 'section.id = timetable_class.section_id', 'left');
+            $this->db->join('staff', 'staff.id = timetable_class.teacher_id', 'left');
+            $this->db->where($where);
+            $this->db->order_by('timetable_class.day', 'asc');
+            $this->db->order_by('timetable_class.time_start', 'asc');
+            $this->data['timetables'] = $this->db->get()->result_array();
+        }
+
+        $this->data['active_menu'] = 'class-routine';
+        $this->data['main_contents'] = $this->load->view('home/class_routine', $this->data, true);
+        $this->load->view('home/layout/index', $this->data);
+    }
+
     public function exam_routine()
     {
         $branchID = $this->home_model->getDefaultBranch();
