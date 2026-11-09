@@ -1629,26 +1629,59 @@ class Home extends Frontend_Controller
 
 
     public function gallery()
-
     {
-
         $branchID = $this->home_model->getDefaultBranch();
-
         $this->data['branchID'] = $branchID;
-
         $this->data['page_data'] = $this->home_model->get('front_cms_gallery', array('branch_id' => $branchID), true);
 
-        $this->data['category'] = $this->home_model->getGalleryCategory($branchID);
+        // Fetch categories
+        $this->data['category'] = $this->db->get_where('front_cms_gallery_category', array('branch_id' => $branchID))->result_array();
 
-        $this->data['galleryList'] = $this->home_model->getGalleryList($branchID);
+        // Fetch photo albums (file_type = 'image')
+        $this->data['albums'] = $this->home_model->getGalleryList($branchID, null, 'image');
 
+        // Total counts for tabs
+        $this->data['total_photos_count'] = count($this->data['albums']);
+        $this->data['total_videos_count'] = $this->db->where('branch_id', $branchID)->where('file_type', 'video')->where('show_web', 1)->count_all_results('front_cms_gallery_content');
+
+        $this->data['active_menu'] = 'gallery';
         $this->data['main_contents'] = $this->load->view('home/gallery', $this->data, true);
-
         $this->load->view('home/layout/index', $this->data);
-
     }
 
+    public function video_gallery()
+    {
+        $branchID = $this->home_model->getDefaultBranch();
+        $this->data['branchID'] = $branchID;
+        
+        // Page data from front_cms_home (video_gallery) or front_cms_gallery
+        $video_sec = $this->home_model->getCmsHome('video_gallery', $branchID, null);
+        $page_data = $this->home_model->get('front_cms_gallery', array('branch_id' => $branchID), true);
+        if (!empty($video_sec)) {
+            $page_data['page_title'] = !empty($video_sec['title']) ? $video_sec['title'] : 'ভিডিও গ্যালারি';
+            $page_data['page_title_en'] = !empty($video_sec['title_en']) ? $video_sec['title_en'] : 'Video Gallery';
+            $page_data['subtitle'] = !empty($video_sec['subtitle']) ? $video_sec['subtitle'] : '';
+            $page_data['subtitle_en'] = !empty($video_sec['subtitle_en']) ? $video_sec['subtitle_en'] : '';
+        } else {
+            $page_data['page_title'] = 'ভিডিও গ্যালারি';
+            $page_data['page_title_en'] = 'Video Gallery';
+        }
+        $this->data['page_data'] = $page_data;
 
+        // Categories
+        $this->data['category'] = $this->db->get_where('front_cms_gallery_category', array('branch_id' => $branchID))->result_array();
+
+        // Videos
+        $this->data['videos'] = $this->home_model->getVideoList($branchID);
+
+        // Total counts for tabs
+        $this->data['total_photos_count'] = $this->db->where('branch_id', $branchID)->where('file_type', 'image')->where('show_web', 1)->count_all_results('front_cms_gallery_content');
+        $this->data['total_videos_count'] = count($this->data['videos']);
+
+        $this->data['active_menu'] = 'video-gallery';
+        $this->data['main_contents'] = $this->load->view('home/video_gallery', $this->data, true);
+        $this->load->view('home/layout/index', $this->data);
+    }
 
     public function gallery_view($alias = '')
     {
@@ -1656,23 +1689,42 @@ class Home extends Frontend_Controller
         $this->data['branchID'] = $branchID;
         $this->data['page_data'] = $this->home_model->get('front_cms_gallery', array('branch_id' => $branchID), true);
 
-        $category_id = is_numeric($alias) ? (int)$alias : null;
-        if (!empty($category_id)) {
-            $cat_info = $this->db->get_where('front_cms_gallery_category', array('id' => $category_id))->row_array();
-            if (!empty($cat_info)) {
-                $this->data['category_info'] = $cat_info;
-            }
-            $images = $this->home_model->getGalleryList($branchID, $category_id, 'image');
-            if (empty($images)) {
-                $images = $this->home_model->getGalleryList($branchID, null, 'image');
-            }
-            $this->data['galleryList'] = $images;
-        } else {
-            $this->data['gallery'] = $this->home_model->get('front_cms_gallery_content', array('branch_id' => $branchID, 'alias' => urldecode($alias)), true);
-            $this->data['galleryList'] = $this->home_model->getGalleryList($branchID, null, 'image');
+        $album = null;
+        if (is_numeric($alias)) {
+            $album = $this->db->select('front_cms_gallery_content.*, front_cms_gallery_category.name as category_name, front_cms_gallery_category.name_en as category_name_en')
+                ->from('front_cms_gallery_content')
+                ->join('front_cms_gallery_category', 'front_cms_gallery_category.id = front_cms_gallery_content.category_id', 'left')
+                ->where('front_cms_gallery_content.id', (int)$alias)
+                ->where('front_cms_gallery_content.branch_id', $branchID)
+                ->get()->row_array();
+        }
+        if (empty($album)) {
+            $album = $this->db->select('front_cms_gallery_content.*, front_cms_gallery_category.name as category_name, front_cms_gallery_category.name_en as category_name_en')
+                ->from('front_cms_gallery_content')
+                ->join('front_cms_gallery_category', 'front_cms_gallery_category.id = front_cms_gallery_content.category_id', 'left')
+                ->where('front_cms_gallery_content.alias', urldecode($alias))
+                ->where('front_cms_gallery_content.branch_id', $branchID)
+                ->get()->row_array();
         }
 
-        $this->data['category'] = $this->home_model->getGalleryCategory($branchID);
+        // If album still not found, check if $alias is a category_id and get first album in category
+        if (empty($album) && is_numeric($alias)) {
+            $album = $this->db->select('front_cms_gallery_content.*, front_cms_gallery_category.name as category_name, front_cms_gallery_category.name_en as category_name_en')
+                ->from('front_cms_gallery_content')
+                ->join('front_cms_gallery_category', 'front_cms_gallery_category.id = front_cms_gallery_content.category_id', 'left')
+                ->where('front_cms_gallery_content.category_id', (int)$alias)
+                ->where('front_cms_gallery_content.branch_id', $branchID)
+                ->where('front_cms_gallery_content.show_web', 1)
+                ->get()->row_array();
+        }
+
+        if (empty($album)) {
+            redirect(base_url('gallery'));
+            return;
+        }
+
+        $this->data['album'] = $album;
+        $this->data['active_menu'] = 'gallery';
         $this->data['main_contents'] = $this->load->view('home/gallery_view', $this->data, true);
         $this->load->view('home/layout/index', $this->data);
     }
@@ -2058,6 +2110,16 @@ class Home extends Frontend_Controller
 
         if ($alias == 'exam-routine' || $alias == 'exam_routine') {
             $this->exam_routine();
+            return;
+        }
+
+        if ($alias == 'gallery' || $alias == 'photo-gallery') {
+            $this->gallery();
+            return;
+        }
+
+        if ($alias == 'video-gallery' || $alias == 'video_gallery') {
+            $this->video_gallery();
             return;
         }
 

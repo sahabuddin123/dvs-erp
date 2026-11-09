@@ -162,6 +162,9 @@ if (!function_exists('get_dvs_menu_icon')) {
             'academic-record' => 'fas fa-clipboard-list',
             'admission' => 'fas fa-file-signature',
             'gallery' => 'fas fa-images',
+            'photo-gallery' => 'fas fa-images',
+            'video-gallery' => 'fas fa-video',
+            'video_gallery' => 'fas fa-video',
             'contact' => 'fas fa-phone',
             'admit_card' => 'fas fa-id-card',
             'admit-card' => 'fas fa-id-card',
@@ -267,7 +270,7 @@ if (substr($current_uri, 0, 4) === 'cms/') {
                                 ?>
                                     <li>
                                         <a class="dropdown-item <?php echo $sub_active; ?>" href="<?php echo $sub['url']; ?>" <?php echo $sub_target; ?>>
-                                            <i class="<?php echo $sub_icon; ?> me-2 text-success"></i> <?php echo html_escape($sub_title); ?>
+                                            <i class="<?php echo $sub_icon; ?> me-2" style="color: var(--primary-color);"></i> <?php echo html_escape($sub_title); ?>
                                         </a>
                                     </li>
                                 <?php endforeach; ?>
@@ -332,7 +335,7 @@ if (substr($current_uri, 0, 4) === 'cms/') {
                                     ?>
                                         <li class="nav-item">
                                             <a class="nav-link py-1 <?php echo $sub_active; ?>" href="<?php echo $sub['url']; ?>" <?php echo $sub_target; ?>>
-                                                <i class="<?php echo $sub_icon; ?> me-2 text-success"></i> <?php echo html_escape($sub_title); ?>
+                                                <i class="<?php echo $sub_icon; ?> me-2" style="color: var(--primary-color);"></i> <?php echo html_escape($sub_title); ?>
                                             </a>
                                         </li>
                                     <?php endforeach; ?>

@@ -341,6 +341,10 @@ class Home_model extends MY_Model
         } else {
             if ($array['alias'] == 'exam-routine' || $array['alias'] == 'exam_routine') {
                 $url = base_url($prefix . 'exam-routine');
+            } elseif ($array['alias'] == 'video-gallery' || $array['alias'] == 'video_gallery') {
+                $url = base_url($prefix . 'video-gallery');
+            } elseif ($array['alias'] == 'gallery' || $array['alias'] == 'photo-gallery') {
+                $url = base_url($prefix . 'gallery');
             } else {
                 $url = base_url($prefix . 'page/' . $array['alias']);
             }
@@ -393,29 +397,36 @@ class Home_model extends MY_Model
 
 
 
-    public function getGalleryCategory($branch_id)
+    public function getGalleryCategory($branch_id, $file_type = 'image')
     {
         $this->db->select('front_cms_gallery_category.id as category_id,front_cms_gallery_category.name as category_name,front_cms_gallery_category.name_en as category_name_en,COUNT(front_cms_gallery_content.id) as photo_count,MAX(front_cms_gallery_content.thumb_image) as cover_image');
         $this->db->from('front_cms_gallery_category');
         $this->db->join('front_cms_gallery_content', 'front_cms_gallery_content.category_id = front_cms_gallery_category.id', 'inner');
         $this->db->where('front_cms_gallery_category.branch_id', $branch_id);
         $this->db->where('front_cms_gallery_content.show_web', 1);
-        $this->db->where('front_cms_gallery_content.file_type', 'image');
+        if (!empty($file_type)) {
+            $this->db->where('front_cms_gallery_content.file_type', $file_type);
+        }
         $this->db->group_by('front_cms_gallery_category.id');
         $this->db->order_by('front_cms_gallery_category.id', 'asc');
         $result = $this->db->get()->result_array();
-        if (empty($result)) {
-            $count = $this->db->where('branch_id', $branch_id)->where('show_web', 1)->where('file_type', 'image')->count_all_results('front_cms_gallery_content');
-            if ($count > 0) {
-                $result[] = [
-                    'category_id' => 1,
-                    'category_name' => 'Science Fair',
-                    'category_name_en' => 'Science Fair',
-                    'photo_count' => $count,
-                    'cover_image' => 'dOE0oYuYQRh3bDbaMw6J9JQyEMO884GAv5lQ5YGq.jpg'
-                ];
-            }
+        return $result;
+    }
+
+    public function getVideoList($branch_id, $category_id = null)
+    {
+        $this->db->select('front_cms_gallery_content.*,staff.name as staff_name,front_cms_gallery_category.name as category_name,front_cms_gallery_category.name_en as category_name_en');
+        $this->db->from('front_cms_gallery_content');
+        $this->db->join('staff', 'staff.id = front_cms_gallery_content.added_by', 'left');
+        $this->db->join('front_cms_gallery_category', 'front_cms_gallery_category.id = front_cms_gallery_content.category_id', 'left');
+        $this->db->where('front_cms_gallery_content.branch_id', $branch_id);
+        $this->db->where('front_cms_gallery_content.show_web', 1);
+        $this->db->where('front_cms_gallery_content.file_type', 'video');
+        if (!empty($category_id)) {
+            $this->db->where('front_cms_gallery_content.category_id', (int)$category_id);
         }
+        $this->db->order_by('front_cms_gallery_content.id', 'desc');
+        $result = $this->db->get()->result_array();
         return $result;
     }
 

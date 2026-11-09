@@ -27,19 +27,57 @@
 					<?php endif; ?>
 
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('gallery') . " " . translate('title'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('type'); ?> <span class="required">*</span></label>
+						<div class="col-md-6">
+							<select class="form-control" name="file_type" id="gallery_file_type" data-plugin-selectTwo data-width="100%" data-minimum-results-for-search="Infinity">
+								<option value="image" <?php echo ($gallery['file_type'] != 'video' ? 'selected' : ''); ?>>📷 Photo Album (ফটো অ্যালবাম)</option>
+								<option value="video" <?php echo ($gallery['file_type'] == 'video' ? 'selected' : ''); ?>>🎥 Video Gallery / Video (ভিডিও গ্যালারি)</option>
+							</select>
+							<span class="error"></span>
+						</div>
+					</div>
+
+					<div class="form-group video_url_field" style="<?php echo ($gallery['file_type'] == 'video' ? '' : 'display: none;'); ?>">
+						<label class="col-md-3 control-label">YouTube Video URL <span class="required">*</span></label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="video_url" id="video_url_input" placeholder="e.g. https://www.youtube.com/watch?v=xxxx-xx or https://youtu.be/xxxx" value="<?php echo set_value('video_url', $gallery['video_url'] ?? ''); ?>" />
+							<small class="text-muted">Enter standard YouTube video link. Thumbnail will be auto-fetched if no custom image is uploaded.</small>
+							<span class="error"><?php echo form_error('video_url'); ?></span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('gallery') . " " . translate('title'); ?> (বাংলা) <span class="required">*</span></label>
 						<div class="col-md-6">
 							<input type="text" class="form-control" name="gallery_title" value="<?php echo set_value('gallery_title', $gallery['title']); ?>" />
 							<span class="error"><?php echo form_error('gallery_title'); ?></span>
 						</div>
 					</div>
+
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('description'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('gallery') . " " . translate('title'); ?> (English)</label>
 						<div class="col-md-6">
-							<textarea class="form-control" id="description" name="description" placeholder="" rows="3" ><?php echo set_value('description', $gallery['description']); ?></textarea>
+							<input type="text" class="form-control" name="gallery_title_en" value="<?php echo set_value('gallery_title_en', $gallery['title_en'] ?? ''); ?>" placeholder="e.g. Annual Sports Competition" />
+							<span class="error"><?php echo form_error('gallery_title_en'); ?></span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('description'); ?> (বাংলা) <span class="required">*</span></label>
+						<div class="col-md-6">
+							<textarea class="form-control" id="description" name="description" placeholder="" rows="3"><?php echo set_value('description', $gallery['description']); ?></textarea>
 							<span class="error"><?php echo form_error('description'); ?></span>
 						</div>
 					</div>
+
+					<div class="form-group">
+						<label class="col-md-3 control-label"><?php echo translate('description'); ?> (English)</label>
+						<div class="col-md-6">
+							<textarea class="form-control" id="description_en" name="description_en" placeholder="Short description in English" rows="2"><?php echo set_value('description_en', $gallery['description_en'] ?? ''); ?></textarea>
+							<span class="error"><?php echo form_error('description_en'); ?></span>
+						</div>
+					</div>
+
 					<div class="form-group">
 						<label class="col-md-3 control-label"><?php echo translate('category'); ?> <span class="required">*</span></label>
 						<div class="col-md-6">
@@ -51,14 +89,20 @@
 							<span class="error"><?php echo form_error('type'); ?></span>
 						</div>
 					</div>
+
 					<div class="form-group">
-						<label class="col-md-3 control-label"><?php echo translate('thumb_image'); ?> <span class="required">*</span></label>
+						<label class="col-md-3 control-label"><?php echo translate('thumb_image'); ?></label>
 						<div class="col-md-4">
 							<input type="hidden" name="old_photo" value="<?php echo $gallery['thumb_image']; ?>">
-							<input type="file" name="thumb_image" class="dropify" data-height="150" data-default-file="<?php echo $this->gallery_model->get_image_url($gallery['thumb_image']); ?>" />
+							<?php
+								$is_vid = (!empty($gallery['file_type']) && $gallery['file_type'] == 'video');
+								$thumb_preview = $is_vid ? $this->gallery_model->get_video_thumbnail($gallery['video_url'] ?? '', $gallery['thumb_image']) : $this->gallery_model->get_image_url($gallery['thumb_image']);
+							?>
+							<input type="file" name="thumb_image" class="dropify" data-height="150" data-default-file="<?php echo $thumb_preview; ?>" />
 							<span class="error"><?php echo form_error('thumb_image'); ?></span>
 						</div>
 					</div>
+
 					<div class="form-group">
 						<label class="col-md-3 control-label"><?=translate('show_website')?></label>
 						<div class="col-md-6">
@@ -68,6 +112,7 @@
 							</div>
 						</div>
 					</div>
+
 					<footer class="panel-footer mt-lg">
 						<div class="row">
 							<div class="col-md-2 col-md-offset-3">
@@ -82,3 +127,15 @@
 		</div>
 	</div>
 </section>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#gallery_file_type').on('change', function() {
+			if ($(this).val() === 'video') {
+				$('.video_url_field').slideDown(200);
+			} else {
+				$('.video_url_field').slideUp(200);
+			}
+		});
+	});
+</script>
