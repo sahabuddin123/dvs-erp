@@ -97,6 +97,23 @@ $app_email = !empty($cms_setting['email']) ? $cms_setting['email'] : (!empty($gl
     </div>
 </div>
 
+<?php 
+$header_branchID = isset($branchID) ? $branchID : (isset($cms_setting['branch_id']) ? $cms_setting['branch_id'] : (isset($this->home_model) ? $this->home_model->getDefaultBranch() : 1));
+$ticker_notices = $this->db->where('show_web', 1)
+    ->group_start()
+        ->where('branch_id', $header_branchID)
+        ->or_where('branch_id', 0)
+    ->group_end()
+    ->order_by('id', 'desc')
+    ->limit(10)
+    ->get('front_cms_news_list')
+    ->result_array();
+
+if (empty($ticker_notices)) {
+    $ticker_notices = $this->db->where('show_web', 1)->order_by('id', 'desc')->limit(10)->get('front_cms_news_list')->result_array();
+}
+?>
+<?php if (!empty($ticker_notices)): ?>
 <!-- Notice Marquee Bar -->
 <div class="notice-bar" style="background: var(--primary-color)">
     <div class="container">
@@ -107,22 +124,18 @@ $app_email = !empty($cms_setting['email']) ? $cms_setting['email'] : (!empty($gl
             <div class="marquee-container" style="flex: 1; overflow: hidden;">
                 <div class="marquee">
                     <?php 
-                    $ticker_notices = $this->db->order_by('id', 'desc')->limit(10)->get('front_cms_news_list')->result_array();
-                    if (!empty($ticker_notices)) {
-                        foreach ($ticker_notices as $t_notice) { 
-                            $notice_title = get_lang_field($t_notice, 'title');
-                            $notice_ticker_url = !empty($t_notice['alias']) ? base_url('notice-details/' . $t_notice['alias']) : base_url('notice-details/' . $t_notice['id']);
+                    foreach ($ticker_notices as $t_notice) { 
+                        $notice_title = get_lang_field($t_notice, 'title');
+                        $notice_ticker_url = !empty($t_notice['alias']) ? base_url('notice-details/' . $t_notice['alias']) : base_url('notice-details/' . $t_notice['id']);
                     ?>
                         <span class="marquee-item"><a href="<?php echo $notice_ticker_url; ?>" class="text-light" style="text-decoration: none;"><?php echo html_escape($notice_title); ?></a></span>
-                    <?php }
-                    } else { ?>
-                        <span class="marquee-item text-light"><?php echo ($current_lang == 'en') ? 'Welcome to ' . html_escape($app_title) : html_escape($app_title) . ' এ আপনাকে স্বাগতম'; ?></span>
                     <?php } ?>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <?php
 if (!function_exists('get_dvs_menu_icon')) {
