@@ -850,10 +850,13 @@ if (empty($home_seo)) $home_seo = array('page_title' => '', 'meta_keyword' => ''
 						<h4><i class="fas fa-chart-pie text-primary"></i> লাইভ ইআরপি পরিসংখ্যান প্রিভিউ</h4>
 						<div class="row mt-md">
 							<?php 
-							$p_stud = $this->home_model->getStatisticsCounter('student', $branch_id);
-							$p_cls  = $this->home_model->getStatisticsCounter('class', $branch_id);
-							$p_sec  = $this->home_model->getStatisticsCounter('section', $branch_id);
-							$p_tea  = $this->home_model->getStatisticsCounter('teacher', $branch_id);
+							if (!isset($this->home_model)) {
+								$this->load->model('home_model');
+							}
+							$p_stud = isset($this->home_model) ? $this->home_model->getStatisticsCounter('student', $branch_id) : 0;
+							$p_cls  = isset($this->home_model) ? $this->home_model->getStatisticsCounter('class', $branch_id) : 0;
+							$p_sec  = isset($this->home_model) ? $this->home_model->getStatisticsCounter('section', $branch_id) : 0;
+							$p_tea  = isset($this->home_model) ? $this->home_model->getStatisticsCounter('teacher', $branch_id) : 0;
 							?>
 							<div class="col-sm-3 col-xs-6 text-center mb-sm">
 								<div class="well well-sm">

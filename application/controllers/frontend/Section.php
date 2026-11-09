@@ -18,6 +18,7 @@ class Section extends Admin_Controller
         parent::__construct();
         $this->load->model('frontend_model');
         $this->load->model('student_fields_model');
+        $this->load->model('home_model');
         $this->data['headerelements'] = array(
             'css' => array(
                 'vendor/summernote/summernote.css',
