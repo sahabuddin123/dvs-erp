@@ -469,6 +469,9 @@ ensure_column($conn, 'event', 'type_en', 'VARCHAR(255) NULL DEFAULT NULL AFTER `
 // Ensure event_types table columns for multi-language
 ensure_column($conn, 'event_types', 'name_en', 'VARCHAR(255) NULL DEFAULT NULL AFTER `name`');
 
+// Ensure teacher table has staff_id column
+ensure_column($conn, 'teacher', 'staff_id', 'INT(11) NULL DEFAULT NULL AFTER `branch_id`');
+
 // Seed event types if not exist
 $types_seed = [
     ['name' => 'বার্ষিক প্রতিযোগিতা', 'name_en' => 'Annual Competition', 'icon' => 'flag-checkered', 'branch_id' => 1],

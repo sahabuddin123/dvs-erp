@@ -107,11 +107,16 @@ class Home extends Frontend_Controller
         $this->data['teachers'] = $this->home_model->getCmsHome('teachers', $branchID);
 
         $teachers_list = [];
+        $has_cms_teachers = false;
         if ($this->db->table_exists('teacher')) {
-            $teachers_list = $this->db->where('branch_id', $branchID)->where('active', 1)->where('show_on_homepage', 1)->order_by('position', 'asc')->get('teacher')->result_array();
+            $cms_teachers_count = $this->db->where('branch_id', $branchID)->count_all_results('teacher');
+            if ($cms_teachers_count > 0) {
+                $has_cms_teachers = true;
+                $teachers_list = $this->db->where('branch_id', $branchID)->where('active', 1)->where('show_on_homepage', 1)->order_by('position', 'asc')->get('teacher')->result_array();
+            }
         }
         // If no dedicated website teachers exist for this branch, load institutional teachers (role 3) for this branch
-        if (empty($teachers_list)) {
+        if (!$has_cms_teachers && empty($teachers_list)) {
             $doc_list = $this->home_model->get_teacher_list('', $branchID);
             if (!empty($doc_list)) {
                 foreach ($doc_list as $doc) {
@@ -381,25 +386,27 @@ class Home extends Frontend_Controller
 
 
     public function teachers()
-
     {
-
         $branchID = $this->home_model->getDefaultBranch();
-
         $this->data['branchID'] = $branchID;
-
         $this->data['page_data'] = $this->home_model->get('front_cms_teachers', array('branch_id' => $branchID), true);
-
         $this->data['departments'] = $this->home_model->get_teacher_departments($branchID);
 
-        $this->data['doctor_list'] = $this->home_model->get_teacher_list("", $branchID);
+        $doctor_list = [];
+        if ($this->db->table_exists('teacher')) {
+            $cms_count = $this->db->where('branch_id', $branchID)->count_all_results('teacher');
+            if ($cms_count > 0) {
+                $doctor_list = $this->db->where('branch_id', $branchID)->where('active', 1)->order_by('position', 'asc')->get('teacher')->result_array();
+            }
+        }
+        if (empty($doctor_list)) {
+            $doctor_list = $this->home_model->get_teacher_list("", $branchID);
+        }
 
+        $this->data['doctor_list'] = $doctor_list;
         $this->data['active_menu'] = 'teachers';
-
         $this->data['main_contents'] = $this->load->view('home/teachers', $this->data, true);
-
         $this->load->view('home/layout/index', $this->data);
-
     }
 
 

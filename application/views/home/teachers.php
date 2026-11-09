@@ -57,22 +57,38 @@ $date_display = date('M d, Y');
                         <?php } else { ?>
                             <!-- Teachers Grid -->
                             <div class="row g-4 mt-2">
-                                <?php foreach ($doctor_list as $t) { 
-                                    $t_photo = !empty($t['photo']) ? get_image_url('staff', $t['photo']) : base_url('uploads/app_image/default.png');
-                                ?>
-                                    <div class="col-md-6 col-lg-4">
-                                        <div class="card h-100 shadow-sm border-0 member-card" style="border-radius: 8px; transition: transform 0.3s ease, box-shadow 0.3s ease;">
-                                            <div class="card-body text-center p-4 d-flex flex-column">
-                                                <div class="mb-3 mx-auto" style="width: 100%; height: 200px; overflow: hidden; border-radius: 6px; background-color: #f8fafc;">
-                                                    <img src="<?php echo $t_photo; ?>" alt="<?php echo html_escape($t['name']); ?>" class="img-fluid" style="height: 200px; width: 100%; object-fit: cover;">
-                                                </div>
-                                                <h5 class="mb-1 fw-bold" style="color: #1e293b; font-size: 1.15rem;"><?php echo html_escape($t['name']); ?></h5>
-                                                <p class="text-muted small mb-1"><?php echo html_escape(!empty($t['designation_name']) ? $t['designation_name'] : translate('teacher')); ?></p>
-                                                <p class="small mb-3" style="color: var(--primary-color) !important; font-weight: 500;"><?php echo html_escape(!empty($t['department_name']) ? $t['department_name'] : ''); ?></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php } ?>
+                                <?php foreach ($doctor_list as $t) { 
+                                    $t_name = ($current_lang == 'en') ? (!empty($t['name_en']) ? $t['name_en'] : $t['name']) : (!empty($t['name_bn']) ? $t['name_bn'] : $t['name']);
+                                    $t_desig = ($current_lang == 'en') ? (!empty($t['designation_en']) ? $t['designation_en'] : (!empty($t['designation_name']) ? $t['designation_name'] : (!empty($t['designation']) ? $t['designation'] : translate('teacher')))) : (!empty($t['designation_bn']) ? $t['designation_bn'] : (!empty($t['designation_name']) ? $t['designation_name'] : (!empty($t['designation']) ? $t['designation'] : translate('teacher'))));
+                                    $t_dept = ($current_lang == 'en') ? (!empty($t['subject_en']) ? $t['subject_en'] : (!empty($t['department_name']) ? $t['department_name'] : (!empty($t['subject']) ? $t['subject'] : ''))) : (!empty($t['subject_bn']) ? $t['subject_bn'] : (!empty($t['department_name']) ? $t['department_name'] : (!empty($t['subject']) ? $t['subject'] : '')));
+
+                                    $img_file = !empty($t['image']) ? $t['image'] : (!empty($t['photo']) ? $t['photo'] : '');
+                                    $t_photo = base_url('uploads/app_image/default.png');
+                                    if (!empty($img_file)) {
+                                        if (file_exists(FCPATH . 'uploads/frontend/teacher/' . $img_file)) {
+                                            $t_photo = base_url('uploads/frontend/teacher/' . $img_file);
+                                        } elseif (file_exists(FCPATH . 'uploads/images/staff/' . $img_file)) {
+                                            $t_photo = base_url('uploads/images/staff/' . $img_file);
+                                        } elseif (file_exists(FCPATH . 'uploads/frontend/founder/' . $img_file)) {
+                                            $t_photo = base_url('uploads/frontend/founder/' . $img_file);
+                                        }
+                                    }
+                                ?>
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="card h-100 shadow-sm border-0 member-card" style="border-radius: 8px; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                                            <div class="card-body text-center p-4 d-flex flex-column">
+                                                <div class="mb-3 mx-auto" style="width: 100%; height: 200px; overflow: hidden; border-radius: 6px; background-color: #f8fafc;">
+                                                    <img src="<?php echo $t_photo; ?>" alt="<?php echo html_escape($t_name); ?>" class="img-fluid" style="height: 200px; width: 100%; object-fit: cover;">
+                                                </div>
+                                                <h5 class="mb-1 fw-bold" style="color: #1e293b; font-size: 1.15rem;"><?php echo html_escape($t_name); ?></h5>
+                                                <p class="text-muted small mb-1"><?php echo html_escape($t_desig); ?></p>
+                                                <?php if (!empty($t_dept)): ?>
+                                                    <p class="small mb-3" style="color: var(--primary-color) !important; font-weight: 500;"><?php echo html_escape($t_dept); ?></p>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php } ?>
                             </div>
                         <?php } ?>
 

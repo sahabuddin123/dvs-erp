@@ -271,11 +271,13 @@ if ($teachers_is_active && !empty($teachers_list)) {
 
                 $t_img = !empty($t_item['image']) ? $t_item['image'] : '';
                 $t_img_url = base_url('uploads/app_image/default.png');
-                if (!empty($t_item['is_staff'])) {
-                    $t_img_url = !empty($t_img) ? get_image_url('staff', $t_img) : base_url('uploads/app_image/default.png');
-                } else {
-                    if (!empty($t_img) && file_exists(FCPATH . 'uploads/frontend/teacher/' . $t_img)) {
+                if (!empty($t_img)) {
+                    if (file_exists(FCPATH . 'uploads/frontend/teacher/' . $t_img)) {
                         $t_img_url = base_url('uploads/frontend/teacher/' . $t_img);
+                    } elseif (file_exists(FCPATH . 'uploads/images/staff/' . $t_img)) {
+                        $t_img_url = base_url('uploads/images/staff/' . $t_img);
+                    } elseif (file_exists(FCPATH . 'uploads/frontend/founder/' . $t_img)) {
+                        $t_img_url = base_url('uploads/frontend/founder/' . $t_img);
                     }
                 }
             ?>
@@ -304,7 +306,7 @@ if ($teachers_is_active && !empty($teachers_list)) {
                                 data-email="<?php echo html_escape(!empty($t_item['email']) ? $t_item['email'] : ''); ?>"
                                 data-image="<?php echo $t_img_url; ?>"
                                 data-message="<?php echo html_escape($t_message); ?>">
-                                <?php echo ($current_lang == 'en') ? 'Read Full Message' : 'Read Full Message'; ?>
+                                <?php echo ($current_lang == 'en') ? 'Read Full Message' : 'পুরো বার্তা পড়ুন'; ?>
                             </button>
                         </div>
                     </div>

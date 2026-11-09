@@ -19,42 +19,74 @@
 			<?php endif; ?>
 
 			<div class="form-group">
-				<label class="col-md-3 control-label">Name <span class="required">*</span></label>
+				<label class="col-md-3 control-label">Name (Bangla) <span class="required">*</span></label>
 				<div class="col-md-6">
-					<input type="text" class="form-control" name="name" placeholder="Teacher full name" value="<?php echo set_value('name', $teacher['name']); ?>" required />
+					<input type="text" class="form-control" name="name_bn" placeholder="শিক্ষকের পূর্ণ নাম (বাংলা)" value="<?php echo set_value('name_bn', !empty($teacher['name_bn']) ? $teacher['name_bn'] : $teacher['name']); ?>" required />
 					<span class="error"></span>
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label class="col-md-3 control-label">Title <span class="required">*</span></label>
+				<label class="col-md-3 control-label">Name (English)</label>
 				<div class="col-md-6">
-					<input type="text" class="form-control" name="title" placeholder="e.g. Senior Teacher / সহকারী প্রধান শিক্ষক" value="<?php echo set_value('title', $teacher['title']); ?>" required />
+					<input type="text" class="form-control" name="name_en" placeholder="Teacher full name (English)" value="<?php echo set_value('name_en', !empty($teacher['name_en']) ? $teacher['name_en'] : $teacher['name']); ?>" />
 					<span class="error"></span>
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label class="col-md-3 control-label">Designation <span class="required">*</span></label>
+				<label class="col-md-3 control-label">Title / পদবী (Bangla)</label>
 				<div class="col-md-6">
-					<input type="text" class="form-control" name="designation" placeholder="e.g. Coordinator / বিভাগীয় প্রধান" value="<?php echo set_value('designation', $teacher['designation']); ?>" required />
+					<input type="text" class="form-control" name="title_bn" placeholder="যেমন: সহকারী শিক্ষক / সহকারী মৌলভী" value="<?php echo set_value('title_bn', !empty($teacher['title_bn']) ? $teacher['title_bn'] : $teacher['title']); ?>" />
 					<span class="error"></span>
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label class="col-md-3 control-label">Subject <span class="required">*</span></label>
+				<label class="col-md-3 control-label">Title (English)</label>
 				<div class="col-md-6">
-					<input type="text" class="form-control" name="subject" placeholder="e.g. Arabic, English, Mathematics" value="<?php echo set_value('subject', $teacher['subject']); ?>" required />
+					<input type="text" class="form-control" name="title_en" placeholder="e.g. Assistant Teacher / Senior Teacher" value="<?php echo set_value('title_en', !empty($teacher['title_en']) ? $teacher['title_en'] : $teacher['title']); ?>" />
 					<span class="error"></span>
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label class="col-md-3 control-label">Position <span class="required">*</span></label>
+				<label class="col-md-3 control-label">Designation (Bangla)</label>
 				<div class="col-md-6">
-					<input type="number" class="form-control" name="position" value="<?php echo set_value('position', $teacher['position']); ?>" required />
-					<span class="text-muted small">Display order on frontend</span>
+					<input type="text" class="form-control" name="designation_bn" placeholder="যেমন: সহকারী মৌলভী / সিনিয়র শিক্ষক" value="<?php echo set_value('designation_bn', !empty($teacher['designation_bn']) ? $teacher['designation_bn'] : $teacher['designation']); ?>" />
+					<span class="error"></span>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-3 control-label">Designation (English)</label>
+				<div class="col-md-6">
+					<input type="text" class="form-control" name="designation_en" placeholder="e.g. Assistant Teacher / Lecturer" value="<?php echo set_value('designation_en', !empty($teacher['designation_en']) ? $teacher['designation_en'] : $teacher['designation']); ?>" />
+					<span class="error"></span>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-3 control-label">Subject / বিভাগ (Bangla)</label>
+				<div class="col-md-6">
+					<input type="text" class="form-control" name="subject_bn" placeholder="যেমন: আরবি, ইংরেজি, গণিত" value="<?php echo set_value('subject_bn', !empty($teacher['subject_bn']) ? $teacher['subject_bn'] : $teacher['subject']); ?>" />
+					<span class="error"></span>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-3 control-label">Subject (English)</label>
+				<div class="col-md-6">
+					<input type="text" class="form-control" name="subject_en" placeholder="e.g. Arabic, English, Mathematics" value="<?php echo set_value('subject_en', !empty($teacher['subject_en']) ? $teacher['subject_en'] : $teacher['subject']); ?>" />
+					<span class="error"></span>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-3 control-label">Display Order on Frontend / পজিশন <span class="required">*</span></label>
+				<div class="col-md-6">
+					<input type="number" class="form-control" name="position" value="<?php echo set_value('position', $teacher['position']); ?>" min="1" required />
+					<span class="text-muted small"><i class="fas fa-info-circle text-info"></i> ওয়েবসাইটে কার পরে কাকে দেখানো হবে সেই ক্রমিক নম্বর (১, ২, ৩...)</span>
 					<span class="error"></span>
 				</div>
 			</div>
@@ -76,9 +108,17 @@
 			</div>
 
 			<div class="form-group">
-				<label class="col-md-3 control-label">Message / Bio</label>
+				<label class="col-md-3 control-label">Message / Bio (Bangla)</label>
 				<div class="col-md-8">
-					<textarea class="form-control" id="teacher_edit_message" name="message" rows="6" placeholder="Teacher bio or message to students"><?php echo set_value('message', $teacher['message']); ?></textarea>
+					<textarea class="form-control" id="teacher_edit_message_bn" name="message_bn" rows="5" placeholder="শিক্ষকের বার্তা বা জীবনবৃত্তান্ত (বাংলা)"><?php echo set_value('message_bn', !empty($teacher['message_bn']) ? $teacher['message_bn'] : $teacher['message']); ?></textarea>
+					<span class="error"></span>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-3 control-label">Message / Bio (English)</label>
+				<div class="col-md-8">
+					<textarea class="form-control" id="teacher_edit_message_en" name="message_en" rows="5" placeholder="Teacher bio or message to students (English)"><?php echo set_value('message_en', !empty($teacher['message_en']) ? $teacher['message_en'] : $teacher['message']); ?></textarea>
 					<span class="error"></span>
 				</div>
 			</div>
@@ -88,6 +128,8 @@
 				if (!empty($teacher['image'])) {
 					if (file_exists(FCPATH . 'uploads/frontend/teacher/' . $teacher['image'])) {
 						$current_img_url = base_url('uploads/frontend/teacher/' . $teacher['image']);
+					} elseif (file_exists(FCPATH . 'uploads/images/staff/' . $teacher['image'])) {
+						$current_img_url = base_url('uploads/images/staff/' . $teacher['image']);
 					} elseif (file_exists(FCPATH . 'uploads/frontend/founder/' . $teacher['image'])) {
 						$current_img_url = base_url('uploads/frontend/founder/' . $teacher['image']);
 					}
@@ -113,11 +155,11 @@
 				<div class="col-md-offset-3 col-md-6">
 					<div class="checkbox-custom checkbox-primary mb-xs">
 						<input type="checkbox" name="show_on_homepage" id="show_on_homepage_edit" value="1" <?php echo ($teacher['show_on_homepage'] == 1 ? 'checked' : ''); ?> />
-						<label for="show_on_homepage_edit"><b>Show on Homepage</b> (Check to display teacher in the Our Teachers section)</label>
+						<label for="show_on_homepage_edit"><b>Show on Homepage (হোমপেজে দৃশ্যমান)</b> - চেক করা থাকলে মূল হোমপেজে "শিক্ষকমণ্ডলী" সেকশনে দেখাবে</label>
 					</div>
 					<div class="checkbox-custom checkbox-success">
 						<input type="checkbox" name="active" id="active_edit_teacher" value="1" <?php echo ($teacher['active'] == 1 ? 'checked' : ''); ?> />
-						<label for="active_edit_teacher"><b>Active</b> (Check this to make the teacher visible in the system)</label>
+						<label for="active_edit_teacher"><b>Active (সক্রিয়)</b> - আনচেক করলে ওয়েবসাইট থেকে সাময়িকভাবে লুকানো থাকবে</label>
 					</div>
 				</div>
 			</div>
@@ -162,8 +204,11 @@ $(document).ready(function() {
         });
     }
     if (typeof CKEDITOR !== 'undefined') {
-        if ($('#teacher_edit_message').length) {
-            CKEDITOR.replace('teacher_edit_message', { height: 220 });
+        if ($('#teacher_edit_message_bn').length) {
+            CKEDITOR.replace('teacher_edit_message_bn', { height: 180 });
+        }
+        if ($('#teacher_edit_message_en').length) {
+            CKEDITOR.replace('teacher_edit_message_en', { height: 180 });
         }
     }
 
