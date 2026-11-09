@@ -19,18 +19,6 @@ if (!empty($page_data['about_image']) && file_exists(FCPATH . 'uploads/frontend/
 ?>
 
 <style>
-    .about-header-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(var(--primary-rgb, 220, 33, 19), 0.08);
-        color: var(--primary-color);
-        padding: 6px 14px;
-        border-radius: 50px;
-        font-size: 0.88rem;
-        font-weight: 600;
-        margin-bottom: 10px;
-    }
     .about-image-wrapper {
         position: relative;
         display: inline-block;
@@ -131,10 +119,6 @@ if (!empty($page_data['about_image']) && file_exists(FCPATH . 'uploads/frontend/
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <div class="about-header-pill">
-                    <i class="fas fa-university"></i> 
-                    <?php echo ($current_lang == 'en') ? 'Institution Profile & History' : 'পরিচিতি ও পটভূমি'; ?>
-                </div>
                 <h1 class="page-header-title"><?php echo html_escape($page_title); ?></h1>
                 <p class="text-muted mb-0" style="font-size: 1.05rem;">
                     <?php echo ($current_lang == 'en') 
