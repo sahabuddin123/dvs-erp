@@ -230,65 +230,6 @@ if (!empty($db_leaders)) {
 </section>
 <?php } ?>
 
-<!-- Welcome Section (From Admin Panel Home Page Settings > Welcome Message) -->
-<?php if (!empty($wellcome) && (!isset($wellcome['active']) || $wellcome['active'] == 1)) { ?>
-<section class="welcome-section py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <?php 
-            $wellcome_elements = !empty($wellcome['elements']) ? json_decode($wellcome['elements'], true) : [];
-            $wellcome_img = !empty($wellcome_elements['image']) ? $wellcome_elements['image'] : '';
-            $wellcome_img_url = '';
-
-            if (!empty($wellcome_img)) {
-                if (file_exists(FCPATH . 'uploads/frontend/home_page/' . $wellcome_img)) {
-                    $wellcome_img_url = base_url('uploads/frontend/home_page/' . $wellcome_img);
-                } elseif (file_exists(FCPATH . 'uploads/frontend/images/' . $wellcome_img)) {
-                    $wellcome_img_url = base_url('uploads/frontend/images/' . $wellcome_img);
-                }
-            }
-            if (empty($wellcome_img_url)) {
-                foreach (['jpg', 'png', 'jpeg', 'webp'] as $test_ext) {
-                    if (file_exists(FCPATH . 'uploads/frontend/home_page/wellcome' . $branchID_active . '.' . $test_ext)) {
-                        $wellcome_img_url = base_url('uploads/frontend/home_page/wellcome' . $branchID_active . '.' . $test_ext);
-                        break;
-                    }
-                }
-            }
-            $col_width = !empty($wellcome_img_url) ? 'col-lg-6' : 'col-lg-12';
-            ?>
-            <div class="<?php echo $col_width; ?> mb-4">
-                <div class="section-title">
-                    <h2><i class="fas fa-hands-praying"></i> <?php echo html_escape(get_lang_field($wellcome, 'title', ($current_lang == 'en' ? 'Welcome' : 'স্বাগতম'))); ?></h2>
-                    <?php 
-                    $welcome_sub = get_lang_field($wellcome, 'subtitle');
-                    if (!empty($welcome_sub)): ?>
-                        <p class="text-muted fw-semibold" style="font-size: 1.1rem;"><?php echo html_escape($welcome_sub); ?></p>
-                    <?php endif; ?>
-                </div>
-                <div class="text-justify pr-4 lh-lg text-muted" style="font-size: 1.02rem;">
-                    <?php 
-                    $welcome_text = get_lang_field($wellcome, 'description');
-                    echo nl2br(strip_tags($welcome_text));
-                    ?>
-                </div>
-                <div class="mt-4">
-                    <a href="<?php echo base_url('about'); ?>" class="btn"
-                        style="background-color: var(--primary-color); color: white; border: none; padding: 10px 24px; font-weight: 600; border-radius: 6px;">
-                        <i class="fas fa-arrow-right me-1"></i> <?php echo translate('learn_more'); ?>
-                    </a>
-                </div>
-            </div>
-            <?php if (!empty($wellcome_img_url)): ?>
-            <div class="col-lg-6 mb-4 text-center">
-                <img src="<?php echo $wellcome_img_url; ?>" alt="Welcome" class="img-fluid shadow-sm" style="border-radius: 8px; max-height: 480px; width: 100%; object-fit: cover;">
-            </div>
-            <?php endif; ?>
-        </div>
-    </div>
-</section>
-<?php } ?>
-
 <!-- Our Teachers Section (Controlled by Home Page Settings > Teachers tab active flag) -->
 <?php
 $teachers_is_active = !empty($teachers) && isset($teachers['active']) && $teachers['active'] == 1;
@@ -474,6 +415,65 @@ document.addEventListener('DOMContentLoaded', function(){
     });
 });
 </script>
+<?php } ?>
+
+<!-- Welcome Section (From Admin Panel Home Page Settings > Welcome Message) -->
+<?php if (!empty($wellcome) && (!isset($wellcome['active']) || $wellcome['active'] == 1)) { ?>
+<section class="welcome-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <?php 
+            $wellcome_elements = !empty($wellcome['elements']) ? json_decode($wellcome['elements'], true) : [];
+            $wellcome_img = !empty($wellcome_elements['image']) ? $wellcome_elements['image'] : '';
+            $wellcome_img_url = '';
+
+            if (!empty($wellcome_img)) {
+                if (file_exists(FCPATH . 'uploads/frontend/home_page/' . $wellcome_img)) {
+                    $wellcome_img_url = base_url('uploads/frontend/home_page/' . $wellcome_img);
+                } elseif (file_exists(FCPATH . 'uploads/frontend/images/' . $wellcome_img)) {
+                    $wellcome_img_url = base_url('uploads/frontend/images/' . $wellcome_img);
+                }
+            }
+            if (empty($wellcome_img_url)) {
+                foreach (['jpg', 'png', 'jpeg', 'webp'] as $test_ext) {
+                    if (file_exists(FCPATH . 'uploads/frontend/home_page/wellcome' . $branchID_active . '.' . $test_ext)) {
+                        $wellcome_img_url = base_url('uploads/frontend/home_page/wellcome' . $branchID_active . '.' . $test_ext);
+                        break;
+                    }
+                }
+            }
+            $col_width = !empty($wellcome_img_url) ? 'col-lg-6' : 'col-lg-12';
+            ?>
+            <div class="<?php echo $col_width; ?> mb-4">
+                <div class="section-title">
+                    <h2><i class="fas fa-hands-praying"></i> <?php echo html_escape(get_lang_field($wellcome, 'title', ($current_lang == 'en' ? 'Welcome' : 'স্বাগতম'))); ?></h2>
+                    <?php 
+                    $welcome_sub = get_lang_field($wellcome, 'subtitle');
+                    if (!empty($welcome_sub)): ?>
+                        <p class="text-muted fw-semibold" style="font-size: 1.1rem;"><?php echo html_escape($welcome_sub); ?></p>
+                    <?php endif; ?>
+                </div>
+                <div class="text-justify pr-4 lh-lg text-muted" style="font-size: 1.02rem;">
+                    <?php 
+                    $welcome_text = get_lang_field($wellcome, 'description');
+                    echo nl2br(strip_tags($welcome_text));
+                    ?>
+                </div>
+                <div class="mt-4">
+                    <a href="<?php echo base_url('about'); ?>" class="btn"
+                        style="background-color: var(--primary-color); color: white; border: none; padding: 10px 24px; font-weight: 600; border-radius: 6px;">
+                        <i class="fas fa-arrow-right me-1"></i> <?php echo translate('learn_more'); ?>
+                    </a>
+                </div>
+            </div>
+            <?php if (!empty($wellcome_img_url)): ?>
+            <div class="col-lg-6 mb-4 text-center">
+                <img src="<?php echo $wellcome_img_url; ?>" alt="Welcome" class="img-fluid shadow-sm" style="border-radius: 8px; max-height: 480px; width: 100%; object-fit: cover;">
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
 <?php } ?>
 
 <!-- Latest Events Section (Only if real events exist for this branch) -->
