@@ -1495,13 +1495,16 @@ class Home extends Frontend_Controller
             ->get('class')->result_array();
 
         // Handle search / filter
-        $exam_id = $this->input->get('exam_id', true);
-        $class_id = $this->input->get('class_id', true);
-        $section_id = $this->input->get('section_id', true);
+        $exam_id = $this->input->get_post('exam_id', true);
+        $class_id = $this->input->get_post('class_id', true);
+        $section_id = $this->input->get_post('section_id', true);
+
+        $is_searched = (isset($_GET['exam_id']) || isset($_GET['class_id']) || isset($_POST['exam_id']) || isset($_POST['class_id']));
 
         $this->data['selected_exam'] = $exam_id;
         $this->data['selected_class'] = $class_id;
         $this->data['selected_section'] = $section_id;
+        $this->data['is_searched'] = $is_searched;
         $this->data['timetable'] = array();
 
         if (!empty($exam_id) && !empty($class_id)) {
@@ -1515,7 +1518,6 @@ class Home extends Frontend_Controller
             if (!empty($section_id)) {
                 $this->db->where('timetable_exam.section_id', $section_id);
             }
-            $this->db->where('timetable_exam.session_id', $sessionID);
             $this->db->order_by('timetable_exam.exam_date', 'asc');
             $this->db->order_by('timetable_exam.time_start', 'asc');
             $this->data['timetable'] = $this->db->get()->result_array();
