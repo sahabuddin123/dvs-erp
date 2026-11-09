@@ -1963,6 +1963,54 @@ class Home extends Frontend_Controller
 
 
 
+    public function recognition()
+
+    {
+
+        $branchID = $this->home_model->getDefaultBranch();
+
+        $this->db->select('front_cms_menu.title as menu_title,front_cms_menu.title_en as menu_title_en,front_cms_menu.alias,front_cms_pages.*');
+
+        $this->db->from('front_cms_menu');
+
+        $this->db->join('front_cms_pages', 'front_cms_pages.menu_id = front_cms_menu.id', 'inner');
+
+        $this->db->where('front_cms_menu.alias', 'recognition');
+
+        $this->db->where('front_cms_menu.publish', 1);
+
+        $getData = $this->db->get()->row_array();
+
+
+
+        if (empty($getData)) {
+
+            $getData = $this->db->get_where('front_cms_pages', array('menu_id' => 16))->row_array();
+
+            if (empty($getData)) {
+
+                $getData = $this->db->get_where('front_cms_pages', array('id' => 2))->row_array();
+
+            }
+
+        }
+
+
+
+        $this->data['branchID'] = !empty($getData['branch_id']) ? $getData['branch_id'] : $branchID;
+
+        $this->data['page_data'] = $getData;
+
+        $this->data['active_menu'] = 'recognition';
+
+        $this->data['main_contents'] = $this->load->view('home/recognition', $this->data, true);
+
+        $this->load->view('home/layout/index', $this->data);
+
+    }
+
+
+
     public function page($url = '')
 
     {
@@ -1972,6 +2020,14 @@ class Home extends Frontend_Controller
         if ($alias == 'history') {
 
             $this->history();
+
+            return;
+
+        }
+
+        if ($alias == 'recognition' || $alias == 'accreditation') {
+
+            $this->recognition();
 
             return;
 
