@@ -24,6 +24,7 @@ class Founder extends Admin_Controller
               `designation` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `designation_bn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `designation_en` varchar(255) DEFAULT NULL,
+              `mobile_no` varchar(50) DEFAULT NULL,
               `position` int(11) NOT NULL DEFAULT 1,
               `message_bn` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `message_en` longtext DEFAULT NULL,
@@ -50,6 +51,7 @@ class Founder extends Admin_Controller
         $this->form_validation->set_rules('title_en', 'Title (English)', 'trim');
         $this->form_validation->set_rules('designation_bn', 'Designation (Bangla)', 'trim');
         $this->form_validation->set_rules('designation_en', 'Designation (English)', 'trim');
+        $this->form_validation->set_rules('mobile_no', 'Mobile Number', 'trim');
         $this->form_validation->set_rules('position', 'Position', 'trim|numeric');
         $this->form_validation->set_rules('message_bn', 'Message (Bangla)', 'trim');
         $this->form_validation->set_rules('message_en', 'Message (English)', 'trim');
@@ -94,6 +96,7 @@ class Founder extends Admin_Controller
                     'designation'    => !empty($post['designation_bn']) ? $post['designation_bn'] : (!empty($post['title_bn']) ? $post['title_bn'] : (!empty($post['designation_en']) ? $post['designation_en'] : '')),
                     'designation_bn' => !empty($post['designation_bn']) ? $post['designation_bn'] : '',
                     'designation_en' => !empty($post['designation_en']) ? $post['designation_en'] : '',
+                    'mobile_no'      => !empty($post['mobile_no']) ? $post['mobile_no'] : '',
                     'position'       => !empty($post['position']) ? (int)$post['position'] : 1,
                     'message_bn'     => !empty($post['message_bn']) ? $post['message_bn'] : '',
                     'message_en'     => !empty($post['message_en']) ? $post['message_en'] : '',
@@ -177,6 +180,7 @@ class Founder extends Admin_Controller
                     'designation'    => !empty($post['designation_bn']) ? $post['designation_bn'] : (!empty($post['title_bn']) ? $post['title_bn'] : (!empty($post['designation_en']) ? $post['designation_en'] : '')),
                     'designation_bn' => !empty($post['designation_bn']) ? $post['designation_bn'] : '',
                     'designation_en' => !empty($post['designation_en']) ? $post['designation_en'] : '',
+                    'mobile_no'      => !empty($post['mobile_no']) ? $post['mobile_no'] : '',
                     'position'       => !empty($post['position']) ? (int)$post['position'] : 1,
                     'message_bn'     => !empty($post['message_bn']) ? $post['message_bn'] : '',
                     'message_en'     => !empty($post['message_en']) ? $post['message_en'] : '',

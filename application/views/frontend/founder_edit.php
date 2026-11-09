@@ -67,6 +67,14 @@
 			</div>
 
 			<div class="form-group">
+				<label class="col-md-3 control-label">Mobile / Phone Number</label>
+				<div class="col-md-6">
+					<input type="text" class="form-control" name="mobile_no" value="<?php echo set_value('mobile_no', !empty($founder['mobile_no']) ? $founder['mobile_no'] : ''); ?>" placeholder="+88017xxxxxxxx" />
+					<span class="error"></span>
+				</div>
+			</div>
+
+			<div class="form-group">
 				<label class="col-md-3 control-label">Position <span class="required">*</span></label>
 				<div class="col-md-6">
 					<input type="number" class="form-control" name="position" value="<?php echo set_value('position', $founder['position']); ?>" required />

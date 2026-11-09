@@ -77,6 +77,8 @@ $date_display = !empty($page_data['created_at']) ? date('M d, Y', strtotime($pag
                                         $m_desig = !empty($m['designation_en']) ? $m['designation_en'] : $m['title_en'];
                                     }
 
+                                    $m_phone = !empty($m['mobile_no']) ? $m['mobile_no'] : (!empty($m['phone']) ? $m['phone'] : (!empty($cms_setting['mobile_no']) ? $cms_setting['mobile_no'] : '+8801727770321'));
+
                                     // Image path resolution
                                     $img_src = base_url('uploads/app_image/default.png');
                                     if (!empty($m['image']) && file_exists(FCPATH . 'uploads/frontend/founder/' . $m['image'])) {
@@ -89,16 +91,20 @@ $date_display = !empty($page_data['created_at']) ? date('M d, Y', strtotime($pag
                                     <div class="card h-100 shadow-sm border-0 member-card" style="border-radius: 8px; border: 1px solid #edf2f7 !important;">
                                         <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
                                             <div>
-                                                <div class="mb-3 overflow-hidden rounded" style="background-color: #f8fafc;">
+                                                <div class="mb-3 overflow-hidden rounded" style="background-color: #f8fafc; border: 1px solid #edf2f7;">
                                                     <img src="<?php echo $img_src; ?>" 
                                                          onerror="this.onerror=null;this.src='<?php echo base_url('uploads/app_image/default.png'); ?>';" 
                                                          alt="<?php echo html_escape($m_name); ?>" 
                                                          class="img-fluid rounded" 
-                                                         style="height: 220px; width: 100%; object-fit: cover;">
+                                                         style="height: 270px; width: 100%; object-fit: cover; object-position: top center;">
                                                 </div>
                                                 <h5 class="mb-1 fw-bold text-dark mt-3" style="font-size: 1.15rem;"><?php echo html_escape($m_name); ?></h5>
-                                                <p class="text-muted small mb-1"><?php echo html_escape($m_desig); ?></p>
-                                                <p class="small mb-3" style="color: var(--primary-color) !important; font-weight: 500;"><?php echo html_escape($m_desig); ?></p>
+                                                <p class="text-muted small mb-1 fw-medium"><?php echo html_escape($m_desig); ?></p>
+                                                <p class="small mb-3" style="font-weight: 500;">
+                                                    <a href="tel:<?php echo html_escape($m_phone); ?>" class="text-decoration-none" style="color: var(--primary-color) !important;">
+                                                        <i class="fas fa-phone-alt me-1"></i> <?php echo html_escape($m_phone); ?>
+                                                    </a>
+                                                </p>
                                             </div>
                                             <div>
                                                 <a href="<?php echo base_url('message-founder/' . $m['id']); ?>" class="btn btn-sm btn-outline-success mt-2 px-3 py-1" style="border-radius: 6px; font-weight: 500;">

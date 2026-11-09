@@ -57,6 +57,9 @@
 								<?php if (!empty($row['designation_en'])): ?>
 									<br><small class="text-muted"><?php echo html_escape($row['designation_en']); ?></small>
 								<?php endif; ?>
+								<?php if (!empty($row['mobile_no'])): ?>
+									<br><small class="text-primary"><i class="fas fa-phone-alt"></i> <?php echo html_escape($row['mobile_no']); ?></small>
+								<?php endif; ?>
 							</td>
 							<td class="text-center">
 								<span class="badge" style="background-color: #64748b;"><?php echo $row['position']; ?></span>
@@ -140,6 +143,14 @@
 						<label class="col-md-3 control-label">Designation (English)</label>
 						<div class="col-md-6">
 							<input type="text" class="form-control" name="designation_en" value="<?php echo set_value('designation_en'); ?>" placeholder="e.g. Founder & Chairman" />
+							<span class="error"></span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-md-3 control-label">Mobile / Phone Number</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="mobile_no" value="<?php echo set_value('mobile_no'); ?>" placeholder="+88017xxxxxxxx" />
 							<span class="error"></span>
 						</div>
 					</div>
