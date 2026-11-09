@@ -345,6 +345,10 @@ class Home_model extends MY_Model
                 $url = base_url($prefix . 'video-gallery');
             } elseif ($array['alias'] == 'gallery' || $array['alias'] == 'photo-gallery') {
                 $url = base_url($prefix . 'gallery');
+            } elseif ($array['alias'] == 'academic-result' || $array['alias'] == 'academic_result' || $array['alias'] == 'exam_results') {
+                $url = base_url($prefix . 'exam_results');
+            } elseif ($array['alias'] == 'board-results' || $array['alias'] == 'board_results' || $array['alias'] == 'board-result') {
+                $url = base_url($prefix . 'board-results');
             } else {
                 $url = base_url($prefix . 'page/' . $array['alias']);
             }

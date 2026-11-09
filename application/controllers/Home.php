@@ -1360,113 +1360,141 @@ class Home extends Frontend_Controller
 
 
     public function exam_results()
-
     {
-
         $branchID = $this->home_model->getDefaultBranch();
-
         $this->data['branchID'] = $branchID;
-
         $this->data['page_data'] = $this->home_model->get('front_cms_exam_results', array('branch_id' => $branchID), true);
-
         $this->data['main_contents'] = $this->load->view('home/exam_results', $this->data, true);
-
         $this->load->view('home/layout/index', $this->data);
+    }
 
+    public function board_results()
+    {
+        $branchID = $this->home_model->getDefaultBranch();
+        $this->data['branchID'] = $branchID;
+        $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
+
+        $this->db->where('branch_id', $branchID);
+        $this->db->where('status', 1);
+        $this->db->order_by('year', 'DESC');
+        $this->db->order_by('id', 'DESC');
+        $results = $this->db->get('front_cms_board_results')->result_array();
+
+        // Calculate aggregate statistics
+        $total_students = 0;
+        $total_passed = 0;
+        $total_gpa5 = 0;
+        $years = array();
+
+        foreach ($results as $res) {
+            $total_students += intval($res['total_students']);
+            $total_passed += intval($res['passed_students']);
+            $total_gpa5 += intval($res['gpa_5']);
+            if (!empty($res['year']) && !in_array($res['year'], $years)) {
+                $years[] = $res['year'];
+            }
+        }
+
+        $overall_pass_rate = ($total_students > 0) ? round(($total_passed / $total_students) * 100, 1) : 0;
+
+        $this->data['board_results'] = $results;
+        $this->data['years'] = $years;
+        $this->data['stats'] = array(
+            'total_students' => $total_students,
+            'total_passed' => $total_passed,
+            'total_gpa5' => $total_gpa5,
+            'overall_pass_rate' => $overall_pass_rate,
+        );
+
+        $this->data['page_data'] = array(
+            'page_title' => ($current_lang == 'en') ? 'Board Examination Results' : 'বোর্ড পরীক্ষার ফলাফল',
+            'description' => ($current_lang == 'en') ? 'Year-wise Bangladesh Madrasah Education Board examination results.' : 'বাংলাদেশ মাদরাসা শিক্ষা বোর্ডের অধীনে বিগত বছরসমূহের দাখিল ও সমাপনী পরীক্ষার ফলাফল পরিসংখ্যান।',
+        );
+
+        $this->data['main_contents'] = $this->load->view('home/board_results', $this->data, true);
+        $this->load->view('home/layout/index', $this->data);
     }
 
 
 
     public function examResultsPrintFn()
-
     {
-
         $this->load->model('exam_model');
-
         if ($_POST) {
-
             $this->form_validation->set_rules('exam_id', translate('exam'), 'trim|required');
-
             $this->form_validation->set_rules('register_no', translate('register_no'), 'trim|required');
-
             $this->form_validation->set_rules('session_id', translate('academic_year'), 'trim|required');
-
             if ($this->form_validation->run() == true) {
-
                 $sessionID = $this->input->post('session_id');
-
-                $registerNo = $this->input->post('register_no');
-
+                $rawRegisterNo = $this->input->post('register_no');
                 $examID = $this->input->post('exam_id');
 
+                // Normalize Bengali digits to English
+                $bn_digits = array('০','১','২','৩','৪','৫','৬','৭','৮','৯');
+                $en_digits = array('0','1','2','3','4','5','6','7','8','9');
+                $cleanNo = str_replace($bn_digits, $en_digits, trim((string)$rawRegisterNo));
 
-
-                $this->db->select('student.id,enroll.class_id,enroll.section_id');
-
-                $this->db->from('enroll');
-
-                $this->db->join('student', 'student.id = enroll.student_id', 'inner');
-
-                $this->db->join('login_credential', 'login_credential.user_id = student.id and login_credential.role = 7', 'inner');
-
-                $this->db->where('student.register_no', $registerNo);
-
-                $this->db->where('login_credential.active', 1);
-
-                $this->db->where('enroll.session_id', $sessionID);
-
-                $userID = $this->db->get()->row_array();
-
-
-
-                if (empty($userID)) {
-
-                    $array = array('status' => '0', 'error' => "Register No Not Found.");
-
-                    echo json_encode($array);
-
-                    exit();
-
+                $regVariants = array($cleanNo);
+                if (ctype_digit($cleanNo)) {
+                    $regVariants[] = 'CHIDM' . $cleanNo;
+                    $regVariants[] = 'CHIDM' . str_pad($cleanNo, 4, '0', STR_PAD_LEFT);
                 }
 
-                $result = $this->exam_model->getStudentReportCard($userID['id'], $examID, $sessionID, $userID['class_id'], $userID['section_id']);
+                $this->db->select('student.id,enroll.class_id,enroll.section_id,student.register_no,enroll.session_id');
+                $this->db->from('enroll');
+                $this->db->join('student', 'student.id = enroll.student_id', 'inner');
+                $this->db->where_in('student.register_no', $regVariants);
+                if (!empty($sessionID)) {
+                    $this->db->where('enroll.session_id', $sessionID);
+                }
+                $userID = $this->db->get()->row_array();
+
+                // If not found in current selected session, try finding across any session
+                if (empty($userID)) {
+                    $this->db->select('student.id,enroll.class_id,enroll.section_id,student.register_no,enroll.session_id');
+                    $this->db->from('enroll');
+                    $this->db->join('student', 'student.id = enroll.student_id', 'inner');
+                    $this->db->where_in('student.register_no', $regVariants);
+                    $this->db->order_by('enroll.id', 'DESC');
+                    $userID = $this->db->get()->row_array();
+                }
+
+                $current_lang = function_exists('get_current_lang') ? get_current_lang() : 'bn';
+
+                if (empty($userID)) {
+                    $error_msg = ($current_lang == 'en')
+                        ? "Student Registration / Roll number not found. Please enter a valid number."
+                        : "শিক্ষার্থীর রোল বা রেজিস্টার নম্বর পাওয়া যায়নি। অনুগ্রহ করে সঠিক নম্বর দিন।";
+                    $array = array('status' => '0', 'error' => $error_msg);
+                    echo json_encode($array);
+                    exit();
+                }
+
+                $targetSession = !empty($sessionID) ? $sessionID : $userID['session_id'];
+                $result = $this->exam_model->getStudentReportCard($userID['id'], $examID, $targetSession, $userID['class_id'], $userID['section_id']);
 
                 if (empty($result['exam'])) {
-
-                    $array = array('status' => '0', 'error' => "Exam Results Not Found.");
-
+                    $error_msg = ($current_lang == 'en')
+                        ? "Exam results for this student have not been published yet or could not be found."
+                        : "উক্ত শিক্ষার্থীর এই পরীক্ষার ফলাফল এখনও প্রকাশিত হয়নি অথবা পাওয়া যায়নি।";
+                    $array = array('status' => '0', 'error' => $error_msg);
                     echo json_encode($array);
-
                     exit();
-
                 }
 
                 $this->data['result'] = $result;
-
-                $this->data['sessionID'] = $sessionID;
-
+                $this->data['sessionID'] = $targetSession;
                 $this->data['userID'] = $userID['id'];
-
                 $this->data['examID'] = $examID;
-
                 $this->data['grade_scale'] = $this->input->post('grade_scale');
-
                 $this->data['attendance'] = $this->input->post('attendance');
-
                 $this->data['print_date'] = date('Y-m-d');
-
                 $card_data = $this->load->view('home/reportCard', $this->data, true);
-
                 $array = array('status' => 'success', 'card_data' => $card_data);
-
             } else {
-
                 $error = $this->form_validation->error_array();
-
                 $array = array('status' => 'fail', 'error' => $error);
-
             }
-
             echo json_encode($array);
         }
     }

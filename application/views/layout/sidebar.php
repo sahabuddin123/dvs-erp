@@ -225,6 +225,12 @@
                                     <?php endif; ?>
                                 </a>
                             </li>
+                            <?php } if(get_permission('frontend_section', 'is_view') || get_permission('frontend_setting', 'is_view') || is_superadmin_loggedin()){ ?>
+                            <li class="<?php if ($sub_page == 'frontend/board_results' || $sub_page == 'frontend/board_results_edit') echo 'nav-active'; ?>">
+                                <a href="<?php echo base_url('frontend/board_results'); ?>">
+                                    <span><i class="fas fa-caret-right"></i><?php echo translate('board_results') . ' / বোর্ড রেজাল্ট'; ?></span>
+                                </a>
+                            </li>
                             <?php } ?>
                         </ul>
                     </li>
