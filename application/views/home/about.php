@@ -112,6 +112,191 @@ if (!empty($page_data['about_image']) && file_exists(FCPATH . 'uploads/frontend/
         height: 100%;
         background: var(--primary-color);
     }
+
+    /* Modern Services & Facilities Section */
+    .about-services-section {
+        background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+        position: relative;
+        border-top: 1px solid #edf2f7;
+        border-bottom: 1px solid #edf2f7;
+        overflow: hidden;
+    }
+
+    .service-section-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(var(--primary-rgb, 0, 127, 61), 0.08);
+        color: var(--primary-color, #007F3D);
+        padding: 7px 20px;
+        border-radius: 50px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        border: 1px solid rgba(var(--primary-rgb, 0, 127, 61), 0.16);
+        box-shadow: 0 2px 6px rgba(0, 127, 61, 0.05);
+    }
+
+    .service-section-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.35;
+        letter-spacing: -0.5px;
+    }
+
+    .service-title-highlight {
+        color: var(--primary-color, #007F3D);
+        position: relative;
+        display: inline-block;
+        padding: 0 4px;
+    }
+
+    .service-title-highlight::after {
+        content: '';
+        position: absolute;
+        bottom: 2px;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: rgba(var(--primary-rgb, 0, 127, 61), 0.18);
+        border-radius: 4px;
+        z-index: -1;
+    }
+
+    .service-section-divider {
+        width: 70px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color, #007F3D), var(--dark-color, #c79f22));
+        border-radius: 4px;
+    }
+
+    /* Service Card Modern 2026 */
+    .dvs-service-card {
+        background: #ffffff;
+        border-radius: 18px;
+        border: 1px solid #e2e8f0;
+        padding: 32px 28px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+        overflow: hidden;
+    }
+
+    .dvs-service-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color, #007F3D), var(--dark-color, #c79f22));
+        opacity: 0;
+        transition: opacity 0.35s ease;
+    }
+
+    .dvs-service-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(var(--primary-rgb, 0, 127, 61), 0.3) !important;
+        box-shadow: 0 20px 35px -10px rgba(0, 127, 61, 0.12), 0 10px 15px -3px rgba(15, 23, 42, 0.04);
+    }
+
+    .dvs-service-card:hover::before {
+        opacity: 1;
+    }
+
+    .dvs-service-card-num {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: #e2e8f0;
+        line-height: 1;
+        font-family: 'Poppins', sans-serif;
+        transition: all 0.3s ease;
+        user-select: none;
+    }
+
+    .dvs-service-card:hover .dvs-service-card-num {
+        color: rgba(var(--primary-rgb, 0, 127, 61), 0.22);
+        transform: scale(1.1);
+    }
+
+    .dvs-service-icon-box {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        background: rgba(var(--primary-rgb, 0, 127, 61), 0.08);
+        color: var(--primary-color, #007F3D);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.65rem;
+        margin-bottom: 22px;
+        transition: all 0.35s ease;
+    }
+
+    .dvs-service-card:hover .dvs-service-icon-box {
+        background: linear-gradient(135deg, var(--primary-color, #007F3D) 0%, #065f46 100%);
+        color: #ffffff;
+        transform: scale(1.08) rotate(3deg);
+        box-shadow: 0 8px 20px rgba(0, 127, 61, 0.25);
+    }
+
+    .dvs-service-card-title {
+        font-size: 1.22rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 12px;
+        transition: color 0.25s ease;
+    }
+
+    .dvs-service-card:hover .dvs-service-card-title {
+        color: var(--primary-color, #007F3D);
+    }
+
+    .dvs-service-card-desc {
+        color: #64748b;
+        font-size: 0.94rem;
+        line-height: 1.75;
+        margin-bottom: 0;
+        flex-grow: 1;
+    }
+
+    .dvs-service-card-footer {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px dashed #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: var(--primary-color, #007F3D);
+        font-weight: 600;
+    }
+
+    .dvs-service-card-footer .arrow-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        color: #64748b;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        transition: all 0.25s ease;
+    }
+
+    .dvs-service-card:hover .dvs-service-card-footer .arrow-icon {
+        background: var(--primary-color, #007F3D);
+        color: #ffffff;
+        transform: translateX(4px);
+    }
 </style>
 
 <!-- Page Header (DVS Match) -->
@@ -305,24 +490,75 @@ if (!empty($page_data['about_image']) && file_exists(FCPATH . 'uploads/frontend/
 
 <!-- About Featured Services Section -->
 <?php if (!empty($service)): ?>
-<section class="py-5 bg-white">
-    <div class="container py-3">
+<?php
+    $raw_title = get_lang_field($service, 'title');
+    $raw_subtitle = get_lang_field($service, 'subtitle');
+
+    // Decode any entity-escaped HTML (e.g. &lt;span&gt;)
+    $decoded_subtitle = htmlspecialchars_decode($raw_subtitle, ENT_QUOTES);
+    $decoded_subtitle = preg_replace('/(\S)<span/iu', '$1 <span', $decoded_subtitle);
+    
+    // Replace <span>...</span> with nicely styled highlighted span
+    if (preg_match('/<span>(.*?)<\/span>/iu', $decoded_subtitle)) {
+        $formatted_subtitle = preg_replace('/<span>(.*?)<\/span>/iu', '<span class="service-title-highlight">$1</span>', $decoded_subtitle);
+    } else {
+        $formatted_subtitle = html_escape($raw_subtitle);
+    }
+?>
+<section class="py-5 about-services-section">
+    <div class="container py-4">
+        <!-- Section Header -->
         <div class="section-title text-center mb-5">
-            <h5 class="fw-bold" style="color: var(--primary-color);"><?php echo html_escape(get_lang_field($service, 'title')); ?></h5>
-            <h2 class="fw-bold" style="color: #0f172a; font-size: 1.85rem;"><?php echo html_escape(get_lang_field($service, 'subtitle')); ?></h2>
+            <?php if (!empty($raw_title)): ?>
+                <div class="mb-3">
+                    <span class="service-section-tag">
+                        <i class="fas fa-sparkles"></i> 
+                        <?php echo html_escape(strip_tags($raw_title)); ?>
+                    </span>
+                </div>
+            <?php endif; ?>
+
+            <h2 class="service-section-title mb-3">
+                <?php echo $formatted_subtitle; ?>
+            </h2>
+
+            <p class="text-muted mx-auto mb-3" style="max-width: 650px; font-size: 1rem; line-height: 1.7;">
+                <?php echo ($current_lang == 'en') 
+                    ? 'Committed to delivering world-class Islamic and contemporary learning facilities for our students.' 
+                    : 'শিক্ষার্থীদের আধুনিক শিক্ষা ও নৈতিক চরিত্র গঠনে আমাদের মাদরাসার মানসম্মত সুবিধাসমূহ।'; ?>
+            </p>
+
+            <div class="service-section-divider mx-auto"></div>
         </div>
+
+        <!-- Services Grid -->
         <div class="row g-4">
             <?php
             $services_list = $this->db->where('branch_id', $branchID)->get('front_cms_services_list')->result_array();
+            $card_num = 1;
             foreach ($services_list as $key => $value):
+                $num_str = sprintf('%02d', $card_num++);
+                $icon_class = !empty($value['icon']) ? $value['icon'] : 'fas fa-check-circle';
             ?>
             <div class="col-lg-4 col-md-6 col-sm-12">
-                <div class="card h-100 shadow-sm border-0 p-4" style="border-radius: 14px; background: #ffffff; border: 1px solid #edf2f7 !important; transition: transform 0.25s ease;">
-                    <div class="mb-3 fs-1" style="color: var(--primary-color);">
-                        <i class="<?php echo $value['icon']; ?>"></i>
+                <div class="dvs-service-card">
+                    <span class="dvs-service-card-num"><?php echo $num_str; ?></span>
+                    
+                    <div class="dvs-service-icon-box">
+                        <i class="<?php echo html_escape($icon_class); ?>"></i>
                     </div>
-                    <h4 class="fw-bold mb-2 text-dark" style="font-size: 1.15rem;"><?php echo html_escape(get_lang_field($value, 'title')); ?></h4>
-                    <p class="text-muted mb-0" style="line-height: 1.7; font-size: 0.95rem;"><?php echo html_escape(get_lang_field($value, 'description')); ?></p>
+
+                    <h4 class="dvs-service-card-title"><?php echo html_escape(get_lang_field($value, 'title')); ?></h4>
+                    <p class="dvs-service-card-desc"><?php echo html_escape(get_lang_field($value, 'description')); ?></p>
+
+                    <div class="dvs-service-card-footer">
+                        <span>
+                            <i class="fas fa-check-circle me-1"></i> <?php echo ($current_lang == 'en') ? 'Special Facility' : 'নিশ্চিত সুবিধা'; ?>
+                        </span>
+                        <span class="arrow-icon">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+                    </div>
                 </div>
             </div>
             <?php endforeach; ?>
